@@ -5,62 +5,64 @@ $primary-color     : #ff0000;
 
 // Styles globaux
 body {
-    margin    : 0 !important;
-    padding   : 0 !important;
-    box-sizing: border-box;
+    margin         : 0 !important;
+    padding        : 0 !important;
+    box-sizing     : border-box;
+    background-size: cover;
 
 }
 
-// Styles Swiper
-.mySwiper {
-    height: 100vh;
+//Police vodafone 
 
-    .swiper-slide {
-        text-align     : center;
-        display        : flex;
-        justify-content: center;
-        align-items    : center;
-    }
+@font-face {
+    font-family: 'Vodafone';
+    src        : url('/fonts/Vodafone.eot');
+    src        : local('Vodafone'),
+        url('/fonts/Vodafone.eot?#iefix') format('embedded-opentype'),
+        url('/fonts/Vodafone.woff2') format('woff2'),
+        url('/fonts/Vodafone.woff') format('woff'),
+        url('/fonts/Vodafone.ttf') format('truetype');
+    font-weight: normal;
+    font-style : normal;
 }
 
-// Styles AnimatedSlide
-.slide-container {
-    height         : 100vh;
-    display        : flex;
-    align-items    : center;
-    justify-content: center;
-    background     : linear-gradient(45deg, $vodafone-red, $vodafone-light-red);
+@font-face {
+    font-family: 'Vodafone';
+    src        : url('/fonts/Vodafone-Bold.eot');
+    src        : local('Vodafone-Bold'),
+        url('/fonts/Vodafone-Bold.eot?#iefix') format('embedded-opentype'),
+        url('/fonts/Vodafone-Bold.woff2') format('woff2'),
+        url('/fonts/Vodafone-Bold.woff') format('woff'),
+        url('/fonts/Vodafone-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style : normal;
 }
 
-.text-container {
-    color     : white;
-    text-align: center;
-    padding   : 2rem;
+@font-face {
+    font-family: 'Vodafone';
+    src        : url('/fonts/Vodafone-Light.eot');
+    src        : local('Vodafone-Light'),
+        url('/fonts/Vodafone-Light.eot?#iefix') format('embedded-opentype'),
+        url('/fonts/Vodafone-Light.woff2') format('woff2'),
+        url('/fonts/Vodafone-Light.woff') format('woff'),
+        url('/fonts/Vodafone-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style : normal;
 }
 
-.text-element {
-    margin   : 20px 0;
-    opacity  : 0;
-    transform: translateY(20px);
+@font-face {
+    font-family: 'Vodafone';
+    src        : url('/fonts/Vodafone-ExtraBold.eot');
+    src        : local('Vodafone-ExtraBold'),
+        url('/fonts/Vodafone-ExtraBold.eot?#iefix') format('embedded-opentype'),
+        url('/fonts/Vodafone-ExtraBold.woff2') format('woff2'),
+        url('/fonts/Vodafone-ExtraBold.woff') format('woff'),
+        url('/fonts/Vodafone-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style : normal;
 }
 
-h2 {
-    font-size    : 3rem;
-    font-weight  : bold;
-    margin-bottom: 2rem;
-}
 
-p {
-    font-size  : 1.5rem;
-    line-height: 1.6;
-}
-
-@media (max-width: 768px) {
-    h2 {
-        font-size: 2rem;
-    }
-
-    p {
-        font-size: 1.2rem;
-    }
+* {
+    font-family: 'Vodafone', sans-serif;
 }

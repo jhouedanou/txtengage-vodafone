@@ -10,10 +10,14 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
     "fullpage.js": "^4.0.30",
     "gsap": "^3.12.5",
+    "locomotive-scroll": "^4.1.4",
     "nuxt": "^3.14.1592",
     "scrollmagic": "^2.0.8",
+    "scrollmagic-plugin-gsap": "^1.0.4",
     "swiper": "^11.1.15",
     "vue": "latest",
     "vue-router": "latest"
