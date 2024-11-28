@@ -1,0 +1,8 @@
+[build]
+  command = "yarn build"
+  publish = ".vercel/output/static"
+
+[[redirects]]
+  from = "/*"
+  to = "/200.html"
+  status = 200

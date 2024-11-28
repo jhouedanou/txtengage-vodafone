@@ -1,17 +1,16 @@
 <script setup>
-const loading = ref(true)
-const slides = ref(null)
+import { useSlidesStore } from '~/stores/slides'
 
-onMounted(async () => {
-    const response = await fetch('https://bfedition.com/vodafone/wp-json/slides/v1/all')
-    slides.value = await response.json()
-    loading.value = false
+const slidesStore = useSlidesStore()
+
+onMounted(() => {
+    slidesStore.fetchSlides()
+    slidesStore.startAutoRefresh()
 })
 
-const sortedSlides = computed(() => {
-    if (!slides.value) return []
-    return [...slides.value].sort((a, b) => a.id - b.id)
-});
+// Utiliser directement le getter du store
+const sortedSlides = computed(() => slidesStore.sortedSlides)
+const loading = computed(() => slidesStore.loading);
 </script>
 
 <template>
@@ -21,8 +20,18 @@ const sortedSlides = computed(() => {
         </div>
 
         <div v-else data-scroll-container>
-            <div v-for="slide in sortedSlides" :key="slide.id" :id="`slide-${slide.id}`" class="slide-container">
-                <div class="text-container">
+            <div v-for="slide in sortedSlides" :key="slide.id" :id="`slide-${slide.id}`" class="slide-container"
+                :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
+                <div v-if="slide.id === 10" class="subintro">
+                    <h2 class="text-element" v-html="slide.title"></h2>
+                    <p class="text-element" v-html="slide.wp_content"></p>
+                </div>
+                <div v-if="slide.id === 10" class="points-fort">
+                    <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                        v-html="paragraph">
+                    </div>
+                </div>
+                <div v-else class="text-container">
                     <h2 class="text-element" v-html="slide.title"></h2>
                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
                         v-html="paragraph">
@@ -32,8 +41,6 @@ const sortedSlides = computed(() => {
         </div>
     </div>
 </template>
-
-
 <style scoped>
 .loader-container {
     height: 100vh;
@@ -61,9 +68,14 @@ const sortedSlides = computed(() => {
     }
 }
 
-#vodacomwrapper {
+#vodacomwrapper {}
 
-    background: url(images/bg1.jpg) center center no-repeat fixed;
+.slide-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
 
     -webkit-background-size: cover;
     -moz-background-size: cover;
