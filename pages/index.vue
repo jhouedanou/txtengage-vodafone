@@ -22,26 +22,50 @@ const loading = computed(() => slidesStore.loading);
         <div v-else data-scroll-container>
             <div v-for="slide in sortedSlides" :key="slide.id" :id="`slide-${slide.id}`" class="slide-container"
                 :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
-                <!--slide 1-->
-                <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
-                    <div class="subint col-6">
-                        <h2 class="text-element" v-html="slide.title"></h2>
-                        <p class="text-element" v-html="slide.wp_content"></p>
 
+                <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
+                    <div class="container-full">
+                        <div class="row">
+                            <div class="subint col-6">
+                                <h2 class="text-element" v-html="slide.title"></h2>
+                                <p class="text-element" v-html="slide.wp_content"></p>
+                            </div>
+                            <div class="points-fort col-6">
+                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                                    v-html="paragraph">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="points-fort col-6">
+                </div>
+
+                <div v-else-if="slide.id === 20">
+                    <h2 class="text-element" v-html="slide.title"></h2>
+                    <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                        v-html="paragraph">
+                    </div>
+                </div>
+
+                <div v-else-if="[21, 22, 23, 59].includes(slide.id)">
+                    <div class="container">
+                        <h2 class="text-element" v-html="slide.title"></h2>
                         <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
                             v-html="paragraph">
                         </div>
                     </div>
                 </div>
 
-                <div v-else class="text-container">
-                    <h2 class="text-element" v-html="slide.title"></h2>
-                    <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
-                        v-html="paragraph">
+                <div v-else-if="slide.id === 60">
+                    <div class="container">
+                        <div class="container">
+                            <h2 class="text-element" v-html="slide.title"></h2>
+                            <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                                v-html="paragraph">
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -80,7 +104,6 @@ const loading = computed(() => slidesStore.loading);
     display: flex;
     align-items: center;
     justify-content: center;
-
 
     -webkit-background-size: cover;
     -moz-background-size: cover;
