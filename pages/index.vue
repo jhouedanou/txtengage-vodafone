@@ -31,7 +31,7 @@ const swiperOptions = {
         type: 'progressbar'
     },
     navigation: true,
-    autoplay: { delay: 10000 },
+    //autoplay: { delay: 10000 },
     speed: 800,
     loop: true,
     allowTouchMove: true,
