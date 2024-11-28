@@ -67,8 +67,22 @@ body {
     font-family: 'Vodafone', sans-serif;
 }
 
+.slide-container {
+    width  : 100vw;
+    padding: 0;
+    margin : 0;
+}
+
 #slide-10 {
-    .subintro {
+    .txtintro {
+        width          : 100vw;
+        display        : flex;
+        align-items    : center;
+        justify-content: center;
+        flex-direction : row;
+    }
+
+    .subint {
         h2 {
             font-size     : 114px;
             font-weight   : 600;
@@ -91,6 +105,25 @@ body {
             text-align    : center;
             color         : #fff;
         }
+    }
+
+    .points-fort {
+        height         : 100vh;
+        display        : flex;
+        align-items    : center;
+        justify-content: center;
+        flex-direction : column;
+        background     : linear-gradient(to bottom, #D50002, #ED1311);
+        background     : -webkit-linear-gradient(top, #D50002, #ED1311);
+        /* For Safari */
+        background     : -moz-linear-gradient(top, #D50002, #ED1311);
+        /* For Firefox */
+        background     : -o-linear-gradient(top, #D50002, #ED1311);
+        /* For Opera */
+        background     : -ms-linear-gradient(top, #D50002, #ED1311);
+        /* For Internet Explorer 10+ */
+
+
     }
 }
 

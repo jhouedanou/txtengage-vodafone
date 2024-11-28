@@ -22,15 +22,20 @@ const loading = computed(() => slidesStore.loading);
         <div v-else data-scroll-container>
             <div v-for="slide in sortedSlides" :key="slide.id" :id="`slide-${slide.id}`" class="slide-container"
                 :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
-                <div v-if="slide.id === 10" class="subintro">
-                    <h2 class="text-element" v-html="slide.title"></h2>
-                    <p class="text-element" v-html="slide.wp_content"></p>
-                </div>
-                <div v-if="slide.id === 10" class="points-fort">
-                    <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
-                        v-html="paragraph">
+                <!--slide 1-->
+                <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
+                    <div class="subint col-6">
+                        <h2 class="text-element" v-html="slide.title"></h2>
+                        <p class="text-element" v-html="slide.wp_content"></p>
+
+                    </div>
+                    <div class="points-fort col-6">
+                        <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                            v-html="paragraph">
+                        </div>
                     </div>
                 </div>
+
                 <div v-else class="text-container">
                     <h2 class="text-element" v-html="slide.title"></h2>
                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
