@@ -12,6 +12,7 @@
   "dependencies": {
     "@pinia/nuxt": "^0.7.0",
     "@popperjs/core": "^2.11.8",
+    "animate.css": "^4.1.1",
     "bootstrap": "^5.3.3",
     "fullpage.js": "^4.0.30",
     "gsap": "^3.12.5",
@@ -25,12 +26,12 @@
     "vue-router": "latest"
   },
   "devDependencies": {
-    "sass-embedded": "^1.81.0",
-    "sass-loader": "^16.0.3",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "browser-sync": "^3.0.3",
     "sass": "^1.77.8",
+    "sass-embedded": "^1.81.0",
+    "sass-loader": "^16.0.3",
     "swiper": "^11.1.15",
     "vue-owl-carousel": "^2.0.3"
   }
