@@ -1,55 +1,65 @@
 <script setup>
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Autoplay, Pagination, Navigation, Mousewheel } from 'swiper/modules'
+import { onMounted, ref, computed } from 'vue'
+import { useSlidesStore } from '~/stores/slides'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
-import 'swiper/css'
-import 'swiper/css/pagination'
-import 'swiper/css/navigation'
 import 'animate.css'
-import { useSlidesStore } from '~/stores/slides'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const slidesStore = useSlidesStore()
+const loading = computed(() => slidesStore.loading)
+const sortedSlides = computed(() => slidesStore.sortedSlides)
+
+const initSlideAnimations = () => {
+    // Pin chaque section
+    gsap.utils.toArray('.section').forEach((section, i) => {
+        ScrollTrigger.create({
+            trigger: section,
+            start: 'top top',
+            pin: true,
+            pinSpacing: false, // Empêche l'espace entre les sections
+            markers: true,
+            snap: 0,
+        })
+    })
+
+    // Animation spécifique pour la première slide
+    let tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: '#subint',
+            start: 'top top',
+            end: '+=250',
+            scrub: 1,
+            markers: {
+                startColor: "green",
+                endColor: "red",
+                fontSize: "18px",
+                indent: 20
+            },
+            toggleActions: "play reverse play reverse"
+
+        }
+    })
+
+    tl.to('.subint', {
+        opacity: 0,
+        duration: 0.25
+    })
+        .to('.points-fort', {
+            opacity: 1,
+            y: 0,
+            duration: 1
+        }, '-=0.3')
+}
 
 onMounted(() => {
     slidesStore.fetchSlides()
     slidesStore.startAutoRefresh()
-
-})
-
-const sortedSlides = computed(() => slidesStore.sortedSlides)
-const loading = computed(() => slidesStore.loading)
-
-const swiperOptions = {
-    modules: [Autoplay, Pagination, Navigation, Mousewheel],
-    direction: 'vertical',
-    mousewheel: true,
-    pagination: {
-        clickable: true,
-        type: 'progressbar'
-    },
-    navigation: true,
-    //autoplay: { delay: 10000 },
-    speed: 800,
-    loop: true,
-    allowTouchMove: true,
-    spaceBetween: 0,
-    navigation: false, slidesPerView: 1,
-    on: {
-        slideChange: (swiper) => {
-            document.querySelectorAll('.slide-container').forEach(slide => {
-                slide.classList.remove('animate__animated', 'animate__fadeIn')
-            })
-
-            const activeSlide = document.querySelector(`.slide-container:nth-child(${swiper.activeIndex + 1})`)
-            if (activeSlide) {
-                activeSlide.classList.add('animate__animated', 'animate__fadeIn')
-            }
-        }
-    }
-};
+    nextTick(() => {
+        initSlideAnimations()
+    })
+});
 </script>
 
 <template>
@@ -58,19 +68,19 @@ const swiperOptions = {
             <div class="spinner"></div>
         </div>
 
-        <swiper v-else v-bind="swiperOptions" class="mySwiper">
-            <swiper-slide v-for="slide in sortedSlides" :key="slide.id">
-                <div :id="`slide-${slide.id}`" class="slide-container animate__animated"
+        <div class="sections-container">
+            <div class="section" v-for="slide in sortedSlides" :key="slide.id">
+                <div :id="`slide-${slide.id}`" class="slide-container animate__animated animate__fadeIn"
                     :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
 
                     <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
-                        <div class="container-full">
-                            <div class="row">
-                                <div class="subint col-6">
+                        <div class="firstContainer">
+                            <div class="slapjh">
+                                <div class=" subint">
                                     <h2 class="text-element" v-html="slide.title"></h2>
                                     <p class="text-element" v-html="slide.wp_content"></p>
                                 </div>
-                                <div class="points-fort col-6">
+                                <div class="points-fort">
                                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                         class="text-element" v-html="paragraph">
                                     </div>
@@ -97,21 +107,30 @@ const swiperOptions = {
 
                     <div v-else-if="slide.id === 60">
                         <div class="container">
-                            <div class="container">
-                                <h2 class="text-element" v-html="slide.title"></h2>
-                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
-                                    v-html="paragraph">
-                                </div>
+                            <h2 class="text-element" v-html="slide.title"></h2>
+                            <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                                v-html="paragraph">
                             </div>
                         </div>
                     </div>
+
                 </div>
-            </swiper-slide>
-        </swiper>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
+.sections-container {
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.section {
+    height: 100vh;
+    width: 100%;
+}
+
 .loader-container {
     height: 100vh;
     display: flex;
@@ -138,6 +157,8 @@ const swiperOptions = {
     }
 }
 
+
+
 .slide-container {
     height: 100vh;
     display: flex;
@@ -145,38 +166,6 @@ const swiperOptions = {
     justify-content: center;
     background-size: cover;
 }
-
-.swiper {
-    height: 100vh;
-    width: 100%;
-}
-
-.swiper-slide {
-    height: 100vh;
-}
-
-:deep(.swiper-pagination-progressbar) {
-    width: 4px !important;
-    height: 100% !important;
-    left: auto !important;
-    right: 10px;
-}
-
-:deep(.swiper-pagination-progressbar-fill) {
-    background: #e60000 !important;
-}
-
-:deep(.swiper-button-next),
-:deep(.swiper-button-prev) {
-    color: #fff;
-}
-
-.animate__animated {
-    --animate-duration: 1s;
-}
-
-.subint,
-.points-fort {}
 
 .text-element {
     margin: 20px 0;
@@ -189,6 +178,18 @@ h2 {
 
 p {
     font-size: 1.5rem;
+}
+
+.container-full {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.txtintro {
+    width: 100%;
+    height: 100%;
 }
 
 #slide-1 {
