@@ -3,6 +3,8 @@ $vodafone-red      : #e60000;
 $vodafone-light-red: #ff1a1a;
 $primary-color     : #ff0000;
 
+$primary : #ff0000;
+
 // Styles globaux
 body {
     margin         : 0 !important;
@@ -10,6 +12,10 @@ body {
     box-sizing     : border-box;
     background-size: cover;
 
+    p,
+    * {
+        white-space: pre-line;
+    }
 }
 
 //Police vodafone 
@@ -74,6 +80,10 @@ body {
 }
 
 #slide-10 {
+    .text-element {
+        &:nth-of-type(2) {}
+    }
+
     .txtintro {
         width          : 100vw;
         display        : flex;
@@ -84,7 +94,7 @@ body {
 
     .subint {
         h2 {
-            font-size     : 114px;
+            font-size     : 10.2em;
             font-weight   : 600;
             font-stretch  : normal;
             font-style    : normal;
@@ -96,8 +106,8 @@ body {
 
         p {
             font-family   : Raleway;
-            font-size     : 28px;
-            font-weight   : normal;
+            font-size     : 2.6em;
+            font-weight   : 300;
             font-stretch  : normal;
             font-style    : normal;
             line-height   : 1.44;
@@ -110,10 +120,9 @@ body {
     .points-fort {
         height         : 100vh;
         display        : flex;
-        align-items    : center;
+        align-items    : flex-start;
         justify-content: center;
         flex-direction : column;
-        background     : linear-gradient(to bottom, #D50002, #ED1311);
         background     : -webkit-linear-gradient(top, #D50002, #ED1311);
         /* For Safari */
         background     : -moz-linear-gradient(top, #D50002, #ED1311);
@@ -121,8 +130,10 @@ body {
         background     : -o-linear-gradient(top, #D50002, #ED1311);
         /* For Opera */
         background     : -ms-linear-gradient(top, #D50002, #ED1311);
+        background     : linear-gradient(90deg, #b70104, #ED1311);
         /* For Internet Explorer 10+ */
 
+        padding-left: 2.1em;
 
     }
 }
@@ -175,22 +186,201 @@ body {
     transform : translateY(50px);
     padding   : 2rem;
     transition: all 1s;
-    width     : 50vw;
+    width     : 46.6vw;
     position  : absolute;
     top       : 0;
     margin    : auto;
     right     : 0;
     bottom    : 0;
+
+    h3 {
+        font-family: "Vodafone";
+        font-size  : 3em;
+        font-weight: 600;
+        line-height: 0.44;
+        color      : white;
+    }
+
+    p {
+        font-family   : "Raleway";
+        font-size     : 2.45em;
+        font-weight   : 300;
+        font-stretch  : normal;
+        font-style    : normal;
+        line-height   : 0.64;
+        letter-spacing: normal;
+        text-align    : left;
+        color         : #fff;
+    }
 }
 
-.gsap-marker-scroller-start,
-.gsap-marker-scroller-end,
-.gsap-marker-start,
-.gsap-marker-end {
-    visibility: hidden !important;
+
+
+
+.text-element {
+    white-space: pre-line;
+    margin     : 20px 0;
 }
 
-#slide-20 {}
+/* Style spécifique pour les paragraphes */
+.text-element p {
+    white-space: pre-line;
+}
+
+//sldie 2 
+#slide-20 {
+    width: 100vw;
+
+    #kiff {
+        width  : 90vw;
+        margin : 0 auto;
+        display: flex;
+        height : 100vh;
+    }
+
+    #usruu {
+        display        : flex;
+        align-items    : flex-start;
+        justify-content: center;
+        flex-direction : column;
+        position       : relative;
+
+        h2 {
+            color    : white;
+            max-width: 480px;
+            margin   : 0;
+            font-size: 7em;
+        }
+
+        * {
+            line-height: 1;
+        }
+    }
+
+    .apitch {
+        color      : white;
+        font-weight: normal;
+        margin     : 0;
+        font-size  : 4.4em;
+
+        h3 {
+
+            color      : white;
+            font-weight: bold;
+            margin     : 0;
+        }
+    }
+
+    .gee {
+
+        position: absolute;
+        top     : 0;
+        margin  : auto;
+        right   : 0;
+        bottom  : 0;
+        left    : 0;
+        height  : 100vh;
+
+        .text-element {
+            display              : flex;
+            align-items          : center;
+            justify-content      : center;
+            flex-direction       : column;
+            color                : white;
+            background           : $primary;
+            border-radius        : 100%;
+            -webkit-border-radius: 100%;
+            -moz-border-radius   : 100%;
+            -ms-border-radius    : 100%;
+            -o-border-radius     : 100%;
+            position             : absolute;
+
+            h3 {
+                font-family: "Vodafone";
+                font-weight: bold;
+                margin     : 0;
+                padding    : 0;
+            }
+
+            p {
+                font-family: "Vodafone";
+                font-weight: normal;
+                margin     : 0;
+                padding    : 0;
+
+            }
+
+            &:nth-of-type(1) {
+                width : 153px !important;
+                height: 153px !important;
+                left  : 31vw !important;
+                top   : 19vh !important;
+
+                h3 {
+                    font-size: 70px;
+                }
+
+                p {
+                    font-size     : 24px;
+                    text-transform: uppercase;
+                }
+            }
+
+            &:nth-of-type(2) {
+                width : 236px !important;
+                height: 236px !important;
+                left  : 55vw !important;
+                top   : 15vh !important;
+
+                h3 {
+                    font-size: 86px;
+                }
+
+                p {
+                    font-size     : 41px;
+                    text-transform: uppercase;
+                }
+            }
+
+            &:nth-of-type(3) {
+                width : 236px !important;
+                height: 236px !important;
+                left  : 52vw !important;
+                bottom: 15vh !important;
+
+                h3 {
+                    font-size: 86px;
+                }
+
+                p {
+                    font-size     : 41px;
+                    text-transform: uppercase;
+                }
+            }
+
+            &:nth-of-type(4) {
+                width : 153px !important;
+                height: 153px !important;
+                left  : 67vw !important;
+                bottom: 6vh !important;
+
+
+                h3 {
+                    font-size: 70px;
+                }
+
+                p {
+                    font-size     : 24px;
+                    text-transform: uppercase;
+                }
+            }
+        }
+
+    }
+
+}
+
+
 
 #slide-21 {}
 
@@ -201,3 +391,11 @@ body {
 #slide-59 {}
 
 #slide-60 {}
+
+
+.gsap-marker-scroller-start,
+.gsap-marker-scroller-end,
+.gsap-marker-start,
+.gsap-marker-end {
+    visibility: hidden !important;
+}

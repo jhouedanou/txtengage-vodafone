@@ -14,8 +14,8 @@ const sortedSlides = computed(() => slidesStore.sortedSlides)
 const initSlideAnimations = () => {
 
     // Vérification de l'existence des éléments avant l'animation
-    const subintElement = document.querySelector('.subint')
-    const pointsFortElement = document.querySelector('.points-fort')
+    const subintElement = document.getElementById('#subint')
+    const pointsFortElement = document.getElementById('#points-fort')
     // Pin chaque section
     gsap.utils.toArray('.section').forEach((section, i) => {
         ScrollTrigger.create({
@@ -23,7 +23,6 @@ const initSlideAnimations = () => {
             start: 'top top',
             pin: true,
             pinSpacing: false, // Empêche l'espace entre les sections
-
             markers: true, // Activez temporairement pour debug
             snap: 0
         })
@@ -34,23 +33,55 @@ const initSlideAnimations = () => {
         scrollTrigger: {
             trigger: subintElement,
             start: 'top top',
-            end: '+=250',
+            end: '+=700vh',
             scrub: 1,
-            markers: false,
             toggleActions: "play reverse play reverse",
-            snap: 0
+            markers: false,
+            snap: 1,
+            pin: true
+
         }
     })
 
     tl.to('.subint', {
         opacity: 0,
-        duration: 0.25
+        duration: 5
     })
         .to('.points-fort', {
             opacity: 1,
             y: 0,
-            duration: 0.25
+            duration: 5
         }, '-=0.3')
+
+
+    // Animation deuxième slide
+    let tl2 = gsap.timeline({
+        scrollTrigger: {
+            trigger: '#kiff',
+            start: 'top top',
+            end: '+=1690',
+            scrub: 1,
+            snap: 0,
+            pin: true
+        }
+    })
+
+    tl2.set(['#mzu', '#guysamuel'], {
+        opacity: 0,
+        y: 50
+    })
+        .to('#mzu', {
+            opacity: 1,
+            y: 0,
+            duration: 5
+        })
+        .to('#guysamuel', {
+            opacity: 1,
+            y: 0,
+            duration: 5,
+            stagger: 2
+        }, "+=2")
+
 }
 
 onMounted(() => {
@@ -67,12 +98,16 @@ onMounted(() => {
         <div v-if="loading" class="loader-container">
             <div class="spinner"></div>
         </div>
-
+        <header class="fixed-top">
+            <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
+                <nuxt-img src="/images/logovector.svg" format="webp" quality="80" alt="Logo" />
+            </div>
+        </header>
         <div class="sections-container">
             <div class="section" v-for="slide in sortedSlides" :key="slide.id">
                 <div :id="`slide-${slide.id}`" class="slide-container animate__animated animate__fadeIn"
                     :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
-
+                    <!-- slide1 -->
                     <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
                         <div class="firstContainer">
                             <div class="slapjh">
@@ -89,10 +124,19 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <div v-else-if="slide.id === 20">
-                        <h2 class="text-element" v-html="slide.title"></h2>
-                        <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
-                            v-html="paragraph">
+                    <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0">
+                        <div id="usruu">
+                            <div id="mzu" class="nusrru">
+                                <h2 id="slide2a" class="text-element" v-html="slide.wp_title"></h2>
+                                <h2 id="slide2b" class="text-element" v-html="slide.title"></h2>
+                                <div id="slide2c" class="apitch" v-html="slide.content"></div>
+                            </div>
+
+                            <div id="guysamuel" class="gee">
+                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                                    v-html="paragraph">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -178,6 +222,7 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     background-size: cover;
+    background-position: 50% 50%;
 }
 
 .text-element {
@@ -219,5 +264,56 @@ p {
 
 #slide-4 {
     background: linear-gradient(45deg, #ffcc00, #ffdd4d);
+}
+
+
+
+
+.menu-lateral {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+}
+
+.menu-lateral ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-lateral li {
+    margin: 10px 0;
+}
+
+.menu-anchor {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.menu-anchor:hover,
+.menu-anchor.active {
+    background: #fff;
+    transform: scale(1.5);
+}
+
+.menu-anchor:hover::after {
+    content: attr(title);
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
 }
 </style>
