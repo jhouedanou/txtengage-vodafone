@@ -11,11 +11,23 @@ const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
 
+// Vérification de l'existence des éléments avant l'animation
+const subintElement = document.getElementById('#subint')
+const pointsFortElement = document.getElementById('#points-fort')
 const initSlideAnimations = () => {
-
-    // Vérification de l'existence des éléments avant l'animation
-    const subintElement = document.getElementById('#subint')
-    const pointsFortElement = document.getElementById('#points-fort')
+    // Animation fade des sections
+    // Animation fade des sections
+    gsap.utils.toArray('.section').forEach((section) => {
+        gsap.from(section, {
+            opacity: 0,
+            duration: 1,
+            scrollTrigger: {
+                trigger: section,
+                start: 'top top',
+                toggleActions: 'play none none reverse'
+            }
+        })
+    })
     // Pin chaque section
     gsap.utils.toArray('.section').forEach((section, i) => {
         ScrollTrigger.create({
@@ -59,7 +71,7 @@ const initSlideAnimations = () => {
         scrollTrigger: {
             trigger: '#kiff',
             start: 'top top',
-            end: '+=1690',
+            end: '+=1000',
             scrub: 1,
             snap: 0,
             pin: true
@@ -83,6 +95,8 @@ const initSlideAnimations = () => {
         }, "+=2")
 
 }
+// Animation de la 3e slide
+
 
 onMounted(() => {
     slidesStore.fetchSlides()
@@ -96,7 +110,9 @@ onMounted(() => {
 <template>
     <div id="vodacomwrapper">
         <div v-if="loading" class="loader-container">
-            <div class="spinner"></div>
+            <!-- <div class="spinner"></div> -->
+            <nuxt-img src="/images/logovector.svg" class="logo-loader" format="webp" quality="80" alt="Logo" />
+
         </div>
         <header class="fixed-top">
             <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
@@ -123,7 +139,7 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-
+                    <!-- reach 32 million customers -->
                     <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0">
                         <div id="usruu">
                             <div id="mzu" class="nusrru">
@@ -139,8 +155,33 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-
-                    <div v-else-if="[21, 22, 23, 59].includes(slide.id)">
+                    <!-- no internet access neeeded -->
+                    <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
+                        <div class="cont p-2">
+                            <div class="row">
+                                <h3 id="mshill" v-html="slide.wp_content"></h3>
+                            </div>
+                            <div class="row flex-row">
+                                <div v-for=" (paragraph, index) in slide.paragraphs" :key="index"
+                                    class="text-element col m-0 p-2" v-html="paragraph">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- other advantages    -->
+                    <div v-else-if="slide.id === 22" id="thoiathoing" class="p-0 m-0">
+                        <div class="cont p-2">
+                            <div class="row">
+                                <h3 id="mshill" v-html="slide.wp_content"></h3>
+                            </div>
+                            <div class="row flex-row">
+                                <div v-for=" (paragraph, index) in slide.paragraphs" :key="index"
+                                    class="text-element col m-0 p-2" v-html="paragraph">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else-if="[22, 23, 59].includes(slide.id)">
                         <div class="container">
                             <h2 class="text-element" v-html="slide.title"></h2>
                             <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
@@ -197,6 +238,7 @@ onMounted(() => {
     align-items: center;
 }
 
+/*
 .spinner {
     width: 50px;
     height: 50px;
@@ -213,6 +255,28 @@ onMounted(() => {
 
     100% {
         transform: rotate(360deg);
+    }
+}*/
+
+.logo-loader {
+    width: 150px;
+    animation: logoAnimation 2s infinite;
+}
+
+@keyframes logoAnimation {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
