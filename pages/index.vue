@@ -12,6 +12,10 @@ const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
 
 const initSlideAnimations = () => {
+
+    // Vérification de l'existence des éléments avant l'animation
+    const subintElement = document.querySelector('.subint')
+    const pointsFortElement = document.querySelector('.points-fort')
     // Pin chaque section
     gsap.utils.toArray('.section').forEach((section, i) => {
         ScrollTrigger.create({
@@ -21,14 +25,14 @@ const initSlideAnimations = () => {
             pinSpacing: false, // Empêche l'espace entre les sections
 
             markers: true, // Activez temporairement pour debug
-            snap: 0.25
+            snap: 0
         })
     })
 
     // Animation spécifique pour la première slide
     let tl = gsap.timeline({
         scrollTrigger: {
-            trigger: '#subint',
+            trigger: subintElement,
             start: 'top top',
             end: '+=250',
             scrub: 1,
@@ -45,7 +49,7 @@ const initSlideAnimations = () => {
         .to('.points-fort', {
             opacity: 1,
             y: 0,
-            duration: 1
+            duration: 0.25
         }, '-=0.3')
 }
 
