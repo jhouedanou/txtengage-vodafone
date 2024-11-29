@@ -183,6 +183,13 @@ body {
     bottom    : 0;
 }
 
+.gsap-marker-scroller-start,
+.gsap-marker-scroller-end,
+.gsap-marker-start,
+.gsap-marker-end {
+    visibility: hidden !important;
+}
+
 #slide-20 {}
 
 #slide-21 {}

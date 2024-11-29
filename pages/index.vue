@@ -19,8 +19,9 @@ const initSlideAnimations = () => {
             start: 'top top',
             pin: true,
             pinSpacing: false, // Empêche l'espace entre les sections
-            markers: true,
-            snap: 0,
+
+            markers: true, // Activez temporairement pour debug
+            snap: 0.25
         })
     })
 
@@ -31,14 +32,9 @@ const initSlideAnimations = () => {
             start: 'top top',
             end: '+=250',
             scrub: 1,
-            markers: {
-                startColor: "green",
-                endColor: "red",
-                fontSize: "18px",
-                indent: 20
-            },
-            toggleActions: "play reverse play reverse"
-
+            markers: false,
+            toggleActions: "play reverse play reverse",
+            snap: 0
         }
     })
 
@@ -76,11 +72,11 @@ onMounted(() => {
                     <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
                         <div class="firstContainer">
                             <div class="slapjh">
-                                <div class=" subint">
+                                <div class="subint" id="subint">
                                     <h2 class="text-element" v-html="slide.title"></h2>
                                     <p class="text-element" v-html="slide.wp_content"></p>
                                 </div>
-                                <div class="points-fort">
+                                <div class="points-fort" id="points-fort">
                                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                         class="text-element" v-html="paragraph">
                                     </div>
@@ -119,16 +115,31 @@ onMounted(() => {
         </div>
     </div>
 </template>
-
 <style scoped>
+/* Modifier le conteneur principal */
+
+/* Style pour le body */
+:root {
+    overflow: hidden;
+}
+
+#vodacomwrapper {
+    height: 100vh;
+    position: fixed;
+    width: 100%;
+}
+
+
 .sections-container {
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
 }
 
 .section {
     height: 100vh;
     width: 100%;
+    position: relative;
 }
 
 .loader-container {
@@ -156,8 +167,6 @@ onMounted(() => {
         transform: rotate(360deg);
     }
 }
-
-
 
 .slide-container {
     height: 100vh;
