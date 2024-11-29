@@ -29,70 +29,70 @@ const initSlideAnimations = () => {
     //     })
     // })
     // Pin chaque section
-    gsap.utils.toArray('.section').forEach((section, i) => {
-        ScrollTrigger.create({
-            trigger: section,
-            start: 'top top',
-            pin: true,
-            pinSpacing: false, // Empêche l'espace entre les sections
-            markers: true, // Activez temporairement pour debug
-            snap: 0
-        })
-    })
+    // gsap.utils.toArray('.section').forEach((section, i) => {
+    //     ScrollTrigger.create({
+    //         trigger: section,
+    //         start: 'top top',
+    //         pin: true,
+    //         pinSpacing: false, // Empêche l'espace entre les sections
+    //         markers: true, // Activez temporairement pour debug
+    //         snap: 0
+    //     })
+    // })
 
-    // Animation spécifique pour la première slide
-    let tl = gsap.timeline({
-        scrollTrigger: {
-            trigger: subintElement,
-            start: 'top top',
-            end: '+=700vh',
-            scrub: 1,
-            toggleActions: "play reverse play reverse",
-            markers: false,
-            snap: 1,
-            pin: true
+    // // Animation spécifique pour la première slide
+    // let tl = gsap.timeline({
+    //     scrollTrigger: {
+    //         trigger: subintElement,
+    //         start: 'top top',
+    //         end: '+=700vh',
+    //         scrub: 1,
+    //         toggleActions: "play reverse play reverse",
+    //         markers: false,
+    //         snap: 1,
+    //         pin: true
 
-        }
-    })
+    //     }
+    // })
 
-    tl.to('.subint', {
-        opacity: 0,
-        duration: 5
-    })
-        .to('.points-fort', {
-            opacity: 1,
-            y: 0,
-            duration: 5
-        }, '-=0.3')
+    // tl.to('.subint', {
+    //     opacity: 0,
+    //     duration: 5
+    // })
+    //     .to('.points-fort', {
+    //         opacity: 1,
+    //         y: 0,
+    //         duration: 5
+    //     }, '-=0.3')
 
 
-    // Animation deuxième slide
-    let tl2 = gsap.timeline({
-        scrollTrigger: {
-            trigger: '#kiff',
-            start: 'top top',
-            end: '+=1000',
-            scrub: 1,
-            snap: 0,
-            pin: true
-        }
-    })
+    // // Animation deuxième slide
+    // let tl2 = gsap.timeline({
+    //     scrollTrigger: {
+    //         trigger: '#kiff',
+    //         start: 'top top',
+    //         end: '+=1000',
+    //         scrub: 1,
+    //         snap: 0,
+    //         pin: true
+    //     }
+    // })
 
-    tl2.set(['#mzu', '#guysamuel'], {
-        opacity: 0,
-        y: 50
-    })
-        .to('#mzu', {
-            opacity: 1,
-            y: 0,
-            duration: 5
-        })
-        .to('#guysamuel', {
-            opacity: 1,
-            y: 0,
-            duration: 5,
-            stagger: 2
-        }, "+=2")
+    // tl2.set(['#mzu', '#guysamuel'], {
+    //     opacity: 0,
+    //     y: 50
+    // })
+    //     .to('#mzu', {
+    //         opacity: 1,
+    //         y: 0,
+    //         duration: 5
+    //     })
+    //     .to('#guysamuel', {
+    //         opacity: 1,
+    //         y: 0,
+    //         duration: 5,
+    //         stagger: 2
+    //     }, "+=2")
 
 }
 // Animation de la 3e slide
@@ -189,15 +189,17 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
+
                     <div v-else-if="slide.id === 59">
-                        <div id="killerjunior" class="ouh">
+
+                        <div class="container">
                             <div class="row">
-                                <div class="col-md-7">
+                                <div class="col-md-6">
 
                                     <h2 class="text-element" v-html="slide.title"></h2>
                                     <p v-html="slide.wp_content"></p>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-6">
 
                                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                         class="text-element" v-html="paragraph">

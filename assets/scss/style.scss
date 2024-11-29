@@ -544,9 +544,38 @@ body {
     }
 }
 
-#slide-23 {}
+#slide-23 {
+    #bygone {
 
-#slide-59 {}
+        width     : 100vw;
+        margin    : 0;
+        padding   : 0;
+        background: linear-gradient(297.95deg, #EE3625 45.57%, #6F1111 100%);
+    }
+}
+
+#slide-59 {
+    #killerjunior {
+        width: 95vw;
+
+        .col-md-7 {
+
+            h2 {
+                color    : $primary;
+                font-size: 7em;
+            }
+
+            p {
+                color        : #ff0000;
+                font-size    : 2.8em;
+                max-width    : 843px;
+                /* background: red; */
+
+            }
+
+        }
+    }
+}
 
 #slide-60 {}
 
