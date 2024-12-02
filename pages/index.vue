@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, reactive } from 'vue'
 import { useSlidesStore } from '~/stores/slides'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Mousewheel, Scrollbar, Navigation, Pagination, Autoplay } from 'swiper/modules'
@@ -43,14 +43,105 @@ const swiperOptions = {
     }
 }
 
+const autoPlayAccordion = () => {
+    const currentSlide = sortedSlides.value?.find(s => s.id === 23)
+    if (!currentSlide?.paragraphs) return
+
+    const totalItems = currentSlide.paragraphs.length
+    let currentIndex = 0
+
+    setInterval(() => {
+        toggleAccordion(currentSlide.id, currentIndex)
+        currentIndex = (currentIndex + 1) % totalItems
+    }, 50000)
+}
+
+
+
+//autoplay toutes les 10 secondes
+let autoplayInterval = null
+
+const startAutoplay = () => {
+    const currentSlide = sortedSlides.value.find(s => s.id === 23)
+    const totalItems = currentSlide.paragraphs.length
+    let currentIndex = 0
+
+    autoplayInterval = setInterval(() => {
+        toggleAccordion(currentSlide.id, currentIndex)
+        currentIndex = (currentIndex + 1) % totalItems
+    }, 50000)
+}
+
+const stopAutoplay = () => {
+    clearInterval(autoplayInterval)
+}
+
+
+
+
+const formData = ref({
+    firstName: '',
+    lastName: '',
+    email: '',
+    company: '',
+    phone: ''
+})
+
+const showAlert = ref(false)
+const alertType = ref('')
+const alertMessage = ref('')
+
+const submitForm = async () => {
+    loading.value = true
+    try {
+        const response = await fetch('https://public.herotofu.com/v1/f69a2860-b0b2-11ef-b6f4-4774a3a77de8', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: `${formData.value.firstName} ${formData.value.lastName}`,
+                email: formData.value.email,
+                company: formData.value.company,
+                phone: formData.value.phone,
+            })
+        })
+
+        if (response.ok) {
+            alertType.value = 'alert-success'
+            alertMessage.value = 'Message envoyé avec succès !',
+                formData.value = {
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    company: '',
+                    phone: ''
+                }
+        }
+    } catch (error) {
+        alertType.value = 'alert-danger'
+        alertMessage.value = 'Une erreur est survenue. Veuillez réessayer.'
+    } finally {
+        showAlert.value = true
+        loading.value = false
+        setTimeout(() => {
+            showAlert.value = false
+        }, 5000)
+    }
+}
+
 onMounted(() => {
     slidesStore.fetchSlides()
     slidesStore.startAutoRefresh()
     //Afficher local relevance en tant que première slide dans la sldie 23
     activeIndex.value = 0
+    //changement automatique de l'image dans la slide 23
     const firstSlide = sortedSlides.value.find(s => s.id === 23)
     activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1]
-
+    //auto play sur le clic sur l'image 
+    //autoPlayAccordion()
+    startAutoplay()
 });
 </script>
 
@@ -146,13 +237,13 @@ onMounted(() => {
 
                             <div class="row">
                                 <!-- Colonne de gauche pour les images -->
-                                <div class="col-md-5 col-sm-12">
+                                <div id="naci" class="col-md-5 col-sm-12">
                                     <div :id="`letexte-${index}`" v-for="(paragraph, index) in slide.paragraphs"
                                         :key="index" class="accordion-item">
                                         <div class="accordion-header" @click="toggleAccordion(slide.id, index)"
                                             :class="{ 'active-header': activeIndex === index }">
-                                            <h3 v-html="paragraph.split('</h3>')[0] + '</h3>'"
-                                                :class="{ 'active-title': activeIndex === index }"></h3>
+                                            <div v-html="paragraph.split('</h3>')[0] + '</h3>'"
+                                                :class="{ 'active-title': activeIndex === index }"></div>
                                         </div>
                                         <div class="accordion-content" :class="{ active: activeIndex === index }">
                                             <p v-html="paragraph.split('</h3>')[1].split('<p>')[1].split('</p>')[0]">
@@ -190,6 +281,44 @@ onMounted(() => {
                             <h2 class="text-element" v-html="slide.title"></h2>
                             <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
                                 v-html="paragraph">
+                            </div>
+                            <div class="form-container">
+                                <div v-if="showAlert" :class="['alert', alertType]" role="alert">
+                                    {{ alertMessage }}
+                                </div>
+                                <form @submit.prevent="submitForm" class="contact-form">
+                                    <div class="form-row">
+                                        <div class="col-md-6">
+                                            <input v-model="formData.firstName" type="text" class="form-control"
+                                                placeholder="First Name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input v-model="formData.lastName" type="text" class="form-control"
+                                                placeholder="Last Name" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <input v-model="formData.email" type="email" class="form-control"
+                                            placeholder="Email Address" required>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <input v-model="formData.company" type="text" class="form-control"
+                                            placeholder="Company Name" required>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <input v-model="formData.phone" type="tel" class="form-control"
+                                            placeholder="Contact Number" required>
+                                    </div>
+
+                                    <div class="form-row submit-row">
+                                        <button type="submit" class="btn btn-primary" :disabled="loading">
+                                            {{ loading ? 'Sending...' : 'Submit' }}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -424,5 +553,37 @@ onMounted(() => {
         transform: translateX(0);
     }
 
+}
+
+
+.alert {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 4px;
+    animation: fadeIn 0.3s ease;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>

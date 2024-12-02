@@ -753,3 +753,104 @@ body {
     }
 
 }
+
+.accordion-content {
+    p {
+        font-family   : "Vodafone";
+        font-size     : 35px;
+        font-weight   : normal;
+        font-stretch  : normal;
+        font-style    : normal;
+        line-height   : 1.44;
+        letter-spacing: normal;
+        text-align    : left;
+        color         : #fff;
+    }
+}
+
+#naci {
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    flex-direction : column;
+}
+
+.accordion-header {
+    padding: 0em !important;
+}
+
+#headerpadding {
+    img {
+        min-height: 62px;
+    }
+}
+
+#killerjunior {
+    h2 {
+        font-family   : "Vodafone";
+        font-size     : 83px;
+        font-weight   : bold;
+        font-stretch  : normal;
+        font-style    : normal;
+        line-height   : normal;
+        letter-spacing: normal;
+        text-align    : left;
+        color         : #f00;
+    }
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+
+.form-row .col-md-6 {
+    padding: 0 10px;
+}
+
+.form-control {
+    width        : 100%;
+    padding      : 10px;
+    border       : 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-row {
+    text-align: center;
+}
+
+.btn-primary {
+    background   : #e60000;
+    color        : white;
+    border       : none;
+    padding      : 12px 30px;
+    border-radius: 4px;
+    cursor       : pointer;
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+
+.form-row .col-md-6 {
+    padding: 0 10px;
+}
+
+.form-control {
+    width        : 100%;
+    padding      : 10px;
+    border       : 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-row {
+    text-align: center;
+}
+
+.btn-primary {
+    background   : #e60000;
+    color        : white;
+    border       : none;
+    padding      : 12px 30px;
+    border-radius: 4px;
+    cursor       : pointer;
+}
