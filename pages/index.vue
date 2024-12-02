@@ -31,7 +31,8 @@ const toggleAccordion = (slideId, index) => {
     activeImage.value = imgSrc
 }
 
-
+const isFirstSlideActive = ref(true)
+const swiper = ref(null)
 const swiperOptions = {
     modules: [Mousewheel, Scrollbar],
     direction: 'vertical',
@@ -43,13 +44,30 @@ const swiperOptions = {
         draggable: true,
         hide: false,
     },
+    onSwiper: (instance) => {
+        swiper.value = instance
+    },
     on: {
         slideChange: (swiper) => {
             activeSlideIndex.value = swiper.activeIndex
+            updateFirstSlideStatus()
         }
     }
 }
-
+const updateFirstSlideStatus = () => {
+    if (swiper.value) {
+        isFirstSlideActive.value = swiper.value.activeIndex === 0
+        console.log(isFirstSlideActive.value)
+    }
+}
+const goToFirstSlide = () => {
+    if (swiper.value) {
+        swiper.value.slideTo(0)
+    } else {
+        console.error('Swiper instance is not available')
+    }
+}
+//fin, des mérhode liées à swiper 
 const autoPlayAccordion = () => {
     const currentSlide = sortedSlides.value?.find(s => s.id === 23)
     if (!currentSlide?.paragraphs) return
@@ -137,7 +155,6 @@ const submitForm = async () => {
 }
 //back to top 
 
-
 onMounted(() => {
     slidesStore.fetchSlides()
     slidesStore.startAutoRefresh()
@@ -150,6 +167,7 @@ onMounted(() => {
     //autoPlayAccordion()
     startAutoplay()
 });
+
 </script>
 
 <template>
@@ -339,19 +357,23 @@ onMounted(() => {
                                     </div>
                                 </form>
                             </div>
+
                             <div id="yenamarre" class="d-flex align-items-center justify-content-center m-4">
                                 <!-- back to top btn-->
-                                <a @click="goToFirstSlide" class="back-to-top-btn">
-                                    <img src="/images/backtotop.svg" alt="Back to Top">
+                                <a @click="goToFirstSlide" class="back-to-top" :class="{ 'show': showButton }">
+
+                                    <NuxtImg src="/images/backToTop.svg" alt="Back to Top">
                                 </a>
                             </div>
-
                         </div>
                     </div>
 
                 </div>
             </SwiperSlide>
         </Swiper>
+
+
+
     </div>
 </template>
 
@@ -619,5 +641,23 @@ onMounted(() => {
             cursor: pointer;
         }
     }
+}
+
+.back-to-top {
+    width: 128px;
+    height: 80px;
+    position: fixed;
+    margin: auto;
+    right: 0;
+    bottom: 1em;
+    left: 0;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.back-to-top:hover {
+    transform: scale(1.1);
 }
 </style>
