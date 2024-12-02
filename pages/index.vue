@@ -2,8 +2,10 @@
 import { onMounted, ref, computed } from 'vue'
 import { useSlidesStore } from '~/stores/slides'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Mousewheel, Scrollbar } from 'swiper/modules'
+import { Mousewheel, Scrollbar, Navigation, Pagination, Autoplay } from 'swiper/modules'
 import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
 import 'animate.css'
 
@@ -11,6 +13,17 @@ const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
 const activeSlideIndex = ref(0)
+const horizontalSwiperModules = [Navigation, Pagination, Autoplay]
+//slide 23
+
+const activeIndex = ref(null)
+const activeImage = ref(null)
+const toggleAccordion = (slideId, index) => {
+    activeIndex.value = activeIndex.value === index ? null : index
+    const currentSlide = sortedSlides.value.find(s => s.id === slideId)
+    const imgSrc = currentSlide.paragraphs[index].match(/src="([^"]*)"/)?.[1]
+    activeImage.value = imgSrc
+}
 
 const swiperOptions = {
     modules: [Mousewheel, Scrollbar],
@@ -33,6 +46,11 @@ const swiperOptions = {
 onMounted(() => {
     slidesStore.fetchSlides()
     slidesStore.startAutoRefresh()
+    //Afficher local relevance en tant que première slide dans la sldie 23
+    activeIndex.value = 0
+    const firstSlide = sortedSlides.value.find(s => s.id === 23)
+    activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1]
+
 });
 </script>
 
@@ -123,14 +141,29 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <div v-else-if="slide.id === 23" id="bygone" class="p-0 m-0">
-                        <div class="greenegs">
-                            <h2 class="text-element" v-html="slide.title"></h2>
-                            <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
-                                v-html="paragraph">
+                    <div v-else-if="slide.id === 23" id="bygone-bip" class="p-0 m-0">
+                        <div class="columns-container">
+                            <!-- Colonne de gauche pour les images -->
+                            <div class="right-column">
+                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="accordion-item">
+                                    <div class="accordion-header" @click="toggleAccordion(slide.id, index)">
+                                        <h3 v-html="paragraph.split('</h3>')[0] + '</h3>'"></h3>
+                                    </div>
+                                    <div class="accordion-content" :class="{ active: activeIndex === index }">
+                                        <p v-html="paragraph.split('</h3>')[1].split('<p>')[1].split('</p>')[0]"></p>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="left-column">
+                                <img v-if="activeImage" :src="activeImage"
+                                    :class="['slide-image', { visible: activeImage }]" alt="Slide image">
+                            </div>
+
+                            <!-- Colonne de droite pour l'accordéon -->
+
                         </div>
                     </div>
+
 
                     <div v-else-if="slide.id === 59">
                         <div id="killerjunior" class="ouh">
@@ -286,5 +319,109 @@ onMounted(() => {
 
 #slide-4 {
     background: linear-gradient(45deg, #ffcc00, #ffdd4d);
+}
+
+//carousel horizontal avec les téléphones 
+.horizontal-carousel {
+    width: 100%;
+    height: 100%;
+}
+
+.horizontal-carousel .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.horizontal-carousel .swiper-button-next,
+.horizontal-carousel .swiper-button-prev {
+    color: #e60000;
+}
+
+.horizontal-carousel .swiper-pagination-bullet-active {
+    background: #e60000;
+}
+
+#slide-23 {
+
+    .fade-slide {
+        transition: opacity 0.3s ease;
+    }
+
+    .slide-content {
+        animation-duration: 0.5s;
+    }
+
+    .horizontal-carousel {
+        width: 100%;
+        height: 100%;
+    }
+
+    .swiper-slide-active .text-element {
+        opacity: 1;
+    }
+
+    .swiper-slide:not(.swiper-slide-active) .text-element {
+        opacity: 0.5;
+    }
+
+    .columns-container {
+        display: flex;
+        width: 100%;
+    }
+
+    .left-column,
+    .right-column {
+        width: 50%;
+        padding: 20px;
+    }
+
+    .accordion-item {
+        margin-bottom: 10px;
+    }
+
+    .accordion-header {
+        cursor: pointer;
+        padding: 10px;
+    }
+
+    .accordion-content {
+        height: 0;
+        overflow: hidden;
+        transition: height 0.3s ease;
+    }
+
+    .accordion-content.active {
+        height: auto;
+    }
+
+    .slide-image {
+        width: 100%;
+        height: auto;
+    }
+
+    .accordion-content {
+        max-height: 0;
+        opacity: 0;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .accordion-content.active {
+        max-height: 500px;
+        opacity: 1;
+    }
+
+    .slide-image {
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .slide-image.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
 }
 </style>

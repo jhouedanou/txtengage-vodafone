@@ -238,10 +238,9 @@ body {
 }
 
 .points-fort {
-    opacity  : 1;
-    transform: translateY(50px);
-    padding  : 2rem;
-    width    : 46.6vw;
+    opacity: 1;
+    padding: 2rem;
+    width  : 46.6vw;
 
     h3 {
         font-family: "Vodafone";
@@ -296,10 +295,11 @@ body {
         position       : relative;
 
         h2 {
-            color    : white;
-            max-width: 480px;
-            margin   : 0;
-            font-size: 7em;
+            color      : white;
+            max-width  : 540px;
+            margin     : 0;
+            font-size  : 7em;
+            font-weight: 800;
         }
 
         * {
