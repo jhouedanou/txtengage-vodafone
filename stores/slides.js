@@ -47,10 +47,11 @@ export const useSlidesStore = defineStore('slides', {
     }
   },
 
-  getters: {
-    sortedSlides: (state) => {
-      if (!state.slides) return []
-      return [...state.slides].sort((a, b) => a.id - b.id)
-    }
+getters: {
+  sortedSlides: (state) => {
+    if (!state.slides) return []
+    return [...state.slides].sort((a, b) => a.slide_number - b.slide_number)
   }
+}
+
 })

@@ -1,136 +1,75 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import { useSlidesStore } from '~/stores/slides'
-import gsap from 'gsap'
-import ScrollTrigger from 'gsap/ScrollTrigger'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Mousewheel, Scrollbar } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/scrollbar'
 import 'animate.css'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
+const activeSlideIndex = ref(0)
 
-// Vérification de l'existence des éléments avant l'animation
-const subintElement = document.getElementById('#subint')
-const pointsFortElement = document.getElementById('#points-fort')
-const initSlideAnimations = () => {
-    // Animation fade des sections
-    // Animation fade des sections
-    // gsap.utils.toArray('.section').forEach((section) => {
-    //     gsap.from(section, {
-    //         opacity: 0,
-    //         duration: 1,
-    //         scrollTrigger: {
-    //             trigger: section,
-    //             start: 'top top',
-    //             toggleActions: 'play none none reverse'
-    //         }
-    //     })
-    // })
-    // Pin chaque section
-    gsap.utils.toArray('.section').forEach((section, i) => {
-        ScrollTrigger.create({
-            trigger: section,
-            start: 'top top',
-            pin: true,
-            pinSpacing: false, // Empêche l'espace entre les sections
-            markers: true, // Activez temporairement pour debug
-            snap: 0
-        })
-    })
-
-    // Animation spécifique pour la première slide
-    let tl = gsap.timeline({
-        scrollTrigger: {
-            trigger: subintElement,
-            start: 'top top',
-            end: '+=700vh',
-            scrub: 1,
-            toggleActions: "play reverse play reverse",
-            markers: false,
-            snap: 1,
-            pin: true
-
+const swiperOptions = {
+    modules: [Mousewheel, Scrollbar],
+    direction: 'vertical',
+    slidesPerView: 1,
+    mousewheel: true,
+    speed: 800,
+    scrollbar: {
+        el: '.swiper-scrollbar',
+        draggable: true,
+        hide: false,
+    },
+    on: {
+        slideChange: (swiper) => {
+            activeSlideIndex.value = swiper.activeIndex
         }
-    })
-
-    tl.to('.subint', {
-        opacity: 0,
-        duration: 5
-    })
-        .to('.points-fort', {
-            opacity: 1,
-            y: 0,
-            duration: 5
-        }, '-=0.3')
-
-
-    // Animation deuxième slide
-    let tl2 = gsap.timeline({
-        scrollTrigger: {
-            trigger: '#kiff',
-            start: 'top top',
-            end: '+=1000',
-            scrub: 1,
-            snap: 0,
-            pin: true
-        }
-    })
-
-    tl2.set(['#mzu', '#guysamuel'], {
-        opacity: 0,
-        y: 50
-    })
-        .to('#mzu', {
-            opacity: 1,
-            y: 0,
-            duration: 5
-        })
-        .to('#guysamuel', {
-            opacity: 1,
-            y: 0,
-            duration: 5,
-            stagger: 2
-        }, "+=2")
-
+    }
 }
-// Animation de la 3e slide
-
 
 onMounted(() => {
     slidesStore.fetchSlides()
     slidesStore.startAutoRefresh()
-    nextTick(() => {
-        initSlideAnimations()
-    })
 });
 </script>
 
 <template>
     <div id="vodacomwrapper">
         <div v-if="loading" class="loader-container">
-            <!-- <div class="spinner"></div> -->
             <nuxt-img src="/images/logovector.svg" class="logo-loader" format="webp" quality="80" alt="Logo" />
-
         </div>
+
         <header class="fixed-top">
             <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
                 <nuxt-img src="/images/logovector.svg" format="webp" quality="80" alt="Logo" />
             </div>
         </header>
-        <div class="sections-container">
-            <div class="section" v-for="slide in sortedSlides" :key="slide.id">
+
+        <Swiper v-bind="swiperOptions" class="sections-container">
+            <div class="swiper-scrollbar"></div>
+            <SwiperSlide v-for="(slide, index) in sortedSlides" :key="slide.id"
+                :class="{ 'slide-active': index === activeSlideIndex }">
                 <div :id="`slide-${slide.id}`" class="slide-container animate__animated animate__fadeIn"
                     :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
-                    <!-- slide1 -->
-                    <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
+                    <!-- premiere slide  -->
+                    <div v-if="slide.id === 73" class="txtintro row m-0 p-0">
                         <div class="firstContainer">
                             <div class="slapjh">
                                 <div class="subint" id="subint">
                                     <h2 class="text-element" v-html="slide.title"></h2>
                                     <p class="text-element" v-html="slide.wp_content"></p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- slide1 -->
+                    <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
+                        <div class="firstContainer">
+                            <div class="slapjh">
+
                                 <div class="points-fort" id="points-fort">
                                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                         class="text-element" v-html="paragraph">
@@ -139,6 +78,7 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
+
                     <!-- reach 32 million customers -->
                     <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0">
                         <div id="usruu">
@@ -147,7 +87,6 @@ onMounted(() => {
                                 <h2 id="slide2b" class="text-element" v-html="slide.title"></h2>
                                 <div id="slide2c" class="apitch" v-html="slide.content"></div>
                             </div>
-
                             <div id="guysamuel" class="gee">
                                 <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
                                     v-html="paragraph">
@@ -155,32 +94,35 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                    <!-- no internet access neeeded -->
+
+                    <!-- no internet access needed -->
                     <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
                         <div class="cont p-2">
                             <div class="row">
                                 <h3 id="mshill" v-html="slide.wp_content"></h3>
                             </div>
                             <div class="row flex-row">
-                                <div v-for=" (paragraph, index) in slide.paragraphs" :key="index"
+                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                     class="text-element col m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- other advantages    -->
+
+                    <!-- other advantages -->
                     <div v-else-if="slide.id === 22" id="thoiathoing" class="p-0 m-0">
                         <div class="cont p-2">
                             <div class="row">
                                 <h3 id="mshill" v-html="slide.wp_content"></h3>
                             </div>
                             <div class="row flex-row">
-                                <div v-for=" (paragraph, index) in slide.paragraphs" :key="index"
+                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                     class="text-element col m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <div v-else-if="slide.id === 23" id="bygone" class="p-0 m-0">
                         <div class="greenegs">
                             <h2 class="text-element" v-html="slide.title"></h2>
@@ -189,21 +131,19 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
+
                     <div v-else-if="slide.id === 59">
                         <div id="killerjunior" class="ouh">
                             <div class="row">
                                 <div class="col-md-7">
-
                                     <h2 class="text-element" v-html="slide.title"></h2>
                                     <p v-html="slide.wp_content"></p>
                                 </div>
                                 <div class="col-md-5">
-
                                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                         class="text-element" v-html="paragraph">
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -218,14 +158,15 @@ onMounted(() => {
                     </div>
 
                 </div>
-            </div>
-        </div>
+            </SwiperSlide>
+        </Swiper>
     </div>
 </template>
-<style scoped>
-/* Modifier le conteneur principal */
 
-/* Style pour le body */
+<style lang="scss">
+@import 'swiper/css';
+@import 'swiper/css/scrollbar';
+
 :root {
     overflow: hidden;
 }
@@ -236,10 +177,8 @@ onMounted(() => {
     width: 100%;
 }
 
-
 .sections-container {
     height: 100vh;
-    overflow-y: scroll;
     scroll-behavior: smooth;
 }
 
@@ -254,30 +193,11 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+    background: white !important
 }
-
-/*
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #e60000;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}*/
 
 .logo-loader {
-    width: 150px;
+    width: 50px;
     animation: logoAnimation 2s infinite;
 }
 
@@ -307,18 +227,42 @@ onMounted(() => {
     background-position: 50% 50%;
 }
 
+.swiper {
+    width: 100%;
+    height: 100vh;
+}
+
+.swiper-slide {
+    height: 100vh;
+    opacity: 0.5;
+    transform: scale(0.9);
+    transition: all 0.5s ease;
+
+    &.swiper-slide-active {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+
+.swiper-scrollbar {
+    width: 5px !important;
+    right: 5px !important;
+    opacity: 0.8;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.swiper-scrollbar-drag {
+    background: #e60000;
+    border-radius: 10px;
+    width: 5px;
+}
+
 .text-element {
     margin: 20px 0;
 }
 
-h2 {
-    font-size: 3rem;
-    font-weight: bold;
-}
-
-p {
-    font-size: 1.5rem;
-}
 
 .container-full {
     width: 100%;
@@ -346,56 +290,5 @@ p {
 
 #slide-4 {
     background: linear-gradient(45deg, #ffcc00, #ffdd4d);
-}
-
-
-
-
-.menu-lateral {
-    position: fixed;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1000;
-}
-
-.menu-lateral ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.menu-lateral li {
-    margin: 10px 0;
-}
-
-.menu-anchor {
-    display: block;
-    width: 10px;
-    height: 10px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.menu-anchor:hover,
-.menu-anchor.active {
-    background: #fff;
-    transform: scale(1.5);
-}
-
-.menu-anchor:hover::after {
-    content: attr(title);
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    white-space: nowrap;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 3px;
-    font-size: 12px;
 }
 </style>

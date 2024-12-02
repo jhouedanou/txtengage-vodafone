@@ -79,7 +79,14 @@ body {
     margin : 0;
 }
 
-#slide-10 {
+#slide-73 {
+    .slapjh {
+        display        : flex;
+        align-items    : flex-end;
+        justify-content: center;
+        flex-direction : column;
+    }
+
     .text-element {
         &:nth-of-type(2) {}
     }
@@ -138,29 +145,78 @@ body {
     }
 }
 
+#slide-10 {
+    .text-element {
+        &:nth-of-type(2) {}
+    }
+
+    .txtintro {
+        width          : 100vw;
+        display        : flex;
+        align-items    : center;
+        justify-content: center;
+        flex-direction : row;
+    }
+
+    .subint {
+        h2 {
+            font-size     : 10.2em;
+            font-weight   : 600;
+            font-stretch  : normal;
+            font-style    : normal;
+            line-height   : normal;
+            letter-spacing: normal;
+            text-align    : center;
+            color         : #fff;
+        }
+
+        p {
+            font-family   : Raleway;
+            font-size     : 2.6em;
+            font-weight   : 300;
+            font-stretch  : normal;
+            font-style    : normal;
+            line-height   : 1.44;
+            letter-spacing: normal;
+            text-align    : center;
+            color         : #fff;
+        }
+    }
+
+    .slapjh {
+        display        : flex;
+        align-items    : flex-end;
+        justify-content: center;
+        flex-direction : column;
+    }
+
+    .points-fort {
+        height         : 100vh;
+        display        : flex;
+        align-items    : flex-start;
+        justify-content: center;
+        flex-direction : column;
+        background     : -webkit-linear-gradient(top, #D50002, #ED1311);
+        /* For Safari */
+        background     : -moz-linear-gradient(top, #D50002, #ED1311);
+        /* For Firefox */
+        background     : -o-linear-gradient(top, #D50002, #ED1311);
+        /* For Opera */
+        background     : -ms-linear-gradient(top, #D50002, #ED1311);
+        background     : linear-gradient(90deg, #b70104, #ED1311);
+        /* For Internet Explorer 10+ */
+
+        padding-left: 2.1em;
+
+    }
+}
+
 .slapjh {
     position: relative;
 }
 
-.subint {
-    // height: 100vh;
-    // overflow-y: auto;
-    // padding: 2rem;
-    // opacity: 1;
-}
-
-.points-fort {
-    opacity  : 0;
-    transform: translateY(50px);
-    padding  : 2rem;
-}
 
 .subint {
-    position       : absolute;
-    top            : 0;
-    margin         : auto;
-    right          : 0;
-    bottom         : 0;
     transition     : opacity 0.5s;
     align-items    : center;
     justify-content: center;
@@ -182,16 +238,10 @@ body {
 }
 
 .points-fort {
-    opacity   : 0;
-    transform : translateY(50px);
-    padding   : 2rem;
-    transition: all 1s;
-    width     : 46.6vw;
-    position  : absolute;
-    top       : 0;
-    margin    : auto;
-    right     : 0;
-    bottom    : 0;
+    opacity  : 1;
+    transform: translateY(50px);
+    padding  : 2rem;
+    width    : 46.6vw;
 
     h3 {
         font-family: "Vodafone";
@@ -585,4 +635,15 @@ body {
 .gsap-marker-start,
 .gsap-marker-end {
     visibility: hidden !important;
+}
+
+#vodacomwrapper {
+
+    background             : url(images/bg1.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size   : cover;
+    -o-background-size     : cover;
+    background-size        : cover;
+
+
 }
