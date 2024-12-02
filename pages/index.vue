@@ -8,12 +8,18 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
 import 'animate.css'
+import gsap from 'gsap'
 
+
+const swiperInstance = ref(null)
+const showButton = ref(false)
 const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
 const activeSlideIndex = ref(0)
 const horizontalSwiperModules = [Navigation, Pagination, Autoplay]
+//back to top btn
+
 //slide 23
 
 const activeIndex = ref(null)
@@ -24,6 +30,7 @@ const toggleAccordion = (slideId, index) => {
     const imgSrc = currentSlide.paragraphs[index].match(/src="([^"]*)"/)?.[1]
     activeImage.value = imgSrc
 }
+
 
 const swiperOptions = {
     modules: [Mousewheel, Scrollbar],
@@ -77,8 +84,6 @@ const stopAutoplay = () => {
 }
 
 
-
-
 const formData = ref({
     firstName: '',
     lastName: '',
@@ -130,6 +135,8 @@ const submitForm = async () => {
         }, 5000)
     }
 }
+//back to top 
+
 
 onMounted(() => {
     slidesStore.fetchSlides()
@@ -264,62 +271,81 @@ onMounted(() => {
                         <div id="killerjunior" class="ouh">
                             <div class="row">
                                 <div class="col-md-7">
-                                    <h2 class="text-element" v-html="slide.title"></h2>
+                                    <h2 class="text-element aya" v-html="slide.title"></h2>
                                     <p v-html="slide.wp_content"></p>
                                 </div>
                                 <div class="col-md-5">
-                                    <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                        class="text-element" v-html="paragraph">
+                                    <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="lemouds"
+                                        v-html="paragraph">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div v-else-if="slide.id === 60">
-                        <div class="container">
-                            <h2 class="text-element" v-html="slide.title"></h2>
-                            <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
-                                v-html="paragraph">
+                    <div id="lemof" v-else-if="slide.id === 60">
+                        <div id="lafill" class="container">
+                            <h2 class="text-element lopere" v-html="slide.title"></h2>
+                            <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
+                                class="text-element ditocard" v-html="paragraph">
                             </div>
                             <div class="form-container">
                                 <div v-if="showAlert" :class="['alert', alertType]" role="alert">
                                     {{ alertMessage }}
                                 </div>
                                 <form @submit.prevent="submitForm" class="contact-form">
-                                    <div class="form-row">
+                                    <div class="row">
                                         <div class="col-md-6">
                                             <input v-model="formData.firstName" type="text" class="form-control"
                                                 placeholder="First Name" required>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 col-sm-12">
                                             <input v-model="formData.lastName" type="text" class="form-control"
                                                 placeholder="Last Name" required>
                                         </div>
                                     </div>
 
-                                    <div class="form-row">
-                                        <input v-model="formData.email" type="email" class="form-control"
-                                            placeholder="Email Address" required>
+                                    <div class="row">
+                                        <div class="col-md-12">
+
+                                            <input v-model="formData.email" type="email" class="form-control"
+                                                placeholder="Email Address" required>
+                                        </div>
                                     </div>
 
-                                    <div class="form-row">
-                                        <input v-model="formData.company" type="text" class="form-control"
-                                            placeholder="Company Name" required>
+                                    <div class="row">
+                                        <div class="col-md-12">
+
+                                            <input v-model="formData.company" type="text" class="form-control"
+                                                placeholder="Company Name" required>
+                                        </div>
                                     </div>
 
-                                    <div class="form-row">
-                                        <input v-model="formData.phone" type="tel" class="form-control"
-                                            placeholder="Contact Number" required>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <input v-model="formData.phone" type="tel" class="form-control"
+                                                placeholder="Contact Number" required>
+                                        </div>
+
                                     </div>
 
-                                    <div class="form-row submit-row">
-                                        <button type="submit" class="btn btn-primary" :disabled="loading">
-                                            {{ loading ? 'Sending...' : 'Submit' }}
-                                        </button>
+                                    <div class="row submit-row">
+                                        <div class="col-md-">
+
+                                            <button type="submit" class="btn btn-primary" :disabled="loading">
+                                                {{ loading ? 'Sending...' : 'Submit' }}
+                                            </button>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
+                            <div id="yenamarre" class="d-flex align-items-center justify-content-center m-4">
+                                <!-- back to top btn-->
+                                <a @click="goToFirstSlide" class="back-to-top-btn">
+                                    <img src="/images/backtotop.svg" alt="Back to Top">
+                                </a>
+                            </div>
+
                         </div>
                     </div>
 
@@ -584,6 +610,14 @@ onMounted(() => {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+#yenamarre {
+    a {
+        &:hover {
+            cursor: pointer;
+        }
     }
 }
 </style>
