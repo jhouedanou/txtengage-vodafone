@@ -164,8 +164,9 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-@import 'swiper/css';
-@import 'swiper/css/scrollbar';
+@use 'swiper/css';
+@use 'swiper/css/scrollbar';
+
 
 :root {
     overflow: hidden;
