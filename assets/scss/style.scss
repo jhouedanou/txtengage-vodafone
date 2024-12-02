@@ -647,3 +647,109 @@ body {
 
 
 }
+
+#slide-23 {
+    width  : 100vw;
+    margin : 0;
+    padding: 0;
+}
+
+#lephone {
+    display        : flex;
+    align-items    : flex-end;
+    justify-content: flex-end;
+    flex-direction : column;
+
+    img {
+        width    : 100vw;
+        max-width: 656px;
+    }
+}
+
+#bygone-bip {
+
+    background: linear-gradient(297.95deg, #EE3625 45.57%, #6F1111 100%);
+    width     : 100vw;
+    height    : 100vh;
+    padding   : 0em;
+
+    .accordion-item {
+        .accordion-header {
+            &.active-header {
+
+                h3 {
+
+                    filter        : alpha(opacity=100);
+                    /*internetexplorer*/
+                    -khtml-opacity: 1;
+                    /*khtml,oldsafari*/
+                    -moz-opacity  : 1;
+                    /*mozilla,netscape*/
+                    opacity       : 1;
+                    /* fx, safari, opera */
+                    -webkit-filter: alpha(opacity=100);
+
+                    -webkit-transition: all 0.4s ease-in-out 0.2s;
+                    -moz-transition   : all 0.4s ease-in-out 0.2s;
+                    -o-transition     : all 0.4s ease-in-out 0.2s;
+                    -ms-transition    : all 0.4s ease-in-out 0.2s;
+                    transition        : all 0.4s ease-in-out 0.2s;
+                }
+            }
+        }
+
+        h3 {
+            color      : white;
+            font-size  : 56px;
+            font-weight: 700;
+            line-height: 1.44;
+
+            filter        : alpha(opacity=50);
+            /* internet explorer */
+            -khtml-opacity: 0.5;
+            /* khtml, old safari */
+            -moz-opacity  : 0.5;
+            /* mozilla, netscape */
+            opacity       : 0.5;
+            /* fx, safari, opera */
+
+            -webkit-transition: all 0.4s ease-in-out 0.2s;
+            -moz-transition   : all 0.4s ease-in-out 0.2s;
+            -o-transition     : all 0.4s ease-in-out 0.2s;
+            -ms-transition    : all 0.4s ease-in-out 0.2s;
+            transition        : all 0.4s ease-in-out 0.2s;
+
+
+
+            &:hover {
+                filter        : alpha(opacity=100);
+                /*internetexplorer*/
+                -khtml-opacity: 1;
+                /*khtml,oldsafari*/
+                -moz-opacity  : 1;
+                /*mozilla,netscape*/
+                opacity       : 1;
+                /* fx, safari, opera */
+                -webkit-filter: alpha(opacity=100);
+
+                -webkit-transition: all 0.4s ease-in-out 0.2s;
+                -moz-transition   : all 0.4s ease-in-out 0.2s;
+                -o-transition     : all 0.4s ease-in-out 0.2s;
+                -ms-transition    : all 0.4s ease-in-out 0.2s;
+                transition        : all 0.4s ease-in-out 0.2s;
+
+            }
+        }
+    }
+
+    .row {
+        padding: 0em;
+        height : 100vh;
+
+    }
+
+    .columns-container {
+        padding: 0em 10em;
+    }
+
+}
