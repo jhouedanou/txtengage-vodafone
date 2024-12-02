@@ -235,14 +235,9 @@ onMounted(() => {
 
 .swiper-slide {
     height: 100vh;
-    opacity: 0.5;
-    transform: scale(0.9);
     transition: all 0.5s ease;
 
-    &.swiper-slide-active {
-        opacity: 1;
-        transform: scale(1);
-    }
+    &.swiper-slide-active {}
 }
 
 
