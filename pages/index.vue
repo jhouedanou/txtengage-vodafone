@@ -142,24 +142,28 @@ onMounted(() => {
                     </div>
 
                     <div v-else-if="slide.id === 23" id="bygone-bip" class="p-0 m-0">
-                        <div class="row">
-                            <!-- Colonne de gauche pour les images -->
-                            <div class="col-md-5 col-sm-12">
-                                <div :id="`letexte-${index}`" v-for="(paragraph, index) in slide.paragraphs"
-                                    :key="index" class="accordion-item">
-                                    <div class="accordion-header" @click="toggleAccordion(slide.id, index)"
-                                        :class="{ 'active-header': activeIndex === index }">
-                                        <h3 v-html="paragraph.split('</h3>')[0] + '</h3>'"
-                                            :class="{ 'active-title': activeIndex === index }"></h3>
-                                    </div>
-                                    <div class="accordion-content" :class="{ active: activeIndex === index }">
-                                        <p v-html="paragraph.split('</h3>')[1].split('<p>')[1].split('</p>')[0]"></p>
+                        <div class="container">
+
+                            <div class="row">
+                                <!-- Colonne de gauche pour les images -->
+                                <div class="col-md-5 col-sm-12">
+                                    <div :id="`letexte-${index}`" v-for="(paragraph, index) in slide.paragraphs"
+                                        :key="index" class="accordion-item">
+                                        <div class="accordion-header" @click="toggleAccordion(slide.id, index)"
+                                            :class="{ 'active-header': activeIndex === index }">
+                                            <h3 v-html="paragraph.split('</h3>')[0] + '</h3>'"
+                                                :class="{ 'active-title': activeIndex === index }"></h3>
+                                        </div>
+                                        <div class="accordion-content" :class="{ active: activeIndex === index }">
+                                            <p v-html="paragraph.split('</h3>')[1].split('<p>')[1].split('</p>')[0]">
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div id="lephone" class="col-md-7 col-sm-12">
-                                <img v-if="activeImage" :src="activeImage"
-                                    :class="['slide-image', { visible: activeImage }]" alt="Slide image">
+                                <div id="lephone" class="col-md-7 col-sm-12">
+                                    <img v-if="activeImage" :src="activeImage"
+                                        :class="['slide-image', { visible: activeImage }]" alt="Slide image">
+                                </div>
                             </div>
                         </div>
                     </div>
