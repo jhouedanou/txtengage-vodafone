@@ -276,6 +276,9 @@ onUnmounted(() => {
     window.removeEventListener('resize', checkScreenSize)
 });
 
+useHead({
+    title: 'TXT Engage - Vodafone'
+});
 </script>
 
 <template>
@@ -310,7 +313,7 @@ onUnmounted(() => {
             <SwiperSlide v-for="(slide, index) in sortedSlides" :key="slide.id"
                 :class="{ 'slide-active': index === activeSlideIndex }">
                 <div :id="`slide-${slide.id}`" class="slide-container animate__animated animate__fadeIn"
-                    :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
+                    :style="{ backgroundImage: isMobile ? (slide.backgroundMobile ? `url(${slide.backgroundMobile})` : 'none') : (slide.thumbnail ? `url(${slide.thumbnail})` : 'none') }">
                     <!-- premiere slide  -->
                     <div v-if="slide.id === 73" class="txtintro row m-0 p-0">
                         <div class="firstContainer">
@@ -912,6 +915,19 @@ onUnmounted(() => {
 
         &.active {
             color: #e60000;
+        }
+    }
+}
+
+.menu-container {
+    position: fixed;
+    right: 31px;
+    color: white;
+    top: 29px;
+
+    .hamburger {
+        span {
+            background-color: white;
         }
     }
 }
