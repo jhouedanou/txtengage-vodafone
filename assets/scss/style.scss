@@ -252,7 +252,7 @@ body {
 
     p {
         font-family   : "Raleway";
-        font-size     : 2.45em;
+        font-size     : 2em;
         font-weight   : 300;
         font-stretch  : normal;
         font-style    : normal;
@@ -298,7 +298,7 @@ body {
             color      : white;
             max-width  : 540px;
             margin     : 0;
-            font-size  : 7em;
+            font-size  : 6.7em;
             font-weight: 800;
         }
 
@@ -494,7 +494,7 @@ body {
                     justify-content: center;
                     flex-direction : row;
                     text-align     : center;
-                    font-size      : 2.4em;
+                    font-size      : 2em;
                     font-weight    : 300;
                     font-stretch   : normal;
                     font-style     : normal;
@@ -547,18 +547,54 @@ body {
                 line-height    : 0.5em;
                 font-weight    : 700;
 
+
                 h3 {
-                    text-align: center; // Base font-size
-                    font-size : 3.3em;
+                    color          : white;
+                    display        : flex;
+                    align-items    : center;
+                    justify-content: center;
+                    flex-direction : row;
+                    text-align     : center;
+                    // Base font-size
+                    font-size      : 3.3em;
 
                     // Media queries pour l'adaptation responsive
                     @media screen and (max-width: 1440px) {
-                        font-size: calc(2.8em + 0.5vw);
+                        font-size: calc(2.2em + 0.5vw);
                     }
 
                     @media screen and (max-width: 1024px) {
                         font-size: calc(2.2em + 0.5vw);
                     }
+
+                    line-height   : .8;
+                    font-weight   : 700;
+                    margin-bottom : 0em;
+                }
+
+                p {
+                    margin-bottom  : 0em;
+                    color          : white;
+                    display        : flex;
+                    align-items    : center;
+                    justify-content: center;
+                    flex-direction : row;
+                    text-align     : center;
+                    font-size      : 2em;
+
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(1.2em + 0.5vw);
+                    }
+
+                    font-weight    : 300;
+                    font-stretch   : normal;
+                    font-style     : normal;
+                    line-height    : .8;
+                    letter-spacing : 1px;
+                    text-align     : center;
+                    color          : #fff;
+                    min-height     : 180px;
+                    /* background  : black; */
                 }
             }
         }
@@ -579,14 +615,14 @@ body {
 
                     // Media queries pour l'adaptation responsive
                     @media screen and (max-width: 1440px) {
-                        font-size: calc(2.8em + 0.5vw);
+                        font-size: calc(2.2em + 0.5vw);
                     }
 
                     @media screen and (max-width: 1024px) {
                         font-size: calc(2.2em + 0.5vw);
                     }
 
-                    line-height   : 0.5em;
+                    line-height   : .8;
                     font-weight   : 700;
                     margin-bottom : 0em;
                 }
@@ -599,11 +635,16 @@ body {
                     justify-content: center;
                     flex-direction : row;
                     text-align     : center;
-                    font-size      : 2.4em;
+                    font-size      : 2em;
+
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(1.2em + 0.5vw);
+                    }
+
                     font-weight    : 300;
                     font-stretch   : normal;
                     font-style     : normal;
-                    line-height    : 0.64;
+                    line-height    : .8;
                     letter-spacing : 1px;
                     text-align     : center;
                     color          : #fff;

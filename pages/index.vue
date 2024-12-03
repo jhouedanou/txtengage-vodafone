@@ -244,6 +244,7 @@ onMounted(() => {
     }    //auto play sur le clic sur l'image 
     //autoPlayAccordion()
     // startAutoplay()
+
 });
 
 const isMobile = ref(false)
@@ -364,7 +365,7 @@ useHead({
                             </div>
                             <div class="row flex-row">
                                 <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                    class="text-element col-sm-12  col-md-3 m-0 p-2" v-html="paragraph">
+                                    class="text-element col m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
                         </div>
@@ -378,7 +379,7 @@ useHead({
                             </div>
                             <div class="row flex-row align-content-center align-items-center juustify-content-center">>
                                 <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                    class="text-element col-sm-12  col-md-3 m-0 p-2" v-html="paragraph">
+                                    class="text-element col m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
                         </div>
