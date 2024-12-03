@@ -246,6 +246,19 @@ onMounted(() => {
     startAutoplay()
 });
 
+const isMobile = ref(false)
+
+const checkScreenSize = () => {
+    isMobile.value = window.innerWidth < 1025
+}
+onMounted(() => {
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkScreenSize)
+});
 </script>
 
 <template>
@@ -353,26 +366,6 @@ onMounted(() => {
                                     class="text-element col m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Version Mobile avec Swiper -->
-                        <div class="mobile-version">
-                            <Swiper class="mobile-swiper" :modules="[Navigation, Pagination]" :slides-per-view="1"
-                                :direction="'vertical'">
-                                <SwiperSlide class="mobile-slide-part">
-                                    <div class="row">
-                                        <h3 id="mshill-2" v-html="slide.wp_content"></h3>
-                                    </div>
-                                </SwiperSlide>
-
-                                <SwiperSlide class="mobile-slide-part">
-                                    <div class="row flex-row">
-                                        <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                            class="text-element col m-0 p-2" v-html="paragraph">
-                                        </div>
-                                    </div>
-                                </SwiperSlide>
-                            </Swiper>
                         </div>
                     </div>
 
