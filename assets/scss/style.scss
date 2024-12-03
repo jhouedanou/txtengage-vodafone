@@ -1408,4 +1408,19 @@ body {
         background-size    : cover !important;
         background-position: 50% 50% !important;
     }
+
+    #thoiathoing {
+        width          : 100vw;
+        margin         : 0;
+        height         : 100vh;
+        display        : flex;
+        justify-content: center;
+        align-items    : center;
+        background     : #00000082;
+    }
+
+    #slide-21 .cont,
+    #slide-22 .cont {
+        justify-content: center;
+    }
 }
