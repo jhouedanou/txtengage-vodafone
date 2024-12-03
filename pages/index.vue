@@ -361,8 +361,7 @@ onMounted(() => {
                             <div id="yenamarre" class="d-flex align-items-center justify-content-center m-4">
                                 <!-- back to top btn-->
                                 <a @click="goToFirstSlide" class="back-to-top" :class="{ 'show': showButton }">
-
-                                    <NuxtImg src="/images/backToTop.svg" alt="Back to Top">
+                                    <NuxtImg src="/images/backToTop.svg" alt="Back to Top" />
                                 </a>
                             </div>
                         </div>
@@ -371,9 +370,6 @@ onMounted(() => {
                 </div>
             </SwiperSlide>
         </Swiper>
-
-
-
     </div>
 </template>
 
