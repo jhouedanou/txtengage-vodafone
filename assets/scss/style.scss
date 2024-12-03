@@ -548,7 +548,17 @@ body {
                 font-weight    : 700;
 
                 h3 {
-                    text-align: center;
+                    text-align: center; // Base font-size
+                    font-size : 3.3em;
+
+                    // Media queries pour l'adaptation responsive
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(2.8em + 0.5vw);
+                    }
+
+                    @media screen and (max-width: 1024px) {
+                        font-size: calc(2.2em + 0.5vw);
+                    }
                 }
             }
         }
@@ -564,10 +574,21 @@ body {
                     justify-content: center;
                     flex-direction : row;
                     text-align     : center;
+                    // Base font-size
                     font-size      : 3.3em;
-                    line-height    : 0.5em;
-                    font-weight    : 700;
-                    margin-bottom  : 0em;
+
+                    // Media queries pour l'adaptation responsive
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(2.8em + 0.5vw);
+                    }
+
+                    @media screen and (max-width: 1024px) {
+                        font-size: calc(2.2em + 0.5vw);
+                    }
+
+                    line-height   : 0.5em;
+                    font-weight   : 700;
+                    margin-bottom : 0em;
                 }
 
                 p {
@@ -1276,7 +1297,7 @@ body {
     #slide-22 {
         p {
             font-family   : "Raleway" !important;
-            font-size     : 23px !important;
+            font-size     : 18px !important;
             font-weight   : normal !important;
             font-stretch  : normal !important;
             font-style    : normal !important;
@@ -1290,7 +1311,95 @@ body {
             font-family: "Vodafone";
             font-size  : 28px !important;
             font-weight: bold !important;
-            line-height: 218px !important;
+            line-height: 18px !important;
+        }
+    }
+
+    .accordion-item {
+        .accordion-header {
+            display        : flex;
+            align-items    : center;
+            justify-content: center;
+            flex-direction : column;
+
+            h3 {
+                margin        : 0;
+                padding       : 0;
+                font-family   : "Vodafone";
+                font-size     : 28px !important;
+                font-weight   : bold;
+                font-stretch  : normal;
+                font-style    : normal;
+                line-height   : 1.44;
+                letter-spacing: normal;
+                text-align    : center;
+                color         : #fff;
+            }
+        }
+
+        p {
+            margin-bottom: 0em !important;
+            text-align   : center !important;
+            font-size    : 22px !important;
+        }
+    }
+
+    #killerjunior {
+        h2 {
+            font-size     : 56px !important;
+            font-weight   : bold;
+            font-stretch  : normal;
+            font-style    : normal;
+            line-height   : normal;
+            letter-spacing: normal;
+            text-align    : center;
+            color         : #f00;
+        }
+
+        p {
+            font-size     : 23px !important;
+            font-weight   : normal;
+            font-stretch  : normal;
+            font-style    : normal;
+            line-height   : 1.2;
+            letter-spacing: normal;
+            text-align    : center;
+            color         : #f00;
+        }
+
+        img {
+            width : 80%;
+            height: auto;
+        }
+    }
+
+    #naci {
+        justify-content: flex-end;
+    }
+
+    #slide-21 {
+        justify-content: center !important;
+    }
+
+    #headerpadding img {
+        min-height: 25px !important;
+
+        height: 25px !important
+    }
+
+    .ditocard {
+        &:nth-of-type(1) {
+            p {
+                font-size: 56px !important;
+
+            }
+        }
+
+        &:nth-of-type(2) {
+            p {
+                font-size  : 23px !important;
+                line-height: 1.2 !important;
+            }
         }
     }
 }

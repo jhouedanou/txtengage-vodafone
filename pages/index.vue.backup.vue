@@ -1,32 +1,21 @@
 <script setup>
-import { onMounted, ref, computed, reactive } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useSlidesStore } from '~/stores/slides'
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Mousewheel, Scrollbar, Navigation, Pagination, Autoplay } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
-import 'swiper/css/scrollbar'
-import 'animate.css'
 import gsap from 'gsap'
+import 'fullpage.js/dist/fullpage.min.css'
+import fullpage from 'fullpage.js'
 
-
-const swiperInstance = ref(null)
 const showButton = ref(false)
 const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
 const activeSlideIndex = ref(0)
-const horizontalSwiperModules = [Navigation, Pagination, Autoplay]
-//back to top btn
-
-//slide 23
-
 const activeIndex = ref(null)
 const activeImage = ref(null)
+const isMobile = ref(false)
 
 const toggleAccordion = (slideId, index) => {
-    const currentSlide = slidesStore.sortedSlides.find(s => s.id === slideId)
+    const currentSlide = sortedSlides.value.find(s => s.id === slideId)
     if (!currentSlide) return
 
     activeIndex.value = activeIndex.value === index ? null : index
@@ -34,38 +23,29 @@ const toggleAccordion = (slideId, index) => {
     activeImage.value = imgSrc
 }
 
-const isFirstSlideActive = ref(true)
-const swiper = ref(null)
-const swiperOptions = {
-    modules: [Mousewheel, Scrollbar],
-    direction: 'vertical',
-    slidesPerView: 1,
-    mousewheel: true,
-    speed: 800,
-    scrollbar: {
-        el: '.swiper-scrollbar',
-        draggable: true,
-        hide: false,
-    },
-    onSwiper: (instance) => {
-        swiper.value = instance
-    },
-    on: {
-        slideChange: (swiper) => {
-            activeSlideIndex.value = swiper.activeIndex
-            updateFirstSlideStatus()
+
+const initFullPage = () => {
+    nextTick(() => {
+        if (document.getElementById('fullpage')) {
+            new fullpage('#fullpage', {
+                scrollingSpeed: 800,
+                onLeave: (origin, destination) => {
+                    activeSlideIndex.value = destination.index
+                    animateSlideElements(destination.index)
+                },
+                scrollOverflow: true,
+                scrollOverflowReset: true,
+                touchSensitivity: 15,
+                //normalScrollElements: '#slide-21 .cont, #slide-22 .cont'
+            })
         }
-    },
-    onSlideChange: (swiper) => {
-        animateSlideElements(swiper.activeIndex)
-    }
+    })
 }
-//animations 
+
 
 const animateSlideElements = (activeIndex) => {
     const timeline = gsap.timeline()
 
-    // Slide 20 - Reach 32 million customers
     if (activeIndex === 2) {
         timeline
             .fromTo('#slide2a', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
@@ -73,57 +53,29 @@ const animateSlideElements = (activeIndex) => {
             .fromTo('#slide2c', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
             .fromTo('#guysamuel .text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
     }
-
-    // Slide 21 - No internet access needed
     else if (activeIndex === 3) {
-
-        // Version Desktop
         if (window.innerWidth > 1024) {
             timeline
                 .fromTo('#mshill', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-                .fromTo('.desktop-version .text-element',
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 }
-                )
+                .fromTo('.text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
         }
-        // Version Mobile
         else {
             timeline
-                .fromTo('.mobile-slide-part:first-child #mshill',
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.5 }
-                )
-                .fromTo('.mobile-slide-part:last-child .text-element',
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 }
-                )
+                .fromTo('#mshill', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+                .fromTo('.text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
         }
-
     }
-
-    // Slide 22 - Other advantages
     else if (activeIndex === 4) {
         timeline
             .fromTo('#mshill', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
             .fromTo('#thoiathoing .text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
     }
-
-    // Slide 23 - Accordion
-    else if (activeIndex === 5) {
-        // timeline
-        //     .fromTo('#naci .accordion-item', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.2 })
-        //     .fromTo('#lephone img', { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.5 })
-    }
-
-    // Slide 59
     else if (activeIndex === 6) {
         timeline
             .fromTo('#killerjunior h2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
             .fromTo('#killerjunior p', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
             .fromTo('.lemouds', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
     }
-
-    // Slide 60 - Form
     else if (activeIndex === 7) {
         timeline
             .fromTo('.lopere', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
@@ -131,53 +83,6 @@ const animateSlideElements = (activeIndex) => {
             .fromTo('.contact-form', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
     }
 }
-const updateFirstSlideStatus = () => {
-    if (swiper.value) {
-        isFirstSlideActive.value = swiper.value.activeIndex === 0
-        console.log(isFirstSlideActive.value)
-    }
-}
-const goToFirstSlide = () => {
-    if (swiper.value) {
-        swiper.value.slideTo(0)
-    } else {
-        console.error('Swiper instance is not available')
-    }
-}
-//fin, des mérhode liées à swiper 
-const autoPlayAccordion = () => {
-    const currentSlide = sortedSlides.value?.find(s => s.id === 23)
-    if (!currentSlide?.paragraphs) return
-
-    const totalItems = currentSlide.paragraphs.length
-    let currentIndex = 0
-
-    setInterval(() => {
-        toggleAccordion(currentSlide.id, currentIndex)
-        currentIndex = (currentIndex + 1) % totalItems
-    }, 50000)
-}
-
-
-
-//autoplay toutes les 10 secondes
-// let autoplayInterval = null
-
-// const startAutoplay = () => {
-//     const currentSlide = sortedSlides.value.find(s => s.id === 23)
-//     const totalItems = currentSlide.paragraphs.length
-//     let currentIndex = 0
-
-//     autoplayInterval = setInterval(() => {
-//         toggleAccordion(currentSlide.id, currentIndex)
-//         currentIndex = (currentIndex + 1) % totalItems
-//     }, 50000)
-// }
-
-// const stopAutoplay = () => {
-//     clearInterval(autoplayInterval)
-// }
-
 
 const formData = ref({
     firstName: '',
@@ -210,14 +115,14 @@ const submitForm = async () => {
 
         if (response.ok) {
             alertType.value = 'alert-success'
-            alertMessage.value = 'Message envoyé avec succès !',
-                formData.value = {
-                    firstName: '',
-                    lastName: '',
-                    email: '',
-                    company: '',
-                    phone: ''
-                }
+            alertMessage.value = 'Message envoyé avec succès !'
+            formData.value = {
+                firstName: '',
+                lastName: '',
+                email: '',
+                company: '',
+                phone: ''
+            }
         }
     } catch (error) {
         alertType.value = 'alert-danger'
@@ -230,55 +135,39 @@ const submitForm = async () => {
         }, 5000)
     }
 }
-//back to top 
-
-onMounted(() => {
-    slidesStore.fetchSlides()
-    slidesStore.startAutoRefresh()
-    //Afficher local relevance en tant que première slide dans la sldie 23
-    activeIndex.value = 0
-    //changement automatique de l'image dans la slide 23
-    const firstSlide = sortedSlides.value.find(s => s.id === 23)
-    if (firstSlide?.paragraphs?.[0]) {
-        activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1]
-    }    //auto play sur le clic sur l'image 
-    //autoPlayAccordion()
-    // startAutoplay()
-});
-
-const isMobile = ref(false)
 
 const checkScreenSize = () => {
     isMobile.value = window.innerWidth < 1025
 }
-
-const isMenuOpen = ref(false)
-
-
-const toggleMenu = () => {
-    isMenuOpen.value = !isMenuOpen.value
-}
-
-const goToSlide = (index) => {
-    if (swiper.value && swiper.value.slideTo) {
-        swiper.value.slideTo(index)
-        isMenuOpen.value = false
-    }
-}
-
-
-onMounted(() => {
-    checkScreenSize()
-    window.addEventListener('resize', checkScreenSize)
+onMounted(async () => {
+    await slidesStore.fetchSlides()
+    initFullPage()
 })
-
+// onMounted(() => {
+//     //slidesStore.fetchSlides()
+//     slidesStore.startAutoRefresh()
+//     activeIndex.value = 0
+//     const firstSlide = sortedSlides.value.find(s => s.id === 23)
+//     if (firstSlide?.paragraphs?.[0]) {
+//         activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1]
+//     }
+//     checkScreenSize()
+//     window.addEventListener('resize', checkScreenSize)
+//     // initFullPage()
+// })
+onMounted(async () => {
+    await slidesStore.fetchSlides()
+    activeIndex.value = 0
+    const firstSlide = sortedSlides.value.find(s => s.id === 23)
+    if (firstSlide?.paragraphs?.[0]) {
+        activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1]
+    }
+    initFullPage()
+})
 onUnmounted(() => {
     window.removeEventListener('resize', checkScreenSize)
 });
-
-</script>
-
-<template>
+</script><template>
     <div id="vodacomwrapper">
         <div v-if="loading" class="loader-container">
             <nuxt-img src="/images/logovector.svg" class="logo-loader" format="webp" quality="80" alt="Logo" />
@@ -287,31 +176,16 @@ onUnmounted(() => {
         <header class="fixed-top">
             <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
                 <nuxt-img src="/images/logovector.svg" format="webp" quality="80" alt="Logo" />
-                <div class="menu-container">
-                    <button class="hamburger" @click="toggleMenu" :class="{ 'is-active': isMenuOpen }">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                    <nav class="slide-menu" :class="{ 'is-open': isMenuOpen }">
-                        <ul>
-                            <li v-for="(slide, index) in sortedSlides" :key="slide.id"
-                                :class="{ active: activeSlideIndex === index }" @click="goToSlide(index)">
-                                <span class="slide-label">{{ slide.menuTitle }}</span>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
             </div>
         </header>
 
-        <Swiper v-bind="swiperOptions" class="sections-container">
-            <div class="swiper-scrollbar"></div>
-            <SwiperSlide v-for="(slide, index) in sortedSlides" :key="slide.id"
-                :class="{ 'slide-active': index === activeSlideIndex }">
+        <div id="fullpage">
+            <div v-for="(slide, index) in sortedSlides" :key="slide.id" class="section"
+                :class="{ 'fp-scrollable': [21, 22].includes(slide.id) }">
                 <div :id="`slide-${slide.id}`" class="slide-container animate__animated animate__fadeIn"
                     :style="{ backgroundImage: slide.thumbnail ? `url(${slide.thumbnail})` : 'none' }">
-                    <!-- premiere slide  -->
+
+                    <!-- Première slide -->
                     <div v-if="slide.id === 73" class="txtintro row m-0 p-0">
                         <div class="firstContainer">
                             <div class="slapjh">
@@ -322,11 +196,11 @@ onUnmounted(() => {
                             </div>
                         </div>
                     </div>
-                    <!-- slide1 -->
+
+                    <!-- Slide 1 -->
                     <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
                         <div class="firstContainer">
                             <div class="slapjh">
-
                                 <div class="points-fort" id="points-fort">
                                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                         class="text-element" v-html="paragraph">
@@ -336,7 +210,7 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <!-- reach 32 million customers -->
+                    <!-- Reach 32 million customers -->
                     <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0">
                         <div id="usruu">
                             <div id="mzu" class="nusrru">
@@ -352,42 +226,38 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <!-- no internet access needed -->
+                    <!-- No internet access needed -->
                     <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
-                        <!-- Version Desktop -->
                         <div class="cont p-2">
-                            <div class="row">
+                            <div class="row header-row">
                                 <h3 id="mshill" v-html="slide.wp_content"></h3>
                             </div>
-                            <div class="row flex-row">
+                            <div class="row flex-row content-row">
                                 <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                    class="text-element col-sm-12  col-md-3 m-0 p-2" v-html="paragraph">
+                                    class="text-element col-sm-12 col-md-3 m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- other advantages -->
+
+                    <!-- Other advantages -->
                     <div v-else-if="slide.id === 22" id="thoiathoing" class="p-0 m-0">
-                        <!-- Version Desktop -->
                         <div class="cont p-2">
-                            <div class="row">
+                            <div class="row header-row">
                                 <h3 id="mshill" v-html="slide.wp_content"></h3>
                             </div>
-                            <div class="row flex-row align-content-center align-items-center juustify-content-center">>
+                            <div class="row flex-row content-row">
                                 <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                    class="text-element col-sm-12  col-md-3 m-0 p-2" v-html="paragraph">
+                                    class="text-element col-sm-12 col-md-3 m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
 
+                    <!-- Slide 23 -->
                     <div v-else-if="slide.id === 23" id="bygone-bip" class="p-0 m-0">
                         <div class="container">
-
                             <div class="row">
-                                <!-- Colonne de gauche pour les images -->
                                 <div id="naci" class="col-md-5 col-sm-12">
                                     <div :id="`letexte-${index}`" v-for="(paragraph, index) in slide.paragraphs"
                                         :key="index" class="accordion-item">
@@ -410,7 +280,7 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-
+                    <!-- Slide 59 -->
                     <div v-else-if="slide.id === 59">
                         <div id="killerjunior" class="ouh">
                             <div class="row">
@@ -427,7 +297,8 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <div id="lemof" v-else-if="slide.id === 60">
+                    <!-- Slide 60 - Form -->
+                    <div v-else-if="slide.id === 60" id="lemof">
                         <div id="lafill" class="container">
                             <h2 class="text-element lopere" v-html="slide.title"></h2>
                             <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
@@ -448,34 +319,26 @@ onUnmounted(() => {
                                                 placeholder="Last Name" required>
                                         </div>
                                     </div>
-
                                     <div class="row">
                                         <div class="col-md-12">
-
                                             <input v-model="formData.email" type="email" class="form-control"
                                                 placeholder="Email Address" required>
                                         </div>
                                     </div>
-
                                     <div class="row">
                                         <div class="col-md-12">
-
                                             <input v-model="formData.company" type="text" class="form-control"
                                                 placeholder="Company Name" required>
                                         </div>
                                     </div>
-
                                     <div class="row">
                                         <div class="col-md-12">
                                             <input v-model="formData.phone" type="tel" class="form-control"
                                                 placeholder="Contact Number" required>
                                         </div>
-
                                     </div>
-
                                     <div class="row submit-row">
-                                        <div class="col-md-">
-
+                                        <div class="col-md-12">
                                             <button type="submit" class="btn btn-primary" :disabled="loading">
                                                 {{ loading ? 'Sending...' : 'Submit' }}
                                             </button>
@@ -483,26 +346,18 @@ onUnmounted(() => {
                                     </div>
                                 </form>
                             </div>
-
-                            <div id="yenamarre" class="d-flex align-items-center justify-content-center m-4">
-                                <!-- back to top btn-->
-                                <a @click="goToFirstSlide" class="back-to-top" :class="{ 'show': showButton }">
-                                    <NuxtImg src="/images/backToTop.svg" alt="Back to Top" />
-                                </a>
-                            </div>
                         </div>
                     </div>
 
                 </div>
-            </SwiperSlide>
-        </Swiper>
+            </div>
+        </div>
     </div>
 </template>
 
-<style lang="scss">
-@use 'swiper/css';
-@use 'swiper/css/scrollbar';
 
+<style lang="scss">
+@use 'fullpage.js/dist/fullpage.min.css';
 
 :root {
     overflow: hidden;
@@ -512,11 +367,11 @@ onUnmounted(() => {
     height: 100vh;
     position: fixed;
     width: 100%;
-}
-
-.sections-container {
-    height: 100vh;
-    scroll-behavior: smooth;
+    background: url(/images/bg1.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
 .section {
@@ -530,7 +385,7 @@ onUnmounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: white !important
+    background: white !important;
 }
 
 .logo-loader {
@@ -564,170 +419,10 @@ onUnmounted(() => {
     background-position: 50% 50%;
 }
 
-.swiper {
-    width: 100%;
-    height: 100vh;
-}
-
-.swiper-slide {
-    height: 100vh;
-    transition: all 0.5s ease;
-
-    &.swiper-slide-active {}
-}
-
-
-
-.swiper-scrollbar {
-    width: 5px !important;
-    right: 5px !important;
-    opacity: 0.8;
-    background-color: rgba(255, 255, 255, 0.1);
-    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-.swiper-scrollbar-drag {
-    background: #e60000;
-    border-radius: 10px;
-    width: 5px;
-}
-
 .text-element {
     margin: 20px 0;
+    white-space: pre-line;
 }
-
-
-.container-full {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 15px;
-}
-
-.txtintro {
-    width: 100%;
-    height: 100%;
-}
-
-#slide-1 {
-    background: rgba(0, 0, 0, 0);
-}
-
-#slide-2 {
-    background: linear-gradient(45deg, #1a75ff, #4da6ff);
-}
-
-#slide-3 {
-    background: linear-gradient(45deg, #1aff66, #66ff99);
-}
-
-#slide-4 {
-    background: linear-gradient(45deg, #ffcc00, #ffdd4d);
-}
-
-//carousel horizontal avec les téléphones 
-.horizontal-carousel {
-    width: 100%;
-    height: 100%;
-}
-
-.horizontal-carousel .swiper-slide {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.horizontal-carousel .swiper-button-next,
-.horizontal-carousel .swiper-button-prev {
-    color: #e60000;
-}
-
-.horizontal-carousel .swiper-pagination-bullet-active {
-    background: #e60000;
-}
-
-#slide-23 {
-
-    .fade-slide {
-        transition: opacity 0.3s ease;
-    }
-
-    .slide-content {
-        animation-duration: 0.5s;
-    }
-
-    .horizontal-carousel {
-        width: 100%;
-        height: 100%;
-    }
-
-    .swiper-slide-active .text-element {
-        opacity: 1;
-    }
-
-    .swiper-slide:not(.swiper-slide-active) .text-element {
-        opacity: 0.5;
-    }
-
-    .columns-container {
-        display: flex;
-        width: 100%;
-    }
-
-    .left-column,
-    .right-column {}
-
-    .accordion-item {
-        margin-bottom: 10px;
-    }
-
-    .accordion-header {
-        cursor: pointer;
-        padding: 10px;
-    }
-
-    .accordion-content {
-        height: 0;
-        overflow: hidden;
-        transition: height 0.3s ease;
-    }
-
-    .accordion-content.active {
-        height: auto;
-    }
-
-    .slide-image {
-        width: 100%;
-        height: auto;
-    }
-
-    .accordion-content {
-        max-height: 0;
-        opacity: 0;
-        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .accordion-content.active {
-        max-height: 500px;
-        opacity: 1;
-    }
-
-    .slide-image {
-        opacity: 0;
-        transform: translateX(-20px);
-        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .slide-image.visible {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-}
-
 
 .alert {
     margin-bottom: 1rem;
@@ -760,158 +455,107 @@ onUnmounted(() => {
     }
 }
 
-#yenamarre {
-    a {
-        &:hover {
-            cursor: pointer;
-        }
-    }
-}
-
-.back-to-top {
-    width: 128px;
-    height: 80px;
-    position: fixed;
-    margin: auto;
-    right: 0;
-    bottom: 1em;
-    left: 0;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1000;
-}
-
-.back-to-top:hover {
-    transform: scale(1.1);
-}
-
-
-@media screen and (max-width: 1024px) {
-
-    #slide-21,
-    #slide-22 {
-        .row {
-            height: auto;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-
-            &:nth-of-type(1) {
-                margin-bottom: 2em;
-            }
-
-            &:nth-of-type(2) {
-                .text-element {
-                    min-height: auto;
-                    margin: 1em 0;
-
-                    p {
-                        min-height: auto;
-                        line-height: 0.7 !important;
-                        padding: 0em;
-                    }
-                }
-            }
-        }
-
-        .cont {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-    }
-}
-
-//menuy
-
-
-
-.menu-container {
-    position: relative;
-}
-
-.hamburger {
-    width: 30px;
-    height: 25px;
-    position: relative;
-    background: none;
-    border: none;
-    cursor: pointer;
-    z-index: 101;
-
-    span {
-        display: block;
-        position: absolute;
-        height: 3px;
-        width: 100%;
-        background: #e60000;
-        transition: 0.3s ease;
-
-        &:nth-child(1) {
-            top: 0;
-        }
-
-        &:nth-child(2) {
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        &:nth-child(3) {
-            bottom: 0;
-        }
-    }
-
-    &.is-active {
-        span {
-            &:nth-child(1) {
-                transform: rotate(45deg);
-                top: 11px;
-            }
-
-            &:nth-child(2) {
-                opacity: 0;
-            }
-
-            &:nth-child(3) {
-                transform: rotate(-45deg);
-                bottom: 11px;
-            }
-        }
-    }
-}
-
-.slide-menu {
-    position: fixed;
-    top: 0;
-    right: -300px;
-    width: 300px;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.9);
-    padding: 80px 20px;
-    transition: 0.3s ease;
-    z-index: 100;
-
-    &.is-open {
-        right: 0;
-    }
-
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-
-    li {
-        padding: 15px 0;
-        color: white;
-        cursor: pointer;
-        transition: 0.3s ease;
-
-        &:hover {
-            color: #e60000;
-        }
+// Styles pour fullPage.js
+#fullpage {
+    .section {
+        transition: all 0.7s ease;
 
         &.active {
-            color: #e60000;
+            .slide-container {
+                animation: fadeIn 0.8s ease-in-out;
+            }
+        }
+    }
+}
+
+// Styles pour le scroll des slides 21 et 22
+.scroll-container {
+    height: 100vh;
+    overflow: hidden;
+
+    .cont {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header-row {
+        padding: 2em 0;
+    }
+
+    .content-row {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+// Styles du formulaire
+.contact-form {
+
+    input[type="submit"],
+    button.btn.btn-primary {
+        background: #e60000;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-family: "Vodafone";
+        font-size: 30px;
+        width: 100%;
+    }
+
+    .row {
+        padding: 0em 2em;
+    }
+
+    input {
+        flex-grow: 0;
+        margin: 15px 0;
+        border-radius: 25px;
+        border: solid 2px #fff;
+        background: rgba(255, 255, 255, 0) !important;
+        color: white;
+        font-family: "Vodafone";
+        font-size: 30px;
+
+        &:focus {
+            border-color: #e60000;
+            outline: none;
+            color: #fff;
+        }
+
+        &::placeholder {
+            color: white;
+        }
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .scroll-container {
+        .header-row {
+            position: sticky;
+            top: 0;
+            background: inherit;
+            z-index: 1;
+            padding: 1em;
+        }
+
+        .content-row {
+            padding: 1em;
+
+            .text-element {
+                margin: 1em 0;
+            }
+        }
+    }
+
+    .contact-form {
+
+        input,
+        button {
+            font-size: 20px;
         }
     }
 }
