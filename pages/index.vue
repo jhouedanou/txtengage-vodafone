@@ -24,10 +24,13 @@ const horizontalSwiperModules = [Navigation, Pagination, Autoplay]
 
 const activeIndex = ref(null)
 const activeImage = ref(null)
+
 const toggleAccordion = (slideId, index) => {
+    const currentSlide = slidesStore.sortedSlides.find(s => s.id === slideId)
+    if (!currentSlide) return
+
     activeIndex.value = activeIndex.value === index ? null : index
-    const currentSlide = sortedSlides.value.find(s => s.id === slideId)
-    const imgSrc = currentSlide.paragraphs[index].match(/src="([^"]*)"/)?.[1]
+    const imgSrc = currentSlide.paragraphs?.[index]?.match(/src="([^"]*)"/)?.[1]
     activeImage.value = imgSrc
 }
 
@@ -52,6 +55,80 @@ const swiperOptions = {
             activeSlideIndex.value = swiper.activeIndex
             updateFirstSlideStatus()
         }
+    },
+    onSlideChange: (swiper) => {
+        animateSlideElements(swiper.activeIndex)
+    }
+}
+//animations 
+
+const animateSlideElements = (activeIndex) => {
+    const timeline = gsap.timeline()
+
+    // Slide 20 - Reach 32 million customers
+    if (activeIndex === 2) {
+        timeline
+            .fromTo('#slide2a', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('#slide2b', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('#slide2c', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('#guysamuel .text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+    }
+
+    // Slide 21 - No internet access needed
+    else if (activeIndex === 3) {
+
+        // Version Desktop
+        if (window.innerWidth > 1024) {
+            timeline
+                .fromTo('#mshill', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+                .fromTo('.desktop-version .text-element',
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 }
+                )
+        }
+        // Version Mobile
+        else {
+            timeline
+                .fromTo('.mobile-slide-part:first-child #mshill',
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5 }
+                )
+                .fromTo('.mobile-slide-part:last-child .text-element',
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 }
+                )
+        }
+
+    }
+
+    // Slide 22 - Other advantages
+    else if (activeIndex === 4) {
+        timeline
+            .fromTo('#mshill', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('#thoiathoing .text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+    }
+
+    // Slide 23 - Accordion
+    else if (activeIndex === 5) {
+        // timeline
+        //     .fromTo('#naci .accordion-item', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.2 })
+        //     .fromTo('#lephone img', { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.5 })
+    }
+
+    // Slide 59
+    else if (activeIndex === 6) {
+        timeline
+            .fromTo('#killerjunior h2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('#killerjunior p', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('.lemouds', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+    }
+
+    // Slide 60 - Form
+    else if (activeIndex === 7) {
+        timeline
+            .fromTo('.lopere', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('.ditocard', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            .fromTo('.contact-form', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
     }
 }
 const updateFirstSlideStatus = () => {
@@ -162,8 +239,9 @@ onMounted(() => {
     activeIndex.value = 0
     //changement automatique de l'image dans la slide 23
     const firstSlide = sortedSlides.value.find(s => s.id === 23)
-    activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1]
-    //auto play sur le clic sur l'image 
+    if (firstSlide?.paragraphs?.[0]) {
+        activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1]
+    }    //auto play sur le clic sur l'image 
     //autoPlayAccordion()
     startAutoplay()
 });
@@ -231,7 +309,8 @@ onMounted(() => {
 
                     <!-- no internet access needed -->
                     <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
-                        <div class="cont p-2">
+                        <!-- Version Desktop -->
+                        <div class="desktop-version cont p-2">
                             <div class="row">
                                 <h3 id="mshill" v-html="slide.wp_content"></h3>
                             </div>
@@ -241,19 +320,59 @@ onMounted(() => {
                                 </div>
                             </div>
                         </div>
-                    </div>
 
+                        <!-- Version Mobile avec Swiper -->
+                        <div class="mobile-version">
+                            <Swiper class="mobile-swiper" :modules="[Navigation, Pagination]" :slides-per-view="1"
+                                :direction="'vertical'">
+                                <SwiperSlide class="mobile-slide-part">
+                                    <div class="row">
+                                        <h3 id="mshill" v-html="slide.wp_content"></h3>
+                                    </div>
+                                </SwiperSlide>
+
+                                <SwiperSlide class="mobile-slide-part">
+                                    <div class="row flex-row">
+                                        <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
+                                            class="text-element col m-0 p-2" v-html="paragraph">
+                                        </div>
+                                    </div>
+                                </SwiperSlide>
+                            </Swiper>
+                        </div>
+                    </div>
                     <!-- other advantages -->
                     <div v-else-if="slide.id === 22" id="thoiathoing" class="p-0 m-0">
-                        <div class="cont p-2">
+                        <!-- Version Desktop -->
+                        <div class="desktop-version cont p-2">
                             <div class="row">
-                                <h3 id="mshill" v-html="slide.wp_content"></h3>
+                                <h3 id="mshill-2" v-html="slide.wp_content"></h3>
                             </div>
                             <div class="row flex-row">
                                 <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                     class="text-element col m-0 p-2" v-html="paragraph">
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Version Mobile avec Swiper -->
+                        <div class="mobile-version">
+                            <Swiper class="mobile-swiper" :modules="[Navigation, Pagination]" :slides-per-view="1"
+                                :direction="'vertical'">
+                                <SwiperSlide class="mobile-slide-part">
+                                    <div class="row">
+                                        <h3 id="mshill-2" v-html="slide.wp_content"></h3>
+                                    </div>
+                                </SwiperSlide>
+
+                                <SwiperSlide class="mobile-slide-part">
+                                    <div class="row flex-row">
+                                        <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
+                                            class="text-element col m-0 p-2" v-html="paragraph">
+                                        </div>
+                                    </div>
+                                </SwiperSlide>
+                            </Swiper>
                         </div>
                     </div>
 

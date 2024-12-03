@@ -958,3 +958,185 @@ body {
         }
     }
 }
+
+
+@media screen and (max-width: 1024px) {
+
+    #slide-73,
+    #slide-10 {
+        .subint {
+            max-width: 100vw;
+            padding  : 1rem;
+
+            h2 {
+                font-size: 4em;
+            }
+
+            p {
+                font-size: 1.8em;
+            }
+        }
+
+        .points-fort {
+            width  : 100%;
+            padding: 1rem;
+
+            h3 {
+                font-size: 2em;
+            }
+
+            p {
+                font-size: 1.6em;
+            }
+        }
+    }
+
+    #slide-20 {
+        #usruu {
+            h2 {
+                font-size: 3.5em;
+            }
+
+            .apitch {
+                font-size: 2.2em;
+            }
+        }
+
+        .gee {
+            .text-element {
+
+                &:nth-of-type(1),
+                &:nth-of-type(4) {
+                    width : 120px !important;
+                    height: 120px !important;
+
+                    h3 {
+                        font-size: 40px;
+                    }
+
+                    p {
+                        font-size: 18px;
+                    }
+                }
+
+                &:nth-of-type(2),
+                &:nth-of-type(3) {
+                    width : 180px !important;
+                    height: 180px !important;
+
+                    h3 {
+                        font-size: 60px;
+                    }
+
+                    p {
+                        font-size: 30px;
+                    }
+                }
+            }
+        }
+    }
+
+    #slide-21,
+    #slide-22 {
+        #mshill {
+            font-size: 3em;
+        }
+
+        .text-element {
+            h3 {
+                font-size: 2.2em;
+            }
+
+            p {
+                font-size: 1.8em;
+            }
+        }
+    }
+
+    #bygone-bip {
+        .accordion-item {
+            h3 {
+                font-size: 36px;
+            }
+
+            p {
+                font-size: 24px;
+            }
+        }
+    }
+
+    #killerjunior {
+        h2 {
+            font-size: 3.5em;
+        }
+
+        p {
+            font-size: 2em;
+        }
+    }
+
+    .contact-form {
+
+        input,
+        button {
+            font-size: 20px;
+        }
+    }
+}
+
+
+#thoiathoing {
+    .mobile-version {
+        display: none;
+    }
+
+    .desktop-version {
+        display: block;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+
+    #slide-73 .subint,
+    #slide-10 .subint {
+        padding: 0em !important;
+    }
+
+    #slide-73 .txtintro {
+
+        justify-content: center;
+        align-items    : flex-end;
+
+        h2 {
+            margin : 0;
+            padding: 0;
+        }
+
+        p {
+            margin : 0;
+            padding: 0;
+        }
+    }
+
+
+    #thoiathoing {
+        .desktop-version {
+            display: none;
+        }
+
+        .mobile-version {
+            display: block;
+
+            .mobile-swiper {
+                height: 100vh;
+            }
+
+            .mobile-slide-part {
+                height         : 100vh;
+                display        : flex;
+                align-items    : center;
+                justify-content: center;
+            }
+        }
+    }
+}
