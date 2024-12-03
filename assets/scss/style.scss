@@ -977,8 +977,16 @@ body {
         }
 
         .points-fort {
-            width  : 100%;
-            padding: 1rem;
+            width          : 100%;
+            padding        : 0rem;
+            display        : flex;
+            align-items    : center;
+            justify-content: center;
+            flex-direction : column;
+
+            .text-element {
+                margin: 0 auto;
+            }
 
             h3 {
                 font-size: 2em;
@@ -991,6 +999,42 @@ body {
     }
 
     #slide-10 {
+        .firstContainer {
+            margin : 0em !important;
+            width  : 100vw !important;
+            padding: 0em !important;
+        }
+
+        .slapjh {
+            justify-content: flex-end !important;
+            align-items    : center !important;
+            height         : 100vh !important;
+        }
+
+        .points-fort {
+            height: 66vh !important;
+
+            width          : 100%;
+            padding        : 0rem;
+            display        : flex;
+            align-items    : center;
+            justify-content: center;
+            flex-direction : column;
+
+            .text-element {
+                text-align     : center !important;
+                display        : flex;
+                align-items    : center;
+                justify-content: center;
+                flex-direction : column;
+
+                h3 {
+
+                    margin: 0em 0 !important;
+                }
+            }
+        }
+
         .subint {
             min-width        : 100vw !important;
             width            : 100vw !important;
@@ -1002,30 +1046,88 @@ body {
             }
 
             margin-bottom: 1.9em !important;
+
+            .txtintro {
+                justify-content: flex-end;
+
+
+
+            }
         }
 
         .points-fort {
             width  : 100%;
-            padding: 1rem;
+            padding: 0rem;
 
             h3 {
-                font-size: 2em;
+                font-size  : 1.8em;
+                line-height: 2.2;
             }
 
             p {
-                font-size: 1.6em;
+
+                font-size : 1.2em;
+                text-align: center;
             }
         }
     }
 
     #slide-20 {
+        #mzu {
+            height    : auto;
+            max-width : 100% !important;
+            display   : block !important;
+            position  : absolute;
+            top       : 0;
+            left      : 0;
+            right     : 0;
+            margin    : auto;
+            background: red;
+        }
+
         #usruu {
+            width          : 100%;
+            display        : flex;
+            align-items    : center;
+            justify-content: center;
+            flex-direction : column;
+
             h2 {
-                font-size: 3.5em;
+                font-weight: normal !important;
             }
 
             .apitch {
+                margin-top: 1em !important;
+                font-size : 2.7em !important;
+            }
+
+            .text-element {
+                text-align: center !important;
+
+                &:nth-of-type(1) {
+
+                    margin: .5em 0 0 0;
+
+
+                }
+            }
+
+            .apitch {
+                text-align: center !important;
+            }
+
+            h2 {
+                height   : auto;
+                font-size: 3.5em;
+                max-width: 100% !important;
+                display  : block !important;
+            }
+
+            .apitch {
+                height   : auto;
                 font-size: 2.2em;
+                max-width: 100% !important;
+                display  : block !important;
             }
         }
 
