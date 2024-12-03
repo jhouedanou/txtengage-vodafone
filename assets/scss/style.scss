@@ -961,6 +961,9 @@ body {
 
 
 @media screen and (max-width: 1024px) {
+    #guysamuel {
+        max-width: 65vw !important;
+    }
 
     #slide-73 {
         .subint {
@@ -1238,15 +1241,6 @@ body {
 }
 
 
-#thoiathoing {
-    .mobile-version {
-        display: none;
-    }
-
-    .desktop-version {
-        display: block;
-    }
-}
 
 @media screen and (max-width: 1024px) {
 
@@ -1278,25 +1272,25 @@ body {
         }
     }
 
-
-    #thoiathoing {
-        .desktop-version {
-            display: none;
+    #slide-21,
+    #slide-22 {
+        p {
+            font-family   : "Raleway" !important;
+            font-size     : 23px !important;
+            font-weight   : normal !important;
+            font-stretch  : normal !important;
+            font-style    : normal !important;
+            line-height   : 18px !important;
+            letter-spacing: normal !important;
+            text-align    : center !important;
+            color         : #fff !important;
         }
 
-        .mobile-version {
-            display: block;
-
-            .mobile-swiper {
-                height: 100vh;
-            }
-
-            .mobile-slide-part {
-                height         : 100vh;
-                display        : flex;
-                align-items    : center;
-                justify-content: center;
-            }
+        h3 {
+            font-family: "Vodafone";
+            font-size  : 28px !important;
+            font-weight: bold !important;
+            line-height: 218px !important;
         }
     }
 }
