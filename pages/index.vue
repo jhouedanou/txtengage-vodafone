@@ -33,52 +33,38 @@ const preloadImage = (src) => {
   })
 }
 
-// Précharger l'image spéciale
+// Précharger les images
 onMounted(async () => {
   try {
     await preloadImage('/images/nono.webp')
-    console.log('Image spéciale préchargée avec succès')
+    await preloadImage('/images/bg12.webp')
   } catch (error) {
-    console.error('Erreur lors du préchargement de l\'image spéciale:', error)
+    // Ignorer les erreurs
   }
 })
 
 // Mettre à jour l'arrière-plan en fonction de la slide active
 const updateBackground = () => {
-  console.log('updateBackground appelé avec activeSlideId =', activeSlideId.value);
-  
-  // Convertir les valeurs en nombres pour assurer la comparaison correcte
-  const slideId = Number(activeSlideId.value);
-  console.log('slideId converti en nombre:', slideId);
-  
   // S'assurer que la fonction s'exécute seulement après le montage du composant
   nextTick(() => {
     const wrapper = document.getElementById('vodacomwrapper');
     
     if (wrapper) {
-      console.log('Élément vodacomwrapper trouvé, application du style');
-      
       // Vérifier si l'une des slides spéciales est active en utilisant la classe swiper-slide-active
       const slide20Active = document.querySelector('#swiper-slide-20.swiper-slide-active');
       const slide114Active = document.querySelector('#swiper-slide-114.swiper-slide-active');
       
       if (slide20Active || slide114Active) {
-        console.log('Slide spéciale active via swiper-slide-active:', slide20Active ? '20' : '114');
         wrapper.style.backgroundImage = 'url(/images/nono.webp)';
         wrapper.style.backgroundSize = 'cover';
         wrapper.style.backgroundPosition = 'center center';
         wrapper.style.backgroundRepeat = 'no-repeat';
-        wrapper.style.transition = 'background-image 0.8s ease-in-out';
       } else {
-        console.log('Aucune slide spéciale active via swiper-slide-active');
         wrapper.style.backgroundImage = 'url(/images/bg12.webp)';
         wrapper.style.backgroundSize = 'cover';
         wrapper.style.backgroundPosition = 'center center';
         wrapper.style.backgroundRepeat = 'no-repeat';
-        wrapper.style.transition = 'background-image 0.8s ease-in-out';
       }
-    } else {
-      console.error('Élément vodacomwrapper non trouvé dans le DOM');
     }
   });
 }
@@ -117,34 +103,12 @@ const swiperOptions = {
     },
     on: {
         slideChange: (swiper) => {
-            // Logs de débogage forcés qui apparaîtront même si d'autres problèmes existent
-            console.log('=== CHANGEMENT DE SLIDE DÉTECTÉ ===');
-            console.log('Index de la slide active:', swiper.activeIndex);
-            
             activeSlideIndex.value = swiper.activeIndex
             // Récupérer l'ID de la slide active pour changer l'arrière-plan
             const activeSlide = sortedSlides.value[swiper.activeIndex]
             if (activeSlide) {
                 activeSlideId.value = activeSlide.id
-                console.log('%c Slide changée!', 'background: #ff0000; color: white; font-size: 16px; padding: 5px;');
-                console.log('ID de la slide active:', activeSlide.id);
-                
-                // Exécuter dans un délai court pour permettre au DOM de se mettre à jour
-                setTimeout(() => {
-                    // Vérifier directement si les swiper-slides spécifiques sont actives
-                    const slide20Active = document.querySelector('#swiper-slide-20.swiper-slide-active');
-                    const slide114Active = document.querySelector('#swiper-slide-114.swiper-slide-active');
-                    console.log('slide20Active:', !!slide20Active);
-                    console.log('slide114Active:', !!slide114Active);
-                    
-                    // Vérifier si le conteneur existe
-                    const wrapper = document.getElementById('vodacomwrapper');
-                    console.log('vodacomwrapper trouvé?', !!wrapper);
-                    
-                    updateBackground();
-                }, 100);
-            } else {
-                console.error('Aucune slide active trouvée à l\'index', swiper.activeIndex);
+                updateBackground()
             }
             updateFirstSlideStatus()
         }
@@ -238,7 +202,6 @@ const animateSlideElements = (activeIndex) => {
 const updateFirstSlideStatus = () => {
     if (swiper.value) {
         isFirstSlideActive.value = swiper.value.activeIndex === 0
-        console.log(isFirstSlideActive.value)
     }
 }
 const goToFirstSlide = () => {
@@ -384,10 +347,49 @@ onUnmounted(() => {
 useHead({
     title: 'TXT Engage - Vodafone'
 });
+
+// Fonction pour vérifier directement quelle slide est active
+const checkActiveSlide = () => {
+  // Chercher la slide active via la classe ajoutée par Swiper
+  const activeSlideElement = document.querySelector('.swiper-slide-active');
+  if (activeSlideElement) {
+    const slideId = activeSlideElement.id;
+    
+    // Vérifier si c'est une des slides spéciales
+    if (slideId === 'swiper-slide-20' || slideId === 'swiper-slide-114') {
+      document.getElementById('vodacomwrapper').style.backgroundImage = 'url(/images/nono.webp)';
+      document.getElementById('vodacomwrapper').style.backgroundSize = 'cover';
+      document.getElementById('vodacomwrapper').style.backgroundPosition = 'center center';
+      document.getElementById('vodacomwrapper').style.backgroundRepeat = 'no-repeat';
+    } else {
+      document.getElementById('vodacomwrapper').style.backgroundImage = 'url(/images/bg12.webp)';
+      document.getElementById('vodacomwrapper').style.backgroundSize = 'cover';
+      document.getElementById('vodacomwrapper').style.backgroundPosition = 'center center';
+      document.getElementById('vodacomwrapper').style.backgroundRepeat = 'no-repeat';
+    }
+  }
+}
+
+// Ajouter un intervalle pour vérifier régulièrement la slide active
+onMounted(() => {
+  // Précharger les images pour un changement fluide
+  preloadImage('/images/nono.webp');
+  preloadImage('/images/bg12.webp');
+  
+  // Vérifier périodiquement quelle slide est active
+  const checkInterval = setInterval(checkActiveSlide, 500);
+  
+  // Nettoyage à l'unmount
+  onUnmounted(() => {
+    clearInterval(checkInterval);
+  });
+  
+  // ...existing onMounted code...
+});
 </script>
 
 <template>
-    <div id="vodacomwrapper" :style="{ background: currentBackground, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', transition: 'background 0.8s ease-in-out' }">
+    <div id="vodacomwrapper">
         <div v-if="loading" class="loader-container">
             <nuxt-img src="/images/logovector.svg" class="logo-loader" alt="Logo" />
         </div>
