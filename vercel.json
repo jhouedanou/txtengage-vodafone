@@ -6,9 +6,23 @@
             "use": "@vercel/static-build",
             "config": {
                 "buildCommand": "yarn build",
-                "outputDirectory": ".vercel/output/static",
+                "outputDirectory": ".output/public",
                 "installCommand": "yarn install"
             }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/images/(.*)",
+            "dest": "/images/$1",
+            "continue": true
+        },
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/"
         }
     ]
 }
