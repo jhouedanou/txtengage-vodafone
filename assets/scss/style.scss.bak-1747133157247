@@ -559,9 +559,6 @@ body {
                     text-align     : center;
                     // Base font-size
                     font-size      : 3.3em;
-                    line-height    : .8;
-                    font-weight    : 700;
-                    margin-bottom  : 0em;
 
                     // Media queries pour l'adaptation responsive
                     @media screen and (max-width: 1440px) {
@@ -571,6 +568,16 @@ body {
                     @media screen and (max-width: 1024px) {
                         font-size: calc(2.2em + 0.5vw);
                     }
+
+                    & {
+
+
+                      line-height   : .8;
+
+
+                    }
+                    font-weight   : 700;
+                    margin-bottom : 0em;
                 }
 
                 p {
@@ -582,7 +589,18 @@ body {
                     flex-direction : row;
                     text-align     : center;
                     font-size      : 2em;
-                    font-weight    : 300;
+
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(1.2em + 0.5vw);
+                    }
+
+                    & {
+
+
+                      font-weight    : 300;
+
+
+                    }
                     font-stretch   : normal;
                     font-style     : normal;
                     line-height    : .8;
@@ -591,10 +609,6 @@ body {
                     color          : #fff;
                     min-height     : 180px;
                     /* background  : black; */
-
-                    @media screen and (max-width: 1440px) {
-                        font-size: calc(1.2em + 0.5vw);
-                    }
                 }
             }
         }
@@ -612,9 +626,6 @@ body {
                     text-align     : center;
                     // Base font-size
                     font-size      : 3.3em;
-                    line-height    : .8;
-                    font-weight    : 700;
-                    margin-bottom  : 0em;
 
                     // Media queries pour l'adaptation responsive
                     @media screen and (max-width: 1440px) {
@@ -624,6 +635,16 @@ body {
                     @media screen and (max-width: 1024px) {
                         font-size: calc(2.2em + 0.5vw);
                     }
+
+                    & {
+
+
+                      line-height   : .8;
+
+
+                    }
+                    font-weight   : 700;
+                    margin-bottom : 0em;
                 }
 
                 p {
@@ -635,7 +656,18 @@ body {
                     flex-direction : row;
                     text-align     : center;
                     font-size      : 2em;
-                    font-weight    : 300;
+
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(1.2em + 0.5vw);
+                    }
+
+                    & {
+
+
+                      font-weight    : 300;
+
+
+                    }
                     font-stretch   : normal;
                     font-style     : normal;
                     line-height    : .8;
@@ -644,10 +676,6 @@ body {
                     color          : #fff;
                     min-height     : 180px;
                     /* background  : black; */
-
-                    @media screen and (max-width: 1440px) {
-                        font-size: calc(1.2em + 0.5vw);
-                    }
                 }
             }
         }
@@ -699,7 +727,7 @@ body {
 
 #vodacomwrapper {
 
-    background             : url(/images/istockphoto_1424819867_1024x1024_1_a18029.webp) no-repeat center center fixed;
+    background             : url(/images/bg1.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size   : cover;
     -o-background-size     : cover;

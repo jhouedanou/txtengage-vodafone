@@ -4,10 +4,13 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev & browser-sync start --proxy 'localhost:3000' --files 'dist'",
+    "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "sass-lint": "npx sass --verbose assets/scss/style.scss",
+    "update-browserslist": "npx update-browserslist-db@latest",
+    "sass-fix": "node scripts/fix-sass-deprecations.js"
   },
   "dependencies": {
     "@fullpage/nuxt-fullpage": "^0.2.5",
