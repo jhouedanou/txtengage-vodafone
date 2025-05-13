@@ -87,8 +87,16 @@ body {
         align-items    : flex-end;
         justify-content: center;
         flex-direction : column;
+        height:100vh;
+        .subint{
+            background:green;
+        }
     }
-
+    .slapjh{
+    }
+    .firstContainer{
+        padding:0;
+    }
     .text-element {
         &:nth-of-type(2) {}
     }
@@ -103,7 +111,7 @@ body {
 
     .subint {
         h2 {
-            font-size     : 10.2em;
+            font-size     : 115px;
             font-weight   : 600;
             font-stretch  : normal;
             font-style    : normal;
@@ -1026,6 +1034,7 @@ body {
     }
 
     #slide-73 {
+       
         .subint {
             min-width        : 100vw !important;
             width            : 100vw !important;
