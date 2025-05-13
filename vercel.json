@@ -1,43 +1,22 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "buildCommand": "yarn build",
-                "outputDirectory": ".output/public",
-                "installCommand": "yarn install"
-            }
-        }
-    ],
+    "buildCommand": "npm run build",
+    "outputDirectory": ".output",
+    "installCommand": "npm install",
+    "framework": "nuxt",
     "routes": [
         {
-            "src": "/images/backToTop.svg",
-            "headers": { "cache-control": "public, max-age=31536000, immutable" },
-            "continue": true
-        },
-        {
-            "src": "/images/logovector.png",
-            "headers": { "cache-control": "public, max-age=31536000, immutable" },
-            "continue": true
-        },
-        {
-            "src": "/images/logovector.svg",
-            "headers": { "cache-control": "public, max-age=31536000, immutable" },
-            "continue": true
-        },
-        {
             "src": "/images/(.*)",
-            "dest": "/images/$1",
-            "continue": true
+            "headers": { "cache-control": "public, max-age=31536000, immutable" },
+            "dest": "/images/$1"
         },
         {
             "handle": "filesystem"
         },
         {
             "src": "/(.*)",
-            "dest": "/"
+            "status": 404,
+            "dest": "/_nuxt/404.html"
         }
     ]
 }
