@@ -111,12 +111,12 @@ onMounted(() => {
     <div id="vodacomwrapper">
         <div v-if="loading" class="loader-container">
             <!-- <div class="spinner"></div> -->
-            <nuxt-img src="/images/logovector.svg" class="logo-loader" format="webp" quality="80" alt="Logo" />
+            <nuxt-img src="/images/logovector.png" class="logo-loader" format="webp" quality="80" alt="Logo" />
 
         </div>
         <header class="fixed-top">
             <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
-                <nuxt-img src="/images/logovector.svg" format="webp" quality="80" alt="Logo" />
+                <nuxt-img src="/images/logovector.png" format="webp" quality="80" alt="Logo" />
             </div>
         </header>
         <div class="sections-container">

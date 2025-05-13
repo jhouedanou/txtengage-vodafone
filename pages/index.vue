@@ -348,24 +348,50 @@ useHead({
     title: 'TXT Engage - Vodafone'
 });
 
-// Fonction pour vérifier directement quelle slide est active
+// Fonction pour vérifier directement quelle slide est active et gérer la transition d'arrière-plan
 const checkActiveSlide = () => {
   // Chercher la slide active via la classe ajoutée par Swiper
   const activeSlideElement = document.querySelector('.swiper-slide-active');
   if (activeSlideElement) {
     const slideId = activeSlideElement.id;
-    
+
+    // Variables pour suivre la dernière slide active pour le crossfade spécial entre slides 20 et 114
+    const lastSlideId = ref(null);
+
+    // Récupérer les couches d'arrière-plan
+    const primaryLayer = document.querySelector('.background-layer.background-primary');
+    const secondaryLayer = document.querySelector('.background-layer.background-secondary');
+
+    if (!primaryLayer || !secondaryLayer) return;
+
     // Vérifier si c'est une des slides spéciales
     if (slideId === 'swiper-slide-20' || slideId === 'swiper-slide-114') {
-      document.getElementById('vodacomwrapper').style.backgroundImage = 'url(/images/nono.webp)';
-      document.getElementById('vodacomwrapper').style.backgroundSize = 'cover';
-      document.getElementById('vodacomwrapper').style.backgroundPosition = 'center center';
-      document.getElementById('vodacomwrapper').style.backgroundRepeat = 'no-repeat';
+      // Transition spéciale entre slides 20 et 114
+      if (lastSlideId.value === 'swiper-slide-20' && slideId === 'swiper-slide-114') {
+        primaryLayer.style.transition = 'opacity 0.3s ease-in-out';
+        primaryLayer.style.opacity = '0';
+        secondaryLayer.style.transition = 'opacity 0.3s ease-in-out';
+        secondaryLayer.style.opacity = '1';
+      } else if (lastSlideId.value === 'swiper-slide-114' && slideId === 'swiper-slide-20') {
+        primaryLayer.style.transition = 'opacity 0.3s ease-in-out';
+        primaryLayer.style.opacity = '1';
+        secondaryLayer.style.transition = 'opacity 0.3s ease-in-out';
+        secondaryLayer.style.opacity = '0';
+      } else {
+        // Transition normale pour les autres cas
+        secondaryLayer.style.transition = 'opacity 0.2s ease-in-out';
+        secondaryLayer.style.opacity = '1';
+      }
+
+      // Stocker la slide active pour détecter le passage entre slides 20 et 114
+      lastSlideId.value = slideId;
     } else {
-      document.getElementById('vodacomwrapper').style.backgroundImage = 'url(/images/bg12.webp)';
-      document.getElementById('vodacomwrapper').style.backgroundSize = 'cover';
-      document.getElementById('vodacomwrapper').style.backgroundPosition = 'center center';
-      document.getElementById('vodacomwrapper').style.backgroundRepeat = 'no-repeat';
+      // Transition vers l'arrière-plan par défaut (bg12.webp)
+      secondaryLayer.style.transition = 'opacity 0.2s ease-in-out';
+      secondaryLayer.style.opacity = '0';
+
+      // Réinitialiser l'ID de la dernière slide si on n'est plus sur une slide spéciale
+      lastSlideId.value = null;
     }
   }
 }
@@ -379,7 +405,7 @@ onMounted(() => {
   // Vérifier périodiquement quelle slide est active
   const checkInterval = setInterval(checkActiveSlide, 500);
   
-  // Nettoyage à l'unmount
+  // Nettoyage à l'unmont
   onUnmounted(() => {
     clearInterval(checkInterval);
   });
@@ -390,8 +416,12 @@ onMounted(() => {
 
 <template>
     <div id="vodacomwrapper">
+        <!-- Couches d'arrière-plan pour transition fluide -->
+        <div class="background-layer background-primary"></div>
+        <div class="background-layer background-secondary"></div>
+        
         <div v-if="loading" class="loader-container">
-            <nuxt-img src="/images/logovector.svg" class="logo-loader" alt="Logo" />
+            <nuxt-img src="/images/logovector.png" class="logo-loader" alt="Logo" />
         </div>
         
         <div v-if="!loading && slidesStore.error" class="error-container">
@@ -403,7 +433,7 @@ onMounted(() => {
 
         <header class="fixed-top">
             <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
-                <nuxt-img src="/images/logovector.svg" alt="Logo" />
+                <nuxt-img src="/images/logovector.png" alt="Logo" />
                 <div class="menu-container">
                     <button class="hamburger" @click="toggleMenu" :class="{ 'is-active': isMenuOpen }">
                         <span></span>
@@ -500,7 +530,7 @@ onMounted(() => {
                             <div class="row">
                                 <h3 id="mshill" v-html="slide.wp_content"></h3>
                             </div>
-                            <div class="row flex-row align-content-center align-items-center juustify-content-center">>
+                            <div class="row flex-row align-content-center align-items-center juustify-content-center">
                                 <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
                                     class="text-element col m-0 p-2" v-html="paragraph">
                                 </div>
@@ -578,15 +608,6 @@ onMounted(() => {
 
                                     <div class="row">
                                         <div class="col-md-12">
-
-                                            <input v-model="formData.email" type="email" class="form-control"
-                                                placeholder="Email Address" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-12">
-
                                             <input v-model="formData.company" type="text" class="form-control"
                                                 placeholder="Company Name" required>
                                         </div>
@@ -1178,56 +1199,4 @@ onMounted(() => {
     }
 }
 
-/* Styles pour la slide 114 (Reach part 2) */
-#kiffyu {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-#tchoffo {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-#deffp.preme {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-}
-
-#deffp.preme .text-element {
-  flex: 1 1 300px;
-  max-width: 400px;
-  text-align: center;
-  padding: 1.5rem;
-  background-color: rgba(230, 0, 0, 0.2);
-  border-radius: 10px;
-  backdrop-filter: blur(5px);
-  transition: transform 0.3s ease-in-out;
-  color: white;
-}
-
-#deffp.preme .text-element:hover {
-  transform: translateY(-10px);
-  background-color: rgba(230, 0, 0, 0.3);
-}
-
-#deffp.preme .text-element h3 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: white;
-  font-weight: bold;
-}
-
-#deffp.preme .text-element p {
-  font-size: 1.2rem;
-  line-height: 1.4;
-  color: white;
-}
 </style>
