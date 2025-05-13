@@ -55,9 +55,6 @@ body * {
   flex-direction: column;
   height: 100vh;
 }
-#slide-73 .slapjh .subint {
-  background: green;
-}
 #slide-73 .firstContainer {
   padding: 0;
 }
@@ -561,7 +558,7 @@ body * {
 }
 
 #vodacomwrapper {
-  background: url(/images/istockphoto_1424819867_1024x1024_1_a18029.webp) no-repeat center center fixed;
+  background: url(/images/bg12.webp) no-repeat center center fixed;
   background-size: cover;
 }
 

@@ -1,5 +1,18 @@
 import { defineStore } from 'pinia'
 
+// Configuration des URLs de l'API
+const API_URLS = {
+  local: 'http://localhost/vodafone/wp-json/slides/v1/all', // URL pour WAMP
+  production: 'https://bfedition.com/vodafone/wp-json/slides/v1/all'
+}
+
+// Choisir l'URL en fonction du mode de développement ou de la configuration
+const getApiUrl = () => {
+  // Utilisez une variable d'environnement ou un paramètre pour choisir l'environnement
+  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  return isLocalDev ? API_URLS.local : API_URLS.production
+}
+
 export const useSlidesStore = defineStore('slides', {
   state: () => ({
     slides: null,
@@ -24,7 +37,11 @@ export const useSlidesStore = defineStore('slides', {
       }
 
       try {
-        const response = await fetch('https://bfedition.com/vodafone/wp-json/slides/v1/all')
+        // Utiliser l'URL appropriée selon l'environnement
+        const apiUrl = getApiUrl()
+        console.log('Utilisation de l\'API:', apiUrl) // Pour le débogage
+        
+        const response = await fetch(apiUrl)
         const data = await response.json()
         
         // Mettre à jour le store et le cache
@@ -47,11 +64,10 @@ export const useSlidesStore = defineStore('slides', {
     }
   },
 
-getters: {
-  sortedSlides: (state) => {
-    if (!state.slides) return []
-    return [...state.slides].sort((a, b) => a.slide_number - b.slide_number)
+  getters: {
+    sortedSlides: (state) => {
+      if (!state.slides) return []
+      return [...state.slides].sort((a, b) => a.slide_number - b.slide_number)
+    }
   }
-}
-
 })
