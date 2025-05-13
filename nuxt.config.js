@@ -63,5 +63,33 @@ export default defineNuxtConfig({
     }
   },
 
-  modules: ['@pinia/nuxt', '@nuxt/image']
+  modules: ['@pinia/nuxt', '@nuxt/image'],
+
+  image: {
+    // Configuration spécifique pour le module @nuxt/image
+    provider: 'ipx',
+    ipx: {
+      // Ne pas traiter les SVG
+      modifiers: {
+        format: {
+          // Exclure les SVG du traitement de conversion
+          validateFormat(format) {
+            if (!format) return false;
+            return ['jpeg', 'jpg', 'png', 'webp', 'avif', 'gif'].includes(format.toLowerCase());
+          }
+        }
+      }
+    },
+    // Options pour les formats d'images
+    format: ['webp', 'jpg', 'png', 'jpeg'],
+    // Éviter la conversion des SVG
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536
+    }
+  },
 })
