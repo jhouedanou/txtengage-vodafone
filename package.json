@@ -5,12 +5,14 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:sourcemap": "cross-env NUXT_PUBLIC_SOURCEMAP=true nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "sass-lint": "npx sass --verbose assets/scss/style.scss",
     "update-browserslist": "npx update-browserslist-db@latest",
-    "sass-fix": "node scripts/fix-sass-deprecations.js"
+    "sass-fix": "node scripts/fix-sass-deprecations.js",
+    "sass-watch": "npx sass --watch --source-map assets/scss:assets/scss"
   },
   "dependencies": {
     "@fullpage/nuxt-fullpage": "^0.2.5",

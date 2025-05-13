@@ -11,10 +11,20 @@ export default defineNuxtConfig({
     define: {
       'process.env.DEBUG': false,
     },
+    css: {
+      devSourcemap: true,
+      preprocessorOptions: {
+        scss: {
+          sourceMap: true,
+          outputStyle: 'expanded'
+        }
+      }
+    }
   },
 
   build: {
-    transpile: ['gsap']
+    transpile: ['gsap'],
+    cssSourceMap: true
   },
   nitro: {
     preset: 'vercel',
