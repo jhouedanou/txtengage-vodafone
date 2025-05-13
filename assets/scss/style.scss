@@ -364,32 +364,50 @@ body {
             }
 
             p {
+                margin-top: 15px !important;
                 font-family: "Vodafone";
                 font-weight: normal;
                 margin     : 0;
                 padding    : 0;
+                text-align: center;
+                line-height:    0.5 !important;
+                text-transform: uppercase; /* Fixed text-transform property */
 
             }
 
             &:nth-of-type(1) {
-                width : 153px !important;
-                height: 153px !important;
+                
+                    width: 174px !important;
+                    height: 174px !important;
                 left  : 31vw !important;
                 top   : 19vh !important;
 
                 h3 {
-                    font-size: 70px;
+                    font-size: 62px;
+                    font-weight: bold;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: 0.97;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
                 }
 
                 p {
-                    font-size     : 24px;
-                    text-transform: uppercase;
+                    font-family: Vodafone;
+                    font-size: 23px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: 1.3;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
                 }
             }
 
-            &:nth-of-type(2) {
-                width : 236px !important;
-                height: 236px !important;
+            &:nth-of-type(2) {  width: 238px;
+                height: 238px;
                 left  : 55vw !important;
                 top   : 15vh !important;
 
@@ -398,14 +416,13 @@ body {
                 }
 
                 p {
-                    font-size     : 41px;
+                    font-size     : 20px;
                     text-transform: uppercase;
                 }
             }
 
-            &:nth-of-type(3) {
-                width : 236px !important;
-                height: 236px !important;
+            &:nth-of-type(3) {  width: 238px !important;
+                height: 238px !important;
                 left  : 52vw !important;
                 bottom: 15vh !important;
 
@@ -414,8 +431,15 @@ body {
                 }
 
                 p {
-                    font-size     : 41px;
-                    text-transform: uppercase;
+                    font-size: 20px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: normal;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
+
                 }
             }
 
@@ -431,8 +455,37 @@ body {
                 }
 
                 p {
-                    font-size     : 24px;
-                    text-transform: uppercase;
+                    font-size: 20px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: normal;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
+                }
+            }
+
+
+
+            &:nth-of-type(5) {    width: 174px !important;
+                height: 174px !important;
+                left: 72vw !important;
+                bottom: 31vh !important;
+
+                h3 {
+                    font-size: 70px;
+                }
+
+                p {
+                    font-size: 20px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: normal;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
                 }
             }
         }

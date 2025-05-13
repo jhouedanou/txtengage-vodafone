@@ -346,8 +346,8 @@ useHead({
                             </div>
                         </div>
                     </div>
- <!-- no internet access needed -->
- <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
+                    <!-- no internet access needed -->
+                    <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
                         <!-- Version Desktop -->
                         <div class="cont p-2">
                             <div class="row">
