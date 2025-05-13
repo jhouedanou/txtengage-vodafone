@@ -504,6 +504,7 @@ useHead({
                         </div>
                     </div>
 
+              
                 </div>
             </SwiperSlide>
         </Swiper>
@@ -738,6 +739,127 @@ useHead({
     }
 
 }
+
+
+/* Styles pour la slide 15 avec effet de recouvrement */
+#overlay-slide {
+  position: relative;
+  z-index: 10;
+}
+
+.overlay-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  z-index: 20;
+  
+  &.active {
+    opacity: 1;
+  }
+}
+
+.blur-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.content-container {
+  position: relative;
+  z-index: 2;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.overlay-title {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  
+  @media screen and (max-width: 1024px) {
+    font-size: 2.8rem;
+  }
+}
+
+.overlay-text {
+  font-size: 1.8rem;
+  max-width: 800px;
+  text-align: center;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+  
+  @media screen and (max-width: 1024px) {
+    font-size: 1.4rem;
+  }
+}
+
+.paragraphs-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.overlay-paragraph {
+  flex: 1 1 300px;
+  max-width: 400px;
+  text-align: center;
+  padding: 1.5rem;
+  background-color: rgba(230, 0, 0, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+  transition: transform 0.3s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-10px);
+    background-color: rgba(230, 0, 0, 0.3);
+  }
+  
+  h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: white;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    line-height: 1.4;
+  }
+}
+
+.swiper-slide {
+    height: 100vh;
+    transition: all 0.5s ease;
+
+    &.swiper-slide-active {
+        .overlay-content {
+            &.active {
+                opacity: 1;
+            }
+        }
+    }
+}
+
 
 
 .alert {
