@@ -1,9 +1,16 @@
 {
     "version": 2,
-    "buildCommand": "npm run build",
-    "outputDirectory": ".output",
-    "installCommand": "npm install",
-    "framework": "nuxt",
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "buildCommand": "npm run build",
+                "outputDirectory": ".output/public",
+                "installCommand": "npm install"
+            }
+        }
+    ],
     "routes": [
         {
             "src": "/images/(.*)",
@@ -15,8 +22,7 @@
         },
         {
             "src": "/(.*)",
-            "status": 404,
-            "dest": "/_nuxt/404.html"
+            "dest": "/"
         }
     ]
 }
