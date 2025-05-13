@@ -154,7 +154,9 @@ body {
 }
 
 #slide-10 {
+    
     .text-element {
+        
         &:nth-of-type(2) {}
     }
 
@@ -252,22 +254,22 @@ body {
 
     h3 {
         font-family: "Vodafone";
-        font-size  : 3em;
+        font-size  : 28px;
         font-weight: 600;
         line-height: 0.44;
         color      : white;
     }
 
     p {
-        font-family   : "Raleway";
-        font-size     : 2em;
-        font-weight   : 300;
-        font-stretch  : normal;
-        font-style    : normal;
-        line-height   : 0.64;
+        font-family: "Vodafone";
+        font-size: 23px;
+        font-weight: 300;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 18px;
         letter-spacing: normal;
-        text-align    : left;
-        color         : #fff;
+        text-align: left;
+        color: #fff;
     }
 }
 
@@ -1069,6 +1071,7 @@ body {
     }
 
     #slide-10 {
+       
         .firstContainer {
             margin : 0em !important;
             width  : 100vw !important;
@@ -1469,4 +1472,48 @@ body {
     #slide-22 .cont {
         justify-content: center;
     }
+}
+
+.error-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.97);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.error-message {
+    text-align: center;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 90%;
+    width: 500px;
+}
+
+.error-message p {
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.retry-button {
+    background-color: #e60000;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+    background-color: #cc0000;
 }

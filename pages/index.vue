@@ -287,6 +287,13 @@ useHead({
         <div v-if="loading" class="loader-container">
             <nuxt-img src="/images/logovector.svg" class="logo-loader" format="webp" quality="80" alt="Logo" />
         </div>
+        
+        <div v-if="!loading && slidesStore.error" class="error-container">
+            <div class="error-message">
+                <p>{{ slidesStore.error }}</p>
+                <button @click="slidesStore.fetchSlides()" class="retry-button">Réessayer</button>
+            </div>
+        </div>
 
         <header class="fixed-top">
             <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
@@ -339,7 +346,20 @@ useHead({
                             </div>
                         </div>
                     </div>
-
+ <!-- no internet access needed -->
+ <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
+                        <!-- Version Desktop -->
+                        <div class="cont p-2">
+                            <div class="row">
+                                <h3 id="mshill" v-html="slide.wp_content"></h3>
+                            </div>
+                            <div class="row flex-row">
+                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
+                                    class="text-element col m-0 p-2" v-html="paragraph">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- reach 32 million customers -->
                     <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0">
                         <div id="usruu">
@@ -356,20 +376,7 @@ useHead({
                         </div>
                     </div>
 
-                    <!-- no internet access needed -->
-                    <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
-                        <!-- Version Desktop -->
-                        <div class="cont p-2">
-                            <div class="row">
-                                <h3 id="mshill" v-html="slide.wp_content"></h3>
-                            </div>
-                            <div class="row flex-row">
-                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                    class="text-element col m-0 p-2" v-html="paragraph">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   
                     <!-- other advantages -->
                     <div v-else-if="slide.id === 22" id="thoiathoing" class="p-0 m-0">
                         <!-- Version Desktop -->
