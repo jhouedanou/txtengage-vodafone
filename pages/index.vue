@@ -421,7 +421,7 @@ onMounted(() => {
         <div class="background-layer background-secondary"></div>
         
         <div v-if="loading" class="loader-container">
-            <nuxt-img src="/images/logovector.png" class="logo-loader" alt="Logo" />
+            <nuxt-img src="/images/logovector.svg" class="logo-loader" alt="Logo" />
         </div>
         
         <div v-if="!loading && slidesStore.error" class="error-container">
@@ -433,7 +433,7 @@ onMounted(() => {
 
         <header class="fixed-top">
             <div id="headerpadding" class="p-4 flex-row justify-content-between align-items-center">
-                <nuxt-img src="/images/logovector.png" alt="Logo" />
+                <img src="/images/logovector.svg" alt="Logo" />
                 <div class="menu-container">
                     <button class="hamburger" @click="toggleMenu" :class="{ 'is-active': isMenuOpen }">
                         <span></span>
@@ -635,7 +635,7 @@ onMounted(() => {
                             <div id="yenamarre" class="d-flex align-items-center justify-content-center m-4">
                                 <!-- back to top btn-->
                                 <a @click="goToFirstSlide" class="back-to-top" :class="{ 'show': showButton }">
-                                    <NuxtImg src="/images/backToTop.svg" alt="Back to Top" />
+                                    <img src="/images/backToTop.svg" alt="Back to Top" />
                                 </a>
                             </div>
                         </div>

@@ -82,6 +82,8 @@ export default defineNuxtConfig({
     },
     // Options pour les formats d'images
     format: ['webp', 'jpg', 'png', 'jpeg'],
+    // Désactiver complètement le traitement des SVG
+    dir: 'public',
     // Éviter la conversion des SVG
     screens: {
       xs: 320,
@@ -90,6 +92,9 @@ export default defineNuxtConfig({
       lg: 1024,
       xl: 1280,
       xxl: 1536
-    }
+    },
+    // Ajouter cette configuration pour les fichiers statiques
+    domains: ['vercel.app'],
+    staticFilePath: true
   },
 })

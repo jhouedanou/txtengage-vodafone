@@ -1,0 +1,5 @@
+# Ignorer les répertoires de développement
+node_modules
+.nuxt
+# Ne PAS ignorer le dossier public
+!public

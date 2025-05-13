@@ -13,6 +13,21 @@
     ],
     "routes": [
         {
+            "src": "/images/backToTop.svg",
+            "headers": { "cache-control": "public, max-age=31536000, immutable" },
+            "continue": true
+        },
+        {
+            "src": "/images/logovector.png",
+            "headers": { "cache-control": "public, max-age=31536000, immutable" },
+            "continue": true
+        },
+        {
+            "src": "/images/logovector.svg",
+            "headers": { "cache-control": "public, max-age=31536000, immutable" },
+            "continue": true
+        },
+        {
             "src": "/images/(.*)",
             "dest": "/images/$1",
             "continue": true
