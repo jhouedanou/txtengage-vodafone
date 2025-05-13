@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia'
 
-// Configuration des URLs de l'API
-const API_URLS = {
-  local: 'http://localhost/vodafone/wp-json/slides/v1/all', // URL pour WAMP
-  production: 'https://bfedition.com/vodafone/wp-json/slides/v1/all'
-}
+// Configuration de l'URL de l'API
+const API_URL = 'https://bfedition.com/vodafone/wp-json/slides/v1/all'
 
 // Données de secours par défaut en cas d'échec total de chargement
 const FALLBACK_SLIDES = [
@@ -18,13 +15,6 @@ const FALLBACK_SLIDES = [
   },
   // Ajoutez d'autres slides de base selon vos besoins
 ]
-
-// Choisir l'URL en fonction du mode de développement ou de la configuration
-const getApiUrl = () => {
-  // Utilisez une variable d'environnement ou un paramètre pour choisir l'environnement
-  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  return isLocalDev ? API_URLS.local : API_URLS.production
-}
 
 export const useSlidesStore = defineStore('slides', {
   state: () => ({
@@ -59,14 +49,14 @@ export const useSlidesStore = defineStore('slides', {
         }
       }
 
-      // Fonction pour tenter de charger depuis une URL spécifique
-      const tryFetchFromUrl = async (url) => {
+      // Fonction pour tenter de charger depuis l'API
+      const tryFetchData = async () => {
         try {
-          console.log('Tentative de connexion à:', url)
+          console.log('Tentative de connexion à:', API_URL)
           const controller = new AbortController()
           const timeoutId = setTimeout(() => controller.abort(), 5000) // Timeout de 5 secondes
           
-          const response = await fetch(url, { signal: controller.signal })
+          const response = await fetch(API_URL, { signal: controller.signal })
           clearTimeout(timeoutId)
           
           if (!response.ok) {
@@ -76,24 +66,14 @@ export const useSlidesStore = defineStore('slides', {
           const data = await response.json()
           return { success: true, data }
         } catch (error) {
-          console.warn(`Échec de chargement depuis ${url}:`, error)
+          console.warn(`Échec de chargement depuis ${API_URL}:`, error)
           return { success: false, error }
         }
       }
 
       try {
-        // Déterminer si nous sommes en environnement local
-        const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        
-        // Essayer d'abord l'URL appropriée selon l'environnement
-        const primaryUrl = isLocalDev ? API_URLS.local : API_URLS.production
-        let result = await tryFetchFromUrl(primaryUrl)
-        
-        // Si en local et que ça échoue, essayer l'URL de production comme fallback
-        if (!result.success && isLocalDev) {
-          console.log('Échec du chargement local, tentative avec l\'URL de production')
-          result = await tryFetchFromUrl(API_URLS.production)
-        }
+        // Charger directement depuis l'API de production
+        const result = await tryFetchData()
         
         if (result.success) {
           // Mettre à jour le store et le cache
@@ -102,7 +82,7 @@ export const useSlidesStore = defineStore('slides', {
           localStorage.setItem('slides-cache', JSON.stringify(result.data))
           localStorage.setItem('slides-timestamp', Date.now().toString())
         } else {
-          // Si le chargement échoue complètement, utiliser les données de secours
+          // Si le chargement échoue, utiliser les données de secours
           console.error('Impossible de charger les données, utilisation du fallback')
           this.error = "Impossible de charger les données depuis le serveur"
           
@@ -133,7 +113,28 @@ export const useSlidesStore = defineStore('slides', {
   getters: {
     sortedSlides: (state) => {
       if (!state.slides) return []
-      return [...state.slides].sort((a, b) => a.slide_number - b.slide_number)
+      
+      // Trier les slides par numéro
+      const sortedArray = [...state.slides].sort((a, b) => a.slide_number - b.slide_number)
+      
+      // Trouver l'index de la slide avec ID 114 (si elle existe)
+      const slide114Index = sortedArray.findIndex(slide => slide.id === 114)
+      
+      // Si la slide 114 existe, la déplacer juste après la slide avec ID 20
+      if (slide114Index !== -1) {
+        const slide114 = sortedArray.splice(slide114Index, 1)[0]
+        const slide20Index = sortedArray.findIndex(slide => slide.id === 20)
+        
+        if (slide20Index !== -1) {
+          // Insérer après la slide 20
+          sortedArray.splice(slide20Index + 1, 0, slide114)
+        } else {
+          // Si slide 20 n'est pas trouvée, remettre à sa position d'origine
+          sortedArray.push(slide114)
+        }
+      }
+      
+      return sortedArray
     }
   }
 })

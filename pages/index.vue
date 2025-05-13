@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, computed, reactive } from 'vue'
+import { onMounted, ref, computed, reactive, nextTick } from 'vue'
 import { useSlidesStore } from '~/stores/slides'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Mousewheel, Scrollbar, Navigation, Pagination, Autoplay } from 'swiper/modules'
@@ -17,7 +17,72 @@ const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
 const activeSlideIndex = ref(0)
+const activeSlideId = ref(null)
 const horizontalSwiperModules = [Navigation, Pagination, Autoplay]
+const defaultBackground = ref('url(/images/bg12.webp)')
+const specialBackground = ref('url(/images/nono.webp)')
+const currentBackground = ref(defaultBackground.value)
+
+// Fonction pour précharger l'image
+const preloadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.src = src
+    img.onload = () => resolve(img)
+    img.onerror = reject
+  })
+}
+
+// Précharger l'image spéciale
+onMounted(async () => {
+  try {
+    await preloadImage('/images/nono.webp')
+    console.log('Image spéciale préchargée avec succès')
+  } catch (error) {
+    console.error('Erreur lors du préchargement de l\'image spéciale:', error)
+  }
+})
+
+// Mettre à jour l'arrière-plan en fonction de la slide active
+const updateBackground = () => {
+  console.log('updateBackground appelé avec activeSlideId =', activeSlideId.value);
+  
+  // Convertir les valeurs en nombres pour assurer la comparaison correcte
+  const slideId = Number(activeSlideId.value);
+  console.log('slideId converti en nombre:', slideId);
+  
+  // S'assurer que la fonction s'exécute seulement après le montage du composant
+  nextTick(() => {
+    const wrapper = document.getElementById('vodacomwrapper');
+    
+    if (wrapper) {
+      console.log('Élément vodacomwrapper trouvé, application du style');
+      
+      // Vérifier si l'une des slides spéciales est active en utilisant la classe swiper-slide-active
+      const slide20Active = document.querySelector('#swiper-slide-20.swiper-slide-active');
+      const slide114Active = document.querySelector('#swiper-slide-114.swiper-slide-active');
+      
+      if (slide20Active || slide114Active) {
+        console.log('Slide spéciale active via swiper-slide-active:', slide20Active ? '20' : '114');
+        wrapper.style.backgroundImage = 'url(/images/nono.webp)';
+        wrapper.style.backgroundSize = 'cover';
+        wrapper.style.backgroundPosition = 'center center';
+        wrapper.style.backgroundRepeat = 'no-repeat';
+        wrapper.style.transition = 'background-image 0.8s ease-in-out';
+      } else {
+        console.log('Aucune slide spéciale active via swiper-slide-active');
+        wrapper.style.backgroundImage = 'url(/images/bg12.webp)';
+        wrapper.style.backgroundSize = 'cover';
+        wrapper.style.backgroundPosition = 'center center';
+        wrapper.style.backgroundRepeat = 'no-repeat';
+        wrapper.style.transition = 'background-image 0.8s ease-in-out';
+      }
+    } else {
+      console.error('Élément vodacomwrapper non trouvé dans le DOM');
+    }
+  });
+}
+
 //back to top btn
 
 //slide 23
@@ -52,7 +117,35 @@ const swiperOptions = {
     },
     on: {
         slideChange: (swiper) => {
+            // Logs de débogage forcés qui apparaîtront même si d'autres problèmes existent
+            console.log('=== CHANGEMENT DE SLIDE DÉTECTÉ ===');
+            console.log('Index de la slide active:', swiper.activeIndex);
+            
             activeSlideIndex.value = swiper.activeIndex
+            // Récupérer l'ID de la slide active pour changer l'arrière-plan
+            const activeSlide = sortedSlides.value[swiper.activeIndex]
+            if (activeSlide) {
+                activeSlideId.value = activeSlide.id
+                console.log('%c Slide changée!', 'background: #ff0000; color: white; font-size: 16px; padding: 5px;');
+                console.log('ID de la slide active:', activeSlide.id);
+                
+                // Exécuter dans un délai court pour permettre au DOM de se mettre à jour
+                setTimeout(() => {
+                    // Vérifier directement si les swiper-slides spécifiques sont actives
+                    const slide20Active = document.querySelector('#swiper-slide-20.swiper-slide-active');
+                    const slide114Active = document.querySelector('#swiper-slide-114.swiper-slide-active');
+                    console.log('slide20Active:', !!slide20Active);
+                    console.log('slide114Active:', !!slide114Active);
+                    
+                    // Vérifier si le conteneur existe
+                    const wrapper = document.getElementById('vodacomwrapper');
+                    console.log('vodacomwrapper trouvé?', !!wrapper);
+                    
+                    updateBackground();
+                }, 100);
+            } else {
+                console.error('Aucune slide active trouvée à l\'index', swiper.activeIndex);
+            }
             updateFirstSlideStatus()
         }
     },
@@ -67,68 +160,79 @@ const animateSlideElements = (activeIndex) => {
 
     // Slide 20 - Reach 32 million customers
     if (activeIndex === 2) {
-        timeline
-            .fromTo('#slide2a', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('#slide2b', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('#slide2c', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('#guysamuel .text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+        // Vérifier si les éléments existent avant d'animer
+        const slide2a = document.getElementById('slide2a')
+        const slide2b = document.getElementById('slide2b')
+        const slide2c = document.getElementById('slide2c')
+        const guysamuelElements = document.querySelectorAll('#guysamuel .text-element')
+        
+        if (slide2a) timeline.fromTo(slide2a, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (slide2b) timeline.fromTo(slide2b, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (slide2c) timeline.fromTo(slide2c, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (guysamuelElements.length > 0) {
+            timeline.fromTo(guysamuelElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+        }
     }
 
     // Slide 21 - No internet access needed
     else if (activeIndex === 3) {
-
+        const mshill = document.getElementById('mshill')
+        
         // Version Desktop
         if (window.innerWidth > 1024) {
-            timeline
-                .fromTo('#mshill', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-                .fromTo('.desktop-version .text-element',
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 }
-                )
+            if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            
+            // Utiliser un sélecteur qui existe réellement
+            const textElements = document.querySelectorAll('#thoiathoing .text-element')
+            if (textElements.length > 0) {
+                timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+            }
         }
         // Version Mobile
         else {
-            timeline
-                .fromTo('.mobile-slide-part:first-child #mshill',
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.5 }
-                )
-                .fromTo('.mobile-slide-part:last-child .text-element',
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 }
-                )
+            if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+            
+            // Utiliser un sélecteur qui existe réellement sur mobile
+            const textElements = document.querySelectorAll('#thoiathoing .text-element')
+            if (textElements.length > 0) {
+                timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+            }
         }
-
     }
 
     // Slide 22 - Other advantages
     else if (activeIndex === 4) {
-        timeline
-            .fromTo('#mshill', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('#thoiathoing .text-element', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
-    }
-
-    // Slide 23 - Accordion
-    else if (activeIndex === 5) {
-        // timeline
-        //     .fromTo('#naci .accordion-item', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.2 })
-        //     .fromTo('#lephone img', { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.5 })
+        const mshill = document.getElementById('mshill')
+        const textElements = document.querySelectorAll('#thoiathoing .text-element')
+        
+        if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (textElements.length > 0) {
+            timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+        }
     }
 
     // Slide 59
     else if (activeIndex === 6) {
-        timeline
-            .fromTo('#killerjunior h2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('#killerjunior p', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('.lemouds', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+        const h2Element = document.querySelector('#killerjunior h2')
+        const pElement = document.querySelector('#killerjunior p')
+        const lemoudsElements = document.querySelectorAll('.lemouds')
+        
+        if (h2Element) timeline.fromTo(h2Element, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (pElement) timeline.fromTo(pElement, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (lemoudsElements.length > 0) {
+            timeline.fromTo(lemoudsElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+        }
     }
 
     // Slide 60 - Form
     else if (activeIndex === 7) {
-        timeline
-            .fromTo('.lopere', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('.ditocard', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-            .fromTo('.contact-form', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        const lopere = document.querySelector('.lopere')
+        const ditocard = document.querySelectorAll('.ditocard')
+        const contactForm = document.querySelector('.contact-form')
+        
+        if (lopere) timeline.fromTo(lopere, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (ditocard.length > 0) timeline.fromTo(ditocard, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        if (contactForm) timeline.fromTo(contactForm, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
     }
 }
 const updateFirstSlideStatus = () => {
@@ -283,7 +387,7 @@ useHead({
 </script>
 
 <template>
-    <div id="vodacomwrapper">
+    <div id="vodacomwrapper" :style="{ background: currentBackground, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', transition: 'background 0.8s ease-in-out' }">
         <div v-if="loading" class="loader-container">
             <nuxt-img src="/images/logovector.svg" class="logo-loader" alt="Logo" />
         </div>
@@ -319,7 +423,8 @@ useHead({
         <Swiper v-bind="swiperOptions" class="sections-container">
             <div class="swiper-scrollbar"></div>
             <SwiperSlide v-for="(slide, index) in sortedSlides" :key="slide.id"
-                :class="{ 'slide-active': index === activeSlideIndex }">
+                :class="{ 'slide-active': index === activeSlideIndex }"
+                :id="`swiper-slide-${slide.id}`">
                 <div :id="`slide-${slide.id}`" class="slide-container animate__animated animate__fadeIn"
                     :style="{ backgroundImage: isMobile ? (slide.backgroundMobile ? `url(${slide.backgroundMobile})` : 'none') : (slide.thumbnail ? `url(${slide.thumbnail})` : 'none') }">
                     <!-- premiere slide  -->
@@ -375,8 +480,17 @@ useHead({
                             </div>
                         </div>
                     </div>
-
-                   
+                      <!-- reach 32 million customers part deux-->
+                      <div v-else-if="slide.id === 114" id="kiffyu" class="p-0 m-0">
+                        <div id="tchoffo">
+                            <div id="deffp" class="preme">
+                                <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="text-element"
+                                    v-html="paragraph">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
                     <!-- other advantages -->
                     <div v-else-if="slide.id === 22" id="thoiathoing" class="p-0 m-0">
                         <!-- Version Desktop -->
@@ -1060,5 +1174,58 @@ useHead({
             background-color: white;
         }
     }
+}
+
+/* Styles pour la slide 114 (Reach part 2) */
+#kiffyu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+#tchoffo {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#deffp.preme {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+}
+
+#deffp.preme .text-element {
+  flex: 1 1 300px;
+  max-width: 400px;
+  text-align: center;
+  padding: 1.5rem;
+  background-color: rgba(230, 0, 0, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+  transition: transform 0.3s ease-in-out;
+  color: white;
+}
+
+#deffp.preme .text-element:hover {
+  transform: translateY(-10px);
+  background-color: rgba(230, 0, 0, 0.3);
+}
+
+#deffp.preme .text-element h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: white;
+  font-weight: bold;
+}
+
+#deffp.preme .text-element p {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  color: white;
 }
 </style>
