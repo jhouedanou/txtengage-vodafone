@@ -16,16 +16,29 @@ export default defineNuxtConfig({
       preprocessorOptions: {
         scss: {
           sourceMap: true,
-          outputStyle: 'expanded'
+          outputStyle: 'expanded',
+          charset: false
         }
+      },
+      // Améliorer la précision des sourcemaps pour l'édition dans Chrome
+      build: {
+        sourcemap: true,
+        cssCodeSplit: true
       }
     }
   },
 
   build: {
     transpile: ['gsap'],
-    cssSourceMap: true
+    cssSourceMap: true,
+    extractCSS: true
   },
+  
+  // Ajouter la configuration pour les sourcemaps quand l'environnement le demande
+  postcss: {
+    sourceMap: process.env.NUXT_PUBLIC_SOURCEMAP === 'true'
+  },
+  
   nitro: {
     preset: 'vercel',
     prerender: {
