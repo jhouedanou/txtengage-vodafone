@@ -421,8 +421,13 @@ const perdrixSwiperOptions = {
     direction: 'horizontal',
     slidesPerView: 1,
     mousewheel: true,
-    speed: 800, // Vitesse de transition augmentée pour un effet plus doux
+    speed: 800,
     spaceBetween: 30,
+    // Activation explicite du défilement tactile
+    touchRatio: 1,
+    touchAngle: 45,
+    touchMoveStopPropagation: true,
+    grabCursor: true, // Change le curseur en main pour indiquer que l'élément est glissable
     // Ajout de l'effet fade
     effect: 'fade',
     fadeEffect: {
@@ -430,9 +435,9 @@ const perdrixSwiperOptions = {
     },
     // Ajout de l'autoplay
     autoplay: {
-        delay: 2000,
+        delay: 5000,
         disableOnInteraction: false,
-        pauseOnMouseEnter: false
+        pauseOnMouseEnter: true
     },
     navigation: {
         nextEl: '.perdrix-swiper-button-next',
@@ -668,6 +673,17 @@ const extractImage = (html) => {
                         </div>
                     </div>
 
+                    <div v-else-if="slide.id === 128">
+                        <div id="killerwu" class="ouh">
+
+                            <h2 class="text-element" v-html="slide.title"></h2>
+                                    <p class="text-element" v-html="slide.wp_content"></p>
+                            <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
+                                    class="text-element col m-0 p-2" v-html="paragraph">
+                                </div>
+                        </div>
+                    </div>
+                    
                     <div id="lemof" v-else-if="slide.id === 60">
                         <div id="lafill" class="container">
                             <h2 class="text-element lopere" v-html="slide.title"></h2>
