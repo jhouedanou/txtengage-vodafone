@@ -655,11 +655,11 @@ const extractImage = (html) => {
                     <div v-else-if="slide.id === 59">
                         <div id="killerjunior" class="ouh">
                             <div class="row">
-                                <div class="col-md-7">
+                                <div class="col-md-5 leporc">
                                     <h2 class="text-element aya" v-html="slide.title"></h2>
                                     <p v-html="slide.wp_content"></p>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-7 kankan">
                                     <div v-for="(paragraph, index) in slide.paragraphs" :key="index" class="lemouds"
                                         v-html="paragraph">
                                     </div>
