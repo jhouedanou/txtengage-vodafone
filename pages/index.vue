@@ -2,11 +2,12 @@
 import { onMounted, ref, computed, reactive, nextTick } from 'vue'
 import { useSlidesStore } from '~/stores/slides'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Mousewheel, Scrollbar, Navigation, Pagination, Autoplay } from 'swiper/modules'
+import { Mousewheel, Scrollbar, Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
+import 'swiper/css/effect-fade'
 import 'animate.css'
 import gsap from 'gsap'
 
@@ -414,19 +415,24 @@ onMounted(() => {
 });
 
 // Définir des modules pour le swiper horizontal de Perdrix
-const perdrixSwiperModules = [Mousewheel, Scrollbar, Pagination, Navigation, Autoplay]
+const perdrixSwiperModules = [Mousewheel, Scrollbar, Pagination, Navigation, Autoplay, EffectFade]
 const perdrixSwiperOptions = {
     modules: perdrixSwiperModules,
     direction: 'horizontal',
     slidesPerView: 1,
     mousewheel: true,
-    speed: 600,
+    speed: 800, // Vitesse de transition augmentée pour un effet plus doux
     spaceBetween: 30,
+    // Ajout de l'effet fade
+    effect: 'fade',
+    fadeEffect: {
+        crossFade: true
+    },
     // Ajout de l'autoplay
     autoplay: {
-        delay: 5000,
+        delay: 2000,
         disableOnInteraction: false,
-        pauseOnMouseEnter: true
+        pauseOnMouseEnter: false
     },
     navigation: {
         nextEl: '.perdrix-swiper-button-next',
@@ -435,7 +441,9 @@ const perdrixSwiperOptions = {
     pagination: {
         el: '.perdrix-swiper-pagination',
         clickable: true,
-        type: 'progressbar' // Transforme la pagination en barre de progression
+        type: 'bullets',
+        dynamicBullets: true,
+        dynamicMainBullets: 1
     },
     scrollbar: {
         el: '.perdrix-swiper-scrollbar',
@@ -443,6 +451,24 @@ const perdrixSwiperOptions = {
         hide: false,
     },
 }
+
+// Fonctions pour extraire le titre, le texte et l'image du HTML des paragraphes
+const extractTitle = (html) => {
+  const match = html.match(/<h3>(.*?)<\/h3>/);
+  return match ? match[1] : '';
+}
+
+const extractTextContent = (html) => {
+  // Extraire le contenu texte (paragraphes et listes) en excluant les images
+  let content = html.replace(/<h3>.*?<\/h3>/, ''); // Enlever le titre
+  content = content.replace(/<img.*?\/?>/g, ''); // Enlever les balises img
+  return content;
+}
+
+const extractImage = (html) => {
+  const match = html.match(/src="([^"]*?)"/);
+  return match ? match[1] : '';
+};
 </script>
 
 <template>
@@ -574,14 +600,22 @@ const perdrixSwiperOptions = {
                     <div v-else-if="slide.id === 23" id="bygone-bip" class="p-0 m-0">
                         <div class="container">
                             <div id="perdrix" class="row">
-                                <!-- Swiper horizontal pour les text-elements -->
+                                <!-- Swiper horizontal pour les text-elements avec effet fade -->
                                 <Swiper
                                     class="perdrix-swiper"
                                     :modules="perdrixSwiperModules"
                                     direction="horizontal"
+                                    effect="fade"
+                                    :fadeEffect="{ crossFade: true }"
                                     :mousewheel="true"
                                     :scrollbar="{ draggable: true, hide: false, el: '.perdrix-swiper-scrollbar' }"
-                                    :pagination="{ clickable: true, el: '.perdrix-swiper-pagination', type: 'progressbar' }"
+                                    :pagination="{ 
+                                        clickable: true, 
+                                        el: '.perdrix-swiper-pagination',
+                                        type: 'bullets',
+                                        dynamicBullets: true,
+                                        dynamicMainBullets: 1
+                                    }"
                                     :navigation="{
                                         nextEl: '.perdrix-swiper-button-next',
                                         prevEl: '.perdrix-swiper-button-prev'
@@ -593,13 +627,24 @@ const perdrixSwiperOptions = {
                                     }"
                                     :slides-per-view="1"
                                     :space-between="30"
+                                    :speed="800"
                                 >
                                     <div class="perdrix-swiper-scrollbar"></div>
                                     <div class="perdrix-swiper-pagination"></div>
                                     <div class="perdrix-swiper-button-prev"></div>
                                     <div class="perdrix-swiper-button-next"></div>
                                     <SwiperSlide v-for="(paragraph, index) in slide.paragraphs" :key="index" class="perdrix-slide">
-                                        <div class="text-element" v-html="paragraph"></div>
+                                        <div class="split-container">
+                                            <div class="text-container">
+                                                <!-- Extraction du titre et du texte -->
+                                                <h3 v-if="extractTitle(paragraph)">{{ extractTitle(paragraph) }}</h3>
+                                                <div class="text-content" v-html="extractTextContent(paragraph)"></div>
+                                            </div>
+                                            <div class="image-container">
+                                                <!-- Extraction de l'image -->
+                                                <img v-if="extractImage(paragraph)" :src="extractImage(paragraph)" alt="Feature illustration" class="feature-image" />
+                                            </div>
+                                        </div>
                                     </SwiperSlide>
                                 </Swiper>
                             </div>
@@ -1143,8 +1188,6 @@ const perdrixSwiperOptions = {
     }
 }
 
-//menuy
-
 
 
 .menu-container {
@@ -1250,6 +1293,65 @@ const perdrixSwiperOptions = {
     }
 }
 
+
+/* Style personnalisé pour les points de pagination */
+.perdrix-swiper-pagination {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 10;
+    
+    .swiper-pagination-bullet {
+        width: 12px;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        opacity: 0.6;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        
+        &-active {
+            background: #ffffff;
+            opacity: 1;
+            width: 14px;
+            height: 14px;
+            transform: scale(1.2);
+        }
+    }
+    
+    /* Style pour les bullets dynamiques */
+    .swiper-pagination-bullet-active-main {
+        transform: scale(1.4);
+        background: #ffffff;
+        opacity: 1;
+    }
+    
+    .swiper-pagination-bullet-active-prev,
+    .swiper-pagination-bullet-active-next {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .swiper-pagination-bullet-active-prev-prev,
+    .swiper-pagination-bullet-active-next-next {
+        transform: scale(0.9);
+        background: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.perdrix-swiper-scrollbar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    bottom: 5px;
+    
+    .swiper-scrollbar-drag {
+        background: #e60000;
+        border-radius: 4px;
+    }
+}
+
+/* Structure en deux colonnes pour les slides Perdrix */
 .perdrix-swiper-container {
     position: relative;
     width: 100%;
@@ -1268,32 +1370,72 @@ const perdrixSwiperOptions = {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    color: #fff;
-    padding: 40px;
+    padding: 0px;
     box-sizing: border-box;
     height: auto;
-    
-    .text-element {
-        background-color: rgba(0, 0, 0, 0.5);
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-        max-width: 800px;
-        margin: 0 auto;
-        
-        &:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-    }
+}
+
+.split-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.text-container {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.text-container h3 {
+    color: #fff;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.text-content {
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.text-content ul {
+    padding-left: 20px;
+    margin: 15px 0;
+}
+
+.text-content li {
+    margin-bottom: 8px;
+}
+
+.image-container {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content:center;
+    overflow: hidden;
+}
+
+.feature-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.feature-image:hover {
+    transform: scale(1.05);
 }
 
 .perdrix-swiper-button-next,
 .perdrix-swiper-button-prev {
-    color: #e60000 !important;
-    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.7);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1306,37 +1448,63 @@ const perdrixSwiperOptions = {
     }
     
     &:hover {
-        background-color: rgba(255, 255, 255, 0.4);
+        background-color: rgba(255, 255, 255, 0.9);
     }
 }
 
-.perdrix-swiper-pagination {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    
-    .swiper-pagination-bullet {
-        background: rgba(255, 255, 255, 0.6);
-        opacity: 0.6;
-        margin: 0 5px;
-        
-        &-active {
-            background: #e60000;
-            opacity: 1;
-        }
-    }
+/* Styles spécifiques pour l'effet fade */
+.swiper-fade.swiper-free-mode .swiper-slide {
+    transition-timing-function: ease-out;
 }
 
-.perdrix-swiper-scrollbar {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    bottom: 0;
+.swiper-fade .swiper-slide {
+    pointer-events: none;
+    transition-property: opacity;
+}
+
+.swiper-fade .swiper-slide .swiper-slide {
+    pointer-events: none;
+}
+
+.swiper-fade .swiper-slide-active,
+.swiper-fade .swiper-slide-active .swiper-slide-active {
+    pointer-events: auto;
+}
+
+/* Assurez-vous que les slides ont une position absolue pour l'effet fade */
+.perdrix-swiper.swiper-fade .swiper-slide {
+    opacity: 0 !important;
+    transition: opacity 0.8s ease;
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.perdrix-swiper.swiper-fade .swiper-slide-active {
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 5;
+}
+
+/* Responsive */
+@media screen and (max-width: 992px) {
+    .split-container {
+        flex-direction: column;
+    }
     
-    .swiper-scrollbar-drag {
-        background: #e60000;
-        border-radius: 4px;
+    .text-container, .image-container {
+        flex: none;
+        width: 100%;
+    }
+    
+    .text-container {
+        padding: 30px;
+    }
+    
+    .image-container {
+        height: 250px;
     }
 }
 </style>
