@@ -474,6 +474,18 @@ const extractImage = (html) => {
   const match = html.match(/src="([^"]*?)"/);
   return match ? match[1] : '';
 };
+
+// Fonction pour gérer l'accordéon de la section #casestudy
+const caseStudyActiveIndex = ref(0)
+
+const initCaseStudyAccordion = () => {
+  // Afficher par défaut le premier élément
+  caseStudyActiveIndex.value = 0
+}
+
+const toggleCaseStudySection = (index) => {
+  caseStudyActiveIndex.value = index
+}
 </script>
 
 <template>
@@ -611,7 +623,6 @@ const extractImage = (html) => {
                                     :modules="perdrixSwiperModules"
                                     direction="horizontal"
                                     effect="fade"
-                                    :fadeEffect="{ crossFade: true }"
                                     :mousewheel="true"
                                     :scrollbar="{ draggable: true, hide: false, el: '.perdrix-swiper-scrollbar' }"
                                     :pagination="{ 
@@ -675,12 +686,25 @@ const extractImage = (html) => {
 
                     <div v-else-if="slide.id === 128">
                         <div id="killerwu" class="ouh">
-
                             <h2 class="text-element" v-html="slide.title"></h2>
-                                    <p class="text-element" v-html="slide.wp_content"></p>
-                            <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
-                                    class="text-element col m-0 p-2" v-html="paragraph">
+                            <div class="case-study-container">
+                                <div id="casestudy">
+                                    <div v-for="(paragraph, index) in slide.paragraphs" :key="index"
+                                        class="text-element col m-0 p-2" 
+                                        :class="{'case-study-active': index === caseStudyActiveIndex, 'case-study-item': true}">
+                                        <h3 @click="toggleCaseStudySection(index)" class="case-study-header">
+                                            {{ extractTitle(paragraph) }}
+                                            <span class="case-study-indicator">{{ index === caseStudyActiveIndex ? '−' : '+' }}</span>
+                                        </h3>
+                                        <div class="case-study-content" :class="{'case-study-content-visible': index === caseStudyActiveIndex}">
+                                            <div v-html="extractTextContent(paragraph)"></div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <div class="case-study-image">
+                                    <img v-if="slide.thumbnail" :src="slide.thumbnail" alt="Case Study Image" class="img-fluid">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -1522,5 +1546,125 @@ const extractImage = (html) => {
     .image-container {
         height: 250px;
     }
+}
+
+/* Styles pour le case study accordéon */
+#casestudy {
+  margin: 20px 0;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.case-study-item {
+  margin-bottom: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.case-study-header {
+  cursor: pointer;
+  padding: 15px 20px;
+  margin: 0;
+  background-color: rgba(230, 0, 0, 0.8);
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.case-study-header:hover {
+  background-color: rgba(230, 0, 0, 1);
+}
+
+.case-study-indicator {
+  font-size: 24px;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.case-study-active .case-study-indicator {
+  transform: rotate(180deg);
+}
+
+.case-study-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.2s ease; /* Transition plus rapide */
+  padding: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.case-study-content-visible {
+  max-height: 500px;
+  padding: 20px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: max-height 0.4s ease, padding 0.2s ease, opacity 0.3s ease, transform 0.3s ease; /* Toutes les transitions en même temps */
+}
+
+/* Style des éléments à l'intérieur de l'accordéon */
+.case-study-content ul {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+
+.case-study-content strong {
+  color: #e60000;
+  font-size: 1.2em;
+}
+
+/* Ajout des styles CSS pour la disposition en deux colonnes (accordéon et image) dans la section case study */
+.case-study-container {
+  display: flex;
+  width: 100%;
+  gap: 30px;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+#casestudy {
+  flex: 1;
+  max-width: 60%;
+}
+
+.case-study-image {
+  flex: 1;
+  max-width: 40%;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.case-study-image img {
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.case-study-image img:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive design pour les appareils mobiles */
+@media screen and (max-width: 992px) {
+  .case-study-container {
+    flex-direction: column;
+  }
+  
+  #casestudy, .case-study-image {
+    max-width: 100%;
+  }
+  
+  .case-study-image {
+    margin-top: 20px;
+    order: -1; /* Afficher l'image avant l'accordéon sur mobile */
+  }
 }
 </style>
