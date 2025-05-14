@@ -412,6 +412,37 @@ onMounted(() => {
   
   // ...existing onMounted code...
 });
+
+// Définir des modules pour le swiper horizontal de Perdrix
+const perdrixSwiperModules = [Mousewheel, Scrollbar, Pagination, Navigation, Autoplay]
+const perdrixSwiperOptions = {
+    modules: perdrixSwiperModules,
+    direction: 'horizontal',
+    slidesPerView: 1,
+    mousewheel: true,
+    speed: 600,
+    spaceBetween: 30,
+    // Ajout de l'autoplay
+    autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true
+    },
+    navigation: {
+        nextEl: '.perdrix-swiper-button-next',
+        prevEl: '.perdrix-swiper-button-prev',
+    },
+    pagination: {
+        el: '.perdrix-swiper-pagination',
+        clickable: true,
+        type: 'progressbar' // Transforme la pagination en barre de progression
+    },
+    scrollbar: {
+        el: '.perdrix-swiper-scrollbar',
+        draggable: true,
+        hide: false,
+    },
+}
 </script>
 
 <template>
@@ -542,27 +573,35 @@ onMounted(() => {
 
                     <div v-else-if="slide.id === 23" id="bygone-bip" class="p-0 m-0">
                         <div class="container">
-
-                            <div class="row">
-                                <!-- Colonne de gauche pour les images -->
-                                <div id="naci" class="col-md-5 col-sm-12">
-                                    <div :id="`letexte-${index}`" v-for="(paragraph, index) in slide.paragraphs"
-                                        :key="index" class="accordion-item">
-                                        <div class="accordion-header" @click="toggleAccordion(slide.id, index)"
-                                            :class="{ 'active-header': activeIndex === index }">
-                                            <div v-html="paragraph.split('</h3>')[0] + '</h3>'"
-                                                :class="{ 'active-title': activeIndex === index }"></div>
-                                        </div>
-                                        <div class="accordion-content" :class="{ active: activeIndex === index }">
-                                            <p v-html="paragraph.split('</h3>')[1].split('<p>')[1].split('</p>')[0]">
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="lephone" class="col-md-7 col-sm-12">
-                                    <img v-if="activeImage" :src="activeImage"
-                                        :class="['slide-image', { visible: activeImage }]" alt="Slide image">
-                                </div>
+                            <div id="perdrix" class="row">
+                                <!-- Swiper horizontal pour les text-elements -->
+                                <Swiper
+                                    class="perdrix-swiper"
+                                    :modules="perdrixSwiperModules"
+                                    direction="horizontal"
+                                    :mousewheel="true"
+                                    :scrollbar="{ draggable: true, hide: false, el: '.perdrix-swiper-scrollbar' }"
+                                    :pagination="{ clickable: true, el: '.perdrix-swiper-pagination', type: 'progressbar' }"
+                                    :navigation="{
+                                        nextEl: '.perdrix-swiper-button-next',
+                                        prevEl: '.perdrix-swiper-button-prev'
+                                    }"
+                                    :autoplay="{
+                                        delay: 5000,
+                                        disableOnInteraction: false,
+                                        pauseOnMouseEnter: true
+                                    }"
+                                    :slides-per-view="1"
+                                    :space-between="30"
+                                >
+                                    <div class="perdrix-swiper-scrollbar"></div>
+                                    <div class="perdrix-swiper-pagination"></div>
+                                    <div class="perdrix-swiper-button-prev"></div>
+                                    <div class="perdrix-swiper-button-next"></div>
+                                    <SwiperSlide v-for="(paragraph, index) in slide.paragraphs" :key="index" class="perdrix-slide">
+                                        <div class="text-element" v-html="paragraph"></div>
+                                    </SwiperSlide>
+                                </Swiper>
                             </div>
                         </div>
                     </div>
@@ -645,6 +684,18 @@ onMounted(() => {
                 </div>
             </SwiperSlide>
         </Swiper>
+
+        <!-- Swiper spécifique pour la slide 23 (Perdrix) -->
+        <div v-if="sortedSlides[activeSlideIndex]?.id === 23" class="perdrix-swiper-container">
+            <Swiper v-bind="perdrixSwiperOptions" class="perdrix-swiper">
+                <div class="perdrix-swiper-scrollbar"></div>
+                <div class="perdrix-swiper-pagination"></div>
+                <SwiperSlide v-for="(paragraph, index) in sortedSlides[activeSlideIndex].paragraphs" :key="index"
+                    class="perdrix-slide">
+                    <div class="text-element" v-html="paragraph"></div>
+                </SwiperSlide>
+            </Swiper>
+        </div>
     </div>
 </template>
 
@@ -1199,4 +1250,93 @@ onMounted(() => {
     }
 }
 
+.perdrix-swiper-container {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    margin: 0 auto;
+    max-width: 90%;
+}
+
+.perdrix-swiper {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.perdrix-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+    padding: 40px;
+    box-sizing: border-box;
+    height: auto;
+    
+    .text-element {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        max-width: 800px;
+        margin: 0 auto;
+        
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+    }
+}
+
+.perdrix-swiper-button-next,
+.perdrix-swiper-button-prev {
+    color: #e60000 !important;
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:after {
+        font-size: 18px;
+    }
+    
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+}
+
+.perdrix-swiper-pagination {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    
+    .swiper-pagination-bullet {
+        background: rgba(255, 255, 255, 0.6);
+        opacity: 0.6;
+        margin: 0 5px;
+        
+        &-active {
+            background: #e60000;
+            opacity: 1;
+        }
+    }
+}
+
+.perdrix-swiper-scrollbar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    bottom: 0;
+    
+    .swiper-scrollbar-drag {
+        background: #e60000;
+        border-radius: 4px;
+    }
+}
 </style>
