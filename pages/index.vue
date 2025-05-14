@@ -637,9 +637,9 @@ const toggleCaseStudySection = (index) => {
                                         prevEl: '.perdrix-swiper-button-prev'
                                     }"
                                     :autoplay="{
-                                        delay: 5000,
+                                        delay: 3000,
                                         disableOnInteraction: false,
-                                        pauseOnMouseEnter: true
+                                        pauseOnMouseEnter: false
                                     }"
                                     :slides-per-view="1"
                                     :space-between="30"
