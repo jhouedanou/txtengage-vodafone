@@ -1,12 +1,17 @@
-export default async ({ app }) => {
+import { defineNuxtPlugin } from '#app'
+
+export default defineNuxtPlugin(nuxtApp => {
   if (process.client) {
     // Import ScrollMagic uniquement côté client
-    const ScrollMagic = await import('scrollmagic').then(m => m.default || m)
+    const scrollMagicPromise = import('scrollmagic').then(m => m.default || m)
     
     // Ajouter GSAP plugin pour ScrollMagic si nécessaire
-    const ScrollMagicGSAP = await import('scrollmagic/scrollmagic/uncompressed/plugins/animation.gsap')
+    const scrollMagicGSAPPromise = import('scrollmagic-plugin-gsap')
     
-    // Rendre disponible globalement pour l'application
-    window.ScrollMagic = ScrollMagic
+    // Exécuter les promesses
+    Promise.all([scrollMagicPromise, scrollMagicGSAPPromise]).then(([ScrollMagic]) => {
+      // Rendre disponible globalement pour l'application
+      window.ScrollMagic = ScrollMagic
+    })
   }
-}
+})

@@ -71,6 +71,7 @@ export default defineNuxtConfig({
   // Enregistrer nos plugins
   plugins: [
     { src: '~/plugins/fullpage.js', mode: 'client' },
+    { src: '~/plugins/vue-fullpage.client.js', mode: 'client' },
     { src: '~/plugins/scrollmagic.js', mode: 'client' }
   ],
 

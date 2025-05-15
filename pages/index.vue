@@ -3,6 +3,7 @@ import { onMounted, ref, computed, reactive, nextTick, onUnmounted, onBeforeUnmo
 import { useSlidesStore } from '~/stores/slides'
 import { useRuntimeConfig } from '#app'
 import gsap from 'gsap'
+import CustomScrollbar from '~/components/CustomScrollbar.vue'
 
 // Récupérer les configurations
 const config = useRuntimeConfig()
@@ -85,13 +86,16 @@ const isFirstSlideActive = ref(true)
 
 // Options de configuration pour fullpage.js
 const fullpageOptions = {
-  licenseKey: config.fullpage?.licenseKey || '2K3LK-6CTQK-HF6HH-Q610H-PNPOO',
+  licenseKey: 'OPEN-SOURCE-GPLV3',  // Utiliser cette clé pour les projets open source ou remplacer par votre clé valide
   scrollingSpeed: 800,
   verticalCentered: true,
   anchors: ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6', 'slide7', 'slide8'],
   menu: '#menu',
-  navigation: true,
-  navigationPosition: 'right',
+  navigation: false,  // Désactiver les points de navigation
+  scrollBar: false,   // Désactiver la barre de défilement standard
+  scrollOverflow: true, // Permet le défilement dans les sections si nécessaire
+  autoScrolling: true,  // Maintenir le défilement automatique entre les sections
+  fitToSection: true,   // Ajuster la vue à la section
   showActiveTooltip: false,
   easingcss3: 'cubic-bezier(0.645, 0.045, 0.355, 1.000)',
   fadingEffect: true,
@@ -353,9 +357,51 @@ onMounted(() => {
 
 // Initialisation de fullPage.js
 const initFullPage = () => {
-  if (typeof window !== 'undefined' && window.fullpage && fullpageRef.value) {
-    window.fullpage(fullpageRef.value, fullpageOptions);
+  // S'assurer que le DOM est bien chargé et que fullpage.js est disponible
+  if (typeof window !== 'undefined' && typeof window.fullpage === 'function' && fullpageRef.value) {
+    console.log('Initialisation de fullpage.js...');
+    
+    // Vérifier que nous avons des slides à afficher
+    if (!sortedSlides.value || sortedSlides.value.length === 0) {
+      console.log('Aucune slide disponible, attente des données...');
+      setTimeout(initFullPage, 500);
+      return;
+    }
+    
+    try {
+      // Assurer que le DOM est prêt avant l'initialisation
+      nextTick(() => {
+        const fpContainer = document.getElementById('fullpage');
+        if (!fpContainer) {
+          console.warn('Le conteneur #fullpage n\'est pas présent dans le DOM.');
+          setTimeout(initFullPage, 500);
+          return;
+        }
+        
+        // Vérifier que l'élément a des sections
+        const sections = document.querySelectorAll('.section');
+        if (!sections || sections.length === 0) {
+          console.warn('Aucune section trouvée dans le DOM pour fullpage.js, nouvelle tentative dans 500ms...');
+          setTimeout(initFullPage, 500);
+          return;
+        }
+        
+        console.log(`${sections.length} sections trouvées, initialisation de fullpage.js...`);
+        
+        try {
+          fullpageApi.value = window.fullpage('#fullpage', fullpageOptions);
+        } catch (initError) {
+          console.error('Erreur lors de l\'initialisation de fullpage.js:', initError);
+          setTimeout(initFullPage, 1500);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de fullpage.js:', error);
+      // Ne pas réessayer immédiatement en cas d'erreur réelle
+      setTimeout(initFullPage, 1500);
+    }
   } else {
+    console.log('Fullpage.js n\'est pas encore chargé, nouvelle tentative dans 500ms...');
     // Réessayer après un court délai si les dépendances ne sont pas encore chargées
     setTimeout(initFullPage, 500);
   }
@@ -476,7 +522,7 @@ const initIntersectionObservers = () => {
       resetBackgroundObserver.observe(slide10Element);
     }
   });
-}
+};
 </script>
 
 <template>
@@ -517,6 +563,13 @@ const initIntersectionObservers = () => {
       </div>
     </header>
 
+    <!-- Barre de défilement personnalisée style macOS -->
+    <CustomScrollbar 
+      :fullpageApi="fullpageApi" 
+      :activeSection="activeSlideIndex" 
+      :totalSections="sortedSlides.length" 
+    />
+
     <!-- Structure fullPage.js -->
     <div id="fullpage">
       <!-- Loop through slides -->
@@ -536,15 +589,7 @@ const initIntersectionObservers = () => {
                   <h2 class="text-element" v-html="slide.title"></h2>
                   <p class="text-element" v-html="slide.wp_content"></p>
                 </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Slide 1 -->
-          <div v-if="slide.id === 10" class="txtintro row m-0 p-0">
-            <div class="firstContainer">
-              <div class="slapjh">
-                <div class="points-fort" id="points-fort">
+                   <div class="points-fort" id="points-fort">
                   <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
                     class="text-element" v-html="paragraph">
                   </div>
@@ -552,6 +597,8 @@ const initIntersectionObservers = () => {
               </div>
             </div>
           </div>
+          
+   
           
           <!-- No internet access needed -->
           <div v-else-if="slide.id === 21" id="thoiathoing" class="p-0 m-0">
