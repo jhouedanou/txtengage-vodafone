@@ -4,7 +4,8 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: [
     'bootstrap/dist/css/bootstrap.min.css',
-    '@/assets/scss/style.scss'
+    '@/assets/scss/style.scss',
+    'fullpage.js/dist/fullpage.css'
   ],
   
   vite: {
@@ -67,6 +68,13 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt', '@nuxt/image'],
 
+  // Enregistrer nos plugins
+  plugins: [
+    { src: '~/plugins/fullpage.js', mode: 'client' },
+    { src: '~/plugins/vue-fullpage.client.js', mode: 'client' },
+    { src: '~/plugins/scrollmagic.js', mode: 'client' }
+  ],
+
   image: {
     // Configuration spécifique pour le module @nuxt/image
     provider: 'ipx',
@@ -99,4 +107,11 @@ export default defineNuxtConfig({
     domains: ['vercel.app'],
     staticFilePath: true
   },
+  
+  // Configuration publique pour fullPage.js
+  publicRuntimeConfig: {
+    fullpage: {
+      licenseKey: '2K3LK-6CTQK-HF6HH-Q610H-PNPOO',
+    }
+  }
 })

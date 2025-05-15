@@ -4,15 +4,13 @@ import { useSlidesStore } from '~/stores/slides'
 import { useRuntimeConfig } from '#app'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Observer } from 'gsap/Observer'
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import CustomScrollbar from '~/components/CustomScrollbar.vue'
 
-gsap.registerPlugin(ScrollTrigger, Observer, ScrollToPlugin)
+gsap.registerPlugin(ScrollTrigger)
 
-// Enregistrer les plugins GSAP dans le contexte client
+// Enregistrer le plugin ScrollTrigger
 if (process.client) {
-  gsap.registerPlugin(ScrollTrigger, Observer, ScrollToPlugin)
+  gsap.registerPlugin(ScrollTrigger)
 }
 
 // Récupérer les configurations
@@ -101,70 +99,39 @@ const isFirstSlideActive = ref(true)
 const onLeave = (origin, destination, direction) => {
   // Si on essaie de quitter la slide 73 et que l'animation n'est pas terminée
   if (origin.item && origin.item.id === 'section-slide-73' && !slide73AnimationComplete.value) {
-    // Forcer la progression à 1 pour terminer l'animation
-    slide73Progress.value = 1;
-    updateSlide73Animations();
-    slide73AnimationComplete.value = true;
-    return false; // Laisser l'événement onLeave de fullpage.js prendre le relais
+    return false; // Empêcher le défilement tant que l'animation n'est pas terminée
   }
   // Si on essaie de quitter la slide 21 et que l'animation n'est pas terminée
   if (origin.item && origin.item.id === 'section-slide-21' && !slide21AnimationComplete.value) {
-    // Forcer la progression à 1 pour terminer l'animation
-    slide21Progress.value = 1;
-    if (document.querySelector('.slide-21-title') && document.querySelectorAll('.slide-21-point')) {
-      updateSlide21Animations(document.querySelector('.slide-21-title'), document.querySelectorAll('.slide-21-point'));
-    }
-    slide21AnimationComplete.value = true;
-    return false; // Laisser l'événement onLeave de fullpage.js prendre le relais
+    return false; // Empêcher le défilement tant que l'animation n'est pas terminée
   }
   return true;
 };
 
 // Options de configuration pour fullpage.js
 const fullpageOptions = {
-  licenseKey: '1EEMD-B27MY-J7J14-PVI3I-XOPOM',  // Clé valide pour le projet
+  licenseKey: 'OPEN-SOURCE-GPLV3',  // Utiliser cette clé pour les projets open source ou remplacer par votre clé valide
   scrollingSpeed: 800,
   verticalCentered: true,
-  navigation: true,
-  navigationTooltips: ['Accueil', 'Services', 'Offres', 'Solutions', 'Clients', 'Impact Social', 'Contact', 'FAQ'],
-  showActiveTooltip: true,
-  menu: '#menu',
   anchors: ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6', 'slide7', 'slide8'],
-  scrollOverflow: true,
+  menu: '#menu',
+  navigation: false,  // Désactiver les points de navigation
+  scrollBar: false,   // Désactiver la barre de défilement standard
+  scrollOverflow: true, // Permet le défilement dans les sections si nécessaire
   autoScrolling: true,  // Maintenir le défilement automatique entre les sections
   fitToSection: true,   // Ajuster la vue à la section
   showActiveTooltip: false,
-  lockAnchors: true,    // Désactiver les hashtags dans l'URL
   easingcss3: 'cubic-bezier(0.645, 0.045, 0.355, 1.000)',
+  fadingEffect: true,
   onLeave: function(origin, destination, direction) {
-    // Vérifions d'abord si nous sommes dans une slide avec animation en cours
-    const isSlide73 = origin.item && origin.item.id === 'section-slide-73';
-    const isSlide21 = origin.item && origin.item.id === 'section-slide-21';
-    
-    // Si on est sur la slide 73, bloquer le passage à la slide suivante tant que tous les éléments ne sont pas révélés
-    if (isSlide73) {
-      // Vérifier si l'animation GSAP est complète pour la slide 73
-      // Le dernier point doit être visible (point-3)
-      const lastPoint = document.querySelector('#slide-73 .slide-73-point.point-3 p');
-      if (!lastPoint || window.getComputedStyle(lastPoint).opacity < 1) {
-        console.log('Animation de la slide 73 encore en cours, blocage du passage à la slide suivante');
-        return false;
-      }
-      // Animation terminée, autoriser le passage à la slide suivante
+    // Gérer le défilement personnalisé pour la slide 73
+    if (origin.item && origin.item.id === 'section-slide-73' && !slide73AnimationComplete.value) {
+      return false;
     }
-    
-    // Si on est sur la slide 21, bloquer le passage à la slide suivante tant que tous les éléments ne sont pas révélés
-    if (isSlide21) {
-      // Vérifier si l'animation GSAP est complète pour la slide 21
-      // Le dernier point doit être visible (point-21-2)
-      const lastPoint = document.querySelector('#slide-21 .slide-21-point.point-21-2 p');
-      if (!lastPoint || window.getComputedStyle(lastPoint).opacity < 1) {
-        console.log('Animation de la slide 21 encore en cours, blocage du passage à la slide suivante');
-        return false;
-      }
-      // Animation terminée, autoriser le passage à la slide suivante
+    // Gérer le défilement personnalisé pour la slide 21
+    if (origin.item && origin.item.id === 'section-slide-21' && !slide21AnimationComplete.value) {
+      return false;
     }
-    
     // Empêcher le défilement vers le haut depuis la première slide
     if (origin.index === 0 && direction === 'up') {
       return false;
@@ -505,489 +472,259 @@ const slide73ElementsList = [
 const slide73Points = ref([]);
 const slide73WheelHandler = ref(null);
 
+// Variables pour suivre l'état de la slide 21
 const slide21AnimationComplete = ref(false);
 const slide21Progress = ref(0);
 const slide21WheelHandler = ref(null);
 
-// Fonction principale d'initialisation GSAP
-const gsapInitialization = () => {
+// Fonction pour animer la slide 73
+const initSlide73Animation = () => {
   if (!process.client) return;
 
-  // Configuration GSAP
-  gsap.registerPlugin(ScrollTrigger);
-  gsap.registerPlugin(Observer);
-  gsap.registerPlugin(ScrollToPlugin);
+  // Réinitialiser l'état
+  slide73AnimationComplete.value = false;
+  slide73Progress.value = 0;
 
-  // Configuration des easing functions
-  gsap.config({
-    easeInOutCubic: function (progress) {
-      return progress < 0.5 ? 4 * progress ** 3 : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-    }
-  });
-
-  // Configuration pour l'animation
-  let sectionEase = "power3.easeinOut";
-  let slideEase = "power3.easeinOut";
-  let otherAnimationEase = "easeInOutCubic";
-
-  let sectionDuration = 0.8;
-  let slideDuration = 0.7;
-
-  let animInprogress = false;
-  let animTimeStamp, animTimeStamp2;
-
-  // Préparation des éléments d'animation
-  const prepareElements = () => {
-    console.log("Préparation des éléments d'animation");
-    
-    // Spécifique pour la slide 73
-    if (document.querySelector('#slide-73')) {
-      // Titre principal et introduction
-      const title73 = document.querySelector('.slide-73-title');
-      const content73 = document.querySelector('.slide-73-content');
-      
-      if (title73) gsap.set(title73, { opacity: 0, y: 30, visibility: 'visible' });
-      if (content73) gsap.set(content73, { opacity: 0, y: 30, visibility: 'visible' });
-      
-      // Pour chaque point, masquer à la fois le conteneur et ses h3/p enfants
-      const points = document.querySelectorAll('.slide-73-point');
-      points.forEach(point => {
-        gsap.set(point, { opacity: 0, y: 30 });
-        
-        // Masquer spécifiquement les h3 et p à l'intérieur de chaque point
-        const h3 = point.querySelector('h3');
-        const p = point.querySelector('p');
-        
-        if (h3) gsap.set(h3, { opacity: 0, y: 30 });
-        if (p) gsap.set(p, { opacity: 0, y: 30 });
-      });
-    }
-    
-    // Masquer les éléments des autres slides
-    document.querySelectorAll('.slide-container:not(#slide-73)').forEach(slide => {
-      // Cibler tous types d'éléments qui doivent être animés
-      slide.querySelectorAll('h1, h2, h3, .text-element, p, li, .sub-section').forEach(element => {
-        gsap.set(element, { opacity: 0, y: 30 });
+  nextTick(() => {
+    // Collecter les points
+    slide73Points.value = [];
+    document.querySelectorAll('.slide-73-point').forEach((el, idx) => {
+      slide73Points.value.push({
+        selector: `.point-${idx}`,
+        threshold: 0.4 + (idx * 0.1) // Seuil à partir duquel ce point devient visible
       });
     });
 
-    // Slide 21
-    const title21 = document.querySelector('.slide-21-title');
-    const pointElements = document.querySelectorAll('.slide-21-point');
-    
-    if (title21) gsap.set(title21, { opacity: 0, y: 30 });
-    pointElements.forEach(element => {
-      gsap.set(element, { opacity: 0, y: 30 });
+    // Masquer initialement tous les éléments
+    const allElements = [...slide73ElementsList, ...slide73Points.value];
+    allElements.forEach(el => {
+      const element = document.querySelector(el.selector);
+      if (element) {
+        gsap.set(element, { opacity: 0, y: 20 });
+      }
     });
-  };
 
-  // Créer la timeline principale
-  let mastertl = gsap.timeline({
-    paused: true,
-    defaults: {
-      ease: otherAnimationEase,
-      duration: 0.3,
-      autoAlpha: 0,
-      onComplete: () => {
-        animInprogress = false;
-      },
-      onReverseComplete: () => {
-        animInprogress = false;
-      }
-    },
-  });
-
-  // Initialiser la timeline principale
-  const initMasterTimeline = () => {
-    prepareElements();
-
-    // SLIDE 73 ANIMATIONS - Séquence demandée
-    // 1. Animation du titre (avec visibility pour corriger l'attribut caché)
-    mastertl.to('.slide-73-title', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.4,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // 2. Animation du contenu
-    .to('.slide-73-content', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.4,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // 3. D'abord animer le conteneur .points-fort avec un sélecteur plus spécifique
-    .to('#slide-73 .points-fort', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.4,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // 4. Maintenant nous allons animer chaque point + son contenu h3 et p
-    // Point 1 - d'abord le conteneur
-    .to('#slide-73 .slide-73-point.point-0', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Puis son titre h3
-    .to('#slide-73 .slide-73-point.point-0 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.4,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Puis son texte p
-    .to('#slide-73 .slide-73-point.point-0 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // Point 2
-    .to('#slide-73 .slide-73-point.point-1', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-1 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-1 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // Point 3
-    .to('#slide-73 .slide-73-point.point-2', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-2 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-2 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // Point 4
-    .to('#slide-73 .slide-73-point.point-3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-3 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-3 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
-
-    // Transition vers slide 21
-    .to(window, { 
-      scrollTo: { y: '#section-slide-21', autoKill: false }, 
-      duration: sectionDuration, 
-      ease: sectionEase,
-      autoAlpha: 1
-    })
-    
-    // SLIDE 21 ANIMATIONS avec la même approche que la slide 73
-    // 1. Animation du titre
-    .to('#slide-21 .slide-21-title', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.4,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // 2. Animation du point 1
-    .to('#slide-21 .slide-21-point.point-21-0', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Titre h3 du point 1
-    .to('#slide-21 .slide-21-point.point-21-0 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Texte p du point 1
-    .to('#slide-21 .slide-21-point.point-21-0 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // 3. Animation du point 2
-    .to('#slide-21 .slide-21-point.point-21-1', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Titre h3 du point 2
-    .to('#slide-21 .slide-21-point.point-21-1 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Texte p du point 2
-    .to('#slide-21 .slide-21-point.point-21-1 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
-    
-    // 4. Animation du point 3
-    .to('#slide-21 .slide-21-point.point-21-2', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Titre h3 du point 3
-    .to('#slide-21 .slide-21-point.point-21-2 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Texte p du point 3
-    .to('#slide-21 .slide-21-point.point-21-2 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
-
-    // D'autres animations pour d'autres slides peuvent être ajoutées ici
-  };
-
-  // Configurer l'observateur pour le défilement
-  const setupObserver = () => {
-    try {
-      // D'abord, masquer tous les éléments d'animation
-      // Parcourir toutes les slides et masquer leurs sous-éléments
-      document.querySelectorAll('.slide-container').forEach(slide => {
-        // Masquer tous les titres h1, h2, h3 et les text-element
-        slide.querySelectorAll('h1, h2, h3, .text-element, p').forEach(element => {
-          gsap.set(element, { opacity: 0, y: 30 });
-        });
-      });
-
-      // Vérifier que les plugins GSAP sont bien chargés
-      if (typeof gsap.Observer === 'undefined') {
-        console.warn("GSAP Observer n'est pas défini, tentative d'enregistrement manuel");
-        // Ré-enregistrer le plugin au cas où
-        gsap.registerPlugin(Observer);
-      }
-
-      // Création manuelle de l'écouteur d'événements de défilement si Observer n'est pas disponible
-      const wheelHandler = (event) => {
-        event.preventDefault();
-        
-        // Calcul de la direction
-        const direction = event.deltaY > 0 ? 1 : -1;
-        
-        if (direction > 0) {
-          // Défilement vers le bas
-          if (mastertl.totalProgress() < 1 && !animInprogress) {
-            animInprogress = true;
-            mastertl.play();
-          }
-        } else {
-          // Défilement vers le haut
-          if (mastertl.totalProgress() > 0 && !animInprogress) {
-            animInprogress = true;
-            mastertl.reverse();
-          }
-        }
-      };
-      
-      // Ajouter l'écouteur d'événements
-      window.addEventListener('wheel', wheelHandler, { passive: false });
-      
-      // Nettoyage - retourner une fonction pour supprimer les écouteurs d'événements
-      return () => {
-        window.removeEventListener('wheel', wheelHandler);
-      };
-      
-    } catch (error) {
-      console.error("Erreur lors de la configuration de l'observateur:", error);
-      
-      // Fallback sans Observer - utiliser un écouteur d'événements standard
-      const wheelHandler = (event) => {
-        if (event.deltaY > 0) {
-          if (mastertl.totalProgress() < 1) {
-            mastertl.play();
-          }
-        } else {
-          if (mastertl.totalProgress() > 0) {
-            mastertl.reverse();
-          }
-        }
-      };
-      
-      window.addEventListener('wheel', wheelHandler, { passive: false });
-      
-      return () => {
-        window.removeEventListener('wheel', wheelHandler);
-      };
+    // Configuration du gestionnaire d'événements de la roue de la souris
+    const section = document.querySelector('#section-slide-73');
+    if (!section) {
+      console.error('Section #section-slide-73 non trouvée');
+      return;
     }
-  };
 
-  // Navigation avec les touches fléchées
-  const setupKeyboardNavigation = () => {
-    const handleKeyDown = (key) => {
-      key.preventDefault();
-      if (key.keyCode == '38') { // Flèche vers le haut
-        if (mastertl.totalProgress() <= 1) {
-          mastertl.reverse();
-        }
-      } else if (key.keyCode == '40') { // Flèche vers le bas
-        if (mastertl.totalProgress() < 1) {
-          mastertl.play();
-        }
+    // Si un gestionnaire existe déjà, le supprimer
+    if (slide73WheelHandler.value) {
+      section.removeEventListener('wheel', slide73WheelHandler.value);
+    }
+
+    // Créer un nouveau gestionnaire
+    slide73WheelHandler.value = (event) => {
+      // Empêcher le comportement par défaut (défilement)
+      event.preventDefault();
+
+      // Détecter la direction du défilement
+      if (event.deltaY > 0 && !slide73AnimationComplete.value) {
+        // Défilement vers le bas
+        slide73Progress.value = Math.min(1, slide73Progress.value + 0.08); // Augmenté pour plus de réactivité
+      } else if (event.deltaY < 0 && slide73Progress.value > 0) {
+        // Défilement vers le haut (optionnel)
+        slide73Progress.value = Math.max(0, slide73Progress.value - 0.08);
+      }
+
+      // Mettre à jour les animations en fonction de la progression
+      updateSlide73Animations();
+
+      // Si tous les éléments sont visibles, permettre de passer à la slide suivante
+      if (slide73Progress.value >= 1) {
+        slide73AnimationComplete.value = true;
       }
     };
 
-    document.onkeydown = handleKeyDown;
-  };
-
-  // Initialiser tous les composants
-  initMasterTimeline();
-  setupObserver();
-  setupKeyboardNavigation();
-
-  // Nettoyer en cas de destruction
-  return () => {
-    mastertl.kill();
-    document.onkeydown = null;
-  };
+    // Ajouter le gestionnaire d'événements
+    section.addEventListener('wheel', slide73WheelHandler.value, { passive: false });
+  });
 };
 
-// Conserver ces fonctions pour compatibilité avec le reste du code
-// Mais leur implémentation est maintenant gérée par gsapInitialization
-const initSlide73Animation = () => {
-  if (!process.client) return;
-  // L'animation sera gérée par gsapInitialization
-};
-
+// Fonction pour mettre à jour les animations en fonction de la progression du défilement
 const updateSlide73Animations = () => {
-  // Cette fonction est remplacée par la timeline GSAP
+  if (!process.client) return;
+  
+  const progress = slide73Progress.value;
+  console.log('Progression slide 73:', Math.round(progress * 100) + '%');
+  
+  // Animer les éléments principaux en fonction de leur seuil
+  slide73ElementsList.forEach((item) => {
+    const element = document.querySelector(item.selector);
+    if (!element) return;
+    
+    // Calculer l'opacité basée sur la progression par rapport au seuil
+    let opacity = 0;
+    let yOffset = 30; // Augmenté pour plus d'effet
+    
+    if (progress >= item.threshold) {
+      // Calculer l'opacité de 0 à 1 sur une plage de 0.15 (plus rapide)
+      const normalizedProgress = Math.min(1, (progress - item.threshold) / 0.15);
+      opacity = normalizedProgress;
+      yOffset = 30 * (1 - normalizedProgress);
+    }
+    
+    // Appliquer l'animation avec une durée plus courte pour plus de fluidité
+    gsap.to(element, {
+      opacity: opacity,
+      y: yOffset,
+      duration: 0.2, // Plus rapide
+      ease: 'power2.out'
+    });
+  });
+  
+  // Animer les points un par un
+  slide73Points.value.forEach((item) => {
+    const element = document.querySelector(item.selector);
+    if (!element) return;
+    
+    // Calculer l'opacité basée sur la progression par rapport au seuil
+    let opacity = 0;
+    let yOffset = 30; // Augmenté pour plus d'effet
+    
+    if (progress >= item.threshold) {
+      // Calculer l'opacité de 0 à 1 sur une plage de 0.08 (plus rapide)
+      const normalizedProgress = Math.min(1, (progress - item.threshold) / 0.08);
+      opacity = normalizedProgress;
+      yOffset = 30 * (1 - normalizedProgress);
+    }
+    
+    // Appliquer l'animation avec une durée plus courte pour plus de fluidité
+    gsap.to(element, {
+      opacity: opacity,
+      y: yOffset,
+      duration: 0.2, // Plus rapide
+      ease: 'power2.out'
+    });
+  });
 };
 
+// Fonction pour animer la slide 21
 const initSlide21Animation = () => {
   if (!process.client) return;
-  // L'animation sera gérée par gsapInitialization
+
+  // Réinitialiser l'état
+  slide21AnimationComplete.value = false;
+  slide21Progress.value = 0;
+
+  nextTick(() => {
+    // Collecter les éléments de la slide 21
+    const titleElement = document.querySelector('.slide-21-title');
+    const pointElements = document.querySelectorAll('.slide-21-point');
+    
+    // Masquer initialement tous les éléments
+    if (titleElement) {
+      gsap.set(titleElement, { opacity: 0, y: 30 });
+    }
+    
+    pointElements.forEach((element) => {
+      gsap.set(element, { opacity: 0, y: 30 });
+    });
+
+    // Configuration du gestionnaire d'événements de la roue de la souris
+    const section = document.querySelector('#section-slide-21');
+    if (!section) {
+      console.error('Section #section-slide-21 non trouvée');
+      return;
+    }
+
+    // Si un gestionnaire existe déjà, le supprimer
+    if (slide21WheelHandler.value) {
+      section.removeEventListener('wheel', slide21WheelHandler.value);
+    }
+
+    // Créer un nouveau gestionnaire
+    slide21WheelHandler.value = (event) => {
+      // Empêcher le comportement par défaut (défilement)
+      event.preventDefault();
+
+      // Détecter la direction du défilement
+      if (event.deltaY > 0 && !slide21AnimationComplete.value) {
+        // Défilement vers le bas
+        slide21Progress.value = Math.min(1, slide21Progress.value + 0.1); // Plus rapide pour la slide 21
+      } else if (event.deltaY < 0 && slide21Progress.value > 0) {
+        // Défilement vers le haut (optionnel)
+        slide21Progress.value = Math.max(0, slide21Progress.value - 0.1);
+      }
+
+      // Mettre à jour les animations en fonction de la progression
+      updateSlide21Animations(titleElement, pointElements);
+
+      // Si tous les éléments sont visibles, permettre de passer à la slide suivante
+      if (slide21Progress.value >= 1) {
+        slide21AnimationComplete.value = true;
+      }
+    };
+
+    // Ajouter le gestionnaire d'événements
+    section.addEventListener('wheel', slide21WheelHandler.value, { passive: false });
+    
+    // Déclencher une mise à jour initiale pour s'assurer que tout est correctement mis en place
+    updateSlide21Animations(titleElement, pointElements);
+  });
 };
 
+// Fonction pour mettre à jour les animations de la slide 21 en fonction de la progression
 const updateSlide21Animations = (titleElement, pointElements) => {
-  // Cette fonction est remplacée par la timeline GSAP
+  if (!process.client) return;
+  
+  const progress = slide21Progress.value;
+  console.log('Progression slide 21:', Math.round(progress * 100) + '%');
+  
+  // Animer le titre
+  if (titleElement) {
+    let titleOpacity = 0;
+    let titleYOffset = 30;
+    
+    // Le titre apparaît en premier (0-20% de la progression)
+    if (progress >= 0) {
+      const titleProgress = Math.min(1, progress / 0.2);
+      titleOpacity = titleProgress;
+      titleYOffset = 30 * (1 - titleProgress);
+    }
+    
+    gsap.to(titleElement, {
+      opacity: titleOpacity,
+      y: titleYOffset,
+      duration: 0.2,
+      ease: 'power2.out'
+    });
+  }
+  
+  // Animer chaque point un par un
+  if (pointElements && pointElements.length > 0) {
+    pointElements.forEach((element, index) => {
+      // Chaque point apparaît après le titre, avec un décalage basé sur son index
+      const pointThreshold = 0.2 + ((index / pointElements.length) * 0.8);
+      let pointOpacity = 0;
+      let pointYOffset = 30;
+      
+      if (progress >= pointThreshold) {
+        // Transition sur 10% de la progression totale
+        const pointProgress = Math.min(1, (progress - pointThreshold) / 0.1);
+        pointOpacity = pointProgress;
+        pointYOffset = 30 * (1 - pointProgress);
+      }
+      
+      gsap.to(element, {
+        opacity: pointOpacity,
+        y: pointYOffset,
+        duration: 0.2,
+        ease: 'power2.out'
+      });
+    });
+  }
 };
 
 // Initialisation des données au chargement
 onMounted(() => {
   slidesStore.fetchSlides().then(() => {
-    // Masquer tous les éléments par défaut
-    if (process.client) {
-      document.querySelectorAll('.slide-container').forEach(slide => {
-        slide.querySelectorAll('h1, h2, h3, .text-element, p, li, .sub-section').forEach(element => {
-          gsap.set(element, { opacity: 0, y: 30 });
-        });
-      });
-    }
-    
-    // Initialiser l'animation avec GSAP après le chargement des slides
+    // Initialiser l'animation de la slide 73 après le chargement des slides
     nextTick(() => {
-      if (process.client) {
-        gsapInitialization();
-      }
+      initSlide73Animation();
     });
   });
   slidesStore.startAutoRefresh();
@@ -1072,10 +809,7 @@ onBeforeUnmount(() => {
     if (fullpageApi.value) {
       fullpageApi.value.destroy('all');
     }
-    // Arrêter tout refresh automatique si nécessaire
-    if (typeof slidesStore.stopAutoRefresh === 'function') {
-      slidesStore.stopAutoRefresh();
-    }
+    slidesStore.stopAutoRefresh();
     window.removeEventListener('resize', checkScreenSize);
     
     // Supprimer le gestionnaire d'événements wheel pour la slide 73
@@ -2196,24 +1930,12 @@ const initIntersectionObservers = () => {
   transform: scale(1.1);
 }
 
-/* Animation pour toutes les slides */
-.slide-container h1, 
-.slide-container h2, 
-.slide-container h3, 
-.slide-container p, 
-.slide-container .text-element,
-.slide-container li,
-.slide-container .sub-section {
-  opacity: 0; /* Masquer par défaut */
-  transform: translateY(30px); /* Décalage initial */
-  transition: opacity 0.4s ease, transform 0.4s ease; /* Transition douce */
-}
-
 /* Animation pour la slide 73 */
 #section-slide-73 {
+  /* Styles pour assurer un bon fonctionnement du pin */
   position: relative;
   overflow: visible !important; /* Éviter que fullpage.js ne masque le contenu */
-  z-index: 10;
+  z-index: 10; /* S'assurer que la section est au-dessus des autres éléments pendant le pin */
 }
 
 #section-slide-73 #points-fort {
@@ -2222,9 +1944,9 @@ const initIntersectionObservers = () => {
 
 #section-slide-73 #points-fort .text-element {
   opacity: 0; /* Initialement masqués */
-  transform: translateY(30px);
-  text-align: left;
-  align-items: flex-start;
+  transform: translateY(20px); /* Légèrement décalés vers le bas */
+  text-align:left;
+  align-items:flex-start;
 }
 
 /* Classes ajoutées par ScrollMagic */
@@ -2242,16 +1964,10 @@ const initIntersectionObservers = () => {
 #section-slide-21 .slide-21-title,
 #section-slide-21 .slide-21-point {
   opacity: 0; /* Initialement masqués */
-  transform: translateY(30px);
+  transform: translateY(30px); /* Légèrement décalés vers le bas */
 }
 
 #section-slide-21 .slide-21-point {
   text-align: left;
-}
-
-/* États visibles déclenchés par GSAP */
-.element-visible {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
 }
 </style>
