@@ -12,6 +12,12 @@ export default defineNuxtPlugin(nuxtApp => {
     Promise.all([scrollMagicPromise, scrollMagicGSAPPromise]).then(([ScrollMagic]) => {
       // Rendre disponible globalement pour l'application
       window.ScrollMagic = ScrollMagic
+      
+      // En mode développement, ajouter les plugins de débogage pour ScrollMagic
+      if (process.env.NODE_ENV !== 'production') {
+        import('scrollmagic/scrollmagic/uncompressed/plugins/debug.addIndicators')
+          .catch(error => console.warn('Impossible de charger les indicateurs de débogage ScrollMagic:', error))
+      }
     })
   }
 })
