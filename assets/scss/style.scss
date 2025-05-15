@@ -1238,20 +1238,27 @@ text-transform: uppercase;
     #guysamuel {
         max-width: 65vw !important;
     }
-
+    #slide-73 {
+        .slapjh{
+            justify-content: flex-end;
+    display: flex;
+    align-items: center;
+    }
+}
     #slide-73 {
        
         .subint {
             min-width        : 100vw !important;
             width            : 100vw !important;
             width            : 100vw !important;
-            baclkground-color: #000 !important;
-
+            justify-content: flex-end;
+    display: flex;
+    align-items: center;
+margin-bottom: 2em !important;
             p {
                 font-size: 22px !important;
             }
 
-            margin-bottom: 4em !important;
         }
 
         .points-fort {
@@ -1336,7 +1343,14 @@ text-transform: uppercase;
 
         .points-fort {
             width  : 100%;
-            padding: 0rem;
+            padding: 2rem;
+            .text-element{
+                display:flex;
+                align-items:center !important;
+                justify-content:center !important; 
+                padding:0 !important;  
+                margin:0 !important;                              
+            }
 
             h3 {
                 font-size  : 1.8em;
@@ -1345,8 +1359,16 @@ text-transform: uppercase;
 
             p {
 
-                font-size : 1.2em;
+                font-family: Vodafone;
+                font-size: 23px;
+                font-weight: normal;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 18px;
+                letter-spacing: normal;
                 text-align: center;
+                color: #fff;
+              
             }
         }
     }
@@ -1521,11 +1543,18 @@ text-transform: uppercase;
 @media screen and (max-width: 1024px) {
 
     #slide-73 .subint {
-        padding: 0em !important;
+        padding: 0 1em !important;
 
         h2 {
-            font-size: 72px !important;
-        }
+            font-family: Vodafone;
+            font-size: 73px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;        }
     }
 
     #slide-10 .subint {
@@ -1659,7 +1688,7 @@ text-transform: uppercase;
     }
 
     #vodacomwrapper {
-        background         : url(/images/mobile/bg1.webp) !important;
+        background         : url(/images/bgmbile.jpg) !important;
         background-size    : cover !important;
         background-position: 50% 50% !important;
     }
@@ -1981,4 +2010,10 @@ width:100vw;
     .row{
         width:100%;
     }
+}
+
+
+//style pour les écrans inférieurs à 1024px
+@media screen and (max-width: 1024px) {
+
 }

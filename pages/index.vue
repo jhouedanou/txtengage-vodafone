@@ -123,6 +123,44 @@ const swiperOptions = {
 const animateSlideElements = (activeIndex) => {
     const timeline = gsap.timeline()
 
+    // Animation spécifique pour la slide 10 sur mobile
+    if (sortedSlides.value[activeIndex]?.id === 10) {
+        // Animation uniquement sur mobile
+        if (isMobile.value) {
+            // Décaler l'arrière-plan vers le haut
+            const wrapper = document.getElementById('vodacomwrapper');
+            if (wrapper) {
+                gsap.to(wrapper, {
+                    backgroundPositionY: "-30px",
+                    duration: 0.8,
+                    ease: "power1.out"
+                });
+            }
+
+            // Animer les text-elements l'un après l'autre
+            const textElements = document.querySelectorAll('#swiper-slide-10 .text-element');
+            if (textElements.length > 0) {
+                gsap.set(textElements, { opacity: 0, y: 30 }); // Position initiale
+                gsap.to(textElements, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.5,
+                    stagger: 0.2, // Délai entre chaque animation
+                    ease: "back.out(1.7)"
+                });
+            }
+        }
+    } else if (sortedSlides.value[activeIndex]?.id !== 10 && isMobile.value) {
+        // Réinitialiser la position de l'arrière-plan quand on quitte la slide 10
+        const wrapper = document.getElementById('vodacomwrapper');
+        if (wrapper) {
+            gsap.to(wrapper, {
+                backgroundPositionY: "0px",
+                duration: 0.5
+            });
+        }
+    }
+
     // Slide 20 - Reach 32 million customers
     if (activeIndex === 2) {
         // Vérifier si les éléments existent avant d'animer
@@ -312,7 +350,9 @@ onMounted(() => {
     }    //auto play sur le clic sur l'image 
     //autoPlayAccordion()
     // startAutoplay()
-
+    
+    // Initialiser les Intersection Observers pour les animations
+    initIntersectionObservers();
 });
 
 const isMobile = ref(false)
@@ -486,6 +526,85 @@ const initCaseStudyAccordion = () => {
 const toggleCaseStudySection = (index) => {
   caseStudyActiveIndex.value = index
 };
+
+// Fonction pour initialiser les Intersection Observers pour les animations
+const initIntersectionObservers = () => {
+  // Style par défaut pour les text-elements
+  const textElements = document.querySelectorAll('#swiper-slide-10 .text-element');
+  if (textElements.length > 0) {
+    gsap.set(textElements, { opacity: 0, y: 30 }); // Position initiale invisible
+  }
+
+  // Créer un observer pour la slide 10
+  const observerOptions = {
+    root: null, // viewport
+    rootMargin: '0px',
+    threshold: 0.3 // Déclencher quand au moins 30% de la slide est visible
+  };
+
+  // Observer pour la slide 10 (animation des text-elements et déplacement de l'arrière-plan)
+  const slide10Observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && isMobile.value) {
+        // Décaler l'arrière-plan vers le haut après un délai de 5 secondes
+        setTimeout(() => {
+          const wrapper = document.getElementById('vodacomwrapper');
+          if (wrapper) {
+            gsap.to(wrapper, {
+              backgroundPositionY: "-30px",
+              duration: 0.8,
+              ease: "power1.out"
+            });
+          }
+
+          // Animer les text-elements l'un après l'autre
+          if (textElements.length > 0) {
+            gsap.to(textElements, {
+              opacity: 1,
+              y: 0,
+              duration: 0.5,
+              stagger: 0.2, // Délai entre chaque animation
+              ease: "back.out(1.7)"
+            });
+          }
+        }, 5000); // Délai de 5 secondes
+        
+        // Déconnecter l'observer après l'animation
+        slide10Observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  // Observer pour réinitialiser l'arrière-plan quand on quitte la slide 10
+  const resetBackgroundObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting && isMobile.value) {
+        // Réinitialiser la position de l'arrière-plan
+        const wrapper = document.getElementById('vodacomwrapper');
+        if (wrapper) {
+          gsap.to(wrapper, {
+            backgroundPositionY: "0px",
+            duration: 0.5
+          });
+        }
+        
+        // Réinitialiser l'opacité des éléments pour la prochaine fois
+        if (textElements.length > 0) {
+          gsap.set(textElements, { opacity: 0, y: 30 });
+        }
+      }
+    });
+  }, { ...observerOptions, threshold: 0.1 });
+
+  // Observer les slides spécifiques
+  nextTick(() => {
+    const slide10Element = document.querySelector('#swiper-slide-10');
+    if (slide10Element) {
+      slide10Observer.observe(slide10Element);
+      resetBackgroundObserver.observe(slide10Element);
+    }
+  });
+}
 </script>
 
 <template>
@@ -637,7 +756,7 @@ const toggleCaseStudySection = (index) => {
                                         prevEl: '.perdrix-swiper-button-prev'
                                     }"
                                     :autoplay="{
-                                        delay: 3000,
+                                        delay: 5000,
                                         disableOnInteraction: false,
                                         pauseOnMouseEnter: false
                                     }"
@@ -1765,6 +1884,40 @@ const toggleCaseStudySection = (index) => {
   .case-study-image {
     margin-top: 20px;
     order: -1; /* Afficher l'image avant l'accordéon sur mobile */
+  }
+}
+
+/* Styles pour les couches d'arrière-plan */
+.background-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+.background-primary {
+  background-image: url(/images/bg12.webp);
+  opacity: 1;
+}
+
+.background-secondary {
+  background-image: url(/images/nono.webp);
+  opacity: 0;
+}
+
+/* Arrière-plans spécifiques pour mobile */
+@media screen and (max-width: 1024px) {
+  .background-primary {
+    background-image: url(/images/bgmbile.jpg);
+  }
+  
+  .background-secondary {
+    background-image: url(/images/Group184.webp);
   }
 }
 </style>
