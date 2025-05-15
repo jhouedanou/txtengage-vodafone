@@ -616,9 +616,12 @@ const gsapInitialization = () => {
       opacity: 1,
       y: 0,
       visibility: 'visible',
-      duration: 0.4,
+      duration:1,
       ease: 'power2.out'
     }).addPause()
+    .addPause()
+    .addPause()
+    .addPause()
     
     // 3. D'abord animer le conteneur .points-fort avec un sélecteur plus spécifique
     .to('#slide-73 .points-fort', {
