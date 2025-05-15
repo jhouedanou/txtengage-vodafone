@@ -2252,7 +2252,6 @@ const initIntersectionObservers = () => {
   text-align: left;
 }
 
-/* États visibles déclenchés par GSAP */
 .element-visible {
   opacity: 1 !important;
   transform: translateY(0) !important;
