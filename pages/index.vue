@@ -145,7 +145,7 @@ const fullpageOptions = {
     if (isSlide73) {
       // Vérifier si l'animation GSAP est complète pour la slide 73
       // Le dernier point doit être visible (point-3)
-      const lastPoint = document.querySelector('.slide-73-point.point-3 p');
+      const lastPoint = document.querySelector('#slide-73 .slide-73-point.point-3 p');
       if (!lastPoint || window.getComputedStyle(lastPoint).opacity < 1) {
         console.log('Animation de la slide 73 encore en cours, blocage du passage à la slide suivante');
         return false;
@@ -153,21 +153,16 @@ const fullpageOptions = {
       // Animation terminée, autoriser le passage à la slide suivante
     }
     
-    // Si on est en train de quitter slide 21 et que l'animation n'est pas terminée
-    if (isSlide21 && !slide21AnimationComplete.value) {
-      // Forcer la progression à 1 pour terminer l'animation
-      slide21Progress.value = 1;
-      if (document.querySelector('.slide-21-title') && document.querySelectorAll('.slide-21-point')) {
-        updateSlide21Animations(document.querySelector('.slide-21-title'), document.querySelectorAll('.slide-21-point'));
+    // Si on est sur la slide 21, bloquer le passage à la slide suivante tant que tous les éléments ne sont pas révélés
+    if (isSlide21) {
+      // Vérifier si l'animation GSAP est complète pour la slide 21
+      // Le dernier point doit être visible (point-21-2)
+      const lastPoint = document.querySelector('#slide-21 .slide-21-point.point-21-2 p');
+      if (!lastPoint || window.getComputedStyle(lastPoint).opacity < 1) {
+        console.log('Animation de la slide 21 encore en cours, blocage du passage à la slide suivante');
+        return false;
       }
-      slide21AnimationComplete.value = true;
-      // Autoriser le défilement après un court délai
-      setTimeout(() => {
-        if (fullpageApi.value) {
-          fullpageApi.value.moveTo(destination.index + 1);
-        }
-      }, 300);
-      return false;
+      // Animation terminée, autoriser le passage à la slide suivante
     }
     
     // Empêcher le défilement vers le haut depuis la première slide
@@ -643,6 +638,8 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     // Puis son titre h3
     .to('#slide-73 .slide-73-point.point-0 h3', {
       opacity: 1,
@@ -651,6 +648,8 @@ const gsapInitialization = () => {
       duration: 0.4,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     // Puis son texte p
     .to('#slide-73 .slide-73-point.point-0 p', {
       opacity: 1,
@@ -668,6 +667,8 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     .to('#slide-73 .slide-73-point.point-1 h3', {
       opacity: 1,
       y: 0,
@@ -675,6 +676,8 @@ const gsapInitialization = () => {
       duration: 0.2,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     .to('#slide-73 .slide-73-point.point-1 p', {
       opacity: 1,
       y: 0,
@@ -691,6 +694,8 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     .to('#slide-73 .slide-73-point.point-2 h3', {
       opacity: 1,
       y: 0,
@@ -698,6 +703,8 @@ const gsapInitialization = () => {
       duration: 0.2,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     .to('#slide-73 .slide-73-point.point-2 p', {
       opacity: 1,
       y: 0,
@@ -714,6 +721,8 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     .to('#slide-73 .slide-73-point.point-3 h3', {
       opacity: 1,
       y: 0,
@@ -721,6 +730,8 @@ const gsapInitialization = () => {
       duration: 0.2,
       ease: 'power2.out'
     })
+    // Légère pause
+    .to({}, {duration: 0.2})
     .to('#slide-73 .slide-73-point.point-3 p', {
       opacity: 1,
       y: 0,
@@ -737,34 +748,102 @@ const gsapInitialization = () => {
       autoAlpha: 1
     })
     
-    // SLIDE 21 ANIMATIONS
-    // Animation du titre
-    .to('.slide-21-title', {
+    // SLIDE 21 ANIMATIONS avec la même approche que la slide 73
+    // 1. Animation du titre
+    .to('#slide-21 .slide-21-title', {
       opacity: 1,
       y: 0,
-      duration: 0.5
+      visibility: 'visible',
+      duration: 0.4,
+      ease: 'power2.out'
     }).addPause()
     
-    // Animation du premier point
-    .to('.slide-21-point-1', {
+    // 2. Animation du point 1
+    .to('#slide-21 .slide-21-point.point-21-0', {
       opacity: 1,
       y: 0,
-      duration: 0.5
+      visibility: 'visible',
+      duration: 0.3,
+      ease: 'power2.out'
+    })
+    // Légère pause
+    .to({}, {duration: 0.2})
+    // Titre h3 du point 1
+    .to('#slide-21 .slide-21-point.point-21-0 h3', {
+      opacity: 1,
+      y: 0,
+      visibility: 'visible',
+      duration: 0.2,
+      ease: 'power2.out'
+    })
+    // Légère pause
+    .to({}, {duration: 0.2})
+    // Texte p du point 1
+    .to('#slide-21 .slide-21-point.point-21-0 p', {
+      opacity: 1,
+      y: 0,
+      visibility: 'visible',
+      duration: 0.2,
+      ease: 'power2.out'
     }).addPause()
     
-    // Animation du deuxième point
-    .to('.slide-21-point-2', {
+    // 3. Animation du point 2
+    .to('#slide-21 .slide-21-point.point-21-1', {
       opacity: 1,
       y: 0,
-      duration: 0.5
+      visibility: 'visible',
+      duration: 0.3,
+      ease: 'power2.out'
+    })
+    // Légère pause
+    .to({}, {duration: 0.2})
+    // Titre h3 du point 2
+    .to('#slide-21 .slide-21-point.point-21-1 h3', {
+      opacity: 1,
+      y: 0,
+      visibility: 'visible',
+      duration: 0.2,
+      ease: 'power2.out'
+    })
+    // Légère pause
+    .to({}, {duration: 0.2})
+    // Texte p du point 2
+    .to('#slide-21 .slide-21-point.point-21-1 p', {
+      opacity: 1,
+      y: 0,
+      visibility: 'visible',
+      duration: 0.2,
+      ease: 'power2.out'
     }).addPause()
     
-    // Animation du troisième point
-    .to('.slide-21-point-3', {
+    // 4. Animation du point 3
+    .to('#slide-21 .slide-21-point.point-21-2', {
       opacity: 1,
       y: 0,
-      duration: 0.5
-    }).addPause();
+      visibility: 'visible',
+      duration: 0.3,
+      ease: 'power2.out'
+    })
+    // Légère pause
+    .to({}, {duration: 0.2})
+    // Titre h3 du point 3
+    .to('#slide-21 .slide-21-point.point-21-2 h3', {
+      opacity: 1,
+      y: 0,
+      visibility: 'visible',
+      duration: 0.2,
+      ease: 'power2.out'
+    })
+    // Légère pause
+    .to({}, {duration: 0.2})
+    // Texte p du point 3
+    .to('#slide-21 .slide-21-point.point-21-2 p', {
+      opacity: 1,
+      y: 0,
+      visibility: 'visible',
+      duration: 0.2,
+      ease: 'power2.out'
+    }).addPause()
 
     // D'autres animations pour d'autres slides peuvent être ajoutées ici
   };
