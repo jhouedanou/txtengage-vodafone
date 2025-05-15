@@ -1471,7 +1471,7 @@ const initIntersectionObservers = () => {
               <div id="yenamarre" class="d-flex align-items-center justify-content-center m-4">
                 <!-- Back to top button -->
                 <a @click="goToFirstSlide" class="back-to-top" :class="{ 'show': showButton }">
-                  <img src="/images/backtoTop.svg" alt="Back to Top" />
+                  <img src="/images/backToTop.svg" alt="Back to Top" />
                 </a>
               </div>
             </div>
