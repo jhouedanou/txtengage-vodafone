@@ -1,12 +1,6 @@
 {
   "version": 3,
   "overrides": {
-    "index.vue.backup/index.html": {
-      "path": "index.vue.backup"
-    },
-    "index.vue.bk/index.html": {
-      "path": "index.vue.bk"
-    },
     "index.html": {
       "path": ""
     }
@@ -53,6 +47,14 @@
     },
     {
       "handle": "filesystem"
+    },
+    {
+      "src": "/__nuxt_error",
+      "dest": "/__nitro"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/__nitro"
     }
   ]
 }
