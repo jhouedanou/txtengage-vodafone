@@ -20,6 +20,7 @@ const config = useRuntimeConfig()
 
 // Références d'instances
 const fullpageRef = ref(null)
+const fullpageApi = ref(null)
 const showButton = ref(false)
 const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
@@ -208,6 +209,7 @@ const fullpageOptions = {
     }
   },
   afterRender: () => {
+    fullpageApi.value = window.fullpage_api;
     // Initialiser ScrollTrigger après le rendu
     try {
       initScrollTrigger();
@@ -992,11 +994,87 @@ onMounted(() => {
     });
   });
   slidesStore.startAutoRefresh();
+  
+  // Initialisation de fullpage.js
+  if (process.client) {
+    initFullPage();
+  }
+  
+  // Afficher par défaut le premier élément dans la slide 23
+  activeIndex.value = 0;
+  
+  // Changement automatique de l'image dans la slide 23
+  const firstSlide = sortedSlides.value.find(s => s.id === 23);
+  if (firstSlide?.paragraphs?.[0]) {
+    activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1];
+  }
+  
+  // Vérification de la taille de l'écran
+  checkScreenSize();
+  window.addEventListener('resize', checkScreenSize);
+  
+  // Initialisation des Intersection Observers pour les animations
+  initIntersectionObservers();
 });
+
+// Initialisation de fullPage.js
+const initFullPage = () => {
+  // S'assurer que le DOM est bien chargé et que fullpage.js est disponible
+  if (typeof window !== 'undefined' && typeof window.fullpage === 'function' && fullpageRef.value) {
+    console.log('Initialisation de fullpage.js...');
+    
+    // Vérifier que nous avons des slides à afficher
+    if (!sortedSlides.value || sortedSlides.value.length === 0) {
+      console.log('Aucune slide disponible, attente des données...');
+      setTimeout(initFullPage, 500);
+      return;
+    }
+    
+    try {
+      // Assurer que le DOM est prêt avant l'initialisation
+      nextTick(() => {
+        const fpContainer = document.getElementById('fullpage');
+        if (!fpContainer) {
+          console.warn('Le conteneur #fullpage n\'est pas présent dans le DOM.');
+          setTimeout(initFullPage, 500);
+          return;
+        }
+        
+        // Vérifier que l'élément a des sections
+        const sections = document.querySelectorAll('.section');
+        if (!sections || sections.length === 0) {
+          console.warn('Aucune section trouvée dans le DOM pour fullpage.js, nouvelle tentative dans 500ms...');
+          setTimeout(initFullPage, 500);
+          return;
+        }
+        
+        console.log(`${sections.length} sections trouvées, initialisation de fullpage.js...`);
+        
+        try {
+          fullpageApi.value = window.fullpage('#fullpage', fullpageOptions);
+        } catch (initError) {
+          console.error('Erreur lors de l\'initialisation de fullpage.js:', initError);
+          setTimeout(initFullPage, 1500);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de fullpage.js:', error);
+      // Ne pas réessayer immédiatement en cas d'erreur réelle
+      setTimeout(initFullPage, 1500);
+    }
+  } else {
+    console.log('Fullpage.js n\'est pas encore chargé, nouvelle tentative dans 500ms...');
+    // Réessayer après un court délai si les dépendances ne sont pas encore chargées
+    setTimeout(initFullPage, 500);
+  }
+};
 
 // Nettoyage avant démontage du composant
 onBeforeUnmount(() => {
   if (process.client) {
+    if (fullpageApi.value) {
+      fullpageApi.value.destroy('all');
+    }
     // Arrêter tout refresh automatique si nécessaire
     if (typeof slidesStore.stopAutoRefresh === 'function') {
       slidesStore.stopAutoRefresh();

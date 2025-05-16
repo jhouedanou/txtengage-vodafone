@@ -2022,3 +2022,32 @@ width:100vw;
 .text-element{
  overflow: hidden;   
 }
+
+/* Animation progressive de la slide 73 */
+#section-slide-73 .points-fort,
+#section-slide-73 #points-fort {
+  opacity: 0;
+  transform: translateY(30px);
+  visibility: hidden;
+  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s ease;
+}
+
+#section-slide-73 .text-element {
+  opacity: 0;
+  transform: translateY(20px);
+  visibility: hidden;
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
+}
+
+h3, .text-element, #thoiathoing .row.flex-row, #thoiathoing .row {
+    overflow: hidden;
+    -webkit-overflow-scrolling:hidden;
+}
+#slide-21{
+    .text-element{
+        align-items:center;
+        // background:red;
+        height:100%;
+        justify-content:flex-start;
+    }
+}

@@ -6,94 +6,40 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Observer } from 'gsap/Observer'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
-import { CSSPlugin } from 'gsap/CSSPlugin'
+import { CSSPlugin } from 'gsap/CSSPlugin' // Importer CSSPlugin
 import CustomScrollbar from '~/components/CustomScrollbar.vue'
 
-// N'enregistrer les plugins GSAP que dans le contexte client
-if (process.client) {
-  // S'assurer que les plugins sont correctement enregistrés dans l'ordre
-  try {
-    // Selon la documentation GSAP, il faut d'abord s'assurer que les plugins de base sont enregistrés
-    // CSSPlugin est automatiquement inclus dans gsap.core, mais nous l'enregistrons explicitement
-    gsap.registerPlugin(CSSPlugin);
-    console.log('CSSPlugin enregistré');
-    
-    // Plugins de scroll dans l'ordre recommandé
-    gsap.registerPlugin(ScrollToPlugin);
-    console.log('ScrollToPlugin enregistré');
-    
-    gsap.registerPlugin(Observer);
-    console.log('Observer enregistré');
-    
-    gsap.registerPlugin(ScrollTrigger);
-    console.log('ScrollTrigger enregistré');
-    
-    // Ré-enregistrer CSSPlugin une fois de plus pour s'assurer qu'il est bien reconnu
-    if (!gsap.utils.checkPrefix('autoAlpha')) {
-      console.log('Ré-enregistrement du CSSPlugin pour autoAlpha');
-      gsap.registerPlugin(CSSPlugin);
-    }
-  } catch (error) {
-    console.error('Erreur lors de l\'enregistrement des plugins GSAP:', error);
-  }
-}
+// Supprimer les enregistrements de plugins GSAP ici
+// gsap.registerPlugin(ScrollTrigger, Observer, ScrollToPlugin, CSSPlugin) 
 
-// Configuration pour le défilement et les animations contrôlées par GSAP
-const scrollSmooth = ref(true); // Activer/désactiver le défilement fluide
-const scrollDuration = ref(1); // Durée de l'animation de défilement
+// // Enregistrer les plugins GSAP dans le contexte client
+// if (process.client) {
+//   gsap.registerPlugin(ScrollTrigger, Observer, ScrollToPlugin, CSSPlugin) 
+// }
 
 // Récupérer les configurations
 const config = useRuntimeConfig()
 
 // Références d'instances
-const scrollContainerRef = ref(null)  // Référence au conteneur principal de scroll
+const fullpageRef = ref(null)
+const fullpageApi = ref(null)
 const showButton = ref(false)
 const slidesStore = useSlidesStore()
 const loading = computed(() => slidesStore.loading)
 const sortedSlides = computed(() => slidesStore.sortedSlides)
-const activeSlideIndex = ref(0) // Index de la slide active, commence à 0
-const activeSlideId = computed(() => sortedSlides.value[activeSlideIndex.value]?.id || null)
-
-// Éléments DOM
-const slides = ref([])
-const sections = ref([]) // Stocke les références aux sections
-
-// État de navigation
-const isFirstSlideActive = ref(true) // Par défaut, nous sommes sur la première slide
-const isLastSlideActive = ref(false) // Par défaut, nous ne sommes pas sur la dernière slide
+const activeSlideIndex = ref(0)
+const activeSlideId = ref(null)
 const defaultBackground = ref('url(/images/bg12.webp)')
 const specialBackground = ref('url(/images/nono.webp)')
 const currentBackground = ref(defaultBackground.value)
 
-// Variables pour le contrôle du défilement
-const isAnimating = ref(false)        // Indique si une animation est en cours
-const canScroll = ref(true)           // Indique si le scroll est autorisé
-const scrollDirection = ref(null)     // Direction du défilement (up/down)
-// Sections sont déjà déclarées plus haut (ligne 58)
+// Variable pour contrôler le défilement des sections
+const canScrollToNextSection = ref(true)
 
-// Variables pour les animations GSAP
-const scrollTimeline = ref(null)      // Timeline principale pour les animations
-const sectionTimelines = ref({})      // Timelines pour chaque section individuelle
+// Références pour ScrollMagic
+const scrollMagicController = ref(null)
 
-// Configuration pour ScrollTrigger
-const scrollConfig = {
-  // Désactiver le scroll natif pour le contrôler via GSAP
-  preventOverscroll: true,
-  // Durée de l'animation de défilement
-  scrollDuration: 1,
-  // Easing pour les animations de défilement
-  scrollEase: "power2.inOut",
-  // Classe pour les slides/sections
-  sectionClass: ".section",
-  // Classes pour indiquer l'animation en cours
-  activeClass: "active",
-  inViewClass: "in-view",
-  // Options pour le défilement au scroll de souris
-  mousewheel: {
-    enabled: true,
-    sensitivity: 1
-  }
-}
+let mastertl = null; // Déclarer mastertl ici
 
 // Fonction pour précharger l'image
 const preloadImage = (src) => {
@@ -153,571 +99,233 @@ const toggleAccordion = (slideId, index) => {
     activeImage.value = imgSrc
 }
 
-// isFirstSlideActive est déjà déclaré à la ligne 61
+const isFirstSlideActive = ref(true)
 
-// Gestionnaires d'événements pour Swiper
-const onSwiperInit = (swiper) => {
-  console.log('Swiper initialisé', swiper);
-  // Initialiser ScrollTrigger après le rendu
-  initScrollTrigger();
-};
-
-// Fonction principale pour initialiser le scroll contrôlé par GSAP
-const initScrollControl = () => {
-  if (!process.client) return;
-
-  // 1. D'abord, on définit les sections initiales
-  const sections = document.querySelectorAll('.section');
-  if (sections.length === 0) {
-    console.error('Aucune section trouvée pour le système de défilement');
-    return;
+// Fonction pour gérer le défilement de fullpage
+const onLeave = (origin, destination, direction) => {
+  // Si on essaie de quitter la slide 73 et que l'animation n'est pas terminée
+  if (origin.item && origin.item.id === 'section-slide-73' && !slide73AnimationComplete.value) {
+    // Forcer la progression à 1 pour terminer l'animation
+    slide73Progress.value = 1;
+    updateSlide73Animations();
+    slide73AnimationComplete.value = true;
+    return false; // Laisser l'événement onLeave de fullpage.js prendre le relais
   }
-
-  console.log(`${sections.length} sections trouvées`);
-
-  // Définir la première section comme active
-  sections[0].classList.add('active');
-  sections[0].classList.add('in-view');
-  sections[0].style.zIndex = '2';
-  sections[0].style.opacity = '1';
-  sections[0].style.pointerEvents = 'auto';
-  
-  // Masquer les autres sections au départ
-  for (let i = 1; i < sections.length; i++) {
-    sections[i].style.zIndex = '1';
-    sections[i].style.opacity = '0';
-    sections[i].style.pointerEvents = 'none';
-  }
-
-  // 2. Initialiser le système de détection du scroll via Observer
-  Observer.create({
-    type: 'wheel,touch,pointer',
-    wheelSpeed: -1,
-    onDown: () => {
-      // Actions à effectuer lorsque l'utilisateur défile vers le bas
-      if (!isAnimating.value) {
-        navigateToSlide(activeSlideIndex.value + 1);
-      }
-    },
-    onUp: () => {
-      // Actions à effectuer lorsque l'utilisateur défile vers le haut
-      if (!isAnimating.value) {
-        navigateToSlide(activeSlideIndex.value - 1);
-      }
-    },
-    tolerance: 10,
-    preventDefault: true
-  });
-
-  // 3. Écouter les événements de touche pour contrôler le défilement
-  document.addEventListener('keydown', (e) => {
-    if (isAnimating.value) return;
-    
-    if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-      navigateToSlide(activeSlideIndex.value + 1);
-      e.preventDefault();
-    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-      navigateToSlide(activeSlideIndex.value - 1);
-      e.preventDefault();
+  // Si on essaie de quitter la slide 21 et que l'animation n'est pas terminée
+  if (origin.item && origin.item.id === 'section-slide-21' && !slide21AnimationComplete.value) {
+    // Forcer la progression à 1 pour terminer l'animation
+    slide21Progress.value = 1;
+    if (document.querySelector('.slide-21-title') && document.querySelectorAll('.slide-21-point')) {
+      updateSlide21Animations(document.querySelector('.slide-21-title'), document.querySelectorAll('.slide-21-point'));
     }
-  });
+    slide21AnimationComplete.value = true;
+    return false; // Laisser l'événement onLeave de fullpage.js prendre le relais
+  }
+  return true;
+};
 
-  // 4. Écouter l'événement personnalisé de navigation (pour la barre de défilement)
-  document.addEventListener('navigateToSection', (e) => {
-    if (!isAnimating.value) {
-      navigateToSlide(e.detail.index);
+// Options de configuration pour fullpage.js
+const fullpageOptions = {
+  licenseKey: '1EEMD-B27MY-J7J14-PVI3I-XOPOM',  // Clé valide pour le projet
+  scrollingSpeed: 800,
+  verticalCentered: true,
+  navigation: true,
+  navigationTooltips: ['Accueil', 'Services', 'Offres', 'Solutions', 'Clients', 'Impact Social', 'Contact', 'FAQ'],
+  showActiveTooltip: true,
+  menu: '#menu',
+  anchors: ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6', 'slide7', 'slide8'],
+  scrollOverflow: true,
+  autoScrolling: true,  // Maintenir le défilement automatique entre les sections
+  fitToSection: true,   // Ajuster la vue à la section
+  showActiveTooltip: false,
+  lockAnchors: true,    // Désactiver les hashtags dans l'URL
+  easingcss3: 'cubic-bezier(0.645, 0.045, 0.355, 1.000)',
+  onLeave: function(origin, destination, direction) {
+    const originSlideId = origin.item ? origin.item.id : null;
+
+    if (mastertl) {
+        if (originSlideId === 'section-slide-73') {
+            const currentTime = mastertl.time();
+            const animStart = mastertl.labels.slide73AnimStart;
+            const animEnd = mastertl.labels.slide73AnimEnd;
+
+            if (animStart !== undefined && animEnd !== undefined && currentTime >= animStart && currentTime < animEnd) {
+                console.log('Animation de la slide 73 encore en cours. Blocage du défilement.');
+                return false; // Bloquer le défilement
+            }
+        } else if (originSlideId === 'section-slide-21') {
+            const currentTime = mastertl.time();
+            const animStart = mastertl.labels.slide21AnimStart;
+            const animEnd = mastertl.labels.slide21AnimEnd;
+
+            if (animStart !== undefined && animEnd !== undefined && currentTime >= animStart && currentTime < animEnd) {
+                console.log('Animation de la slide 21 encore en cours. Blocage du défilement.');
+                return false; // Bloquer le défilement
+            }
+        }
     }
-  });
 
-  console.log('Système de défilement contrôlé par GSAP initialisé');
-};
-
-// Configurer les animations pour chaque section
-const setupSectionAnimations = () => {
-  sections.value.forEach((section, index) => {
-    const sectionId = section.id;
-    
-    // Créer une timeline pour cette section
-    const timeline = gsap.timeline({
-      paused: true,
-      defaults: {
-        ease: 'power2.inOut',
-        duration: 0.4
-      }
-    });
-
-    // Obtenir tous les éléments à animer dans cette section
-    const elements = section.querySelectorAll('h1, h2, h3, .text-element, p, li, .sub-section');
-    
-    // Configuration initiale : tous les éléments sont invisibles
-    gsap.set(elements, { opacity: 0, y: 30 });
-
-    // Animer chaque élément séquentiellement
-    elements.forEach((el, idx) => {
-      timeline.to(el, {
-        opacity: 1,
-        y: 0,
-        delay: idx * 0.1 // Ajouter un délai croissant pour une animation séquentielle
-      });
-    });
-
-    // Ajouter une pause à la fin pour attendre avant de passer à la section suivante
-    timeline.addPause();
-
-    // Stocker la timeline pour cette section
-    sectionTimelines.value[sectionId] = timeline;
-  });
-};
-
-// Configurer les écouteurs d'événements pour le défilement
-const setupScrollListeners = () => {
-  // Configurer l'écouteur d'événements pour la molette de souris
-  if (scrollConfig.mousewheel.enabled) {
-    window.addEventListener('wheel', handleMouseWheel, { passive: false });
-  }
-
-  // Écouteur pour les touches fléchées
-  window.addEventListener('keydown', handleKeyDown);
-};
-
-// Gérer l'événement de la molette de souris
-const handleMouseWheel = (event) => {
-  // Si une animation est en cours, bloquer tout nouveau défilement
-  if (isAnimating.value) {
-    event.preventDefault();
-    return;
-  }
-
-  const direction = event.deltaY > 0 ? 'down' : 'up';
-  scrollDirection.value = direction;
-
-  // Empêcher le défilement natif
-  if (scrollConfig.preventOverscroll) {
-    event.preventDefault();
-  }
-
-  // Si le défilement est autorisé
-  if (canScroll.value) {
-    handleScroll(direction);
-  }
-};
-
-// Gérer l'événement des touches fléchées
-const handleKeyDown = (event) => {
-  // Si une animation est en cours, bloquer toute nouvelle navigation
-  if (isAnimating.value) return;
-
-  let direction = null;
-
-  switch (event.key) {
-    case 'ArrowDown':
-    case 'PageDown':
-      direction = 'down';
-      break;
-    case 'ArrowUp':
-    case 'PageUp':
-      direction = 'up';
-      break;
-  }
-
-  if (direction && canScroll.value) {
-    event.preventDefault();
-    handleScroll(direction);
-  }
-};
-
-// Gérer le défilement
-const handleScroll = (direction) => {
-  // Index de la section active
-  const currentIndex = activeSlideIndex.value;
-  
-  // Section/slide actuelle
-  const currentSection = sections.value[currentIndex];
-  
-  // Timeline de la section actuelle
-  const currentTimeline = currentSection ? sectionTimelines.value[currentSection.id] : null;
-
-  // Si nous avons une timeline pour cette section
-  if (currentTimeline) {
-    // Vérifier où nous en sommes dans l'animation de la section
-    const progress = currentTimeline.progress();
-
-    // Si l'animation n'est pas terminée et que la direction est vers le bas
-    if (progress < 1 && direction === 'down') {
-      isAnimating.value = true;
-      // Continuer à animer cette section
-      currentTimeline.play();
-      return;
-    } 
-    // Si l'animation n'est pas au début et que la direction est vers le haut
-    else if (progress > 0 && direction === 'up') {
-      isAnimating.value = true;
-      // Revenir en arrière dans l'animation de cette section
-      currentTimeline.reverse();
-      return;
+    // Empêcher le défilement vers le haut depuis la première slide
+    if (origin.index === 0 && direction === 'up') {
+      return false;
     }
-  }
-
-  // Si nous arrivons ici, c'est que nous pouvons passer à une autre section
-  let targetIndex;
-
-  if (direction === 'down') {
-    // Si nous sommes à la dernière section, ne rien faire
-    if (currentIndex >= sections.value.length - 1) return;
-    targetIndex = currentIndex + 1;
-  } else {
-    // Si nous sommes à la première section, ne rien faire
-    if (currentIndex <= 0) return;
-    targetIndex = currentIndex - 1;
-  }
-
-  // Passer à la section cible
-  navigateToSlide(targetIndex);
-};
-
-// Naviguer vers une diapositive spécifique
-const navigateToSlide = (index) => {
-  // Vérifier que l'index est valide
-  if (index < 0 || index >= sortedSlides.value.length || index === activeSlideIndex.value || isAnimating.value) {
-    return;
-  }
-
-  // Marquer comme en cours d'animation
-  isAnimating.value = true;
-  console.log(`Transition vers la slide ${index}`);
-
-  // Sélectionner les éléments DOM
-  const sections = document.querySelectorAll('.section');
-  if (!sections || sections.length === 0) {
-    isAnimating.value = false;
-    return;
-  }
-
-  const currentSection = sections[activeSlideIndex.value];
-  const targetSection = sections[index];
-
-  if (!currentSection || !targetSection) {
-    isAnimating.value = false;
-    return;
-  }
-
-  // Déterminer la direction de l'animation (vers le haut ou vers le bas)
-  const direction = index > activeSlideIndex.value ? 1 : -1; // 1 = vers le bas, -1 = vers le haut
-  
-  // S'assurer que toutes les sections sont initialement invisibles sauf la section actuelle
-  sections.forEach(section => {
-    if (section !== currentSection) {
-      gsap.set(section, { autoAlpha: 0, display: 'none' });
-    }
-  });
-  
-  // Préparer la section cible pour l'animation
-  gsap.set(targetSection, {
-    y: direction * window.innerHeight,  // Positionner hors écran
-    autoAlpha: 1,                      // Visible mais transparent
-    display: 'block',                  // Affichée
-    position: 'absolute',              // Position absolue pour éviter le chevauchement
-    top: 0,                            // Aligner en haut
-    left: 0,                           // Aligner à gauche
-    width: '100%',                     // Largeur complète
-    height: '100%',                    // Hauteur complète
-    zIndex: 2                          // Au-dessus de l'actuelle
-  });
-  
-  // Configurer la section actuelle
-  gsap.set(currentSection, {
-    position: 'absolute',              // Position absolue pour éviter le chevauchement
-    top: 0,                            // Aligner en haut
-    left: 0,                           // Aligner à gauche
-    width: '100%',                     // Largeur complète
-    height: '100%',                    // Hauteur complète
-    zIndex: 1                          // En dessous de la cible
-  });
-  
-  // Animation des deux sections avec un timeline
-  const tl = gsap.timeline({
-    onComplete: () => {
-      // Mettre à jour l'index actif
-      activeSlideIndex.value = index;
+    return true; // Autoriser le défilement par défaut
+  },
+  afterLoad: function(origin, destination, direction) {
+    if (destination.index !== undefined) {
+      activeSlideIndex.value = destination.index;
+      updateFirstSlideStatus();
+      animateSlideElements(destination.index); // Gère les animations pour les slides autres que 21/73
       
-      // Mettre à jour les états de navigation
-      isFirstSlideActive.value = activeSlideIndex.value === 0;
-      isLastSlideActive.value = activeSlideIndex.value === sortedSlides.value.length - 1;
-      console.log(`État mis à jour - Slide ${activeSlideIndex.value} active`);
-      
-      // Masquer l'ancienne section complètement
-      gsap.set(currentSection, { autoAlpha: 0, display: 'none' });
-      
-      // Rétablir le positionnement normal de la section active
-      gsap.set(targetSection, {
-        position: 'relative',
-        zIndex: 'auto',
-        y: 0
-      });
-      
-      // Lancer les animations internes avec un court délai pour s'assurer que tout est bien positionné
-      setTimeout(() => {
-        // Déclencher les animations internes
-        console.log('Animation des éléments internes pour la slide', index);
-        animateSlideElements(index);
-        
-        // Autoriser le défilement à nouveau
-        isAnimating.value = false;
-        console.log(`Transition terminée vers la slide ${index}`);
-      }, 100);
-    }
-  });
-  
-  // Animer le départ de la section courante
-  tl.to(currentSection, {
-    y: -direction * window.innerHeight, // Sortir dans la direction opposée
-    duration: 0.8,
-    ease: "power2.inOut"
-  }, 0);
-  
-  // Animer l'arrivée de la section cible
-  tl.to(targetSection, {
-    y: 0, // Position finale
-    duration: 0.8,
-    ease: "power2.inOut"
-  }, 0);
+      const destSlideId = destination.item ? destination.item.id : null;
 
-  // Mettre à jour les classes pour le styling CSS
-  sections.forEach((section, idx) => {
-    section.classList.toggle('active', idx === index);
-    section.classList.toggle('in-view', idx === index);
-  });
-};
-
-// Activer une section
-const activateSection = (index) => {
-  // Mettre à jour l'index actif
-  activeSlideIndex.value = index;
-  
-  // Mettre à jour toutes les classes CSS
-  sections.value.forEach((section, idx) => {
-    section.classList.toggle(scrollConfig.activeClass, idx === index);
-    section.classList.toggle(scrollConfig.inViewClass, idx === index);
-  });
-
-  // Mettre à jour l'ID de slide actif
-  const currentSlide = sortedSlides.value[index];
-  if (currentSlide) {
-    activeSlideId.value = currentSlide.id;
-    updateBackground();
-  }
-
-  updateFirstSlideStatus();
-
-  // Déclencher l'animation pour cette section
-  const currentSection = sections.value[index];
-  if (currentSection) {
-    const sectionId = currentSection.id;
-    
-    // Déclencher les animations pour cette section
-    if (sectionId === 'section-slide-73') {
-      nextTick(() => {
-        initSlide73Animation();
-      });
-    } else if (sectionId === 'section-slide-21') {
-      nextTick(() => {
-        initSlide21Animation();
-      });
-    } else {
-      // Pour les autres sections, utiliser l'animation standard
-      const timeline = sectionTimelines.value[sectionId];
-      if (timeline) {
-        timeline.play(0);
+      if (mastertl) {
+        if (destSlideId === 'section-slide-73') {
+          if (mastertl.labels.slide73AnimStart !== undefined) {
+            mastertl.seek(mastertl.labels.slide73AnimStart);
+          } else {
+            console.warn("Label slide73AnimStart non trouvé dans mastertl.");
+          }
+        } else if (destSlideId === 'section-slide-21') {
+          if (mastertl.labels.slide21AnimStart !== undefined) {
+            mastertl.seek(mastertl.labels.slide21AnimStart);
+          } else {
+            console.warn("Label slide21AnimStart non trouvé dans mastertl.");
+          }
+        } else {
+          // Optionnel: Pour les autres slides, mettre mastertl en pause si elle ne doit pas être active
+          // if (!mastertl.paused()) {
+          //   mastertl.pause();
+          // }
+        }
       }
+    }
+    // La logique existante de afterLoad pour initSlide73Animation/initSlide21Animation (qui étaient vidées)
+    // est maintenant gérée par le seek de mastertl ci-dessus.
+  },
+  afterRender: () => {
+    fullpageApi.value = window.fullpage_api;
+    // Initialiser ScrollTrigger après le rendu
+    try {
+      initScrollTrigger();
+    } catch (error) {
+      console.error('Erreur dans afterRender:', error);
     }
   }
 };
-
-// Fonction pour faire défiler vers une section spécifique
-const scrollToSection = (index) => {
-  if (index < 0 || index >= sections.value.length) return;
-  
-  isAnimating.value = true;
-  
-  // Afficher la section cible (en la positionnant par CSS)
-  const targetSection = sections.value[index];
-  
-  if (scrollSmooth.value) {
-    // Utiliser GSAP pour animer la transition
-    gsap.to(window, {
-      duration: scrollConfig.scrollDuration,
-      scrollTo: targetSection,
-      ease: scrollConfig.scrollEase,
-      onComplete: () => {
-        // Activer la nouvelle section une fois l'animation terminée
-        activateSection(index);
-      }
-    });
-  } else {
-    // Transition instantanée
-    targetSection.scrollIntoView({ behavior: 'auto' });
-    activateSection(index);
-  }
-};
-
-// Aller à la première slide
-const goToFirstSlide = () => {
-  scrollToSection(0);
-}
 
 // Animations des slides avec GSAP
 const animateSlideElements = (activeIndex) => {
-  // Vérifier que l'index est valide
-  if (!sortedSlides.value[activeIndex]) {
-    console.warn(`Slide avec index ${activeIndex} introuvable`);
-    return;
-  }
-  
-  // Créer une nouvelle timeline pour cette animation
-  const timeline = gsap.timeline();
-  
-  // ID de la slide actuelle
-  const currentSlideId = sortedSlides.value[activeIndex]?.id;
-  const currentSlideSelector = `#section-slide-${currentSlideId}`;
-  console.log(`Animation des éléments pour la slide ${currentSlideId} avec sélecteur ${currentSlideSelector}`);
+  const timeline = gsap.timeline()
+  if (!sortedSlides.value[activeIndex]) return;
 
-  // Exception pour la slide 73 (animée par ScrollTrigger)
-  if (currentSlideId === 73) {
+  // Animez uniquement les slides autres que 73 (qui a sa propre animation)
+  if (sortedSlides.value[activeIndex]?.id === 73) {
     return; // Ne pas animer ici, c'est géré par ScrollTrigger
-  }
-  
-  // Trouver la slide actuelle dans le DOM
-  const currentSlide = document.querySelector(currentSlideSelector);
-  if (!currentSlide) {
-    console.warn(`Slide non trouvée dans le DOM: ${currentSlideSelector}`);
-    return;
-  }
-  
-  // S'assurer que la slide est bien visible
-  gsap.set(currentSlide, { 
-    display: 'block', 
-    autoAlpha: 1,
-    position: 'relative'
-  });
-  
-  // Sélectionner tous les éléments à animer - sélection plus large
-  const elementsToAnimate = [
-    ...Array.from(currentSlide.querySelectorAll('h1, h2, h3, h4, h5, h6')),   // Titres
-    ...Array.from(currentSlide.querySelectorAll('p')),                         // Paragraphes
-    ...Array.from(currentSlide.querySelectorAll('.text-element')),             // Éléments texte spécifiques
-    ...Array.from(currentSlide.querySelectorAll('li')),                        // Éléments de liste
-    ...Array.from(currentSlide.querySelectorAll('.sub-section')),              // Sous-sections
-    ...Array.from(currentSlide.querySelectorAll('.animate-me'))                // Classe spécifique pour l'animation
-  ];
-  
-  // Éliminer les doublons (un élément pourrait correspondre à plusieurs sélecteurs)
-  const uniqueElements = [...new Set(elementsToAnimate)];
-  
-  console.log(`${uniqueElements.length} éléments à animer trouvés dans la slide ${currentSlideId}`);
-  
-  // S'il y a des éléments à animer
-  if (uniqueElements.length > 0) {
-    // Arrêter toutes les animations en cours sur ces éléments
-    gsap.killTweensOf(uniqueElements);
-    
-    // Définir l'état initial (caché, décalé vers le bas)
-    gsap.set(uniqueElements, {
-      opacity: 0,
-      y: 30,
-      visibility: 'visible' // Rendre visible mais transparent
-    });
-    
-    // Petit délai pour s'assurer que la transition de slide est terminée
-    setTimeout(() => {
-      // Animer l'apparition avec un décalage entre chaque élément (stagger)
-      gsap.to(uniqueElements, {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-        stagger: 0.08,           // Délai entre chaque animation (élément par élément)
-        ease: "back.out(1.2)",    // Un peu de rebond pour plus de dynamisme
-        clearProps: "visibility", // Nettoyer les propriétés après l'animation
-        onComplete: () => {
-          console.log(`Animations terminées pour la slide ${currentSlideId}`);
-        }
-      });
-    }, 100); // Léger délai après la transition de slide
-  } else {
-    console.warn(`Aucun élément à animer trouvé dans ${currentSlideSelector}`);
   }
 
   // Animation spécifique pour la slide 10 sur mobile
-  if (currentSlideId === 10 && isMobile?.value) {
-    // Décaler l'arrière-plan vers le haut
-    const wrapper = document.getElementById('vodacomwrapper');
-    if (wrapper) {
-      gsap.to(wrapper, {
-        backgroundPositionY: "-30px",
-        duration: 0.8,
-        ease: "power1.out"
-      });
-    }
-  } 
-  // Réinitialiser l'arrière-plan pour les autres slides sur mobile
-  else if (currentSlideId !== 10 && isMobile?.value) {
-    const wrapper = document.getElementById('vodacomwrapper');
-    if (wrapper) {
-      gsap.to(wrapper, {
-        backgroundPositionY: "0px",
-        duration: 0.5
-      });
-    }
+  if (sortedSlides.value[activeIndex]?.id === 10) {
+      // Animation uniquement sur mobile
+      if (isMobile.value) {
+          // Décaler l'arrière-plan vers le haut
+          const wrapper = document.getElementById('vodacomwrapper');
+          if (wrapper) {
+              gsap.to(wrapper, {
+                  backgroundPositionY: "-30px",
+                  duration: 0.8,
+                  ease: "power1.out"
+              });
+          }
+
+          // Animer les text-elements l'un après l'autre
+          const textElements = document.querySelectorAll('#section-slide-10 .text-element');
+          if (textElements.length > 0) {
+              gsap.set(textElements, { opacity: 0, y: 30 }); // Position initiale
+              gsap.to(textElements, {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.5,
+                  stagger: 0.2, // Délai entre chaque animation
+                  ease: "back.out(1.7)"
+              });
+          }
+      }
+  } else if (sortedSlides.value[activeIndex]?.id !== 10 && isMobile.value) {
+      // Réinitialiser la position de l'arrière-plan quand on quitte la slide 10
+      const wrapper = document.getElementById('vodacomwrapper');
+      if (wrapper) {
+          gsap.to(wrapper, {
+              backgroundPositionY: "0px",
+              duration: 0.5
+          });
+      }
   }
 
-  // Slide 20 - Animations spécifiques supplémentaires
-  if (currentSlideId === 20) {
-    // Vérifier si les éléments existent avant d'animer
-    const slide2a = document.getElementById('slide2a')
-    const slide2b = document.getElementById('slide2b')
-    const slide2c = document.getElementById('slide2c')
-    const guysamuelElements = document.querySelectorAll('#guysamuel .text-element')
-    
-    if (slide2a) timeline.fromTo(slide2a, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-    if (slide2b) timeline.fromTo(slide2b, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-    if (slide2c) timeline.fromTo(slide2c, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-    if (guysamuelElements.length > 0) {
-      timeline.fromTo(guysamuelElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
-    }
+  // Slide 20 - Reach 32 million customers
+  if (sortedSlides.value[activeIndex]?.id === 20) {
+      // Vérifier si les éléments existent avant d'animer
+      const slide2a = document.getElementById('slide2a')
+      const slide2b = document.getElementById('slide2b')
+      const slide2c = document.getElementById('slide2c')
+      const guysamuelElements = document.querySelectorAll('#guysamuel .text-element')
+      
+      if (slide2a) timeline.fromTo(slide2a, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+      if (slide2b) timeline.fromTo(slide2b, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+      if (slide2c) timeline.fromTo(slide2c, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+      if (guysamuelElements.length > 0) {
+          timeline.fromTo(guysamuelElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+      }
   }
 
-  // Slide 21 - Animations spécifiques supplémentaires
-  else if (currentSlideId === 21) {
-    const mshill = document.getElementById('mshill')
-    const textElements = document.querySelectorAll('#thoiathoing .text-element')
-    
-    if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-    if (textElements.length > 0) {
-      timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
-    }
+  // Slide 21 - No internet access needed
+  else if (sortedSlides.value[activeIndex]?.id === 21) {
+      const mshill = document.getElementById('mshill')
+      
+      // Version Desktop
+      if (window.innerWidth > 1024) {
+          if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+          
+          // Utiliser un sélecteur qui existe réellement
+          const textElements = document.querySelectorAll('#thoiathoing .text-element')
+          if (textElements.length > 0) {
+              timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+          }
+      }
+      // Version Mobile
+      else {
+          if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+          
+          // Utiliser un sélecteur qui existe réellement sur mobile
+          const textElements = document.querySelectorAll('#thoiathoing .text-element')
+          if (textElements.length > 0) {
+              timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+          }
+      }
   }
 
-  // Slide 22 - Animations spécifiques supplémentaires
-  else if (currentSlideId === 22) {
-    const mshill = document.getElementById('mshill')
-    const textElements = document.querySelectorAll('#thoiathoing .text-element')
-    
-    if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-    if (textElements.length > 0) {
-      timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
-    }
+  // Slide 22 - Other advantages
+  else if (sortedSlides.value[activeIndex]?.id === 22) {
+      const mshill = document.getElementById('mshill')
+      const textElements = document.querySelectorAll('#thoiathoing .text-element')
+      
+      if (mshill) timeline.fromTo(mshill, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+      if (textElements.length > 0) {
+          timeline.fromTo(textElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+      }
   }
 
-  // Slide 59 - Animations spécifiques supplémentaires
-  else if (currentSlideId === 59) {
-    const h2Element = document.querySelector('#killerjunior h2')
-    const pElement = document.querySelector('#killerjunior p')
-    const lemoudsElements = document.querySelectorAll('.lemouds')
-    
-    if (h2Element) timeline.fromTo(h2Element, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-    if (pElement) timeline.fromTo(pElement, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-    if (lemoudsElements.length > 0) {
-      timeline.fromTo(lemoudsElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
-    }
+  // Slide 59
+  else if (sortedSlides.value[activeIndex]?.id === 59) {
+      const h2Element = document.querySelector('#killerjunior h2')
+      const pElement = document.querySelector('#killerjunior p')
+      const lemoudsElements = document.querySelectorAll('.lemouds')
+      
+      if (h2Element) timeline.fromTo(h2Element, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+      if (pElement) timeline.fromTo(pElement, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+      if (lemoudsElements.length > 0) {
+          timeline.fromTo(lemoudsElements, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 })
+      }
   }
 
   // Slide 60 - Form
@@ -736,7 +344,13 @@ const updateFirstSlideStatus = () => {
   isFirstSlideActive.value = activeSlideIndex.value === 0;
 }
 
-// Fonction supprimée - utiliser la version GSAP définie plus haut
+const goToFirstSlide = () => {
+  if (fullpageApi.value) {
+    fullpageApi.value.moveTo(1);
+  } else {
+    console.error('fullpage API is not available')
+  }
+}
 
 // Initialisation de ScrollTrigger
 const initScrollTrigger = () => {
@@ -748,13 +362,79 @@ const initScrollTrigger = () => {
   }
 };
 
-/* 
-// Cette fonction utilisait ScrollMagic qui a été remplacé par GSAP ScrollTrigger
-// Elle est commentée pour éviter les erreurs, car nous utilisons maintenant GSAP et ScrollTrigger
+// Initialisation de ScrollMagic (déprécié, conservé pour référence)
 const initScrollMagic = () => {
-  // Code supprimé car nous utilisons GSAP ScrollTrigger à la place
-};
-*/
+  if (process.client) {
+    scrollMagicController.value = new ScrollMagic.Controller();
+    
+    // Exemple de scène ScrollMagic pour la première slide
+    const textElements = document.querySelectorAll('#section-slide-10 .text-element');
+    if (textElements.length > 0) {
+      textElements.forEach((element, index) => {
+        const tween = gsap.from(element, { 
+          opacity: 0, 
+          y: 50, 
+          duration: 0.5, 
+          delay: index * 0.1 
+        });
+        
+        new ScrollMagic.Scene({
+          triggerElement: element,
+          triggerHook: 0.8,
+          reverse: false
+        })
+        .setTween(tween)
+        .addTo(scrollMagicController.value);
+      });
+    }
+    
+    // Animation pour la slide 73 avec pin (épingle)
+    const slide73Section = document.querySelector('#section-slide-73');
+    const pointsFort = document.querySelector('#section-slide-73 #points-fort');
+    
+    if (slide73Section && pointsFort) {
+      // Créer une timeline pour l'animation des éléments
+      const timeline = gsap.timeline();
+      
+      // Récupérer tous les éléments texte dans points-fort
+      const textElements = document.querySelectorAll('#section-slide-73 #points-fort .text-element');
+      
+      // D'abord, masquer tous les éléments
+      gsap.set(textElements, { opacity: 0, y: 20 });
+      
+      // Rendre le conteneur points-fort visible immédiatement
+      timeline.to(pointsFort, { opacity: 1, duration: 0.1 });
+      
+      // Puis animer chaque élément texte un par un
+      textElements.forEach((element, index) => {
+        timeline.to(element, {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "back.out(1.4)"
+        }, "+=0.3"); // Ajouter un délai entre chaque animation
+      });
+      
+      // Créer une scène avec pin pour maintenir la section visible pendant l'animation
+      const pinScene = new ScrollMagic.Scene({
+        triggerElement: slide73Section,
+        triggerHook: 0.2, // Déclencher près du haut de la fenêtre
+        duration: timeline.duration() * 1000, // Convertir la durée de la timeline en pixels (approximatif)
+        reverse: true // Permettre l'inversion de l'animation lors du défilement vers le haut
+      })
+      .setPin(slide73Section, {pushFollowers: true}) // Épingler la section pendant l'animation
+      .setTween(timeline) // Associer la timeline à la scène
+      .addTo(scrollMagicController.value);
+      
+      // Ajouter des indicateurs de débogage si disponibles
+      if (process.env.NODE_ENV !== 'production' && pinScene.addIndicators) {
+        pinScene.addIndicators({name: "PIN scene", colorTrigger: "red", colorStart: "green", colorEnd: "red"});
+      }
+    }
+    
+    // Ajouter d'autres scènes selon vos besoins
+  }
+}
 
 // Formulaire de contact
 const formData = ref({
@@ -829,9 +509,7 @@ const gsapInitialization = () => {
   if (!process.client) return;
 
   // Configuration GSAP
-  gsap.registerPlugin(ScrollTrigger);
-  gsap.registerPlugin(Observer);
-  gsap.registerPlugin(ScrollToPlugin);
+  gsap.registerPlugin(ScrollTrigger, Observer, ScrollToPlugin, CSSPlugin);
 
   // Configuration des easing functions
   gsap.config({
@@ -850,17 +528,6 @@ const gsapInitialization = () => {
 
   let animInprogress = false;
   let animTimeStamp, animTimeStamp2;
-
-  // Mettre à jour l'état de la diapositive active
-  const updateSlideState = () => {
-    // Vérifier si nous sommes sur la première diapositive
-    isFirstSlideActive.value = activeSlideIndex.value === 0;
-    
-    // Vérifier si nous sommes sur la dernière diapositive
-    isLastSlideActive.value = activeSlideIndex.value === sortedSlides.length - 1;
-    
-    console.log(`État mis à jour - Slide ${activeSlideIndex.value} active`);
-  };
 
   // Préparation des éléments d'animation
   const prepareElements = () => {
@@ -908,7 +575,7 @@ const gsapInitialization = () => {
   };
 
   // Créer la timeline principale
-  let mastertl = gsap.timeline({
+  mastertl = gsap.timeline({ // Assigner à la variable mastertl dans la portée supérieure
     paused: true,
     defaults: {
       ease: otherAnimationEase,
@@ -928,8 +595,9 @@ const gsapInitialization = () => {
     prepareElements();
 
     // SLIDE 73 ANIMATIONS - Séquence demandée
+    mastertl.addLabel("slide73AnimStart") // Étiquette de début pour la diapositive 73
     // 1. Animation du titre (avec visibility pour corriger l'attribut caché)
-    mastertl.to('.slide-73-title', {
+    .to('.slide-73-title', {
       opacity: 1,
       y: 0,
       visibility: 'visible',
@@ -1068,16 +736,18 @@ const gsapInitialization = () => {
       duration: 0.2,
       ease: 'power2.out'
     }).addPause()
+    .addLabel("slide73AnimEnd") // Étiquette de fin pour la diapositive 73
 
-    // Transition vers slide 21
-    .to(window, { 
-      scrollTo: { y: '#section-slide-21', autoKill: false }, 
-      duration: sectionDuration, 
-      ease: sectionEase,
-      autoAlpha: 1
-    })
+    // Transition vers slide 21 // NOTE: Cette transition pourrait être gérée par fullpage.js
+    // .to(window, { 
+    //   scrollTo: { y: '#section-slide-21', autoKill: false }, 
+    //   duration: sectionDuration, 
+    //   ease: sectionEase,
+    //   autoAlpha: 1 // autoAlpha ici pourrait aussi causer un avertissement si CSSPlugin n'est pas prêt globalement
+    // }) 
     
     // SLIDE 21 ANIMATIONS avec la même approche que la slide 73
+    mastertl.addLabel("slide21AnimStart") // Étiquette de début pour la diapositive 21
     // 1. Animation du titre
     .to('#slide-21 .slide-21-title', {
       opacity: 1,
@@ -1173,69 +843,83 @@ const gsapInitialization = () => {
       duration: 0.2,
       ease: 'power2.out'
     }).addPause()
+    .addLabel("slide21AnimEnd"); // Étiquette de fin pour la diapositive 21
 
     // D'autres animations pour d'autres slides peuvent être ajoutées ici
   };
 
   // Configurer l'observateur pour le défilement
-const setupObserver = () => {
-  try {
-    // D'abord, masquer tous les éléments d'animation
-    // Parcourir toutes les slides et masquer leurs sous-éléments
-    document.querySelectorAll('.slide-container').forEach(slide => {
-      // Masquer tous les titres h1, h2, h3 et les text-element
-      slide.querySelectorAll('h1, h2, h3, .text-element, p').forEach(element => {
-        gsap.set(element, { opacity: 0, y: 30 });
+  const setupObserver = () => {
+    try {
+      // D'abord, masquer tous les éléments d'animation
+      // Parcourir toutes les slides et masquer leurs sous-éléments
+      document.querySelectorAll('.slide-container').forEach(slide => {
+        // Masquer tous les titres h1, h2, h3 et les text-element
+        slide.querySelectorAll('h1, h2, h3, .text-element, p').forEach(element => {
+          gsap.set(element, { opacity: 0, y: 30 });
+        });
       });
-    });
 
-    // Configurer l'observateur avec GSAP
-    Observer.create({
-      type: 'wheel,touch',
-      wheelSpeed: -1,
-      onDown: () => {
-        if (!isAnimating.value) {
-          navigateToSlide(activeSlideIndex.value + 1);
+      // Les plugins GSAP (Observer inclus) sont enregistrés au début de gsapInitialization.
+      // La vérification et l'enregistrement redondant ici peuvent être supprimés.
+      // if (typeof gsap.Observer === 'undefined') {
+      //   console.warn("GSAP Observer n'est pas défini, tentative d'enregistrement manuel");
+      //   gsap.registerPlugin(Observer);
+      // }
+
+      // Création manuelle de l'écouteur d'événements de défilement
+      const wheelHandler = (event) => {
+        event.preventDefault();
+        
+        // Calcul de la direction
+        const direction = event.deltaY > 0 ? 1 : -1;
+        
+        if (direction > 0) {
+          // Défilement vers le bas
+          if (mastertl.totalProgress() < 1 && !animInprogress) {
+            animInprogress = true;
+            mastertl.play();
+          }
+        } else {
+          // Défilement vers le haut
+          if (mastertl.totalProgress() > 0 && !animInprogress) {
+            animInprogress = true;
+            mastertl.reverse();
+          }
         }
-      },
-      onUp: () => {
-        if (!isAnimating.value) {
-          navigateToSlide(activeSlideIndex.value - 1);
+      };
+      
+      // Ajouter l'écouteur d'événements
+      window.addEventListener('wheel', wheelHandler, { passive: false });
+      
+      // Nettoyage - retourner une fonction pour supprimer les écouteurs d'événements
+      return () => {
+        window.removeEventListener('wheel', wheelHandler);
+      };
+      
+    } catch (error) {
+      console.error("Erreur lors de la configuration de l'observateur:", error);
+      
+      // Fallback sans Observer - utiliser un écouteur d'événements standard
+      const wheelHandler = (event) => {
+        if (event.deltaY > 0) {
+          if (mastertl.totalProgress() < 1) {
+            mastertl.play();
+          }
+        } else {
+          if (mastertl.totalProgress() > 0) {
+            mastertl.reverse();
+          }
         }
-      },
-      tolerance: 10,
-      preventDefault: true
-    });
-    
-    console.log('GSAP Observer configuré avec succès');
-  } catch (error) {
-    console.error("Erreur lors de la configuration de l'observateur:", error);
-    
-    // Fallback sans Observer - utiliser un écouteur d'événements standard
-    const wheelHandler = (event) => {
-      event.preventDefault();
-      if (event.deltaY > 0) {
-        // Défilement vers le bas
-        if (!isAnimating.value) {
-          navigateToSlide(activeSlideIndex.value + 1);
-        }
-      } else {
-        // Défilement vers le haut
-        if (!isAnimating.value) {
-          navigateToSlide(activeSlideIndex.value - 1);
-        }
-      }
-    };
-    
-    window.addEventListener('wheel', wheelHandler, { passive: false });
-    console.log('Fallback de défilement configuré');
-    
-    // Retourner une fonction pour nettoyage
-    return () => {
-      window.removeEventListener('wheel', wheelHandler);
-    };
-  }
-};
+      };
+      
+      window.addEventListener('wheel', wheelHandler, { passive: false });
+      
+      return () => {
+        window.removeEventListener('wheel', wheelHandler);
+      };
+    }
+  };
 
   // Navigation avec les touches fléchées
   const setupKeyboardNavigation = () => {
@@ -1292,37 +976,102 @@ onMounted(() => {
   slidesStore.fetchSlides().then(() => {
     // Masquer tous les éléments par défaut
     if (process.client) {
-      // S'assurer que ScrollTrigger est enregistré
-      if (typeof gsap.ScrollTrigger === 'undefined') {
-        console.log('Ré-enregistrement de ScrollTrigger');
-        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
-      }
-
-      // Initialiser le système de défilement contrôlé par GSAP
-      nextTick(() => {
-        // Initialiser les animations GSAP
-        gsapInitialization();
-        
-        // Initialiser le système de défilement
-        initScrollControl();
-        
-        // Configuration initiale : rendre la première section active
-        const firstSection = document.querySelector('.section');
-        if (firstSection) {
-          firstSection.classList.add('active');
-          firstSection.classList.add('in-view');
-        }
-        
-        console.log('Système de défilement GSAP initialisé');
+      document.querySelectorAll('.slide-container').forEach(slide => {
+        slide.querySelectorAll('h1, h2, h3, .text-element, p, li, .sub-section').forEach(element => {
+          gsap.set(element, { opacity: 0, y: 30 });
+        });
       });
     }
+    
+    // Initialiser l'animation avec GSAP après le chargement des slides
+    nextTick(() => {
+      if (process.client) {
+        gsapInitialization();
+      }
+    });
   });
   slidesStore.startAutoRefresh();
+  
+  // Initialisation de fullpage.js
+  if (process.client) {
+    initFullPage();
+  }
+  
+  // Afficher par défaut le premier élément dans la slide 23
+  activeIndex.value = 0;
+  
+  // Changement automatique de l'image dans la slide 23
+  const firstSlide = sortedSlides.value.find(s => s.id === 23);
+  if (firstSlide?.paragraphs?.[0]) {
+    activeImage.value = firstSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1];
+  }
+  
+  // Vérification de la taille de l'écran
+  checkScreenSize();
+  window.addEventListener('resize', checkScreenSize);
+  
+  // Initialisation des Intersection Observers pour les animations
+  initIntersectionObservers();
 });
+
+// Initialisation de fullPage.js
+const initFullPage = () => {
+  // S'assurer que le DOM est bien chargé et que fullpage.js est disponible
+  if (typeof window !== 'undefined' && typeof window.fullpage === 'function' && fullpageRef.value) {
+    console.log('Initialisation de fullpage.js...');
+    
+    // Vérifier que nous avons des slides à afficher
+    if (!sortedSlides.value || sortedSlides.value.length === 0) {
+      console.log('Aucune slide disponible, attente des données...');
+      setTimeout(initFullPage, 500);
+      return;
+    }
+    
+    try {
+      // Assurer que le DOM est prêt avant l'initialisation
+      nextTick(() => {
+        const fpContainer = document.getElementById('fullpage');
+        if (!fpContainer) {
+          console.warn('Le conteneur #fullpage n\'est pas présent dans le DOM.');
+          setTimeout(initFullPage, 500);
+          return;
+        }
+        
+        // Vérifier que l'élément a des sections
+        const sections = document.querySelectorAll('.section');
+        if (!sections || sections.length === 0) {
+          console.warn('Aucune section trouvée dans le DOM pour fullpage.js, nouvelle tentative dans 500ms...');
+          setTimeout(initFullPage, 500);
+          return;
+        }
+        
+        console.log(`${sections.length} sections trouvées, initialisation de fullpage.js...`);
+        
+        try {
+          fullpageApi.value = window.fullpage('#fullpage', fullpageOptions);
+        } catch (initError) {
+          console.error('Erreur lors de l\'initialisation de fullpage.js:', initError);
+          setTimeout(initFullPage, 1500);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de fullpage.js:', error);
+      // Ne pas réessayer immédiatement en cas d'erreur réelle
+      setTimeout(initFullPage, 1500);
+    }
+  } else {
+    console.log('Fullpage.js n\'est pas encore chargé, nouvelle tentative dans 500ms...');
+    // Réessayer après un court délai si les dépendances ne sont pas encore chargées
+    setTimeout(initFullPage, 500);
+  }
+};
 
 // Nettoyage avant démontage du composant
 onBeforeUnmount(() => {
   if (process.client) {
+    if (fullpageApi.value) {
+      fullpageApi.value.destroy('all');
+    }
     // Arrêter tout refresh automatique si nécessaire
     if (typeof slidesStore.stopAutoRefresh === 'function') {
       slidesStore.stopAutoRefresh();
@@ -1345,19 +1094,9 @@ onBeforeUnmount(() => {
       }
     }
     
-    // Nettoyer les instances GSAP
-    if (typeof gsap !== 'undefined' && typeof gsap.killTweensOf === 'function') {
-      gsap.killTweensOf('*');
-    }
-    
-    // Nettoyer ScrollTrigger
-    if (typeof ScrollTrigger !== 'undefined' && typeof ScrollTrigger.getAll === 'function') {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    }
-    
-    // Nettoyer Observer
-    if (typeof Observer !== 'undefined' && typeof Observer.getAll === 'function') {
-      Observer.getAll().forEach(observer => observer.kill());
+    if (scrollMagicController.value) {
+      scrollMagicController.value.destroy(true);
+      scrollMagicController.value = null;
     }
   }
 });
@@ -1377,8 +1116,8 @@ const toggleMenu = () => {
 }
 
 const goToSlide = (index) => {
-  if (swiperRef.value && swiperRef.value.swiper) {
-    swiperRef.value.swiper.slideTo(index);
+  if (fullpageApi.value) {
+    fullpageApi.value.moveTo(index + 1); // fullpage index starts at 1
     isMenuOpen.value = false;
   }
 }
@@ -1504,17 +1243,18 @@ const initIntersectionObservers = () => {
 
     <!-- Barre de défilement personnalisée style macOS -->
     <CustomScrollbar 
-      :scrollContainer="scrollContainerRef" 
+      :fullpageApi="fullpageApi" 
       :activeSection="activeSlideIndex" 
       :totalSections="sortedSlides.length" 
     />
 
-    <!-- Structure basée sur des sections pour GSAP ScrollTrigger -->
-    <div id="scroll-container" ref="scrollContainerRef" class="scroll-container">
+    <!-- Structure fullPage.js -->
+    <div id="fullpage">
       <!-- Loop through slides -->
       <div v-for="(slide, index) in sortedSlides" :key="slide.id" 
-        :class="['section', index === activeSlideIndex ? 'active' : '', `section-${index}`]" 
-        :id="`section-slide-${slide.id}`">
+        :class="['section', `fp-section-${index}`]" 
+        :id="`section-slide-${slide.id}`"
+        :data-anchor="`slide${index+1}`">
         
         <div :id="`slide-${slide.id}`" class="slide-container animate__animated animate__fadeIn"
           :style="{ backgroundImage: isMobile ? (slide.backgroundMobile ? `url(${slide.backgroundMobile})` : 'none') : (slide.thumbnail ? `url(${slide.thumbnail})` : 'none') }">
@@ -1743,7 +1483,9 @@ const initIntersectionObservers = () => {
 </template>
 
 <style lang="scss">
-/* Styles pour le système de défilement basé sur GSAP */
+@use 'swiper/css';
+@use 'swiper/css/scrollbar';
+@import 'fullpage.js/dist/fullpage.css';
 
 :root {
   overflow: hidden;
@@ -1827,56 +1569,10 @@ const initIntersectionObservers = () => {
   background: linear-gradient(45deg, #ffcc00, #ffdd4d);
 }
 
-/* Styles pour le système de défilement basé sur GSAP */
-.scroll-container {
-  height: 100vh;
+/* Styles pour fullPage.js */
+#fullpage {
   width: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.section {
   height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-}
-
-.section.active {
-  opacity: 1;
-  pointer-events: auto;
-  z-index: 2;
-}
-
-.section.in-view {
-  z-index: 2;
-}
-
-/* Animation d'entrée/sortie pour les sections */
-.section.enter-active {
-  animation: fadeIn 0.5s ease forwards;
-}
-
-.section.leave-active {
-  animation: fadeOut 0.5s ease forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
 }
 
 .section {
@@ -2531,7 +2227,7 @@ const initIntersectionObservers = () => {
   align-items: flex-start;
 }
 
-/* Classes pour le contrôle des animations */
+/* Classes ajoutées par ScrollMagic */
 .pinned {
   z-index: 100 !important;
 }
