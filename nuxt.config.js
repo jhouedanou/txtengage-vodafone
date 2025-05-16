@@ -4,8 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: [
     'bootstrap/dist/css/bootstrap.min.css',
-    '@/assets/scss/style.scss',
-    'fullpage.js/dist/fullpage.css'
+    '@/assets/scss/style.scss'
   ],
   
   vite: {
@@ -70,8 +69,6 @@ export default defineNuxtConfig({
 
   // Enregistrer nos plugins
   plugins: [
-    { src: '~/plugins/fullpage.js', mode: 'client' },
-    { src: '~/plugins/vue-fullpage.client.js', mode: 'client' },
     { src: '~/plugins/scrollmagic.js', mode: 'client' }
   ],
 
@@ -108,10 +105,8 @@ export default defineNuxtConfig({
     staticFilePath: true
   },
   
-  // Configuration publique pour fullPage.js
+  // Configuration publique
   publicRuntimeConfig: {
-    fullpage: {
-      licenseKey: '2K3LK-6CTQK-HF6HH-Q610H-PNPOO',
-    }
+    // Configuration retirée car fullpage.js n'est plus utilisé
   }
 })

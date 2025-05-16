@@ -18,9 +18,19 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
+import gsap from 'gsap'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
+
+// Enregistrer le plugin ScrollToPlugin si on est côté client
+if (process.client) {
+  gsap.registerPlugin(ScrollToPlugin)
+}
 
 const props = defineProps({
-  fullpageApi: Object,
+  scrollContainer: {
+    type: Object,
+    default: null
+  },
   activeSection: {
     type: Number,
     default: 0
@@ -81,11 +91,42 @@ const updateThumbPosition = (sectionIndex) => {
 
 // Navigation vers une section spécifique
 const goToSection = (position) => {
-  if (!props.fullpageApi || props.totalSections <= 1) return
+  if (props.totalSections <= 1) return
   
   const maxPosition = 100 - thumbSize.value
   const sectionIndex = Math.round((position / maxPosition) * (props.totalSections - 1))
-  props.fullpageApi.moveTo(sectionIndex + 1)
+  
+  // Utiliser les fonctions de navigation de ScrollTrigger
+  try {
+    // Evénement personnalisé pour informer le composant parent qu'on veut changer de section
+    const event = new CustomEvent('navigateToSection', { detail: { index: sectionIndex } })
+    document.dispatchEvent(event)
+    
+    // Ou directement sélectionner la section et faire défiler vers elle
+    const sections = document.querySelectorAll('.section')
+    if (sections && sections[sectionIndex]) {
+      // Mettre à jour les classes pour l'animation
+      document.querySelectorAll('.section').forEach((section, idx) => {
+        section.classList.toggle('active', idx === sectionIndex)
+        section.classList.toggle('in-view', idx === sectionIndex)
+      })
+      
+      // Animation pour le défilement
+      gsap.to(window, {
+        duration: 1,
+        scrollTo: { y: sections[sectionIndex], autoKill: true },
+        ease: 'power2.inOut'
+      })
+    }
+  } catch (error) {
+    console.error('Erreur lors de la navigation vers la section:', error)
+    
+    // Fallback au défilement natif en cas d'erreur
+    const sections = document.querySelectorAll('.section')
+    if (sections && sections[sectionIndex]) {
+      sections[sectionIndex].scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 }
 
 // Commencer le glissement du curseur avec la souris
@@ -181,7 +222,39 @@ onMounted(() => {
   }
   
   updateThumbPosition(props.activeSection)
+  
+  // Ajouter un écouteur de défilement pour mettre à jour la position du curseur
+  window.addEventListener('scroll', handleScroll)
 })
+
+// Gérer le défilement pour mettre à jour la position du curseur (compatible avec Swiper)
+const handleScroll = () => {
+  if (isDragging.value) return
+  
+  // Si Swiper est disponible, utiliser son API
+  if (props.swiperRef && props.swiperRef.swiper) {
+    // Swiper gère automatiquement le défilement - nous devons juste suivre l'index actif
+    updateThumbPosition(props.swiperRef.swiper.activeIndex)
+    return
+  }
+  
+  // Fallback: détection manuelle des slides visibles
+  const slides = document.querySelectorAll('.swiper-slide')
+  const scrollPosition = window.scrollY
+  
+  for (let i = 0; i < slides.length; i++) {
+    const slide = slides[i]
+    const slideTop = slide.offsetTop
+    const slideHeight = slide.offsetHeight
+    
+    // Déterminer si la slide est visible
+    if (scrollPosition >= slideTop - window.innerHeight / 2 && 
+        scrollPosition < slideTop + slideHeight - window.innerHeight / 2) {
+      updateThumbPosition(i)
+      break
+    }
+  }
+}
 
 // Nettoyage des écouteurs d'événements
 onBeforeUnmount(() => {
@@ -190,6 +263,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('touchmove', onTouchDrag)
   document.removeEventListener('touchend', endTouchDrag)
   window.removeEventListener('resize', checkDeviceType)
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 

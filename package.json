@@ -16,13 +16,11 @@
     "sass-optimize": "node scripts/optimize-sourcemaps.js"
   },
   "dependencies": {
-    "@fullpage/nuxt-fullpage": "^0.2.5",
     "@nuxt/image": "1.8.1",
     "@pinia/nuxt": "^0.7.0",
     "@popperjs/core": "^2.11.8",
     "animate.css": "^4.1.1",
     "bootstrap": "^5.3.3",
-    "fullpage.js": "^4.0.35",
     "gsap": "^3.13.0",
     "locomotive-scroll": "^4.1.4",
     "nuxt": "^3.14.1592",
@@ -31,7 +29,6 @@
     "scrollmagic-plugin-gsap": "^1.0.4",
     "swiper": "^11.1.15",
     "vue": "latest",
-    "vue-fullpage.js": "^0.2.21",
     "vue-router": "latest"
   },
   "devDependencies": {
