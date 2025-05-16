@@ -135,7 +135,7 @@ const fullpageOptions = {
   menu: '#menu',
   anchors: ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6', 'slide7', 'slide8'],
   scrollOverflow: true,
-  autoScrolling: true,  // Maintenir le défilement automatique entre les sections
+  autoScrolling: false,  // Maintenir le défilement automatique entre les sections
   fitToSection: true,   // Ajuster la vue à la section
   showActiveTooltip: false,
   lockAnchors: true,    // Désactiver les hashtags dans l'URL
@@ -613,9 +613,6 @@ const gsapInitialization = () => {
       duration:1,
       ease: 'power2.out'
     }).addPause()
-    .addPause()
-    .addPause()
-    .addPause()
     
     // 3. D'abord animer le conteneur .points-fort avec un sélecteur plus spécifique
     .to('#slide-73 .points-fort', {
@@ -845,10 +842,11 @@ const gsapInitialization = () => {
     }).addPause()
     .addLabel("slide21AnimEnd"); // Étiquette de fin pour la diapositive 21
 
-    // D\'autres animations pour d\'autres slides peuvent être ajoutées ici
+    // D'autres animations pour d'autres slides peuvent être ajoutées ici
+
   };
 
-  // Configurer l\'observateur pour le défilement
+  // Configurer l'observateur pour le défilement
   const setupObserver = () => {
     try {
       // D'abord, masquer tous les éléments d'animation
@@ -941,9 +939,6 @@ const gsapInitialization = () => {
 
   // Initialiser tous les composants
   initMasterTimeline();
-  if (mastertl) {
-    mastertl.timeScale(2); // Doubler la vitesse de la timeline principale
-  }
   setupObserver();
   setupKeyboardNavigation();
 
@@ -1297,6 +1292,7 @@ const initIntersectionObservers = () => {
           
           <!-- Reach 32 million customers -->
           <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0">
+            <img id="majunga" src="/images/vodaSpeechmark.webp" alt="">
             <div id="usruu">
               <div id="mzu" class="nusrru">
                 <h2 id="slide2a" class="text-element" v-html="slide.wp_title"></h2>
@@ -1305,6 +1301,7 @@ const initIntersectionObservers = () => {
               </div>
               <div id="guysamuel" class="gee">
                 <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" class="text-element"
+                  :id="`guysamuel-text-${idx}`"
                   v-html="paragraph">
                 </div>
               </div>
@@ -2255,5 +2252,11 @@ const initIntersectionObservers = () => {
 .element-visible {
   opacity: 1 !important;
   transform: translateY(0) !important;
+}
+
+#guysamuel-text-5{
+  position:absolute;
+  height:100vh;
+  width:100vw;
 }
 </style>
