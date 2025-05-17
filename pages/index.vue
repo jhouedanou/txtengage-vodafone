@@ -175,28 +175,43 @@ const fullpageOptions = {
     if (destination.index !== undefined) {
       activeSlideIndex.value = destination.index;
       updateFirstSlideStatus();
-      animateSlideElements(destination.index); // Gère les animations pour les slides autres que 21/73
       
+      // ID de la slide de destination
       const destSlideId = destination.item ? destination.item.id : null;
-
+      // ID numérique de la slide (sans le préfixe "section-slide-")
+      const slideNumId = destSlideId ? parseInt(destSlideId.replace('section-slide-', '')) : null;
+      
+      // Vérifier si on a déjà joué l'animation pour cette slide
+      const hasPlayedBefore = slideAnimationsPlayed[slideNumId];
+      
+      // Exécuter l'animation uniquement si elle n'a pas déjà été jouée
+      if (!hasPlayedBefore && slideNumId !== 73 && slideNumId !== 21) {
+        animateSlideElements(destination.index); // Gère les animations pour les slides autres que 21/73
+        
+        // Marquer l'animation comme jouée
+        if (slideNumId) {
+          slideAnimationsPlayed[slideNumId] = true;
+        }
+      }
+      
       if (mastertl) {
-        if (destSlideId === 'section-slide-73') {
+        if (destSlideId === 'section-slide-73' && !slide73AnimationPlayed.value) {
           if (mastertl.labels.slide73AnimStart !== undefined) {
             mastertl.seek(mastertl.labels.slide73AnimStart);
+            slide73AnimationPlayed.value = true; // Marquer comme jouée
           } else {
             console.warn("Label slide73AnimStart non trouvé dans mastertl.");
           }
-        } else if (destSlideId === 'section-slide-21') {
+        } else if (destSlideId === 'section-slide-21' && !slide21AnimationPlayed.value) {
           if (mastertl.labels.slide21AnimStart !== undefined) {
             mastertl.seek(mastertl.labels.slide21AnimStart);
+            slide21AnimationPlayed.value = true; // Marquer comme jouée
           } else {
             console.warn("Label slide21AnimStart non trouvé dans mastertl.");
           }
         } else {
-          // Optionnel: Pour les autres slides, mettre mastertl en pause si elle ne doit pas être active
-          // if (!mastertl.paused()) {
-          //   mastertl.pause();
-          // }
+          // Pour les autres slides ou si l'animation a déjà été jouée
+          // Nous ne faisons rien, l'animation ne sera pas répétée
         }
       }
     }
@@ -499,10 +514,15 @@ const slide73ElementsList = [
 ];
 const slide73Points = ref([]);
 const slide73WheelHandler = ref(null);
+const slide73AnimationPlayed = ref(false); // Pour empêcher la répétition de l'animation
 
 const slide21AnimationComplete = ref(false);
 const slide21Progress = ref(0);
 const slide21WheelHandler = ref(null);
+const slide21AnimationPlayed = ref(false); // Pour empêcher la répétition de l'animation
+
+// Objet pour suivre les animations déjà jouées pour chaque slide
+const slideAnimationsPlayed = reactive({});
 
 // Fonction principale d'initialisation GSAP
 const gsapInitialization = () => {
@@ -539,20 +559,22 @@ const gsapInitialization = () => {
       const title73 = document.querySelector('.slide-73-title');
       const content73 = document.querySelector('.slide-73-content');
       
-      if (title73) gsap.set(title73, { opacity: 0, y: 30, visibility: 'visible' });
-      if (content73) gsap.set(content73, { opacity: 0, y: 30, visibility: 'visible' });
+      // Le titre est TOUJOURS visible, sans aucune animation
+      if (title73) {
+        gsap.set(title73, { opacity: 1, y: 0, visibility: 'visible', clearProps: "all" }); 
+        // clearProps assure qu'aucune propriété GSAP ne persiste sur cet élément
+      }
       
-      // Pour chaque point, masquer à la fois le conteneur et ses h3/p enfants
+      // Le contenu est visible dès le début mais peut avoir des animations
+      if (content73) gsap.set(content73, { opacity: 1, y: 0, visibility: 'visible' });
+      
+      // Pour chaque point, masquer - ils seront animés dans la séquence
       const points = document.querySelectorAll('.slide-73-point');
       points.forEach(point => {
         gsap.set(point, { opacity: 0, y: 30 });
         
-        // Masquer spécifiquement les h3 et p à l'intérieur de chaque point
-        const h3 = point.querySelector('h3');
-        const p = point.querySelector('p');
-        
-        if (h3) gsap.set(h3, { opacity: 0, y: 30 });
-        if (p) gsap.set(p, { opacity: 0, y: 30 });
+        // Plus besoin de masquer spécifiquement les h3 et p, on anime tout le point en une fois
+        // dans la nouvelle animation
       });
     }
     
@@ -594,40 +616,44 @@ const gsapInitialization = () => {
   const initMasterTimeline = () => {
     prepareElements();
 
-    // SLIDE 73 ANIMATIONS - Séquence demandée
+    // SLIDE 73 ANIMATIONS - Nouvelle séquence inspirée de l'exemple
     mastertl.addLabel("slide73AnimStart") // Étiquette de début pour la diapositive 73
-    // 1. Animation du titre (avec visibility pour corriger l'attribut caché)
-    .to('.slide-73-title', {
+    
+    // Configuration initiale du titre et du contenu (visibles immédiatement sans animation)
+    .set('.slide-73-title, .slide-73-content', {
       opacity: 1,
       y: 0,
       visibility: 'visible',
-      duration: 0.4,
-      ease: 'power2.out'
-    }).addPause()
+      immediate: true
+    })
     
-    // 2. Animation du contenu
-    .to('.slide-73-content', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration:1,
-      ease: 'power2.out'
-    }).addPause()
-    .addPause()
-    .addPause()
+    // On retire l'animation du titre, on commence directement par la pause
     .addPause()
     
-    // 3. D'abord animer le conteneur .points-fort avec un sélecteur plus spécifique
+    // Animation inspirée de l'exemple fourni
+    .fromTo('#slide-73', {
+      backgroundPosition: "81% 50%",
+      backgroundSize: "400%",
+      autoAlpha: 1,
+    }, {
+      backgroundPosition: "92% 50%",
+      backgroundSize: "100%", // Modifié à 100% au lieu de 200%
+      autoAlpha: 1,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, "<")
+    
+    // Animation des points (conteneur)
     .to('#slide-73 .points-fort', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.4,
+      minHeight: '60vh',
+      autoAlpha: 1,
+      duration: 0.6,
       ease: 'power2.out'
-    }).addPause()
+    }, "<")
     
-    // 4. Maintenant nous allons animer chaque point + son contenu h3 et p
-    // Point 1 - d'abord le conteneur
+    .addPause()
+    
+    // Animation séquentielle des points
     .to('#slide-73 .slide-73-point.point-0', {
       opacity: 1,
       y: 0,
@@ -635,28 +661,8 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Puis son titre h3
-    .to('#slide-73 .slide-73-point.point-0 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.4,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    // Puis son texte p
-    .to('#slide-73 .slide-73-point.point-0 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
+    .addPause()
     
-    // Point 2
     .to('#slide-73 .slide-73-point.point-1', {
       opacity: 1,
       y: 0,
@@ -664,26 +670,8 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-1 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-1 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
+    .addPause()
     
-    // Point 3
     .to('#slide-73 .slide-73-point.point-2', {
       opacity: 1,
       y: 0,
@@ -691,26 +679,8 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-2 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-2 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
+    .addPause()
     
-    // Point 4
     .to('#slide-73 .slide-73-point.point-3', {
       opacity: 1,
       y: 0,
@@ -718,24 +688,7 @@ const gsapInitialization = () => {
       duration: 0.3,
       ease: 'power2.out'
     })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-3 h3', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    })
-    // Légère pause
-    .to({}, {duration: 0.2})
-    .to('#slide-73 .slide-73-point.point-3 p', {
-      opacity: 1,
-      y: 0,
-      visibility: 'visible',
-      duration: 0.2,
-      ease: 'power2.out'
-    }).addPause()
+    .addPause()
     .addLabel("slide73AnimEnd") // Étiquette de fin pour la diapositive 73
 
     // Transition vers slide 21 // NOTE: Cette transition pourrait être gérée par fullpage.js
@@ -881,10 +834,35 @@ const gsapInitialization = () => {
             mastertl.play();
           }
         } else {
-          // Défilement vers le haut
-          if (mastertl.totalProgress() > 0 && !animInprogress) {
+          // Défilement vers le haut - Au lieu d'inverser l'animation,
+          // on va directement afficher le contenu complet pour éviter l'effet d'inversion
+          const currentSlideId = document.querySelector('.section.active')?.id;
+          
+          if (currentSlideId === 'section-slide-73') {
+            // Pour la slide 73, afficher tous les points immédiatement
+            document.querySelectorAll('#slide-73 .slide-73-point').forEach(point => {
+              gsap.to(point, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+            });
+            // Mettre à jour la position de mastertl sans animer
             animInprogress = true;
-            mastertl.reverse();
+            mastertl.seek(mastertl.labels.slide73AnimStart);
+          } else if (currentSlideId === 'section-slide-21') {
+            // Pour la slide 21, afficher tous les points immédiatement
+            document.querySelectorAll('#slide-21 .slide-21-point').forEach(point => {
+              gsap.to(point, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+              point.querySelectorAll('h3, p').forEach(el => {
+                gsap.to(el, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+              });
+            });
+            // Mettre à jour la position de mastertl sans animer
+            animInprogress = true;
+            mastertl.seek(mastertl.labels.slide21AnimStart);
+          } else {
+            // Pour les autres slides, on peut conserver le comportement par défaut
+            if (mastertl.totalProgress() > 0 && !animInprogress) {
+              animInprogress = true;
+              mastertl.seekTo(0);
+            }
           }
         }
       };
@@ -907,8 +885,26 @@ const gsapInitialization = () => {
             mastertl.play();
           }
         } else {
-          if (mastertl.totalProgress() > 0) {
-            mastertl.reverse();
+          // Même logique que dans le gestionnaire principal
+          const currentSlideId = document.querySelector('.section.active')?.id;
+          
+          if (currentSlideId === 'section-slide-73') {
+            document.querySelectorAll('#slide-73 .slide-73-point').forEach(point => {
+              gsap.to(point, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+            });
+            mastertl.seek(mastertl.labels.slide73AnimStart);
+          } else if (currentSlideId === 'section-slide-21') {
+            document.querySelectorAll('#slide-21 .slide-21-point').forEach(point => {
+              gsap.to(point, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+              point.querySelectorAll('h3, p').forEach(el => {
+                gsap.to(el, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+              });
+            });
+            mastertl.seek(mastertl.labels.slide21AnimStart);
+          } else {
+            if (mastertl.totalProgress() > 0) {
+              mastertl.seekTo(0);
+            }
           }
         }
       };
@@ -926,8 +922,31 @@ const gsapInitialization = () => {
     const handleKeyDown = (key) => {
       key.preventDefault();
       if (key.keyCode == '38') { // Flèche vers le haut
-        if (mastertl.totalProgress() <= 1) {
-          mastertl.reverse();
+        // Même logique que pour le défilement vers le haut avec la molette
+        const currentSlideId = document.querySelector('.section.active')?.id;
+          
+        if (currentSlideId === 'section-slide-73') {
+          // Pour la slide 73, afficher tous les points immédiatement
+          document.querySelectorAll('#slide-73 .slide-73-point').forEach(point => {
+            gsap.to(point, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+          });
+          // Mettre à jour la position de mastertl sans animer
+          mastertl.seek(mastertl.labels.slide73AnimStart);
+        } else if (currentSlideId === 'section-slide-21') {
+          // Pour la slide 21, afficher tous les points immédiatement
+          document.querySelectorAll('#slide-21 .slide-21-point').forEach(point => {
+            gsap.to(point, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+            point.querySelectorAll('h3, p').forEach(el => {
+              gsap.to(el, { opacity: 1, y: 0, visibility: 'visible', duration: 0.2 });
+            });
+          });
+          // Mettre à jour la position de mastertl sans animer
+          mastertl.seek(mastertl.labels.slide21AnimStart);
+        } else {
+          // Pour les autres slides
+          if (mastertl.totalProgress() > 0) {
+            mastertl.seekTo(0);
+          }
         }
       } else if (key.keyCode == '40') { // Flèche vers le bas
         if (mastertl.totalProgress() < 1) {
@@ -2204,7 +2223,7 @@ const initIntersectionObservers = () => {
 .slide-container h2, 
 .slide-container h3, 
 .slide-container p, 
-.slide-container .text-element,
+.slide-container .text-element:not(.slide-73-title), /* Exception pour le titre de la slide 73 */
 .slide-container li,
 .slide-container .sub-section {
   opacity: 0; /* Masquer par défaut */
@@ -2219,15 +2238,36 @@ const initIntersectionObservers = () => {
   z-index: 10;
 }
 
+#slide-73 {
+  background-size: 400%;
+  background-position: 81% 50%;
+  transition: background-position 0.5s ease, background-size 0.5s ease;
+}
+
+/* Masqués initialement pour l'animation */
 #section-slide-73 #points-fort {
-  opacity: 0; /* Initialement masqué */
+  opacity: 0; 
+  transition: min-height 0.6s ease;
 }
 
 #section-slide-73 #points-fort .text-element {
-  opacity: 0; /* Initialement masqués */
+  opacity: 0;
   transform: translateY(30px);
   text-align: left;
   align-items: flex-start;
+}
+
+/* Pour s'assurer que le titre et le contenu sont visibles dès le début */
+#section-slide-73 .slide-73-title {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  transition: none !important; /* Désactiver toute transition sur le titre */
+  animation: none !important; /* Désactiver toute animation sur le titre */
+}
+
+#section-slide-73 .slide-73-content {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 /* Classes ajoutées par ScrollMagic */

@@ -283,14 +283,6 @@
   resolved "https://registry.npmjs.org/@fastify/accept-negotiator/-/accept-negotiator-1.1.0.tgz"
   integrity sha512-OIHZrb2ImZ7XG85HXOONLcJWGosv7sIvM2ifAPQVhg9Lv7qdmMBNVaai4QTdyuaqbKM5eO6sLSQOYI7wEQeCJQ==
 
-"@fullpage/nuxt-fullpage@^0.2.5":
-  version "0.2.5"
-  resolved "https://registry.npmjs.org/@fullpage/nuxt-fullpage/-/nuxt-fullpage-0.2.5.tgz"
-  integrity sha512-HsYRq8phNUEfdlxfhfokQ+xxe/b/h/diYocp7MP3kOIaZVjBEgr18nJSM58WYezx26cHaQyi74q3dRVrQKgotQ==
-  dependencies:
-    "@nuxt/kit" "^3.5.2"
-    vue-fullpage.js "^0.2.15"
-
 "@ioredis/commands@^1.1.1":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@ioredis/commands/-/commands-1.2.0.tgz"
@@ -507,7 +499,7 @@
   optionalDependencies:
     ipx "^2.1.0"
 
-"@nuxt/kit@^3.13.1", "@nuxt/kit@^3.13.2", "@nuxt/kit@^3.5.2", "@nuxt/kit@^3.9.0", "@nuxt/kit@3.14.1592":
+"@nuxt/kit@^3.13.1", "@nuxt/kit@^3.13.2", "@nuxt/kit@^3.9.0", "@nuxt/kit@3.14.1592":
   version "3.14.1592"
   resolved "https://registry.npmjs.org/@nuxt/kit/-/kit-3.14.1592.tgz"
   integrity sha512-r9r8bISBBisvfcNgNL3dSIQHSBe0v5YkX5zwNblIC2T0CIEgxEVoM5rq9O5wqgb5OEydsHTtT2hL57vdv6VT2w==
@@ -8326,7 +8318,7 @@ vue-devtools-stub@^0.1.0:
   resolved "https://registry.npmjs.org/vue-devtools-stub/-/vue-devtools-stub-0.1.0.tgz"
   integrity sha512-RutnB7X8c5hjq39NceArgXg28WZtZpGc3+J16ljMiYnFhKvd8hITxSWQSQ5bvldxMDU6gG5mkxl1MTQLXckVSQ==
 
-vue-fullpage.js@^0.2.15, vue-fullpage.js@^0.2.21:
+vue-fullpage.js@^0.2.21:
   version "0.2.21"
   resolved "https://registry.npmjs.org/vue-fullpage.js/-/vue-fullpage.js-0.2.21.tgz"
   integrity sha512-UY62R/RO3xK/dHQdlDAmkdZHDhhkucQ6YM0N9DYCmE3//Tups52X/oeD2UJStiOeXGkHbP5LFd1DFofj/BjhPw==
