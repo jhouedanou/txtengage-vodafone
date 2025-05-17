@@ -57,7 +57,7 @@ export function useFullpageScrollTrigger() {
         if (slidesContainerDiv) {
           gsap.to(slidesContainerDiv, {
             backgroundSize: 'cover',
-            backgroundPositionX: '-13vw',
+            backgroundPositionX: '-25vw',
             duration: 0.5,
             ease: 'power2.out',
           });
@@ -87,7 +87,7 @@ export function useFullpageScrollTrigger() {
       gsap.set(pointsFortDiv, { x: '100vw', autoAlpha: 1 });
     }
     if (slidesContainerDiv) {
-      gsap.set(slidesContainerDiv, { backgroundSize: 'cover', backgroundPositionX: '0vw' });//etat initial du background avec la dame
+      gsap.set(slidesContainerDiv, { backgroundSize: 'cover', backgroundPositionX: '0vw' });//etat initial du background avec la
     }
     
     animationStates.value['slide-73'] = false; // Initialement, l'animation n'est pas terminée/déclenchée
@@ -132,7 +132,7 @@ export function useFullpageScrollTrigger() {
         if (slidesContainerDiv) {
           gsap.to(slidesContainerDiv, {
             backgroundSize: 'cover',
-            backgroundPositionX: '-13vw',
+            backgroundPositionX: '-25vw',
             duration: 0.5,
             ease: 'power2.out',
           });
