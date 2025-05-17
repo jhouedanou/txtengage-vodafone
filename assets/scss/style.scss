@@ -529,9 +529,14 @@ body {
 #slide-21 {
     display        : flex;
     align-items    : center;
-    justify-content: flex-end;
+    justify-content: center;
     flex-direction : column;
-
+.slides-container{
+    
+    display        : flex;
+    align-items    : flex-end;
+    justify-content: center;
+}
     #thoiathoing {
         width : 100vw;
         margin: 0;

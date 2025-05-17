@@ -321,8 +321,6 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
             width: '100%', 
             height: '100%', 
             display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center',
             backgroundImage: isMobile.value ? (slide.backgroundMobile ? `url(${slide.backgroundMobile})` : 'none') : (slide.thumbnail ? `url(${slide.thumbnail})` : 'none')
           }">
           

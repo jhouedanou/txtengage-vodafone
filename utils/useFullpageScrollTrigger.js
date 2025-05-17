@@ -154,14 +154,52 @@ export function useFullpageScrollTrigger() {
     });
     specificAnimationTriggers.push(st);
   };
+  /**
+   * Configure les animations spécifiques pour la slide-21.
+   * L'animation d'entrée est déclenchée via goToSection et ne se joue qu'une fois.
+   */
+  const registerSlide21Animation = () => {
+    const slide21Section = sections.value.find(s => s.id === 'slide-21');
+    if (!slide21Section) {
+      return;
+    }
+    const thoiathoingDiv = slide21Section.querySelector('#thoiathoing');
+
+    if (!thoiathoingDiv) {
+      return;
+    }
+
+    // État initial de #thoiathoing: invisible et décalé vers le bas
+    gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+    animationStates.value['slide-21-playedOnce'] = false; // Pour suivre si l'animation a été jouée une fois
+
+    // Ce ScrollTrigger peut être simplifié ou supprimé si on ne veut plus de réinitialisation
+    // pour rejouer. Si on veut juste l'animer une fois, on n'a pas besoin de onLeave/onLeaveBack
+    // pour réinitialiser l'état en vue d'une nouvelle animation.
+    // Cependant, il peut être utile si l'utilisateur quitte la slide AVANT que l'animation
+    // "jouer une fois" ne se soit déclenchée.
+    const st21 = ScrollTrigger.create({
+      trigger: slide21Section,
+      scroller: SCROLLER_SELECTOR,
+      // markers: true,
+      onLeave: () => {
+        // Si l'animation "jouer une fois" n'a pas encore eu lieu,
+        // et que l'on quitte la slide, on s'assure qu'elle reste dans son état initial.
+        if (!animationStates.value['slide-21-playedOnce']) {
+          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+        }
+      },
+      onLeaveBack: () => {
+        if (!animationStates.value['slide-21-playedOnce']) {
+          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+        }
+      },
+    });
+    specificAnimationTriggers.push(st21);
+  };
 
   // --- Logique de Navigation ---
 
-  /**
-   * Navigue vers une section spécifique.
-   * @param {number} index - L'index de la section cible.
-   * @param {number} [duration=1] - La durée de l'animation de défilement.
-   */
   const goToSection = (index, duration = 1) => {
     if (index < 0 || index >= sections.value.length || (isNavigating.value && duration !== 0)) {
       return;
@@ -170,15 +208,16 @@ export function useFullpageScrollTrigger() {
       return;
     }
 
-    const currentSectionElement = sections.value[currentSectionIndex.value];
-    // Blocage si on est sur slide-73 et que son animation n'est pas complétée
-    if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+    const previousSectionElement = sections.value[currentSectionIndex.value];
+    const targetSectionElement = sections.value[index];
+
+    if (previousSectionElement && previousSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true && index > currentSectionIndex.value) {
       return;
     }
 
     isNavigating.value = true;
     gsap.to(SCROLLER_SELECTOR, {
-      scrollTo: { y: sections.value[index], autoKill: false },
+      scrollTo: { y: targetSectionElement, autoKill: false },
       duration: duration,
       ease: 'power2.inOut',
       onStart: () => {
@@ -186,6 +225,25 @@ export function useFullpageScrollTrigger() {
       },
       onComplete: () => {
         isNavigating.value = false;
+        
+        // Animation pour slide-21 (jouer une seule fois)
+        if (targetSectionElement && targetSectionElement.id === 'slide-21' && !animationStates.value['slide-21-playedOnce']) {
+          const thoiathoingDiv = targetSectionElement.querySelector('#thoiathoing');
+          if (thoiathoingDiv) {
+            gsap.to(thoiathoingDiv, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power2.out',
+              onComplete: () => {
+                animationStates.value['slide-21-playedOnce'] = true; // Marquer comme jouée une fois
+              }
+            });
+          } else {
+            // Si thoiathoingDiv n'est pas trouvé, marquer quand même pour éviter des vérifications répétées
+            animationStates.value['slide-21-playedOnce'] = true; 
+          }
+        }
       },
       onInterrupt: () => {
         isNavigating.value = false;
@@ -253,19 +311,18 @@ export function useFullpageScrollTrigger() {
    * @param {HTMLElement[]} sectionsElements - Un tableau d'éléments DOM représentant les sections.
    */
   const init = (sectionsElements) => {
-    // S'assurer que sectionsElements est un tableau d'éléments DOM valides
     if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
-      // console.warn("ScrollTrigger Composable: 'sectionsElements' doit être un tableau d'éléments HTML.");
       return;
     }
-    sections.value = sectionsElements; // Stocker les éléments DOM directement
+    sections.value = sectionsElements;
 
     if (sections.value.length > 0) {
-      nextTick(() => { // Attendre que le DOM soit potentiellement mis à jour par Vue
+      nextTick(() => {
         registerSlide73Animation();
+        registerSlide21Animation();
         setupFullpageObserver();
-        goToSection(0, 0); // Aller à la première section sans animation
-        ScrollTrigger.refresh(); // Rafraîchir après la configuration initiale
+        goToSection(0, 0); 
+        ScrollTrigger.refresh();
       });
     }
   };
