@@ -1,6 +1,7 @@
 @use "sass:color";
 
 // Variables
+$gradient-transparent-to-black: linear-gradient(to bottom, rgba(0, 0, 0, 0) 6%, rgba(0, 0, 0, 0.99) 89%);
 $vodafone-red      : #e60000;
 $vodafone-light-red: #ff1a1a;
 $primary-color     : #ff0000;
@@ -87,8 +88,14 @@ body {
         align-items    : flex-end;
         justify-content: center;
         flex-direction : column;
-    }
+        height:100vh;
 
+    }
+    .slapjh{
+    }
+    .firstContainer{
+        padding:0;
+    }
     .text-element {
         &:nth-of-type(2) {}
     }
@@ -103,7 +110,7 @@ body {
 
     .subint {
         h2 {
-            font-size     : 10.2em;
+            font-size     : 115px;
             font-weight   : 600;
             font-stretch  : normal;
             font-style    : normal;
@@ -114,19 +121,20 @@ body {
         }
 
         p {
-            font-family   : Raleway;
-            font-size     : 2.6em;
-            font-weight   : 300;
-            font-stretch  : normal;
-            font-style    : normal;
-            line-height   : 1.44;
+            font-family: "Raleway";
+            font-size: 28px;
+            font-weight: 300;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 36px;
             letter-spacing: normal;
-            text-align    : center;
-            color         : #fff;
+            text-align: center;
+            color: #fff;
         }
     }
 
     .points-fort {
+        position: absolute;
         height         : 100vh;
         display        : flex;
         align-items    : flex-start;
@@ -148,7 +156,9 @@ body {
 }
 
 #slide-10 {
+    
     .text-element {
+        
         &:nth-of-type(2) {}
     }
 
@@ -177,7 +187,7 @@ body {
             font-size     : 2.6em;
             font-weight   : 300;
             font-stretch  : normal;
-            font-style    : normal;
+            font-style     : normal;
             line-height   : 1.44;
             letter-spacing: normal;
             text-align    : center;
@@ -242,26 +252,26 @@ body {
 .points-fort {
     opacity: 1;
     padding: 2rem;
-    width  : 46.6vw;
+    width  : 50vw;
 
     h3 {
         font-family: "Vodafone";
-        font-size  : 3em;
+        font-size  : 28px;
         font-weight: 600;
         line-height: 0.44;
         color      : white;
     }
 
     p {
-        font-family   : "Raleway";
-        font-size     : 2em;
-        font-weight   : 300;
-        font-stretch  : normal;
-        font-style    : normal;
-        line-height   : 0.64;
+        font-family: "Vodafone";
+        font-size: 23px;
+        font-weight: 300;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 18px;
         letter-spacing: normal;
-        text-align    : left;
-        color         : #fff;
+        text-align: left;
+        color: #fff;
     }
 }
 
@@ -271,6 +281,35 @@ body {
 .text-element {
     white-space: pre-line;
     margin     : 20px 0;
+    display    : block;
+    width      : 100%;
+    
+    h3 {
+        font-family   : 'Vodafone';
+        font-size     : 28px;
+        font-weight   : bold;
+        line-height   : 1.44;
+        color         : white;
+        margin-bottom : 15px;
+    }
+    
+
+}
+
+// Supprimer les styles qui peuvent causer des conflits avec la mise en page verticale
+.row .text-element {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+// Assurer que les text-element dans les slides spécifiques s'affichent correctement
+#slide-21 .text-element,
+#slide-22 .text-element {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
 }
 
 /* Style spécifique pour les paragraphes */
@@ -355,32 +394,50 @@ body {
             }
 
             p {
+                margin-top: 15px !important;
                 font-family: "Vodafone";
                 font-weight: normal;
                 margin     : 0;
                 padding    : 0;
+                text-align: center;
+                line-height:    0.5 !important;
+                text-transform: uppercase; /* Fixed text-transform property */
 
             }
 
             &:nth-of-type(1) {
-                width : 153px !important;
-                height: 153px !important;
+                
+                    width: 174px !important;
+                    height: 174px !important;
                 left  : 31vw !important;
                 top   : 19vh !important;
 
                 h3 {
-                    font-size: 70px;
+                    font-size: 62px;
+                    font-weight: bold;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: 0.97;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
                 }
 
                 p {
-                    font-size     : 24px;
-                    text-transform: uppercase;
+                    font-family: Vodafone;
+                    font-size: 23px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: 1.3;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
                 }
             }
 
-            &:nth-of-type(2) {
-                width : 236px !important;
-                height: 236px !important;
+            &:nth-of-type(2) {  width: 238px;
+                height: 238px;
                 left  : 55vw !important;
                 top   : 15vh !important;
 
@@ -389,14 +446,13 @@ body {
                 }
 
                 p {
-                    font-size     : 41px;
+                    font-size     : 20px;
                     text-transform: uppercase;
                 }
             }
 
-            &:nth-of-type(3) {
-                width : 236px !important;
-                height: 236px !important;
+            &:nth-of-type(3) {  width: 238px !important;
+                height: 238px !important;
                 left  : 52vw !important;
                 bottom: 15vh !important;
 
@@ -405,8 +461,15 @@ body {
                 }
 
                 p {
-                    font-size     : 41px;
-                    text-transform: uppercase;
+                    font-size: 20px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: normal;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
+
                 }
             }
 
@@ -422,8 +485,37 @@ body {
                 }
 
                 p {
-                    font-size     : 24px;
-                    text-transform: uppercase;
+                    font-size: 20px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: normal;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
+                }
+            }
+
+
+
+            &:nth-of-type(5) {    width: 174px !important;
+                height: 174px !important;
+                left: 72vw !important;
+                bottom: 31vh !important;
+
+                h3 {
+                    font-size: 70px;
+                }
+
+                p {
+                    font-size: 20px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: normal;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
                 }
             }
         }
@@ -443,7 +535,8 @@ body {
     #thoiathoing {
         width : 100vw;
         margin: 0;
-    }
+        padding-bottom: 5em !important;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.99) 100%);}
 
     .row {
         display        : flex;
@@ -452,7 +545,7 @@ body {
         flex-direction : row;
 
         &:nth-of-type(1) {
-            margin-bottom: 7em;
+            margin-bottom:101px;
 
             #mshill {
                 color          : white;
@@ -462,7 +555,7 @@ body {
                 flex-direction : row;
                 text-align     : center;
                 font-size      : 4.8em;
-                line-height    : 0.5em;
+                line-height    :2.5em;
                 font-weight    : 700;
 
                 h3 {
@@ -474,6 +567,7 @@ body {
         &:nth-of-type(2) {
             .text-element {
                 text-align: center;
+                line-height: 0.5;
 
                 h3 {
                     color          : white;
@@ -482,13 +576,23 @@ body {
                     justify-content: center;
                     flex-direction : row;
                     text-align     : center;
-                    font-size      : 3.3em;
-                    line-height    : 0.5em;
+text-transform: uppercase;
+            font-family: "Vodafone";
+                    font-size      : 28px;
+                    line-height    : 40.3px;
                     font-weight    : 700;
-                    margin-bottom  : 0em;
+                    margin-bottom  : 10px;
                 }
 
                 p {
+                    font-size: 23px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: 18px;
+                    letter-spacing: normal;
+                    text-align: center;
+                    color: #fff;
                     margin-bottom  : 0em;
                     color          : white;
                     display        : flex;
@@ -496,15 +600,11 @@ body {
                     justify-content: center;
                     flex-direction : row;
                     text-align     : center;
-                    font-size      : 2em;
-                    font-weight    : 300;
                     font-stretch   : normal;
                     font-style     : normal;
-                    line-height    : 0.64;
-                    letter-spacing : 1px;
                     text-align     : center;
                     color          : #fff;
-                    min-height     : 180px;
+                    min-height     : 80px;
                     /* background  : black; */
                 }
             }
@@ -525,7 +625,14 @@ body {
     .cont {
         width  : 100vw;
         margin : 0;
-        padding: 0;
+        height : 100vh;
+        padding: 0 !important;
+        .text-element{
+            background: $gradient-transparent-to-black;
+            height : 100vh;
+      display:flex;     
+      padding-top:18em !important;
+        }
     }
 
     .row {
@@ -559,6 +666,9 @@ body {
                     text-align     : center;
                     // Base font-size
                     font-size      : 3.3em;
+                    line-height    : .8;
+                    font-weight    : 700;
+                    margin-bottom  : 0em;
 
                     // Media queries pour l'adaptation responsive
                     @media screen and (max-width: 1440px) {
@@ -568,16 +678,6 @@ body {
                     @media screen and (max-width: 1024px) {
                         font-size: calc(2.2em + 0.5vw);
                     }
-
-                    & {
-
-
-                      line-height   : .8;
-
-
-                    }
-                    font-weight   : 700;
-                    margin-bottom : 0em;
                 }
 
                 p {
@@ -589,18 +689,7 @@ body {
                     flex-direction : row;
                     text-align     : center;
                     font-size      : 2em;
-
-                    @media screen and (max-width: 1440px) {
-                        font-size: calc(1.2em + 0.5vw);
-                    }
-
-                    & {
-
-
-                      font-weight    : 300;
-
-
-                    }
+                    font-weight    : 300;
                     font-stretch   : normal;
                     font-style     : normal;
                     line-height    : .8;
@@ -609,6 +698,10 @@ body {
                     color          : #fff;
                     min-height     : 180px;
                     /* background  : black; */
+
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(1.2em + 0.5vw);
+                    }
                 }
             }
         }
@@ -626,6 +719,9 @@ body {
                     text-align     : center;
                     // Base font-size
                     font-size      : 3.3em;
+                    line-height    : .8;
+                    font-weight    : 700;
+                    margin-bottom  : 0em;
 
                     // Media queries pour l'adaptation responsive
                     @media screen and (max-width: 1440px) {
@@ -635,16 +731,6 @@ body {
                     @media screen and (max-width: 1024px) {
                         font-size: calc(2.2em + 0.5vw);
                     }
-
-                    & {
-
-
-                      line-height   : .8;
-
-
-                    }
-                    font-weight   : 700;
-                    margin-bottom : 0em;
                 }
 
                 p {
@@ -656,18 +742,7 @@ body {
                     flex-direction : row;
                     text-align     : center;
                     font-size      : 2em;
-
-                    @media screen and (max-width: 1440px) {
-                        font-size: calc(1.2em + 0.5vw);
-                    }
-
-                    & {
-
-
-                      font-weight    : 300;
-
-
-                    }
+                    font-weight    : 300;
                     font-stretch   : normal;
                     font-style     : normal;
                     line-height    : .8;
@@ -676,6 +751,10 @@ body {
                     color          : #fff;
                     min-height     : 180px;
                     /* background  : black; */
+
+                    @media screen and (max-width: 1440px) {
+                        font-size: calc(1.2em + 0.5vw);
+                    }
                 }
             }
         }
@@ -695,8 +774,44 @@ body {
 #slide-59 {
     #killerjunior {
         width: 95vw;
+        .kankan{
+            .lemouds{
+                display:flex;
+                margin:0;
+                padding:0;
+                justify-content: center;
+                align-items: center;
 
-        .col-md-7 {
+                align-items: center;
+                flex-direction: column;
+                p{
+
+                display:flex;
+                margin:0;
+                padding:0;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+
+                p {
+                    margin: 0;
+                    padding: 0;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                }
+                }
+            }
+            img{
+                margin:0 auto;
+                &:nth-of-type(1) {
+                    width: 100% !important;
+                    max-width: 502px;
+                height: 479px
+                };
+            }
+        }
+        .leporc {
 
             h2 {
                 color    : $primary;
@@ -704,9 +819,16 @@ body {
             }
 
             p {
-                color        : #ff0000;
-                font-size    : 2.8em;
-                max-width    : 843px;
+                font-family: Vodafone;
+                font-size: 28px;
+                font-weight: normal;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 1.2;
+                letter-spacing: normal;
+                text-align: left;
+                color: #f00;
+              
                 /* background: red; */
 
             }
@@ -726,14 +848,42 @@ body {
 }
 
 #vodacomwrapper {
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+    width: 100%;
 
-    background             : url(/images/bg1.jpg) no-repeat center center fixed;
+    background             : url(/images/bg12.webp) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size   : cover;
     -o-background-size     : cover;
     background-size        : cover;
 
 
+}
+
+/* Éléments d'arrière-plan pour la transition fluide */
+.background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  transition: opacity 0s;
+  z-index: -1;
+}
+
+.background-primary {
+  background-image: url(/images/bg12.webp);
+  opacity: 1;
+}
+
+.background-secondary {
+  background-image: url(/images/nono.webp);
+  opacity: 0;
 }
 
 #slide-23 {
@@ -760,7 +910,14 @@ body {
     width     : 100vw;
     height    : 100vh;
     padding   : 0em;
+    .container{
+        padding:0;
+        margin:0;
+        width:100vw;
 
+        background: linear-gradient(297.95deg, #EE3625 45.57%, #6F1111 100%);
+        max-width:100%;
+    }
     .accordion-item {
         .accordion-header {
             &.active-header {
@@ -875,15 +1032,16 @@ body {
 
 #killerjunior {
     h2 {
-        font-family   : "Vodafone";
-        font-size     : 83px;
-        font-weight   : bold;
-        font-stretch  : normal;
-        font-style    : normal;
-        line-height   : normal;
+        font-family: Vodafone;
+        font-size: 102px;
+        font-weight: bold;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 1;
         letter-spacing: normal;
-        text-align    : left;
-        color         : #f00;
+        text-align: left;
+        color: #f00;
+      
     }
 }
 
@@ -1048,23 +1206,60 @@ body {
 }
 
 
+/* Correction des marges indésirables dans les conteneurs flex */
+.flex-container-fix {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  font-size: 0; /* Élimine les espaces blancs entre les éléments inline */
+}
+
+.flex-container-fix > * {
+  font-size: 1rem; /* Restaure la taille de police pour les enfants */
+}
+
+/* Résout le problème des marges dans les rangées flex */
+.row.flex-row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* S'assure que les éléments flex n'ont pas de marges par défaut */
+.text-element.col {
+  margin: 0;
+}
+
+/* Pour les conteneurs flex spécifiques qui montrent des marges */
+#thoiathoing .row.flex-row {
+  margin: 0;
+  width: 100%;
+}
+
 @media screen and (max-width: 1024px) {
     #guysamuel {
         max-width: 65vw !important;
     }
-
     #slide-73 {
+        .slapjh{
+            justify-content: flex-end;
+    display: flex;
+    align-items: center;
+    }
+}
+    #slide-73 {
+       
         .subint {
             min-width        : 100vw !important;
             width            : 100vw !important;
             width            : 100vw !important;
-            baclkground-color: #000 !important;
-
+            justify-content: flex-end;
+    display: flex;
+    align-items: center;
+margin-bottom: 2em !important;
             p {
                 font-size: 22px !important;
             }
 
-            margin-bottom: 4em !important;
         }
 
         .points-fort {
@@ -1090,6 +1285,7 @@ body {
     }
 
     #slide-10 {
+       
         .firstContainer {
             margin : 0em !important;
             width  : 100vw !important;
@@ -1148,7 +1344,14 @@ body {
 
         .points-fort {
             width  : 100%;
-            padding: 0rem;
+            padding: 2rem;
+            .text-element{
+                display:flex;
+                align-items:center !important;
+                justify-content:center !important; 
+                padding:0 !important;  
+                margin:0 !important;                              
+            }
 
             h3 {
                 font-size  : 1.8em;
@@ -1157,8 +1360,16 @@ body {
 
             p {
 
-                font-size : 1.2em;
+                font-family: Vodafone;
+                font-size: 23px;
+                font-weight: normal;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 18px;
+                letter-spacing: normal;
                 text-align: center;
+                color: #fff;
+              
             }
         }
     }
@@ -1333,11 +1544,18 @@ body {
 @media screen and (max-width: 1024px) {
 
     #slide-73 .subint {
-        padding: 0em !important;
+        padding: 0 1em !important;
 
         h2 {
-            font-size: 72px !important;
-        }
+            font-family: Vodafone;
+            font-size: 73px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;        }
     }
 
     #slide-10 .subint {
@@ -1471,7 +1689,7 @@ body {
     }
 
     #vodacomwrapper {
-        background         : url(/images/mobile/bg1.webp) !important;
+        background         : url(/images/bgmbile.jpg) !important;
         background-size    : cover !important;
         background-position: 50% 50% !important;
     }
@@ -1490,4 +1708,313 @@ body {
     #slide-22 .cont {
         justify-content: center;
     }
+}
+
+.error-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.97);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.error-message {
+    text-align: center;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 90%;
+    width: 500px;
+}
+
+.error-message p {
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.retry-button {
+    background-color: #e60000;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+    background-color: #cc0000;
+}
+
+
+
+
+
+/* Styles pour la slide 114 (Reach part 2) */
+#kiffyu {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.59);
+  
+  }
+  
+  #tchoffo {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+#deffp.preme {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0rem;
+    flex-direction:column;
+    align-items:center;
+    .text-element {
+        text-align: center;
+        border-radius: 10px;
+        transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+        color: white;
+        &:hover {
+            transform: translateY(-10px);
+            background-color: rgba(230, 0, 0, 0.3);
+        }
+
+        h3 {
+            color: white;
+            font-weight: bold;
+            font-family: "Vodafone";
+            font-size: 28px;
+            font-weight: bold;
+            line-height: 27px;
+            margin-bottom:0em;
+        }
+
+        p {
+            font-family: Raleway;
+            font-size: 23px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 15px;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;
+            color: white;
+        }
+    }
+}
+
+#slide-22{
+&::before{
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 89%, rgba(0, 0, 0, 0.99) 6%);
+
+}
+}
+#slide-10 .points-fort{
+    .text-element{
+        text-align: left;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+}
+
+.perdrix-swiper-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    margin: 0 auto;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.perdrix-swiper {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.perdrix-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+    padding: 0; // Removed padding to use full width
+    box-sizing: border-box;
+    height: 100%;
+    width: 100vw; // Full viewport width
+    
+    .text-element {
+        transition: all 0.3s ease;
+        width: 100%; // Full width
+        max-width: 100%;
+        margin: 0;
+        
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+    }
+}
+
+.perdrix-swiper-button {
+    &-next,
+    &-prev {
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.2);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        &:after {
+            font-size: 18px;
+        }
+        
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+    }
+}
+
+.perdrix-swiper-pagination {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    
+    .swiper-pagination-bullet {
+        background: rgba(255, 255, 255, 0.6);
+        opacity: 0.6;
+        margin: 0 5px;
+        
+        &-active {
+            opacity: 1;
+        }
+    }
+}
+
+.perdrix-swiper-scrollbar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    bottom: 0;
+    
+    .swiper-scrollbar-drag {
+        border-radius: 4px;
+    }
+}
+.split-container{
+    ul{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, auto);
+        gap: 15px;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 ;
+        padding:0 !important;
+        list-style: none;
+        place-items: center;
+        justify-content: center;
+        & > li:nth-child(3),
+        & > li:nth-child(4) {
+            justify-self: center;
+            margin: 0 auto;
+        }
+        & > li:nth-child(3):only-child,
+        & > li:nth-child(3):last-child {
+            grid-column: 1 / -1;
+            margin: 0 auto;
+        }
+        li{
+                    width: 100%;            max-width: 240px;
+
+                    list-style: none;
+                    background: url(images/3968142_200_1_b86905.webp) 10px center no-repeat white;
+                    background-size: 14px 14px;
+                    height:28px;
+                    font-family: Vodafone;
+                    font-size: 18px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height:23px;
+                    letter-spacing: normal;
+                    text-align: left;
+                    padding:0px 0px 0px 30px;
+                    margin:0;
+                    color: #e60000;
+        }
+    }
+    .text-content{
+      font-family: Vodafone;
+      font-size: 23px;
+      font-weight: normal;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 1.2;
+      letter-spacing: normal;
+      text-align: center;
+      color: #fff;
+      max-width:620px;
+      margin:0 auto;
+      display: flex;align-items:center;justify-content: center;flex-direction: column;
+    }
+h3{
+      font-size: 48px;
+      font-weight: bold;
+      line-height: 50px;
+      margin-bottom:0em !important;
+      padding-bottom:0em !important;
+      display: flex;
+      align-items:center;
+      justify-content: center;
+      flex-direction: column;
+    }
+}
+#killerwu{
+    background-color: #d9d9d9;
+width:100vw;
+}
+
+.case-study-container{
+    .text-element{
+        p{
+            font-family: Raleway;
+            font-size: 23px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 15px;
+            letter-spacing: normal;
+            text-align: left;
+            color: #000;
+        
+        }
+    }
+    .row{
+        width:100%;
+    }
+}
+
+
+//style pour les écrans inférieurs à 1024px
+@media screen and (max-width: 1024px) {
+
 }

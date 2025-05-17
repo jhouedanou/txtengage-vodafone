@@ -1,14 +1,10 @@
 <script setup>
-import { onMounted, ref, computed, nextTick, onBeforeUnmount } from 'vue';
+import { onMounted, ref, computed, reactive, nextTick, onBeforeUnmount } from 'vue';
 import { useSlidesStore } from '~/stores/slides';
 import { useRuntimeConfig } from '#app';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-// Importation des fichiers JS personnalisés
-import { useFullpageScrollTrigger } from '~/utils/useFullpageScrollTrigger'; // Importez le composable
-
-// Initialisation du système de fullpage personnalisé
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -18,20 +14,8 @@ const showButton = ref(false);
 const slidesStore = useSlidesStore();
 const loading = computed(() => slidesStore.loading);
 const sortedSlides = computed(() => slidesStore.sortedSlides);
-
-// Utilisez le composable
-const { 
-  currentSectionIndex: activeSlideIndex, // Alias pour correspondre à votre usage existant
-  init: initFullpageScroll, 
-  goToSection: goToSlideViaComposable // Alias pour éviter conflit si vous avez un goToSlide local
-} = useFullpageScrollTrigger();
-
-const activeSlideId = computed(() => {
-  if (sortedSlides.value.length > 0 && activeSlideIndex.value < sortedSlides.value.length) {
-    return sortedSlides.value[activeSlideIndex.value]?.id;
-  }
-  return null;
-});
+const activeSlideIndex = ref(0); 
+const activeSlideId = ref(null); 
 
 const defaultBackground = ref('url(/images/bg12.webp)');
 const specialBackground = ref('url(/images/nono.webp)');
@@ -51,12 +35,11 @@ const preloadImage = (src) => {
 };
 
 const updateBackground = () => {
-  // Modifiez pour utiliser activeSlideId.value (qui est maintenant un computed)
   nextTick(() => {
     const wrapper = document.getElementById('vodacomwrapper');
     if (wrapper) {
-      const currentSlideIdVal = activeSlideId.value; // Utilisez la valeur du computed
-      if (currentSlideIdVal === 20 || currentSlideIdVal === 114) {
+      const currentSlideId = activeSlideId.value;
+      if (currentSlideId === 20 || currentSlideId === 114) {
         wrapper.style.backgroundImage = specialBackground.value;
       } else {
         wrapper.style.backgroundImage = defaultBackground.value;
@@ -119,13 +102,8 @@ const slideAnimationsPlayed = reactive({});
 let sectionScrollTriggers = []; 
 
 const setupSectionScrolling = () => {
-  const sections = document.querySelectorAll('.slide-section');
-  
+  const sections = gsap.utils.toArray('.slide-section');
   sections.forEach((section, index) => {
-    const sectionId = section.getAttribute('id');
-    
-    // Supprimé : fonction onEnter pour slide-73
-    
     const slideId = parseInt(section.dataset.slideId);
     const trigger = ScrollTrigger.create({
       trigger: section,
@@ -136,33 +114,42 @@ const setupSectionScrolling = () => {
         activeSlideIndex.value = index;
         activeSlideId.value = slideId;
         updateBackground();
-        // Supprimé : if (slideId === 73) { initSlide73AnimationGSAP(section); }
+        if (slideId === 73) {
+          initSlide73AnimationGSAP(section);
+        }
       },
       onEnterBack: () => {
         console.log(`Entering back section: ${section.id}, index: ${index}, slideId: ${slideId}`);
         activeSlideIndex.value = index;
         activeSlideId.value = slideId;
         updateBackground();
-        // Supprimé : if (slideId === 73) { initSlide73AnimationGSAP(section); }
+        if (slideId === 73) {
+          initSlide73AnimationGSAP(section); 
+        }
       },
       onLeave: () => {
         console.log(`Leaving section: ${section.id}`);
-        // Supprimé : if (slideId === 73) { destroySlide73AnimationGSAP(section); }
+        if (slideId === 73) {
+          destroySlide73AnimationGSAP(section);
+        }
       },
       onLeaveBack: () => {
         console.log(`Leaving back section: ${section.id}`);
-        // Supprimé : if (slideId === 73) { destroySlide73AnimationGSAP(section); }
+        if (slideId === 73) {
+          destroySlide73AnimationGSAP(section);
+        }
       }
     });
-    
     sectionScrollTriggers.push(trigger);
   });
-  
+
   if (sections.length > 0) {
     activeSlideIndex.value = 0;
     activeSlideId.value = parseInt(sections[0].dataset.slideId);
     updateBackground();
-    // Supprimé : if (activeSlideId.value === 73) { initSlide73AnimationGSAP(sections[0]); }
+    if (activeSlideId.value === 73) {
+        initSlide73AnimationGSAP(sections[0]);
+    }
     // TODO: Animer la première slide si nécessaire
   }
 };
@@ -193,11 +180,6 @@ const handleResize = () => {
 };
 
 onMounted(async () => {
-// Supprimé : initAnimations();
-  
-  // Supprimé : registerSlideAnimation('slide-73', { ... });
-
-  
   await slidesStore.fetchSlides(); 
 
   isMobile.value = window.innerWidth < 768; 
@@ -222,10 +204,9 @@ onMounted(async () => {
 
   nextTick(() => {
       if (sortedSlides.value.length > 0) {
-        const sectionElements = gsap.utils.toArray('.slide-section');
-        initFullpageScroll(sectionElements); // Initialisez le composable avec les éléments DOM
+        setupSectionScrolling(); 
       } else {
-        console.warn('Slides not loaded yet, FullpageScrollTrigger setup will be delayed or might fail.');
+        console.warn('Slides not loaded yet, GSAP setup will be delayed or might fail.');
       }
   });
 
@@ -233,15 +214,29 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  sectionScrollTriggers.forEach(trigger => trigger.kill());
+  sectionScrollTriggers = [];
+
+  gsap.killTweensOf(window);
+  
   window.removeEventListener('resize', handleResize);
-  // Le cleanup du composable useFullpageScrollTrigger est automatique
+  
+  const slide73Section = document.getElementById('section-slide-73');
+  if (slide73Section) {
+      destroySlide73AnimationGSAP(slide73Section);
+  }
+  
+  if (scrollMagicController.value) {
+    scrollMagicController.value.destroy(true);
+    scrollMagicController.value = null;
+  }
 });
 
 const isMenuOpen = ref(false);
 const toggleMenu = () => { isMenuOpen.value = !isMenuOpen.value; };
 
 const goToSlide = (index) => {
-  goToSlideViaComposable(index); // Appel de la fonction du composable
+  scrollToSection(index);
   isMenuOpen.value = false;
 };
 
@@ -291,7 +286,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
           <nav id="menu" class="slide-menu" :class="{ 'is-open': isMenuOpen }">
             <ul>
               <li v-for="(slide, index) in sortedSlides" :key="slide.id"
-                :class="{ active: activeSlideIndex === index }" @click="goToSlide(index)"> <!-- Utilise activeSlideIndex du composable -->
+                :class="{ active: activeSlideIndex === index }" @click="goToSlide(index)">
                 <span class="slide-label">{{ slide.menuTitle }}</span>
               </li>
             </ul>
@@ -301,9 +296,9 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
     </header>
 
     <div id="master-scroll-container" class="slides"> 
-      <section v-for="(slide) in sortedSlides" :key="slide.id" 
+      <section v-for="(slide, index) in sortedSlides" :key="slide.id" 
         class="slide-section"
-        :id="`slide-${slide.id}`" 
+        :id="`section-slide-${slide.id}`"
         :data-slide-id="slide.id" 
         :style="{
           height: '100vh', 
@@ -328,16 +323,14 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
             backgroundPosition: 'center center'
           }">
           
-          <!-- Contenu spécifique pour la slide 73 -->
-          <div v-if="slide.id === 73" class="txtintro row m-0 p-0 slide">
+          <div v-if="slide.id === 73" class="txtintro row m-0 p-0 slide" ref="slide73" id="slide-73">
             <div class="firstContainer">
               <div class="slapjh">
                 <div class="subint" id="subint">
                   <h2 class="text-element slide-73-title" v-html="slide.title"></h2>
                   <p class="text-element slide-73-content" v-html="slide.wp_content"></p>
                 </div>
-                <div class="points-fort" id="points-fort"> <!-- Cet ID n'est plus nécessaire si vous ciblez par classe -->
-                  <!-- Les classes text-element slide-73-point peuvent rester si elles sont utilisées pour le style, mais l'animation GSAP ne les ciblera plus -->
+                <div class="points-fort" id="points-fort">
                   <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
                     class="text-element slide-73-point" :class="`point-${idx}`" v-html="paragraph">
                   </div>
