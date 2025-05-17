@@ -69,7 +69,6 @@ export default defineNuxtConfig({
 
   // Enregistrer nos plugins
   plugins: [
-    { src: '~/plugins/scrollmagic.js', mode: 'client' }
   ],
 
   image: {

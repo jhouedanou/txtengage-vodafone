@@ -320,9 +320,37 @@ body {
 //sldie 2 
 #slide-20 {
     width: 100vw;
+    .slides-container{
 
+  background-position: center;
+  #turtlebeach{
+  position: absolute;
+  top: -12%;
+  margin: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  object-fit: cover;
+  width: 86%;
+  height: auto;
+  }
+    }
+#text-element-5{
+      background: rgb(0 0 0 / 72%);
+  width: 100vw;
+  height: 100vh;
+  position:absolute;
+  border-radius: 0px;
+  
+                      top:0;
+                      margin:auto;
+                      right:0;
+                      bottom:0;
+                      left:0;
+  display: flex;align-items:center;justify-content: center;flex-direction: column;
+}
     #kiff {
-        width  : 90vw;
+        width  : 100vw;
         margin : 0 auto;
         display: flex;
         height : 100vh;
@@ -364,13 +392,6 @@ body {
 
     .gee {
 
-        position: absolute;
-        top     : 0;
-        margin  : auto;
-        right   : 0;
-        bottom  : 0;
-        left    : 0;
-        height  : 100vh;
 
         .text-element {
             display              : flex;
@@ -529,9 +550,14 @@ body {
 #slide-21 {
     display        : flex;
     align-items    : center;
-    justify-content: flex-end;
+    justify-content: center;
     flex-direction : column;
-
+.slides-container{
+    
+    display        : flex;
+    align-items    : flex-end;
+    justify-content: center;
+}
     #thoiathoing {
         width : 100vw;
         margin: 0;
@@ -2019,39 +2045,73 @@ width:100vw;
 
 }
 
-.text-element{
- overflow: hidden;   
+html, body {
+  overflow: hidden !important; /* Essayez avec !important pour le débogage */
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-/* Animation progressive de la slide 73 */
-#section-slide-73 .points-fort,
-#section-slide-73 #points-fort {
-  opacity: 0;
-  transform: translateY(30px);
-  visibility: hidden;
-  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s ease;
+#vodacomwrapper { /* Ou votre conteneur principal de page si différent */
+  height: 100vh;
+  overflow: hidden !important; /* Essayez avec !important */
 }
 
-#section-slide-73 .text-element {
-  opacity: 0;
-  transform: translateY(20px);
-  visibility: hidden;
-  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
+#master-scroll-container { /* Le conteneur direct des .slide-section */
+  height: 100%;
+  width: 100%;
+  overflow: hidden !important; /* Essayez avec !important */
 }
 
-h3, .text-element, #thoiathoing .row.flex-row, #thoiathoing .row {
-    overflow: hidden;
-    -webkit-overflow-scrolling:hidden;
+.slide-section {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden; /* Chaque section prend tout le viewport */
+  /* display: flex; align-items: center; justify-content: center; etc. */
 }
-#slide-21{
-    .text-element{
-        align-items:center;
-        // background:red;
-        height:100%;
-        justify-content:flex-start;
+
+// Styles spécifiques pour la slide 73
+#slide-73 {
+  background-color: #f5f5f5;
+  
+  .points-fort {
+    max-width: 50vw;
+    margin: 0 auto;
+    padding: 2rem;
+    
+    .point {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      // Initialement masqué et sera animé via GSAP
     }
+    
+    .description {
+      font-size: 1rem;
+      margin-top: 2rem;
+      // Initialement masqué et sera animé via GSAP
+    }
+  }
+  
+  .scribing-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  // Configuration pour l'animation de stroke du scribing
+  .scribing-element {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
 }
-#slide-21 .slide-21-title{
-    opacity:0;
-    visibility: hidden;
+
+.slides-container{
+    background-size:cover;
+    background-repeat:no-repeat;
 }
