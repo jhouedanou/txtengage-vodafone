@@ -6,70 +6,178 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 export function useFullpageScrollTrigger() {
+  // --- Refs et Variables d'état ---
   const sections = ref([]);
   const currentSectionIndex = ref(0);
   const isNavigating = ref(false);
-  const animationStates = ref({});
-  let stObserve = null;
-  const keyboardListener = ref(null);
-  const specificAnimationTriggers = [];
   const hasScrolledOnce = ref(false); // True après la première interaction utilisateur
+  const animationStates = ref({}); // Stocke l'état des animations spécifiques (ex: 'slide-73': true si terminée)
 
-  const SCROLLER_SELECTOR = "#master-scroll-container"; // Définit le sélecteur du conteneur de défilement
+  // --- Constantes ---
+  const SCROLLER_SELECTOR = "#master-scroll-container";
 
-  // Appelée lors de la première interaction utilisateur (scroll, keydown)
+  // --- Variables Internes ---
+  let stObserve = null; // Instance de ScrollTrigger.observe
+  const keyboardListener = ref(null); // Référence au gestionnaire d'événements clavier
+  const specificAnimationTriggers = []; // Pour stocker les instances de ScrollTrigger spécifiques à des slides
+
+  // --- Gestion des Animations Spécifiques (ex: Slide 73) ---
+
+  /**
+   * Gère la première interaction utilisateur pour déclencher des animations initiales si nécessaire.
+   * Actuellement utilisé pour l'animation de la slide-73 si elle est la première affichée.
+   */
   const handleFirstInteraction = () => {
-    if (!hasScrolledOnce.value) {
-      hasScrolledOnce.value = true;
-      console.log("ScrollTrigger Composable: Première interaction utilisateur détectée.");
-      // Si la diapositive 73 est la première et que son animation attendait cette interaction
-      const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
-      if (slide73Index === 0 && currentSectionIndex.value === 0) {
-        // Déclencher manuellement l'animation de la slide 73
-        const slide73Section = sections.value.find(s => s.id === 'slide-73');
-        if (slide73Section && !animationStates.value['slide-73']) {
-          const pointsFortDiv = slide73Section.querySelector('.points-fort');
-          if (pointsFortDiv) {
-            console.log("ScrollTrigger Composable: Déclenchement manuel de l'animation pour slide 73.");
-            animationStates.value['slide-73'] = true; // Marque que l'animation a été déclenchée
+    if (hasScrolledOnce.value) return;
+    hasScrolledOnce.value = true;
 
-            gsap.to(pointsFortDiv, {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.8,
-              ease: 'power2.out',
-              onComplete: () => {
-                console.log('ScrollTrigger Composable: Animation slide 73 terminée.');
+    const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
+    if (slide73Index === 0 && currentSectionIndex.value === 0) {
+      const slide73Section = sections.value.find(s => s.id === 'slide-73');
+      // Déclencher seulement si l'animation n'est pas déjà terminée ou en cours par ScrollTrigger
+      if (slide73Section && animationStates.value['slide-73'] !== true && animationStates.value['slide-73'] !== 'pending_st') {
+        const pointsFortDiv = slide73Section.querySelector('.points-fort');
+        const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+
+        animationStates.value['slide-73'] = false; // Marquer comme initiée par interaction
+
+        if (pointsFortDiv) {
+          gsap.to(pointsFortDiv, {
+            x: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            onComplete: () => {
+              if (animationStates.value['slide-73'] === false) { // S'assurer que ST n'a pas pris le dessus
+                animationStates.value['slide-73'] = true;
               }
-            });
-          }
+            }
+          });
         }
-        ScrollTrigger.refresh();
+
+        if (slidesContainerDiv) {
+          gsap.to(slidesContainerDiv, {
+            backgroundSize: '100%',
+            backgroundPositionX: '-25vw',
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        }
+        // Il est important de rafraîchir ScrollTrigger si des dimensions ou positions changent dynamiquement
+        // avant que ScrollTrigger n'ait eu la chance de les recalculer.
+        // Cependant, si l'animation ne change pas les dimensions/offsets de manière significative
+        // pour les autres triggers, cela peut ne pas être toujours nécessaire ici.
+        // ScrollTrigger.refresh(); // Peut être nécessaire dans certains cas.
       }
     }
   };
 
+  /**
+   * Configure les animations spécifiques pour la slide-73 via ScrollTrigger.
+   */
+  const registerSlide73Animation = () => {
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (!slide73Section) {
+      // console.warn('ScrollTrigger Composable: Section slide-73 non trouvée pour l\'animation.');
+      return;
+    }
+    const pointsFortDiv = slide73Section.querySelector('.points-fort');
+    const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+
+    if (pointsFortDiv) {
+      gsap.set(pointsFortDiv, { x: '100vw', autoAlpha: 1 });
+    }
+    if (slidesContainerDiv) {
+      gsap.set(slidesContainerDiv, { backgroundSize: '100%', backgroundPositionX: '0vw' });
+    }
+    
+    animationStates.value['slide-73'] = false; // Initialement, l'animation n'est pas terminée/déclenchée
+
+    const st = ScrollTrigger.create({
+      trigger: slide73Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%', // Ajuster selon le besoin
+      // markers: true, // Pour débogage
+      onEnter: (self) => {
+        const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
+        // Si c'est la première slide et qu'il n'y a pas eu d'interaction, on attend handleFirstInteraction
+        if (slide73Index === 0 && currentSectionIndex.value === 0 && !hasScrolledOnce.value) {
+          return;
+        }
+
+        // Déclencher si pas déjà fait par handleFirstInteraction ou un onEnter précédent
+        if (!self.userData || !self.userData.triggeredST) {
+          if (animationStates.value['slide-73'] === true) { // Déjà complétée par handleFirstInteraction
+             if(self.userData) self.userData.triggeredST = true;
+            return;
+          }
+          
+          if(self.userData) self.userData.triggeredST = true;
+          else self.userData = { triggeredST: true };
+          
+          animationStates.value['slide-73'] = 'pending_st'; // ST prend le relais
+
+          if (pointsFortDiv) {
+            gsap.to(pointsFortDiv, {
+              x: 0,
+              duration: 0.8,
+              ease: 'power2.out',
+              onComplete: () => {
+                if (animationStates.value['slide-73'] === 'pending_st') {
+                  animationStates.value['slide-73'] = true;
+                }
+              }
+            });
+          }
+
+        if (slidesContainerDiv) {
+          gsap.to(slidesContainerDiv, {
+            backgroundSize: '100%',
+            backgroundPositionX: '-25vw',
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        }
+          // self.disable(); // Optionnel: désactiver après la première exécution
+        }
+      },
+      onLeave: (self) => {
+        // Optionnel: réinitialiser pour rejouer l'animation à chaque entrée
+        // if (self.userData) self.userData.triggeredST = false;
+        // gsap.set(pointsFortDiv, { x: '-100%', autoAlpha: 1 });
+        // gsap.set(slidesContainerDiv, { backgroundSize: '200%', backgroundPositionX: '0vw' });
+        // animationStates.value['slide-73'] = false;
+      },
+      onEnterBack: (self) => {
+        // Similaire à onLeave si on veut rejouer l'animation en revenant par le haut
+        // if (self.userData) self.userData.triggeredST = false;
+      }
+    });
+    specificAnimationTriggers.push(st);
+  };
+
+  // --- Logique de Navigation ---
+
+  /**
+   * Navigue vers une section spécifique.
+   * @param {number} index - L'index de la section cible.
+   * @param {number} [duration=1] - La durée de l'animation de défilement.
+   */
   const goToSection = (index, duration = 1) => {
-    console.log(`ScrollTrigger Composable: Tentative goToSection(${index}). Actuel: ${currentSectionIndex.value}, isNavigating: ${isNavigating.value}`);
     if (index < 0 || index >= sections.value.length || (isNavigating.value && duration !== 0)) {
-      console.log('ScrollTrigger Composable: goToSection bloqué (limites ou navigation en cours)');
-      return; // Ne pas retourner si duration === 0 pour permettre la mise en place initiale
+      return;
     }
     if (index === currentSectionIndex.value && duration !== 0) {
-      console.log('ScrollTrigger Composable: goToSection bloqué (déjà sur la section)');
       return;
     }
 
     const currentSectionElement = sections.value[currentSectionIndex.value];
-    if (currentSectionElement && currentSectionElement.id === 'slide-73' && !animationStates.value['slide-73'] && index > currentSectionIndex.value) {
-      console.log("ScrollTrigger Composable: Tentative de descendre depuis slide 73 avant fin anim. Bloqué.");
+    // Blocage si on est sur slide-73 et que son animation n'est pas complétée
+    if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
       return;
     }
 
     isNavigating.value = true;
-    console.log('ScrollTrigger Composable: isNavigating mis à true');
-
-    gsap.to(SCROLLER_SELECTOR, { // Cible le conteneur de défilement
+    gsap.to(SCROLLER_SELECTOR, {
       scrollTo: { y: sections.value[index], autoKill: false },
       duration: duration,
       ease: 'power2.inOut',
@@ -78,107 +186,39 @@ export function useFullpageScrollTrigger() {
       },
       onComplete: () => {
         isNavigating.value = false;
-        console.log(`ScrollTrigger Composable: Navigué vers section ${index}. isNavigating mis à false.`);
-        // La logique pour la diapositive 73 à l'arrivée est gérée par son propre ScrollTrigger
       },
       onInterrupt: () => {
         isNavigating.value = false;
-        console.log('ScrollTrigger Composable: Navigation interrompue. isNavigating mis à false.');
       }
     });
   };
 
-  const registerSlide73Animation = () => {
-    const slide73Section = sections.value.find(s => s.id === 'slide-73');
-    if (!slide73Section) {
-      console.warn('ScrollTrigger Composable: Section slide-73 non trouvée pour l\'animation.');
-      return;
-    }
-    const pointsFortDiv = slide73Section.querySelector('.points-fort');
-    if (!pointsFortDiv) {
-      console.warn('ScrollTrigger Composable: Div .points-fort non trouvée dans slide-73.');
-      return;
-    }
+  // --- Configuration des Observateurs et Gestionnaires d'Événements ---
 
-    gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50 });
-    animationStates.value['slide-73'] = false; // État initial: animation non jouée
-
-    const st = ScrollTrigger.create({
-      trigger: slide73Section,
-      scroller: SCROLLER_SELECTOR, // Spécifie le conteneur de défilement
-      start: 'top center+=10%',
-      // markers: true, // Décommenter pour le débogage visuel
-      onEnter: (self) => {
-        console.log(`ScrollTrigger Composable: Slide 73 onEnter. Anim state: ${animationStates.value['slide-73']}, hasScrolledOnce: ${hasScrolledOnce.value}, currentIndex: ${currentSectionIndex.value}`);
-
-        const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
-
-        // Si c'est la première diapositive (index 0), et qu'aucune interaction utilisateur n'a eu lieu,
-        // et que nous sommes effectivement sur cette diapositive (pour éviter les déclenchements précoces au chargement),
-        // alors ne pas jouer l'animation tout de suite.
-        if (slide73Index === 0 && currentSectionIndex.value === 0 && !hasScrolledOnce.value) {
-          console.log("ScrollTrigger Composable: Slide 73 est la diapositive initiale, animation différée jusqu'à la première interaction.");
-          return; // Attend une interaction pour que hasScrolledOnce devienne true
-        }
-
-        if (!animationStates.value['slide-73']) {
-          console.log("ScrollTrigger Composable: Déclenchement de l'animation pour slide 73.");
-          animationStates.value['slide-73'] = true; // Marque que l'animation a été déclenchée
-
-          gsap.to(pointsFortDiv, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power2.out',
-            onComplete: () => {
-              console.log('ScrollTrigger Composable: Animation slide 73 terminée.');
-            }
-          });
-          self.disable(); // Désactive ce trigger après son unique exécution
-        }
-      }
-    });
-    specificAnimationTriggers.push(st);
-  };
-
+  /**
+   * Configure les observateurs de défilement (molette, tactile) et les écouteurs de clavier.
+   */
   const setupFullpageObserver = () => {
     if (sections.value.length === 0) return;
 
     stObserve = ScrollTrigger.observe({
-      target: SCROLLER_SELECTOR, // Cible le conteneur de défilement
-      type: "wheel,touch", // Pointer peut être ajouté si nécessaire: "wheel,touch,pointer"
-      debounce: false, // Maintenir si ce comportement est désiré, sinon true ou une valeur en ms
+      target: SCROLLER_SELECTOR,
+      type: "wheel,touch",
+      debounce: false, // Ajuster si un délai est nécessaire
       onUp: () => {
         handleFirstInteraction();
-        console.log('ScrollTrigger Composable: Observe onUp. isNavigating:', isNavigating.value);
         if (isNavigating.value) return;
-        
-        const currentSectionElement = sections.value[currentSectionIndex.value];
-        // La logique de blocage pour la slide 73 est déjà dans goToSection, mais une double vérification ici peut être utile
-        // si l'animation de la slide 73 doit absolument finir AVANT de pouvoir remonter.
-        // Actuellement, on permet de remonter même si l'anim de la 73 n'est pas finie.
-        // Si elle DOIT finir:
-        // if (currentSectionElement && currentSectionElement.id === 'slide-73' && !animationStates.value['slide-73-completed']) {
-        //   console.log("ScrollTrigger Composable: Tentative de monter depuis slide 73 avant fin anim. Bloqué.");
-        //   return;
-        // }
         goToSection(currentSectionIndex.value - 1);
       },
       onDown: () => {
         handleFirstInteraction();
-        console.log('ScrollTrigger Composable: Observe onDown. isNavigating:', isNavigating.value);
         if (isNavigating.value) return;
-        
         const currentSectionElement = sections.value[currentSectionIndex.value];
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && !animationStates.value['slide-73']) {
-          console.log("ScrollTrigger Composable: Tentative de descendre (via wheel/touch) depuis slide 73 avant fin anim. Bloqué.");
-          // On pourrait forcer l'animation ici si elle n'est pas déjà en cours.
-          // Mais il vaut mieux laisser le ScrollTrigger de l'animation la gérer.
-          return;
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+          return; // Bloquer le défilement vers le bas si l'animation de la slide 73 n'est pas terminée
         }
         goToSection(currentSectionIndex.value + 1);
       },
-      // La gestion onWheel personnalisée est supprimée car onUp/onDown devraient suffire.
     });
 
     keyboardListener.value = (e) => {
@@ -189,15 +229,13 @@ export function useFullpageScrollTrigger() {
       const currentSectionElement = sections.value[currentSectionIndex.value];
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-        e.preventDefault(); // Empêche le défilement natif de la page avec la barre d'espace
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && !animationStates.value['slide-73']) {
-          console.log("ScrollTrigger Composable: Défilement clavier vers le bas depuis slide 73 bloqué (animation en attente).");
-          return;
+        e.preventDefault();
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+          return; // Bloquer si animation slide 73 non terminée
         }
         newIndex++;
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
-        // Pas de blocage spécifique en montant depuis la slide 73 ici, goToSection gère les limites.
         newIndex--;
       }
 
@@ -208,37 +246,34 @@ export function useFullpageScrollTrigger() {
     window.addEventListener('keydown', keyboardListener.value);
   };
 
+  // --- Initialisation et Nettoyage ---
+
+  /**
+   * Initialise le composable avec les éléments de section.
+   * @param {HTMLElement[]} sectionsElements - Un tableau d'éléments DOM représentant les sections.
+   */
   const init = (sectionsElements) => {
-    sections.value = sectionsElements.map(el => ({
-      id: el.id,
-      offsetTop: el.offsetTop, // Stocker l'offsetTop relatif au conteneur de défilement
-      node: el // Garder une référence à l'élément DOM si nécessaire
-    }));
-    
-    // Recalculer les offsets par rapport au SCROLLER_SELECTOR si ce n'est pas window
-    // Si SCROLLER_SELECTOR est un élément, offsetTop des sections est déjà relatif à lui s'il est offsetParent.
-    // Sinon, il faut s'assurer que les valeurs y pour scrollTo sont correctes.
-    // Pour l'instant, on suppose que sections.value[index] (l'élément DOM) passé à scrollTo: { y: sections.value[index] }
-    // est correctement interprété par GSAP pour scroller à cet élément dans son conteneur.
-    // Si sectionsElements sont des éléments DOM, gsap.scrollTo({y: element}) fonctionne.
-    // Donc, sections.value = sectionsElements; est probablement suffisant.
-    // Rétablissons la version simple si sectionsElements sont les éléments DOM eux-mêmes.
-    sections.value = sectionsElements;
+    // S'assurer que sectionsElements est un tableau d'éléments DOM valides
+    if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
+      // console.warn("ScrollTrigger Composable: 'sectionsElements' doit être un tableau d'éléments HTML.");
+      return;
+    }
+    sections.value = sectionsElements; // Stocker les éléments DOM directement
 
-
-    console.log('ScrollTrigger Composable: Initialisation avec sections:', sections.value.length, sections.value.map(s=>s.id));
-    
     if (sections.value.length > 0) {
-      // hasScrolledOnce est initialisé à false par défaut.
-      // La logique pour différer l'animation de la slide 73 (si première) est dans son onEnter.
-      registerSlide73Animation(); // Enregistrer après que sections.value soit défini
-      setupFullpageObserver(); // Configurer les observateurs après que sections.value soit défini
-      goToSection(0, 0); // Aller à la première section sans animation
+      nextTick(() => { // Attendre que le DOM soit potentiellement mis à jour par Vue
+        registerSlide73Animation();
+        setupFullpageObserver();
+        goToSection(0, 0); // Aller à la première section sans animation
+        ScrollTrigger.refresh(); // Rafraîchir après la configuration initiale
+      });
     }
   };
 
+  /**
+   * Nettoie les instances de ScrollTrigger, les écouteurs d'événements et les tweens GSAP.
+   */
   const cleanup = () => {
-    console.log("ScrollTrigger Composable: Nettoyage...");
     if (stObserve) {
       stObserve.kill();
       stObserve = null;
@@ -249,12 +284,14 @@ export function useFullpageScrollTrigger() {
     }
     specificAnimationTriggers.forEach(st => st.kill());
     specificAnimationTriggers.length = 0;
-    gsap.killTweensOf(SCROLLER_SELECTOR); // Cible le conteneur de défilement
-    // Réinitialiser les refs si nécessaire pour une réinitialisation complète
+    gsap.killTweensOf(SCROLLER_SELECTOR);
+
+    // Réinitialisation de l'état
     currentSectionIndex.value = 0;
     isNavigating.value = false;
     hasScrolledOnce.value = false;
     Object.keys(animationStates.value).forEach(key => delete animationStates.value[key]);
+    sections.value = [];
   };
 
   onUnmounted(cleanup);
@@ -264,6 +301,6 @@ export function useFullpageScrollTrigger() {
     isNavigating,
     init,
     goToSection,
-    // cleanup, // Pas besoin d'exposer, géré par onUnmounted
+    // cleanup n'est généralement pas exposé car géré par onUnmounted
   };
 }

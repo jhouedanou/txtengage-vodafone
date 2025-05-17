@@ -319,8 +319,6 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
             justifyContent: 'center', 
             alignItems: 'center',
             backgroundImage: isMobile.value ? (slide.backgroundMobile ? `url(${slide.backgroundMobile})` : 'none') : (slide.thumbnail ? `url(${slide.thumbnail})` : 'none'),
-            backgroundSize: 'cover',
-            backgroundPosition: 'center center'
           }">
           
           <div v-if="slide.id === 73" class="txtintro row m-0 p-0 slide" ref="slide73" id="slide-73">
