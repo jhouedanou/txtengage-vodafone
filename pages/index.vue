@@ -185,12 +185,7 @@ const fullpageOptions = {
   },
   afterRender: () => {
     fullpageApi.value = window.fullpage_api;
-    // Initialiser ScrollTrigger après le rendu
-    try {
-      initScrollTrigger();
-    } catch (error) {
-      console.error('Erreur dans afterRender:', error);
-    }
+
   }
 };
 
