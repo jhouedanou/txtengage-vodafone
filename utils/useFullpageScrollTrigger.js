@@ -211,7 +211,7 @@ export function useFullpageScrollTrigger() {
     }
     
     // Références aux éléments à animer
-    const turtleBeach = slide20Section.querySelector('#turlebeach');
+    const turtleBeach = slide20Section.querySelector('#turtlebeach');
     const mzuH2Elements = slide20Section.querySelectorAll('#mzu h2');
     const textElement3 = slide20Section.querySelector('#text-element-3');
     const textElement0 = slide20Section.querySelector('#text-element-0');
@@ -294,6 +294,53 @@ export function useFullpageScrollTrigger() {
                             textElement4, textElement2, textElement1);
         }
         
+        // Cacher text-element-5 lors du passage à la slide suivante
+        if (textElement5) {
+          gsap.to(textElement5, {
+            autoAlpha: 0,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+        }
+        
+        // S'assurer que tous les autres éléments sont visibles pour le retour
+        if (animationStates.value['slide-20-text5Shown']) {
+          // Rendre visible les éléments bulle
+          const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
+          bubbleElements.forEach(element => {
+            gsap.to(element, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.5,
+              ease: "power2.out"
+            });
+          });
+          
+          // Rendre visible turtleBeach
+          if (turtleBeach) {
+            gsap.to(turtleBeach, {
+              autoAlpha: 1,
+              scale: 1,
+              duration: 0.5,
+              ease: "power2.out"
+            });
+          }
+          
+          // Rendre visible les éléments mzuH2
+          if (mzuH2Elements && mzuH2Elements.length) {
+            gsap.to(mzuH2Elements, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.5,
+              stagger: 0.1,
+              ease: "power2.out"
+            });
+          }
+          
+          // Réinitialiser l'état pour indiquer que text-element-5 n'est plus affiché
+          animationStates.value['slide-20-text5Shown'] = false;
+        }
+        
         // Clean up bubble animation when leaving slide
         if (typeof animationStates.value['slide-20-bubbles-cleanup'] === 'function') {
           animationStates.value['slide-20-bubbles-cleanup']();
@@ -335,7 +382,7 @@ export function useFullpageScrollTrigger() {
    * Joue la séquence d'animation initiale de la slide-20
    */
   const playSlide20InitialAnimation = (targetSectionElement) => {
-    const turtleBeach = targetSectionElement.querySelector('#turlebeach');
+    const turtleBeach = targetSectionElement.querySelector('#turtlebeach');
     const mzuH2Elements = targetSectionElement.querySelectorAll('#mzu h2');
     const textElement3 = targetSectionElement.querySelector('#text-element-3');
     const textElement0 = targetSectionElement.querySelector('#text-element-0');
@@ -429,6 +476,12 @@ export function useFullpageScrollTrigger() {
       return;
     }
     
+    // Get the turtle beach element
+    const turtleBeach = sectionElement.querySelector('#turtlebeach');
+    
+    // Get the mzu H2 elements
+    const mzuH2Elements = sectionElement.querySelectorAll('#mzu h2');
+    
     // Get all bubble elements that need to be hidden
     const bubbleElements = [
       sectionElement.querySelector('#text-element-3'),
@@ -446,6 +499,24 @@ export function useFullpageScrollTrigger() {
         ease: "power2.out"
       });
     });
+    
+    // Hide turtleBeach element
+    if (turtleBeach) {
+      gsap.to(turtleBeach, {
+        autoAlpha: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      });
+    }
+    
+    // Hide mzuH2Elements
+    if (mzuH2Elements && mzuH2Elements.length) {
+      gsap.to(mzuH2Elements, {
+        autoAlpha: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      });
+    }
     
     // Show text-element-5 with animation
     gsap.to(textElement5, {
