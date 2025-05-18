@@ -971,14 +971,13 @@ export function useFullpageScrollTrigger() {
     // Configuration initiale avec GSAP - cacher initialement #killerjunior
     gsap.set(killerJuniorDiv, { autoAlpha: 0, y: 50 });
     
-    // Cacher llass initialement et le configurer pour l'animation de remplissage
+    // Cacher llass initialement et le configurer pour l'animation de remplissage de droite à gauche
     if (llassImg) {
       gsap.set(llassImg, { 
         display: 'block',
         autoAlpha: 1,
-        // Utiliser strokeDasharray/strokeDashoffset sur un SVG est idéal mais ici
-        // on simule un effet de remplissage avec un polygone qui se dévoile de gauche à droite
-        clipPath: 'polygon(0% 0%, 0% 100%, 0% 100%, 0% 0%)'
+        // Configuration pour un remplissage de droite à gauche
+        clipPath: 'polygon(100% 0%, 100% 100%, 100% 100%, 100% 0%)'
       });
     }
 
@@ -1008,6 +1007,26 @@ export function useFullpageScrollTrigger() {
                 console.log('ScrollTrigger Composable: Animation initiale slide 59 terminée.');
                 // Marquer que killerjunior est affiché, prêt pour la suite de l'animation
                 animationStates.value['slide-59'] = 0;
+                
+                // Lancer automatiquement l'animation de llass après un court délai
+                if (llassImg) {
+                  setTimeout(() => {
+                    console.log("ScrollTrigger Composable: Animation automatique de llass...");
+                    isAnimating.value = true;
+                    
+                    // Animation avec effet de remplissage progressif des arcs rouges (de droite à gauche)
+                    gsap.to(llassImg, {
+                      clipPath: 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)',
+                      duration: 2.5,
+                      ease: 'power1.inOut',
+                      onComplete: () => {
+                        console.log('ScrollTrigger Composable: Animation llass terminée.');
+                        animationStates.value['slide-59'] = 1; // Animation complète
+                        isAnimating.value = false; // Libérer le défilement
+                      }
+                    });
+                  }, 300); // Petit délai pour une transition visuelle plus agréable
+                }
               }
             });
           }, 800); // Délai de 800ms pour laisser la slide s'afficher d'abord
@@ -1018,36 +1037,16 @@ export function useFullpageScrollTrigger() {
     });
     specificAnimationTriggers.push(st);
     
-    // Observer la roue de la souris pour l'animation de llass
+    // Observer la roue de la souris pour bloquer le défilement pendant l'animation
     const handleSlide59ScrollProgress = (e) => {
       // Vérifier si nous sommes actuellement sur la slide-59 
       if (currentSectionIndex.value === sections.value.findIndex(s => s.id === 'slide-59')) {
-        // Si killerjunior est affiché mais llass pas encore
-        if (animationStates.value['slide-59'] === 0) {
-          if (e.deltaY > 0) { // Défilement vers le bas
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Activer l'animation de llass si elle n'est pas déjà en cours
-            if (!isAnimating.value && llassImg) {
-              console.log("ScrollTrigger Composable: Animation de llass...");
-              isAnimating.value = true;
-              
-              // Animation avec effet de remplissage progressif des arcs rouges
-              gsap.to(llassImg, {
-                clipPath: 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)',
-                duration: 2.5, 
-                ease: 'power1.inOut',
-                onComplete: () => {
-                  console.log('ScrollTrigger Composable: Animation llass terminée.');
-                  animationStates.value['slide-59'] = 1; // Animation complète
-                  isAnimating.value = false; // Libérer le défilement
-                }
-              });
-            }
-            
-            return false;
-          }
+        // Si l'animation n'est pas encore terminée et qu'on essaie de défiler vers le bas
+        if (animationStates.value['slide-59'] !== 1 && e.deltaY > 0) {
+          // Bloquer le défilement
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
         }
       }
     };
