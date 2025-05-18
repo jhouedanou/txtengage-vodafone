@@ -697,46 +697,251 @@ export function useFullpageScrollTrigger() {
     const st22 = ScrollTrigger.create({
       trigger: slide22Section,
       scroller: SCROLLER_SELECTOR,
+      // markers: true,
+      onLeave: () => {
+        // Si l'animation n'a pas encore eu lieu et on quitte la slide, 
+        // s'assurer que les éléments restent dans leur état initial
+        if (!animationStates.value['slide-22-playedOnce']) {
+          gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
+        }
+      },
+      onLeaveBack: () => {
+        // Si l'animation n'a pas encore eu lieu et on revient à la slide précédente,
+        // s'assurer que les éléments restent dans leur état initial
+        if (!animationStates.value['slide-22-playedOnce']) {
+          gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
+        }
+      }
     });
     specificAnimationTriggers.push(st22);
   };
 
-  /**
-   * Configure les animations spécifiques pour la slide-128.
-   * L'animation d'entrée est déclenchée via goToSection et ne se joue qu'une fois.
-   */
-  const registerSlide128Animation = () => {
-    const slide128Section = sections.value.find(s => s.id === 'slide-128');
-    if (!slide128Section) {
+  const registerSlide128Animation = (slide128Section, caseStudyActiveIndexRef, slideParagraphsRef) => {
+    if (!slide128Section || !caseStudyActiveIndexRef || !slideParagraphsRef) {
+      console.warn('ScrollTrigger Composable: Missing elements for slide-128 animation setup.');
       return;
     }
 
-    // Cibler les éléments à animer dans l'ordre séquentiel demandé
-    const heading = slide128Section.querySelector('h2');
+    // Reset animation state
+    animationStates.value['slide-128-initialAnimPlayed'] = false;
+
+    // Get all required elements
+    const h2 = slide128Section.querySelector('h2.text-element.aya');
     const caseStudyImage = slide128Section.querySelector('.case-study-image');
-    const caseStudyHeaders = slide128Section.querySelectorAll('.case-study-header');
-    const caseStudyContents = slide128Section.querySelectorAll('.case-study-content');
+    const caseStudyHeaders = Array.from(slide128Section.querySelectorAll('.case-study-header'));
+    const caseStudyContents = Array.from(slide128Section.querySelectorAll('[id^="case-study-content-"]'));
 
-    // Vérifier si les éléments existent
-    if (!heading || !caseStudyImage || caseStudyHeaders.length === 0 || caseStudyContents.length === 0) {
+    if (!h2 || !caseStudyImage || caseStudyHeaders.length === 0 || caseStudyContents.length === 0) {
+      console.warn('ScrollTrigger Composable: Core animatable elements not found in slide-128.');
       return;
     }
 
-    // État initial: tous les éléments sont invisibles
-    gsap.set(heading, { autoAlpha: 0, y: 30 });
-    gsap.set(caseStudyImage, { autoAlpha: 0, y: 30 });
-    gsap.set(caseStudyHeaders, { autoAlpha: 0, y: 20 });
-    gsap.set(caseStudyContents, { autoAlpha: 0, y: 20 });
+    // Set initial states for all elements
+    const setInitialAnimationStates = () => {
+      // Hide main elements initially (will be animated in)
+      gsap.set([h2, caseStudyImage, ...caseStudyHeaders], { autoAlpha: 0 });
+      gsap.set(h2, { y: 50 });
+      gsap.set(caseStudyImage, { scale: 0.8 });
+      gsap.set(caseStudyHeaders, { x: -30 });
 
-    // Créer un état pour suivre si l'animation a été jouée
-    animationStates.value['slide-128-playedOnce'] = false;
+      // Hide ALL case study contents initially (including the first one)
+      caseStudyContents.forEach(content => {
+        gsap.set(content, { 
+          autoAlpha: 0,
+          display: 'none'
+        });
+      });
+    };
 
-    // ScrollTrigger pour la slide-128
-    const st128 = ScrollTrigger.create({
+    // Apply initial states
+    setInitialAnimationStates();
+
+    // Reference to intra-slide observer for wheel/touch events
+    let slide128IntraObserver = null;
+
+    // Function to handle case study content changes
+    const updateCaseStudyContent = (newIndex) => {
+      if (newIndex < 0 || newIndex >= caseStudyContents.length) return;
+      
+      // Short animation timeline for content transition
+      const tl = gsap.timeline({
+        onStart: () => {
+          isNavigating.value = true; // Block main scroll during transition
+        },
+        onComplete: () => {
+          isNavigating.value = false; // Unblock scroll after transition
+          caseStudyActiveIndexRef.value = newIndex; // Update the active index
+        }
+      });
+
+      // Hide current content
+      const currentContent = slide128Section.querySelector(`[id="case-study-content-${caseStudyActiveIndexRef.value}"]`);
+      if (currentContent) {
+        tl.to(currentContent, { 
+          autoAlpha: 0, 
+          display: 'none',
+          duration: 0.3 
+        });
+      }
+
+      // Show new content
+      const newContent = slide128Section.querySelector(`[id="case-study-content-${newIndex}"]`);
+      if (newContent) {
+        tl.to(newContent, { 
+          autoAlpha: 1, 
+          display: 'block',
+          duration: 0.3 
+        }, "+=0.1");
+      }
+    };
+
+    // Main ScrollTrigger for slide-128
+    const mainSlide128Trigger = ScrollTrigger.create({
       trigger: slide128Section,
       scroller: SCROLLER_SELECTOR,
+      start: "top top",
+      end: "bottom bottom",
+      // markers: true, // For debugging
+      onEnter: () => {
+        // Reset to no content initially
+        caseStudyActiveIndexRef.value = -1; // No content selected initially
+        
+        // Ensure all contents are hidden
+        caseStudyContents.forEach(content => {
+          gsap.set(content, { 
+            autoAlpha: 0,
+            display: 'none'
+          });
+        });
+
+        // Only play initial animations if they haven't been played yet
+        if (!animationStates.value['slide-128-initialAnimPlayed']) {
+          isNavigating.value = true; // Block main scroll during animation
+          
+          // Sequential animation timeline
+          const tl = gsap.timeline({
+            onComplete: () => {
+              // After main elements are animated, show first content
+              updateCaseStudyContent(0);
+              animationStates.value['slide-128-initialAnimPlayed'] = true;
+              isNavigating.value = false; // Unblock main scroll
+              if (slide128IntraObserver) slide128IntraObserver.enable();
+            }
+          });
+
+          // Animate H2
+          tl.to(h2, { 
+            autoAlpha: 1, 
+            y: 0, 
+            duration: 0.8, 
+            ease: 'power2.out' 
+          });
+          
+          // Animate case study image
+          tl.to(caseStudyImage, { 
+            autoAlpha: 1, 
+            scale: 1, 
+            duration: 0.8, 
+            ease: 'power2.out' 
+          }, "-=0.4");
+          
+          // Animate case study headers with stagger
+          tl.to(caseStudyHeaders, {
+            autoAlpha: 1,
+            x: 0,
+            duration: 0.6,
+            stagger: 0.2,
+            ease: 'power2.out'
+          }, "-=0.4");
+        } else {
+          // If animation already played, show first content and enable observer
+          updateCaseStudyContent(0);
+          if (slide128IntraObserver) slide128IntraObserver.enable();
+        }
+      },
+      onLeave: () => {
+        if (slide128IntraObserver) slide128IntraObserver.disable();
+      },
+      onEnterBack: () => {
+        // When coming back to the slide, reset to no content initially
+        caseStudyActiveIndexRef.value = -1;
+        
+        // Ensure all contents are hidden
+        caseStudyContents.forEach(content => {
+          gsap.set(content, { 
+            autoAlpha: 0,
+            display: 'none'
+          });
+        });
+        
+        // Then show first content
+        updateCaseStudyContent(0);
+        if (slide128IntraObserver) slide128IntraObserver.enable();
+      },
+      onLeaveBack: () => {
+        if (slide128IntraObserver) slide128IntraObserver.disable();
+      }
     });
-    specificAnimationTriggers.push(st128);
+
+    // ScrollTrigger observer for handling scroll/swipe within slide-128
+    slide128IntraObserver = ScrollTrigger.observe({
+      target: slide128Section, 
+      type: "wheel,touch",
+      debounce: false,
+      preventDefault: true,
+      onUp: () => { // Scroll up / Swipe up
+        if (isNavigating.value || !animationStates.value['slide-128-initialAnimPlayed']) return;
+        
+        const newIndex = caseStudyActiveIndexRef.value - 1;
+        
+        if (newIndex >= 0) {
+          // If not at first content, show previous content
+          updateCaseStudyContent(newIndex);
+        } else if (newIndex === -1) {
+          // If at first content and scrolling up, navigate to previous slide
+          isNavigating.value = true; // Prevent multiple triggers
+          preventDefault.value = false; // Allow default scroll behavior
+          slide128IntraObserver.disable();
+          
+          // Let the main scroll observer take over
+          setTimeout(() => {
+            isNavigating.value = false;
+            preventDefault.value = true;
+          }, 1000);
+        }
+      },
+      onDown: () => { // Scroll down / Swipe down
+        if (isNavigating.value || !animationStates.value['slide-128-initialAnimPlayed']) return;
+        
+        const newIndex = caseStudyActiveIndexRef.value + 1;
+        
+        if (newIndex < slideParagraphsRef.value.length) {
+          // If not at last content, show next content
+          updateCaseStudyContent(newIndex);
+        } else {
+          // If at last content and scrolling down, navigate to next slide
+          isNavigating.value = true; // Prevent multiple triggers
+          preventDefault.value = false; // Allow default scroll behavior
+          slide128IntraObserver.disable();
+          
+          // Let the main scroll observer take over
+          setTimeout(() => {
+            isNavigating.value = false;
+            preventDefault.value = true;
+          }, 1000);
+        }
+      },
+    });
+
+    // Initially disable the observer (will be enabled after initial animation)
+    if (slide128IntraObserver) {
+      slide128IntraObserver.disable();
+      specificAnimationTriggers.push(slide128IntraObserver);
+    }
+    
+    if (mainSlide128Trigger) {
+      specificAnimationTriggers.push(mainSlide128Trigger);
+    }
   };
 
   // --- Logique de Navigation ---
@@ -817,65 +1022,6 @@ export function useFullpageScrollTrigger() {
             animationStates.value['slide-22-playedOnce'] = true;
           }
           isNavigating.value = false;
-        }
-        // Animation pour slide-128
-        else if (targetSectionElement && targetSectionElement.id === 'slide-128' && 
-                 !animationStates.value['slide-128-playedOnce']) {
-          const heading = targetSectionElement.querySelector('h2');
-          const caseStudyImage = targetSectionElement.querySelector('.case-study-image');
-          const caseStudyHeaders = targetSectionElement.querySelectorAll('.case-study-header');
-          const caseStudyContents = targetSectionElement.querySelectorAll('.case-study-content');
-          
-          // Timeline pour séquencer les animations
-          const tl = gsap.timeline({
-            onComplete: () => {
-              animationStates.value['slide-128-playedOnce'] = true;
-            }
-          });
-          
-          // Animer le H2 d'abord
-          if (heading) {
-            tl.to(heading, {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.7,
-              ease: 'power2.out'
-            });
-          }
-          
-          // Animer ensuite l'image d'étude de cas
-          if (caseStudyImage) {
-            tl.to(caseStudyImage, {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.7,
-              ease: 'power2.out'
-            }, "-=0.3");
-          }
-          
-          // Animer les en-têtes des études de cas
-          if (caseStudyHeaders && caseStudyHeaders.length > 0) {
-            tl.to(caseStudyHeaders, {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.5,
-              stagger: 0.15,
-              ease: 'power2.out'
-            }, "-=0.3");
-          }
-          
-          // Animer les contenus des études de cas
-          if (caseStudyContents && caseStudyContents.length > 0) {
-            tl.to(caseStudyContents, {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.5,
-              stagger: 0.15,
-              ease: 'power2.out'
-            }, "-=0.3");
-          }
-          
-          isNavigating.value = false;
         } else {
           isNavigating.value = false;
         }
@@ -928,11 +1074,12 @@ export function useFullpageScrollTrigger() {
         }
         
         // Gérer le cas spécial pour slide-20
-        if (currentSectionElement && currentSectionElement.id === 'slide-20' && 
-          animationStates.value['slide-20-initialAnimPlayed'] && 
-          !animationStates.value['slide-20-text5Shown']) {
-          playSlide20Text5Animation(currentSectionElement);
-          return;
+        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+          if (animationStates.value['slide-20-initialAnimPlayed'] && 
+              !animationStates.value['slide-20-text5Shown']) {
+            playSlide20Text5Animation(currentSectionElement);
+            return;
+          }
         }
         
         goToSection(currentSectionIndex.value + 1);
@@ -1015,9 +1162,11 @@ export function useFullpageScrollTrigger() {
   /**
    * Initialise le composable avec les éléments de section.
    * @param {HTMLElement[]} sectionsElements - Un tableau d'éléments DOM représentant les sections.
+   * @param {object} [options] - Optional options for specific slides, like refs for slide-128.
    */
-  const init = (sectionsElements) => {
+  const init = (sectionsElements, options = {}) => {
     if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
+      console.error('ScrollTrigger Composable: init() received invalid sectionsElements.');
       return;
     }
     sections.value = sectionsElements;
@@ -1026,9 +1175,18 @@ export function useFullpageScrollTrigger() {
       nextTick(() => {
         registerSlide73Animation();
         registerSlide21Animation();
-        registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
-        registerSlide22Animation(); // Ajouter l'enregistrement de slide-22
-        registerSlide128Animation(); // Ajouter l'enregistrement de slide-128
+        registerSlide20Animation();
+        registerSlide22Animation();
+        
+        const slide128Section = sections.value.find(s => s.id === 'slide-128');
+        if (slide128Section && options.slide128) {
+          registerSlide128Animation(
+            slide128Section, 
+            options.slide128.caseStudyActiveIndexRef,
+            options.slide128.slideParagraphsRef
+          );
+        }
+
         setupFullpageObserver();
         goToSection(0, 0); 
         ScrollTrigger.refresh();

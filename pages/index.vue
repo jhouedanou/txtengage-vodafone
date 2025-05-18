@@ -218,17 +218,30 @@ onMounted(async () => {
     activeAccordionImage.value = firstAccordionSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1];
   }
 
-  caseStudyActiveIndex.value = 0;
+  const caseStudyActiveIndex = ref(0);
 
-  nextTick(() => {
-      if (sortedSlides.value.length > 0) {
-        const sectionElements = gsap.utils.toArray('.slide-section');
-        initFullpageScroll(sectionElements); // Initialisez le composable avec les éléments DOM
-      } else {
-        console.warn('Slides not loaded yet, FullpageScrollTrigger setup will be delayed or might fail.');
-      }
-  });
+  await nextTick(); // Assurer que le DOM est prêt
+  const sectionsArray = Array.from(document.querySelectorAll('.slide-section'));
+  
+  // Préparer les options pour slide-128
+  const slide128Data = sortedSlides.value.find(s => s.id === 128);
+  let slide128ParagraphsRef = ref([]);
+  if (slide128Data) {
+    slide128ParagraphsRef = ref(slide128Data.paragraphs || []);
+  }
 
+  const fullpageOptions = {
+    slide128: {
+      caseStudyActiveIndexRef: caseStudyActiveIndex, // Pass the existing ref
+      slideParagraphsRef: slide128ParagraphsRef      // Pass the ref for paragraphs of slide 128
+    }
+  };
+
+  initFullpageScroll(sectionsArray, fullpageOptions); 
+
+  // Déclenchement de la première mise à jour du fond après l'initialisation et le chargement des slides
+  updateBackground(); 
+  
   setTimeout(() => showButton.value = true, 2000);
 });
 
@@ -261,7 +274,6 @@ const extractImage = (html) => {
   return match ? match[1] : '';
 };
 
-const caseStudyActiveIndex = ref(0);
 const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; };
 
 </script>
@@ -461,10 +473,10 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
                         <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
                           class="text-element col m-0 p-2" 
                           :class="{'case-study-active': idx === caseStudyActiveIndex, 'case-study-item': true}">
-                          <h3 @click="toggleCaseStudySection(idx)" class="case-study-header">
+                          <h3 class="case-study-header">
                             {{ extractTitle(paragraph) }}
                           </h3>
-                          <div class="case-study-content" :class="{'case-study-content-visible': idx === caseStudyActiveIndex}">
+                          <div class="case-study-content" :class="{'case-study-content-visible': idx === caseStudyActiveIndex}" :id="`case-study-content-${idx}`">
                             <div v-html="extractTextContent(paragraph)"></div>
                           </div>
                         </div>
