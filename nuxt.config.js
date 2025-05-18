@@ -44,6 +44,9 @@ export default defineNuxtConfig({
     vercel: {
       functions: {
         defaultRuntime: 'nodejs20.x'
+      },
+      config: {
+        runtime: 'nodejs20.x'
       }
     },
     prerender: {
