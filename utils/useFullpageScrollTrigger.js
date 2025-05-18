@@ -233,6 +233,7 @@ export function useFullpageScrollTrigger() {
     // Variables d'état pour cette slide
     animationStates.value['slide-20-initialAnimPlayed'] = false;
     animationStates.value['slide-20-text5Shown'] = false;
+    animationStates.value['slide-20-bubbles-animated'] = false;
     
     // ScrollTrigger pour la slide-20
     const st20 = ScrollTrigger.create({
@@ -243,11 +244,48 @@ export function useFullpageScrollTrigger() {
         // Réinitialiser l'état du text-element-5 au premier passage ou retour
         if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
         animationStates.value['slide-20-text5Shown'] = false;
+        
+        // Setup the bubbles mouse animation when slide first enters
+        setupBubblesMouseAnimation(slide20Section);
       },
       onEnterBack: () => {
         // En remontant depuis la slide suivante
         if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
         animationStates.value['slide-20-text5Shown'] = false;
+        
+        // Show bubble elements again when coming back from slide-21
+        const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
+        bubbleElements.forEach(element => {
+          gsap.to(element, {
+            autoAlpha: 1,
+            duration: 0.5,
+            ease: "power2.out"
+          });
+        });
+        
+        // Show turtleBeach again
+        if (turtleBeach) {
+          gsap.to(turtleBeach, {
+            autoAlpha: 1,
+            scale: 1,
+            duration: 0.5,
+            ease: "power2.out"
+          });
+        }
+        
+        // Show mzuH2Elements again
+        if (mzuH2Elements && mzuH2Elements.length) {
+          gsap.to(mzuH2Elements, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.5,
+            stagger: 0.1,
+            ease: "power2.out"
+          });
+        }
+        
+        // Setup the bubbles mouse animation when returning to slide
+        setupBubblesMouseAnimation(slide20Section);
       },
       onLeave: () => {
         // Si on quitte avant d'avoir terminé l'animation initiale
@@ -255,12 +293,24 @@ export function useFullpageScrollTrigger() {
           resetSlide20Elements(turtleBeach, mzuH2Elements, textElement3, textElement0, 
                             textElement4, textElement2, textElement1);
         }
+        
+        // Clean up bubble animation when leaving slide
+        if (typeof animationStates.value['slide-20-bubbles-cleanup'] === 'function') {
+          animationStates.value['slide-20-bubbles-cleanup']();
+          animationStates.value['slide-20-bubbles-animated'] = false;
+        }
       },
       onLeaveBack: () => {
         // Si on quitte vers le haut avant d'avoir terminé l'animation initiale
         if (!animationStates.value['slide-20-initialAnimPlayed']) {
           resetSlide20Elements(turtleBeach, mzuH2Elements, textElement3, textElement0, 
                             textElement4, textElement2, textElement1);
+        }
+        
+        // Clean up bubble animation when leaving slide
+        if (typeof animationStates.value['slide-20-bubbles-cleanup'] === 'function') {
+          animationStates.value['slide-20-bubbles-cleanup']();
+          animationStates.value['slide-20-bubbles-animated'] = false;
         }
       }
     });
@@ -379,6 +429,25 @@ export function useFullpageScrollTrigger() {
       return;
     }
     
+    // Get all bubble elements that need to be hidden
+    const bubbleElements = [
+      sectionElement.querySelector('#text-element-3'),
+      sectionElement.querySelector('#text-element-0'),
+      sectionElement.querySelector('#text-element-4'),
+      sectionElement.querySelector('#text-element-2'),
+      sectionElement.querySelector('#text-element-1')
+    ].filter(el => el); // Filter out any null elements
+
+    // Hide all bubble elements with fade out animation
+    bubbleElements.forEach(element => {
+      gsap.to(element, {
+        autoAlpha: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      });
+    });
+    
+    // Show text-element-5 with animation
     gsap.to(textElement5, {
       autoAlpha: 1,
       y: 0,
@@ -388,6 +457,107 @@ export function useFullpageScrollTrigger() {
         animationStates.value['slide-20-text5Shown'] = true;
       }
     });
+  };
+
+  /**
+   * Sets up continuous subtle animation for bubble text elements reacting to mouse movement
+   * This animation will be active as long as the slide is visible
+   */
+  const setupBubblesMouseAnimation = (sectionElement) => {
+    // Early return if animation is already set up - prevents multiple initialization
+    if (animationStates.value['slide-20-bubbles-animated'] === true) return;
+
+    // Get all bubble text elements
+    const bubbleElements = [
+      sectionElement.querySelector('#text-element-3'),
+      sectionElement.querySelector('#text-element-0'),
+      sectionElement.querySelector('#text-element-4'),
+      sectionElement.querySelector('#text-element-2'),
+      sectionElement.querySelector('#text-element-1')
+    ].filter(el => el); // Filter out any null elements
+  
+    if (bubbleElements.length === 0) return;
+
+    // Initialize mouse position variables
+    let mouseX = 0, mouseY = 0;
+    let windowWidth = window.innerWidth;
+    let windowHeight = window.innerHeight;
+
+    // Function to update mouse position
+    const updateMousePosition = (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+
+    // Add mouse move listener
+    window.addEventListener('mousemove', updateMousePosition);
+  
+    // Animation parameters - different for each bubble to create organic movement
+    const animParams = bubbleElements.map((_, i) => ({
+      xFactor: 0.01 + (i * 0.005),   // Different x movement factor for each bubble
+      yFactor: 0.01 + (i * 0.004),   // Different y movement factor for each bubble
+      speedFactor: 0.1 + (i * 0.05)  // Different speed for each bubble
+    }));
+  
+    // Set up the continuous animation for bubbles
+    let animating = true;
+  
+    // Animation function that will run continuously
+    const animateBubbles = () => {
+      if (!animating) return;
+    
+      // Calculate normalized mouse position (0-1)
+      const normalizedX = mouseX / windowWidth;
+      const normalizedY = mouseY / windowHeight;
+    
+      // Animate each bubble element with subtle parallax effect
+      bubbleElements.forEach((bubble, i) => {
+        if (!bubble) return;
+      
+        // Calculate offsets based on mouse position - kept subtle
+        const xOffset = (normalizedX - 0.5) * 20 * animParams[i].xFactor;
+        const yOffset = (normalizedY - 0.5) * 15 * animParams[i].yFactor;
+      
+        // Apply the animation
+        gsap.to(bubble, {
+          x: xOffset,
+          y: yOffset,
+          duration: animParams[i].speedFactor,
+          ease: 'power1.out'
+        });
+      });
+    
+      // Request next frame
+      requestAnimationFrame(animateBubbles);
+    };
+  
+    // Start the animation
+    animateBubbles();
+  
+    // Handle window resize
+    const handleResize = () => {
+      windowWidth = window.innerWidth;
+      windowHeight = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+  
+    // Clean up function - used when the section is completely left
+    const cleanupBubbleAnimation = () => {
+      animating = false;
+      window.removeEventListener('mousemove', updateMousePosition);
+      window.removeEventListener('resize', handleResize);
+      bubbleElements.forEach(bubble => {
+        if (bubble) {
+          gsap.killTweensOf(bubble);
+        }
+      });
+    };
+  
+    // Store the cleanup function for later use
+    animationStates.value['slide-20-bubbles-cleanup'] = cleanupBubbleAnimation;
+  
+    // Mark as initialized
+    animationStates.value['slide-20-bubbles-animated'] = true;
   };
 
   // --- Logique de Navigation ---
