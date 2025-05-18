@@ -448,7 +448,7 @@ body {
                 margin     : 0;
                 padding    : 0;
                 text-align: center;
-                line-height:    0.5 !important;
+                line-height:    0.5 ;
                 text-transform: uppercase; /* Fixed text-transform property */
 
             }
@@ -2147,16 +2147,27 @@ html, body {
     //background:red;
     margin:3em 0;
     width:100%;
+    max-width:355px;
     display:flex;
     align-items:center;
-    line-height:1;
     justify-content:center;
     flex-direction:column;
     h3{
-        margin:1em 0;
+        margin:1em 0;  font-family: Vodafone;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1.44 !important;
     }
     p{
         margin:1em 0;
-    
+    font-family: Raleway;
+  font-size: 23px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.44 !important;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
     }
 }

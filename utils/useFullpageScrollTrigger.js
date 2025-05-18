@@ -466,44 +466,86 @@ export function useFullpageScrollTrigger() {
   const setupFullpageObserver = () => {
     if (sections.value.length === 0) return;
 
-    stObserve = ScrollTrigger.observe({
-      target: SCROLLER_SELECTOR,
-      type: "wheel,touch",
-      debounce: false,
-      onUp: () => {
-        handleFirstInteraction();
-        if (isNavigating.value) return;
+    // Variables pour la gestion du throttling
+    let lastScrollTime = 0;
+    const scrollThrottleDelay = 800; // Délai entre les scrolls autorisés (en ms)
+    
+    // Gestionnaire de défilement avec throttling
+    const handleWheelScroll = (direction) => {
+      const now = Date.now();
+      
+      // Si un scroll a été traité récemment, ignorer ce scroll
+      if (now - lastScrollTime < scrollThrottleDelay) {
+        return;
+      }
+      
+      // Marquer le temps de ce scroll
+      lastScrollTime = now;
+      
+      handleFirstInteraction();
+      if (isNavigating.value) return;
+      
+      const currentSectionElement = sections.value[currentSectionIndex.value];
+      
+      if (direction === "up") {
+        // Défiler vers le haut (slide précédente)
         goToSection(currentSectionIndex.value - 1);
-      },
-      onDown: () => {
-        handleFirstInteraction();
-        if (isNavigating.value) return;
-        
-        const currentSectionElement = sections.value[currentSectionIndex.value];
+      } else {
+        // Défiler vers le bas (slide suivante)
         
         // Gérer le cas spécial pour slide-73
         if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
-          animationStates.value['slide-73'] !== true) {
+            animationStates.value['slide-73'] !== true) {
           return;
         }
         
         // Gérer le cas spécial pour slide-20
         if (currentSectionElement && currentSectionElement.id === 'slide-20') {
-          // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
           if (animationStates.value['slide-20-initialAnimPlayed'] && 
               !animationStates.value['slide-20-text5Shown']) {
-            // Afficher text-element-5
             playSlide20Text5Animation(currentSectionElement);
-            return; // Bloquer le défilement pour le moment
+            return;
           }
         }
         
         goToSection(currentSectionIndex.value + 1);
-      },
+      }
+    };
+
+    // Configuration de l'observateur pour les événements de roue (souris/trackpad)
+    const wheelObserver = ScrollTrigger.observe({
+      target: SCROLLER_SELECTOR,
+      type: "wheel",
+      debounce: false,
+      onUp: () => handleWheelScroll("up"),
+      onDown: () => handleWheelScroll("down"),
     });
+    
+    // Configuration de l'observateur pour les événements tactiles
+    // Note: Pour le tactile, on inverse la direction pour une expérience plus intuitive
+    const touchObserver = ScrollTrigger.observe({
+      target: SCROLLER_SELECTOR,
+      type: "touch",
+      debounce: false,
+      // Inversion des directions pour l'expérience tactile
+      onUp: () => handleWheelScroll("down"),   // Swipe vers le haut = slide suivante
+      onDown: () => handleWheelScroll("up"),   // Swipe vers le bas = slide précédente
+    });
+    
+    // Stocker les deux observateurs pour pouvoir les nettoyer plus tard
+    stObserve = { wheelObserver, touchObserver };
 
     // Mise à jour également du gestionnaire clavier
     keyboardListener.value = (e) => {
+      const now = Date.now();
+      
+      // Appliquer le même throttling aux événements clavier
+      if (now - lastScrollTime < scrollThrottleDelay) {
+        e.preventDefault();
+        return;
+      }
+      
+      lastScrollTime = now;
       handleFirstInteraction();
       if (isNavigating.value) return;
 
@@ -570,7 +612,8 @@ export function useFullpageScrollTrigger() {
    */
   const cleanup = () => {
     if (stObserve) {
-      stObserve.kill();
+      if (stObserve.wheelObserver) stObserve.wheelObserver.kill();
+      if (stObserve.touchObserver) stObserve.touchObserver.kill();
       stObserve = null;
     }
     if (keyboardListener.value) {
