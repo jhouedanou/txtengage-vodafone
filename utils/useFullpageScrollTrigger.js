@@ -275,7 +275,6 @@ export function useFullpageScrollTrigger() {
           }
         }
         
-        // Animation pour slide-22 (modifiée)
         if (targetSectionElement && targetSectionElement.id === 'slide-22' && !animationStates.value['slide-22-played']) {
           const thoiathoingDiv = targetSectionElement.querySelector('#thoiathoing');
           if (thoiathoingDiv) {
