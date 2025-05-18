@@ -128,3 +128,14 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+# Ignorer les fichiers .DS_Store de macOS
+.DS_Store
+.DS_Store?
+**/.DS_Store.DS_Store
+.DS_Store?
+.DS_Store
+.DS_Store?
+.DS_Store
+.DS_Store?
+.DS_Store
+.DS_Store?
