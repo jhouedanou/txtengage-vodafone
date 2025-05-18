@@ -282,7 +282,7 @@ export function useFullpageScrollTrigger() {
             });
           }
           
-          // S'assurer que l'état indique que les éléments doivent rester visibles
+          // Créer un nouvel état pour suivre que les éléments doivent rester visibles
           animationStates.value['slide-20-elementsVisible'] = true;
         } else {
           // Sinon, jouer l'animation initiale si elle n'a pas encore été jouée
@@ -507,6 +507,7 @@ export function useFullpageScrollTrigger() {
     const textElement5 = sectionElement.querySelector('#text-element-5');
     if (!textElement5) {
       animationStates.value['slide-20-text5Shown'] = true; // Marquer comme complété même si l'élément n'existe pas
+      goToSection(currentSectionIndex.value + 1); // Passer à la slide suivante immédiatement si l'élément n'existe pas
       return;
     }
     
@@ -560,6 +561,10 @@ export function useFullpageScrollTrigger() {
       ease: "power2.out",
       onComplete: () => {
         animationStates.value['slide-20-text5Shown'] = true;
+        // Maintenant que l'animation est terminée, passer à la slide suivante automatiquement
+        setTimeout(() => {
+          goToSection(currentSectionIndex.value + 1);
+        }, 500); // Délai court pour que l'utilisateur puisse voir le texte avant de passer à la slide suivante
       }
     });
   };
@@ -674,17 +679,17 @@ export function useFullpageScrollTrigger() {
     if (!slide22Section) {
       return;
     }
-  
-    // Cibler spécifiquement la div avec id "thoiathoing"
-    const thoiathoingDiv = slide22Section.querySelector('#thoiathoing');
 
-    if (!thoiathoingDiv) {
+    // Cibler spécifiquement les divs avec id "thoiathoing2" (paragraphes)
+    const thoiathoing2Elements = slide22Section.querySelectorAll('#thoiathoing2');
+
+    if (!thoiathoing2Elements || thoiathoing2Elements.length === 0) {
       return;
     }
 
     // État initial: invisible et décalé vers le bas
-    gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
-  
+    gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
+
     // Créer un état pour suivre si l'animation a été jouée
     animationStates.value['slide-22-playedOnce'] = false;
 
@@ -696,10 +701,11 @@ export function useFullpageScrollTrigger() {
       onEnter: () => {
         // Animation à l'entrée de la slide-22
         if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.to(thoiathoingDiv, {
+          gsap.to(thoiathoing2Elements, {
             autoAlpha: 1,
             y: 0,
             duration: 0.8,
+            stagger: 0.2, // Ajouter un décalage entre chaque élément
             ease: "power2.out",
             onComplete: () => {
               animationStates.value['slide-22-playedOnce'] = true;
@@ -711,23 +717,24 @@ export function useFullpageScrollTrigger() {
         // Si l'animation n'a pas encore eu lieu et on quitte la slide, 
         // s'assurer que les éléments restent dans leur état initial
         if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+          gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
         }
       },
       onLeaveBack: () => {
         // Si l'animation n'a pas encore eu lieu et on revient à la slide précédente,
         // s'assurer que les éléments restent dans leur état initial
         if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+          gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
         }
       },
       onEnterBack: () => {
         // Animation à l'entrée de la slide-22 depuis la slide suivante
         if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.to(thoiathoingDiv, {
+          gsap.to(thoiathoing2Elements, {
             autoAlpha: 1,
             y: 0,
             duration: 0.8,
+            stagger: 0.2, // Ajouter un décalage entre chaque élément
             ease: "power2.out",
             onComplete: () => {
               animationStates.value['slide-22-playedOnce'] = true;

@@ -390,6 +390,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
               </div>
               <div class="row flex-row align-content-center align-items-center juustify-content-center">
                 <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
+                id="thoiathoing2"
                   class="text-element col m-0 p-2" v-html="paragraph">
                 </div>
               </div>
