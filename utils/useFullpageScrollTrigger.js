@@ -253,35 +253,73 @@ export function useFullpageScrollTrigger() {
         if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
         animationStates.value['slide-20-text5Shown'] = false;
         
-        // Show bubble elements again when coming back from slide-21
-        const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
-        bubbleElements.forEach(element => {
-          gsap.to(element, {
-            autoAlpha: 1,
-            duration: 0.5,
-            ease: "power2.out"
+        // Toujours afficher les éléments immédiatement lorsqu'on revient depuis slide-21
+        // après que text-element-5 a été affiché
+        if (animationStates.value['slide-20-text5Shown'] || animationStates.value['slide-20-elementsVisible']) {
+          // Afficher immédiatement tous les éléments sans animation (set au lieu de to)
+          // Rendre visible les éléments bulle
+          const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
+          bubbleElements.forEach(element => {
+            gsap.set(element, {
+              autoAlpha: 1,
+              y: 0
+            });
           });
-        });
-        
-        // Show turtleBeach again
-        if (turtleBeach) {
-          gsap.to(turtleBeach, {
-            autoAlpha: 1,
-            scale: 1,
-            duration: 0.5,
-            ease: "power2.out"
-          });
-        }
-        
-        // Show mzuH2Elements again
-        if (mzuH2Elements && mzuH2Elements.length) {
-          gsap.to(mzuH2Elements, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.5,
-            stagger: 0.1,
-            ease: "power2.out"
-          });
+          
+          // Rendre visible turtleBeach
+          if (turtleBeach) {
+            gsap.set(turtleBeach, {
+              autoAlpha: 1,
+              scale: 1
+            });
+          }
+          
+          // Rendre visible les éléments mzuH2
+          if (mzuH2Elements && mzuH2Elements.length) {
+            gsap.set(mzuH2Elements, {
+              autoAlpha: 1,
+              y: 0
+            });
+          }
+          
+          // S'assurer que l'état indique que les éléments doivent rester visibles
+          animationStates.value['slide-20-elementsVisible'] = true;
+        } else {
+          // Sinon, jouer l'animation initiale si elle n'a pas encore été jouée
+          if (!animationStates.value['slide-20-initialAnimPlayed']) {
+            playSlide20InitialAnimation(slide20Section);
+          } else {
+            // Show bubble elements again when coming back from slide-21
+            const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
+            bubbleElements.forEach(element => {
+              gsap.to(element, {
+                autoAlpha: 1,
+                duration: 0.5,
+                ease: "power2.out"
+              });
+            });
+            
+            // Show turtleBeach again
+            if (turtleBeach) {
+              gsap.to(turtleBeach, {
+                autoAlpha: 1,
+                scale: 1,
+                duration: 0.5,
+                ease: "power2.out"
+              });
+            }
+            
+            // Show mzuH2Elements again
+            if (mzuH2Elements && mzuH2Elements.length) {
+              gsap.to(mzuH2Elements, {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.5,
+                stagger: 0.1,
+                ease: "power2.out"
+              });
+            }
+          }
         }
         
         // Setup the bubbles mouse animation when returning to slide
@@ -305,38 +343,34 @@ export function useFullpageScrollTrigger() {
         
         // S'assurer que tous les autres éléments sont visibles pour le retour
         if (animationStates.value['slide-20-text5Shown']) {
+          // Afficher immédiatement tous les éléments sans animation (set au lieu de to)
           // Rendre visible les éléments bulle
           const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
           bubbleElements.forEach(element => {
-            gsap.to(element, {
+            gsap.set(element, {
               autoAlpha: 1,
-              y: 0,
-              duration: 0.5,
-              ease: "power2.out"
+              y: 0
             });
           });
           
           // Rendre visible turtleBeach
           if (turtleBeach) {
-            gsap.to(turtleBeach, {
+            gsap.set(turtleBeach, {
               autoAlpha: 1,
-              scale: 1,
-              duration: 0.5,
-              ease: "power2.out"
+              scale: 1
             });
           }
           
           // Rendre visible les éléments mzuH2
           if (mzuH2Elements && mzuH2Elements.length) {
-            gsap.to(mzuH2Elements, {
+            gsap.set(mzuH2Elements, {
               autoAlpha: 1,
-              y: 0,
-              duration: 0.5,
-              stagger: 0.1,
-              ease: "power2.out"
+              y: 0
             });
           }
           
+          // Créer un nouvel état pour suivre que les éléments doivent rester visibles
+          animationStates.value['slide-20-elementsVisible'] = true;
           // Réinitialiser l'état pour indiquer que text-element-5 n'est plus affiché
           animationStates.value['slide-20-text5Shown'] = false;
         }
@@ -631,6 +665,80 @@ export function useFullpageScrollTrigger() {
     animationStates.value['slide-20-bubbles-animated'] = true;
   };
 
+  /**
+   * Configure les animations spécifiques pour la slide-22.
+   * L'animation d'entrée est déclenchée via goToSection et ne se joue qu'une fois.
+   */
+  const registerSlide22Animation = () => {
+    const slide22Section = sections.value.find(s => s.id === 'slide-22');
+    if (!slide22Section) {
+      return;
+    }
+  
+    // Cibler spécifiquement la div avec id "thoiathoing"
+    const thoiathoingDiv = slide22Section.querySelector('#thoiathoing');
+
+    if (!thoiathoingDiv) {
+      return;
+    }
+
+    // État initial: invisible et décalé vers le bas
+    gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+  
+    // Créer un état pour suivre si l'animation a été jouée
+    animationStates.value['slide-22-playedOnce'] = false;
+
+    // ScrollTrigger pour la slide-22
+    const st22 = ScrollTrigger.create({
+      trigger: slide22Section,
+      scroller: SCROLLER_SELECTOR,
+      // markers: true,
+      onEnter: () => {
+        // Animation à l'entrée de la slide-22
+        if (!animationStates.value['slide-22-playedOnce']) {
+          gsap.to(thoiathoingDiv, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            onComplete: () => {
+              animationStates.value['slide-22-playedOnce'] = true;
+            }
+          });
+        }
+      },
+      onLeave: () => {
+        // Si l'animation n'a pas encore eu lieu et on quitte la slide, 
+        // s'assurer que les éléments restent dans leur état initial
+        if (!animationStates.value['slide-22-playedOnce']) {
+          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+        }
+      },
+      onLeaveBack: () => {
+        // Si l'animation n'a pas encore eu lieu et on revient à la slide précédente,
+        // s'assurer que les éléments restent dans leur état initial
+        if (!animationStates.value['slide-22-playedOnce']) {
+          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+        }
+      },
+      onEnterBack: () => {
+        // Animation à l'entrée de la slide-22 depuis la slide suivante
+        if (!animationStates.value['slide-22-playedOnce']) {
+          gsap.to(thoiathoingDiv, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            onComplete: () => {
+              animationStates.value['slide-22-playedOnce'] = true;
+            }
+          });
+        }
+      }
+    });
+    specificAnimationTriggers.push(st22);
+  };
+
   // --- Logique de Navigation ---
 
   const goToSection = (index, duration = 1) => {
@@ -841,6 +949,7 @@ export function useFullpageScrollTrigger() {
         registerSlide73Animation();
         registerSlide21Animation();
         registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
+        registerSlide22Animation(); // Ajouter l'enregistrement de slide-22
         setupFullpageObserver();
         goToSection(0, 0); 
         ScrollTrigger.refresh();
