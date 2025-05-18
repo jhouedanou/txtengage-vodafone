@@ -41,14 +41,6 @@ export default defineNuxtConfig({
   
   nitro: {
     preset: 'vercel',
-    vercel: {
-      functions: {
-        defaultRuntime: 'nodejs20.x'
-      },
-      config: {
-        runtime: 'nodejs20.x'
-      }
-    },
     prerender: {
       failOnError: false,
       crawlLinks: true,
