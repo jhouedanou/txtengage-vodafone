@@ -476,7 +476,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
                           <h3 class="case-study-header">
                             {{ extractTitle(paragraph) }}
                           </h3>
-                          <div class="case-study-content" :class="{'case-study-content-visible': idx === caseStudyActiveIndex}" :id="`case-study-content-${idx}`">
+                          <div class="case-study-content" :class="{'case-study-content-visible': idx === caseStudyActiveIndex}" :id="`case-study-content-${idx+1}`">
                             <div v-html="extractTextContent(paragraph)"></div>
                           </div>
                         </div>

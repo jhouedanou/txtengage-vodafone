@@ -744,7 +744,7 @@ export function useFullpageScrollTrigger() {
       gsap.set(caseStudyImage, { scale: 0.8 });
       gsap.set(caseStudyHeaders, { x: -30 });
 
-      // Hide ALL case study contents initially (including the first one)
+      // Hide ALL case study contents initially
       caseStudyContents.forEach(content => {
         gsap.set(content, { 
           autoAlpha: 0,
@@ -761,7 +761,7 @@ export function useFullpageScrollTrigger() {
 
     // Function to handle case study content changes
     const updateCaseStudyContent = (newIndex) => {
-      if (newIndex < 0 || newIndex >= caseStudyContents.length) return;
+      if (newIndex < 0 || newIndex >= slideParagraphsRef.value.length) return;
       
       // Short animation timeline for content transition
       const tl = gsap.timeline({
@@ -774,8 +774,12 @@ export function useFullpageScrollTrigger() {
         }
       });
 
+      // Convert to 1-based indexing for element IDs
+      const currentDisplayIndex = caseStudyActiveIndexRef.value + 1;
+      const newDisplayIndex = newIndex + 1;
+
       // Hide current content
-      const currentContent = slide128Section.querySelector(`[id="case-study-content-${caseStudyActiveIndexRef.value}"]`);
+      const currentContent = slide128Section.querySelector(`[id="case-study-content-${currentDisplayIndex}"]`);
       if (currentContent) {
         tl.to(currentContent, { 
           autoAlpha: 0, 
@@ -785,7 +789,7 @@ export function useFullpageScrollTrigger() {
       }
 
       // Show new content
-      const newContent = slide128Section.querySelector(`[id="case-study-content-${newIndex}"]`);
+      const newContent = slide128Section.querySelector(`[id="case-study-content-${newDisplayIndex}"]`);
       if (newContent) {
         tl.to(newContent, { 
           autoAlpha: 1, 
@@ -803,6 +807,7 @@ export function useFullpageScrollTrigger() {
       end: "bottom bottom",
       // markers: true, // For debugging
       onEnter: () => {
+        console.log("Enter slide-128");
         // Reset to no content initially
         caseStudyActiveIndexRef.value = -1; // No content selected initially
         
@@ -816,11 +821,13 @@ export function useFullpageScrollTrigger() {
 
         // Only play initial animations if they haven't been played yet
         if (!animationStates.value['slide-128-initialAnimPlayed']) {
+          console.log("Playing initial animations for slide-128");
           isNavigating.value = true; // Block main scroll during animation
           
           // Sequential animation timeline
           const tl = gsap.timeline({
             onComplete: () => {
+              console.log("Initial animations complete, showing first content");
               // After main elements are animated, show first content
               updateCaseStudyContent(0);
               animationStates.value['slide-128-initialAnimPlayed'] = true;
@@ -854,15 +861,18 @@ export function useFullpageScrollTrigger() {
             ease: 'power2.out'
           }, "-=0.4");
         } else {
+          console.log("Animations already played, showing first content");
           // If animation already played, show first content and enable observer
           updateCaseStudyContent(0);
           if (slide128IntraObserver) slide128IntraObserver.enable();
         }
       },
       onLeave: () => {
+        console.log("Leave slide-128");
         if (slide128IntraObserver) slide128IntraObserver.disable();
       },
       onEnterBack: () => {
+        console.log("Enter back slide-128");
         // When coming back to the slide, reset to no content initially
         caseStudyActiveIndexRef.value = -1;
         
@@ -879,6 +889,7 @@ export function useFullpageScrollTrigger() {
         if (slide128IntraObserver) slide128IntraObserver.enable();
       },
       onLeaveBack: () => {
+        console.log("Leave back slide-128");
         if (slide128IntraObserver) slide128IntraObserver.disable();
       }
     });
@@ -889,46 +900,48 @@ export function useFullpageScrollTrigger() {
       type: "wheel,touch",
       debounce: false,
       preventDefault: true,
-      onUp: () => { // Scroll up / Swipe up
+      onUp: (e) => { // Scroll up / Swipe up
         if (isNavigating.value || !animationStates.value['slide-128-initialAnimPlayed']) return;
         
+        console.log("Scroll up in slide-128, current index:", caseStudyActiveIndexRef.value);
         const newIndex = caseStudyActiveIndexRef.value - 1;
         
         if (newIndex >= 0) {
           // If not at first content, show previous content
+          console.log("Showing previous content:", newIndex + 1);
+          e.preventDefault(); // Ensure we're handling the scroll
           updateCaseStudyContent(newIndex);
-        } else if (newIndex === -1) {
+        } else if (caseStudyActiveIndexRef.value === 0) {
           // If at first content and scrolling up, navigate to previous slide
-          isNavigating.value = true; // Prevent multiple triggers
-          preventDefault.value = false; // Allow default scroll behavior
+          console.log("At first content, releasing scroll to go to previous slide");
+          // Temporarily disable our observer to allow main scroll to happen
           slide128IntraObserver.disable();
-          
-          // Let the main scroll observer take over
+          // Let the main scroll happen naturally
           setTimeout(() => {
-            isNavigating.value = false;
-            preventDefault.value = true;
-          }, 1000);
+            if (slide128IntraObserver) slide128IntraObserver.enable();
+          }, 1500); // Give enough time for slide transition
         }
       },
-      onDown: () => { // Scroll down / Swipe down
+      onDown: (e) => { // Scroll down / Swipe down
         if (isNavigating.value || !animationStates.value['slide-128-initialAnimPlayed']) return;
         
+        console.log("Scroll down in slide-128, current index:", caseStudyActiveIndexRef.value);
         const newIndex = caseStudyActiveIndexRef.value + 1;
         
         if (newIndex < slideParagraphsRef.value.length) {
           // If not at last content, show next content
+          console.log("Showing next content:", newIndex + 1);
+          e.preventDefault(); // Ensure we're handling the scroll
           updateCaseStudyContent(newIndex);
-        } else {
+        } else if (caseStudyActiveIndexRef.value === slideParagraphsRef.value.length - 1) {
           // If at last content and scrolling down, navigate to next slide
-          isNavigating.value = true; // Prevent multiple triggers
-          preventDefault.value = false; // Allow default scroll behavior
+          console.log("At last content, releasing scroll to go to next slide");
+          // Temporarily disable our observer to allow main scroll to happen
           slide128IntraObserver.disable();
-          
-          // Let the main scroll observer take over
+          // Let the main scroll happen naturally
           setTimeout(() => {
-            isNavigating.value = false;
-            preventDefault.value = true;
-          }, 1000);
+            if (slide128IntraObserver) slide128IntraObserver.enable();
+          }, 1500); // Give enough time for slide transition
         }
       },
     });
