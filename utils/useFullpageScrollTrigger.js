@@ -197,6 +197,36 @@ export function useFullpageScrollTrigger() {
     });
     specificAnimationTriggers.push(st21);
   };
+  /**
+   * Configure les animations spécifiques pour la slide-22.
+   * L'animation d'entrée est déclenchée via goToSection et ne se joue qu'une seule fois,
+   * peu importe si l'utilisateur revient sur la slide.
+   */
+  const registerSlide22Animation = () => {
+    const slide22Section = sections.value.find(s => s.id === 'slide-22');
+    if (!slide22Section) {
+      return;
+    }
+    const thoiathoingDiv = slide22Section.querySelector('#thoiathoing');
+
+    if (!thoiathoingDiv) {
+      return;
+    }
+
+    // État initial de #thoiathoing: invisible et décalé vers le bas
+    gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+    animationStates.value['slide-22-played'] = false; // Pour suivre si l'animation a été jouée
+
+    // Ce ScrollTrigger est simplifié - pas de réinitialisation dans onLeave/onLeaveBack
+    // car on veut conserver l'animation une fois jouée
+    const st22 = ScrollTrigger.create({
+      trigger: slide22Section,
+      scroller: SCROLLER_SELECTOR,
+      // markers: true, // Pour débogage
+      // Les callbacks onLeave et onLeaveBack sont supprimés pour conserver l'état final
+    });
+    specificAnimationTriggers.push(st22);
+  };
 
   /**
    * Configure les animations spécifiques pour la slide-20.
@@ -731,6 +761,24 @@ export function useFullpageScrollTrigger() {
         } else {
           isNavigating.value = false;
         }
+        
+        if (targetSectionElement && targetSectionElement.id === 'slide-22' && !animationStates.value['slide-22-played']) {
+          const thoiathoingDiv = targetSectionElement.querySelector('#thoiathoing');
+          if (thoiathoingDiv) {
+            gsap.to(thoiathoingDiv, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power2.out',
+              onComplete: () => {
+                // Marquer comme jouée définitivement
+                animationStates.value['slide-22-played'] = true;
+              }
+            });
+          } else {
+            animationStates.value['slide-22-played'] = true;
+          }
+        }
       },
       onInterrupt: () => {
         isNavigating.value = false;
@@ -838,6 +886,7 @@ export function useFullpageScrollTrigger() {
         registerSlide73Animation();
         registerSlide21Animation();
         registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
+        registerSlide22Animation();
         setupFullpageObserver();
         goToSection(0, 0); 
         ScrollTrigger.refresh();
