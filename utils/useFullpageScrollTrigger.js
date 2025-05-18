@@ -20,6 +20,8 @@ export function useFullpageScrollTrigger() {
   let stObserve = null; // Instance de ScrollTrigger.observe
   const keyboardListener = ref(null); // Référence au gestionnaire d'événements clavier
   const specificAnimationTriggers = []; // Pour stocker les instances de ScrollTrigger spécifiques à des slides
+  let lastScrollTime = 0; // Stocke le dernier moment où un défilement a été traité
+  const SCROLL_COOLDOWN = 1500; // Délai minimal (en ms) entre les défilements pour éviter le multi-scroll sur trackpad
 
   // --- Gestion des Animations Spécifiques (ex: Slide 73) ---
 
@@ -796,15 +798,27 @@ export function useFullpageScrollTrigger() {
     stObserve = ScrollTrigger.observe({
       target: SCROLLER_SELECTOR,
       type: "wheel,touch",
-      debounce: false,
+      debounce: true, // Activer le debounce pour réduire les événements
+      wheelSpeed: 0.5, // Réduire la vitesse du défilement à la molette/trackpad
       onUp: () => {
         handleFirstInteraction();
         if (isNavigating.value) return;
+        
+        // Vérifier si le temps minimal entre défilements est respecté
+        const now = Date.now();
+        if (now - lastScrollTime < SCROLL_COOLDOWN) return;
+        lastScrollTime = now;
+        
         goToSection(currentSectionIndex.value - 1);
       },
       onDown: () => {
         handleFirstInteraction();
         if (isNavigating.value) return;
+        
+        // Vérifier si le temps minimal entre défilements est respecté
+        const now = Date.now();
+        if (now - lastScrollTime < SCROLL_COOLDOWN) return;
+        lastScrollTime = now;
         
         const currentSectionElement = sections.value[currentSectionIndex.value];
         
@@ -833,6 +847,11 @@ export function useFullpageScrollTrigger() {
     keyboardListener.value = (e) => {
       handleFirstInteraction();
       if (isNavigating.value) return;
+
+      // Vérifier si le temps minimal entre actions clavier est respecté
+      const now = Date.now();
+      if (now - lastScrollTime < SCROLL_COOLDOWN) return;
+      lastScrollTime = now;
 
       let newIndex = currentSectionIndex.value;
       const currentSectionElement = sections.value[currentSectionIndex.value];
