@@ -312,7 +312,6 @@ export function useFullpageScrollTrigger() {
             });
           }
           
-          // Créer un nouvel état pour suivre que les éléments doivent rester visibles
           animationStates.value['slide-20-elementsVisible'] = true;
         } else {
           // Sinon, jouer l'animation initiale si elle n'a pas encore été jouée
