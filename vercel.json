@@ -24,10 +24,5 @@
             "src": "/(.*)",
             "dest": "/"
         }
-    ],
-    "functions": {
-        "__nitro": {
-            "runtime": "nodejs20.x"
-        }
-    }
+    ]
 }
