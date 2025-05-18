@@ -320,6 +320,33 @@ body {
 //sldie 2 
 #slide-20 {
     width: 100vw;
+    #ozaru{
+        width:100vw;
+        height:100vh;
+    }
+    #mzu{
+        padding:2em;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
+        h2{
+            align-items: flex-start;
+            font-family: Vodafone;
+            font-size: 85px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: left;
+            color: #fff;
+            margin:0;
+            &:nth-of-type(3){
+                font-weight: normal;
+            }
+        }
+    }
     .slides-container{
 
   background-position: center;
@@ -2114,4 +2141,22 @@ html, body {
 .slides-container{
     background-size:cover;
     background-repeat:no-repeat;
+}
+
+.clientrequest{
+    //background:red;
+    margin:3em 0;
+    width:100%;
+    display:flex;
+    align-items:center;
+    line-height:1;
+    justify-content:center;
+    flex-direction:column;
+    h3{
+        margin:1em 0;
+    }
+    p{
+        margin:1em 0;
+    
+    }
 }

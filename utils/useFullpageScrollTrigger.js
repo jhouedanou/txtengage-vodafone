@@ -198,6 +198,198 @@ export function useFullpageScrollTrigger() {
     specificAnimationTriggers.push(st21);
   };
 
+  /**
+   * Configure les animations spécifiques pour la slide-20.
+   * Animation en deux phases:
+   * 1. Animation initiale des éléments au chargement de la slide
+   * 2. Animation de #text-element-5 au prochain scroll vers le bas
+   */
+  const registerSlide20Animation = () => {
+    const slide20Section = sections.value.find(s => s.id === 'slide-20');
+    if (!slide20Section) {
+      return;
+    }
+    
+    // Références aux éléments à animer
+    const turtleBeach = slide20Section.querySelector('#turlebeach');
+    const mzuH2Elements = slide20Section.querySelectorAll('#mzu h2');
+    const textElement3 = slide20Section.querySelector('#text-element-3');
+    const textElement0 = slide20Section.querySelector('#text-element-0');
+    const textElement4 = slide20Section.querySelector('#text-element-4');
+    const textElement2 = slide20Section.querySelector('#text-element-2');
+    const textElement1 = slide20Section.querySelector('#text-element-1');
+    const textElement5 = slide20Section.querySelector('#text-element-5');
+    
+    // État initial des éléments
+    if (turtleBeach) gsap.set(turtleBeach, { scale: 0, autoAlpha: 1 });
+    if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 0, y: 20 });
+    if (textElement3) gsap.set(textElement3, { autoAlpha: 0, y: 20 });
+    if (textElement0) gsap.set(textElement0, { autoAlpha: 0, y: 20 });
+    if (textElement4) gsap.set(textElement4, { autoAlpha: 0, y: 20 });
+    if (textElement2) gsap.set(textElement2, { autoAlpha: 0, y: 20 });
+    if (textElement1) gsap.set(textElement1, { autoAlpha: 0, y: 20 });
+    if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
+    
+    // Variables d'état pour cette slide
+    animationStates.value['slide-20-initialAnimPlayed'] = false;
+    animationStates.value['slide-20-text5Shown'] = false;
+    
+    // ScrollTrigger pour la slide-20
+    const st20 = ScrollTrigger.create({
+      trigger: slide20Section,
+      scroller: SCROLLER_SELECTOR,
+      // markers: true,
+      onEnter: () => {
+        // Réinitialiser l'état du text-element-5 au premier passage ou retour
+        if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
+        animationStates.value['slide-20-text5Shown'] = false;
+      },
+      onEnterBack: () => {
+        // En remontant depuis la slide suivante
+        if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
+        animationStates.value['slide-20-text5Shown'] = false;
+      },
+      onLeave: () => {
+        // Si on quitte avant d'avoir terminé l'animation initiale
+        if (!animationStates.value['slide-20-initialAnimPlayed']) {
+          resetSlide20Elements(turtleBeach, mzuH2Elements, textElement3, textElement0, 
+                            textElement4, textElement2, textElement1);
+        }
+      },
+      onLeaveBack: () => {
+        // Si on quitte vers le haut avant d'avoir terminé l'animation initiale
+        if (!animationStates.value['slide-20-initialAnimPlayed']) {
+          resetSlide20Elements(turtleBeach, mzuH2Elements, textElement3, textElement0, 
+                            textElement4, textElement2, textElement1);
+        }
+      }
+    });
+    specificAnimationTriggers.push(st20);
+  };
+
+  /**
+   * Réinitialise les éléments de la slide-20 à leur état initial
+   */
+  const resetSlide20Elements = (turtleBeach, mzuH2Elements, textElement3, textElement0, 
+                              textElement4, textElement2, textElement1) => {
+    if (turtleBeach) gsap.set(turtleBeach, { scale: 0, autoAlpha: 1 });
+    if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 0, y: 20 });
+    if (textElement3) gsap.set(textElement3, { autoAlpha: 0, y: 20 });
+    if (textElement0) gsap.set(textElement0, { autoAlpha: 0, y: 20 });
+    if (textElement4) gsap.set(textElement4, { autoAlpha: 0, y: 20 });
+    if (textElement2) gsap.set(textElement2, { autoAlpha: 0, y: 20 });
+    if (textElement1) gsap.set(textElement1, { autoAlpha: 0, y: 20 });
+  };
+
+  /**
+   * Joue la séquence d'animation initiale de la slide-20
+   */
+  const playSlide20InitialAnimation = (targetSectionElement) => {
+    const turtleBeach = targetSectionElement.querySelector('#turlebeach');
+    const mzuH2Elements = targetSectionElement.querySelectorAll('#mzu h2');
+    const textElement3 = targetSectionElement.querySelector('#text-element-3');
+    const textElement0 = targetSectionElement.querySelector('#text-element-0');
+    const textElement4 = targetSectionElement.querySelector('#text-element-4');
+    const textElement2 = targetSectionElement.querySelector('#text-element-2');
+    const textElement1 = targetSectionElement.querySelector('#text-element-1');
+    
+    // Timeline pour séquencer les animations
+    const tl = gsap.timeline({
+      onComplete: () => {
+        animationStates.value['slide-20-initialAnimPlayed'] = true;
+        isNavigating.value = false; // Autoriser le scroll après la séquence
+      }
+    });
+    
+    // Ajouter les animations à la timeline
+    if (turtleBeach) {
+      tl.to(turtleBeach, {
+        scale: 1,
+        duration: 0.8,
+        ease: "power2.out"
+      });
+    }
+    
+    if (mzuH2Elements && mzuH2Elements.length) {
+      tl.to(mzuH2Elements, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power2.out"
+      }, "-=0.3");
+    }
+    
+    // Séquence des éléments de texte
+    if (textElement3) {
+      tl.to(textElement3, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.2");
+    }
+    
+    if (textElement0) {
+      tl.to(textElement0, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.2");
+    }
+    
+    if (textElement4) {
+      tl.to(textElement4, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.2");
+    }
+    
+    if (textElement2) {
+      tl.to(textElement2, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.2");
+    }
+    
+    if (textElement1) {
+      tl.to(textElement1, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.2");
+    }
+    
+    return tl;
+  };
+
+  /**
+   * Joue l'animation de #text-element-5 sur le second scroll
+   */
+  const playSlide20Text5Animation = (sectionElement) => {
+    const textElement5 = sectionElement.querySelector('#text-element-5');
+    if (!textElement5) {
+      animationStates.value['slide-20-text5Shown'] = true; // Marquer comme complété même si l'élément n'existe pas
+      return;
+    }
+    
+    gsap.to(textElement5, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      onComplete: () => {
+        animationStates.value['slide-20-text5Shown'] = true;
+      }
+    });
+  };
+
   // --- Logique de Navigation ---
 
   const goToSection = (index, duration = 1) => {
@@ -211,7 +403,15 @@ export function useFullpageScrollTrigger() {
     const previousSectionElement = sections.value[currentSectionIndex.value];
     const targetSectionElement = sections.value[index];
 
-    if (previousSectionElement && previousSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true && index > currentSectionIndex.value) {
+    // Vérifications pour bloquer le défilement
+    if (previousSectionElement && previousSectionElement.id === 'slide-73' && 
+      animationStates.value['slide-73'] !== true && index > currentSectionIndex.value) {
+      return;
+    }
+    
+    // Bloquer le défilement de slide-20 vers slide-21 si text-element-5 n'est pas affiché
+    if (previousSectionElement && previousSectionElement.id === 'slide-20' && 
+      !animationStates.value['slide-20-text5Shown'] && index > currentSectionIndex.value) {
       return;
     }
 
@@ -224,10 +424,15 @@ export function useFullpageScrollTrigger() {
         currentSectionIndex.value = index;
       },
       onComplete: () => {
-        isNavigating.value = false;
-        
-        // Animation pour slide-21 (jouer une seule fois)
-        if (targetSectionElement && targetSectionElement.id === 'slide-21' && !animationStates.value['slide-21-playedOnce']) {
+        // Animation initiale pour slide-20
+        if (targetSectionElement && targetSectionElement.id === 'slide-20' && 
+          !animationStates.value['slide-20-initialAnimPlayed']) {
+          // Garder isNavigating à true pendant l'animation
+          playSlide20InitialAnimation(targetSectionElement);
+        } 
+        // Animation pour slide-21
+        else if (targetSectionElement && targetSectionElement.id === 'slide-21' && 
+                 !animationStates.value['slide-21-playedOnce']) {
           const thoiathoingDiv = targetSectionElement.querySelector('#thoiathoing');
           if (thoiathoingDiv) {
             gsap.to(thoiathoingDiv, {
@@ -236,13 +441,15 @@ export function useFullpageScrollTrigger() {
               duration: 0.8,
               ease: 'power2.out',
               onComplete: () => {
-                animationStates.value['slide-21-playedOnce'] = true; // Marquer comme jouée une fois
+                animationStates.value['slide-21-playedOnce'] = true;
               }
             });
           } else {
-            // Si thoiathoingDiv n'est pas trouvé, marquer quand même pour éviter des vérifications répétées
-            animationStates.value['slide-21-playedOnce'] = true; 
+            animationStates.value['slide-21-playedOnce'] = true;
           }
+          isNavigating.value = false;
+        } else {
+          isNavigating.value = false;
         }
       },
       onInterrupt: () => {
@@ -262,7 +469,7 @@ export function useFullpageScrollTrigger() {
     stObserve = ScrollTrigger.observe({
       target: SCROLLER_SELECTOR,
       type: "wheel,touch",
-      debounce: false, // Ajuster si un délai est nécessaire
+      debounce: false,
       onUp: () => {
         handleFirstInteraction();
         if (isNavigating.value) return;
@@ -271,14 +478,31 @@ export function useFullpageScrollTrigger() {
       onDown: () => {
         handleFirstInteraction();
         if (isNavigating.value) return;
+        
         const currentSectionElement = sections.value[currentSectionIndex.value];
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
-          return; // Bloquer le défilement vers le bas si l'animation de la slide 73 n'est pas terminée
+        
+        // Gérer le cas spécial pour slide-73
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
+          animationStates.value['slide-73'] !== true) {
+          return;
         }
+        
+        // Gérer le cas spécial pour slide-20
+        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+          // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
+          if (animationStates.value['slide-20-initialAnimPlayed'] && 
+              !animationStates.value['slide-20-text5Shown']) {
+            // Afficher text-element-5
+            playSlide20Text5Animation(currentSectionElement);
+            return; // Bloquer le défilement pour le moment
+          }
+        }
+        
         goToSection(currentSectionIndex.value + 1);
       },
     });
 
+    // Mise à jour également du gestionnaire clavier
     keyboardListener.value = (e) => {
       handleFirstInteraction();
       if (isNavigating.value) return;
@@ -288,9 +512,22 @@ export function useFullpageScrollTrigger() {
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
-          return; // Bloquer si animation slide 73 non terminée
+        
+        // Bloquer pour slide-73
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
+          animationStates.value['slide-73'] !== true) {
+          return;
         }
+        
+        // Gérer le cas spécial pour slide-20
+        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+          if (animationStates.value['slide-20-initialAnimPlayed'] && 
+              !animationStates.value['slide-20-text5Shown']) {
+            playSlide20Text5Animation(currentSectionElement);
+            return;
+          }
+        }
+        
         newIndex++;
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
@@ -320,6 +557,7 @@ export function useFullpageScrollTrigger() {
       nextTick(() => {
         registerSlide73Animation();
         registerSlide21Animation();
+        registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
         setupFullpageObserver();
         goToSection(0, 0); 
         ScrollTrigger.refresh();

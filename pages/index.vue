@@ -356,19 +356,21 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
           </div>
           
           <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0 slide">
-
-                              <img id="turtlebeach" src="/images/hs.png" alt="">
-
-              <div id="mzu" class="nusrru">
+            <img id="turtlebeach" src="/images/hs.png" alt="">
+            <div id="ozaru" class=" row">
+              <div id="mzu" class="nusrru col-md-5">
                 <h2 id="slide2a" class="text-element" v-html="slide.wp_title"></h2>
                 <h2 id="slide2b" class="text-element" v-html="slide.title"></h2>
+                <h2 id="slide2c" class="text-element" v-html="slide.wp_content"></h2>
+
               </div>
-              <div id="guysamuel" class="gee">
-                <!-- <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" class="text-element"
+              <div id="guysamuel" class="gee col-md-7">
+                <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" class="text-element"
                    :id="`text-element-${idx}`" 
                   v-html="paragraph">
-                </div> -->
+                </div> 
               </div>
+            </div>
           </div>
           
           <div v-else-if="slide.id === 114" id="kiffyu" class="p-0 m-0 bgblur slide">
