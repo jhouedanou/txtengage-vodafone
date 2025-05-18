@@ -670,293 +670,6 @@ export function useFullpageScrollTrigger() {
     animationStates.value['slide-20-bubbles-animated'] = true;
   };
 
-  /**
-   * Configure les animations spécifiques pour la slide-22.
-   * L'animation d'entrée est déclenchée via goToSection et ne se joue qu'une fois.
-   */
-  const registerSlide22Animation = () => {
-    const slide22Section = sections.value.find(s => s.id === 'slide-22');
-    if (!slide22Section) {
-      return;
-    }
-
-    // Cibler spécifiquement les divs avec id "thoiathoing2" (paragraphes)
-    const thoiathoing2Elements = slide22Section.querySelectorAll('#thoiathoing2');
-
-    if (!thoiathoing2Elements || thoiathoing2Elements.length === 0) {
-      return;
-    }
-
-    // État initial: invisible et décalé vers le bas
-    gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
-
-    // Créer un état pour suivre si l'animation a été jouée
-    animationStates.value['slide-22-playedOnce'] = false;
-
-    // ScrollTrigger pour la slide-22
-    const st22 = ScrollTrigger.create({
-      trigger: slide22Section,
-      scroller: SCROLLER_SELECTOR,
-      // markers: true,
-      onLeave: () => {
-        // Si l'animation n'a pas encore eu lieu et on quitte la slide, 
-        // s'assurer que les éléments restent dans leur état initial
-        if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
-        }
-      },
-      onLeaveBack: () => {
-        // Si l'animation n'a pas encore eu lieu et on revient à la slide précédente,
-        // s'assurer que les éléments restent dans leur état initial
-        if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
-        }
-      }
-    });
-    specificAnimationTriggers.push(st22);
-  };
-
-  const registerSlide128Animation = (slide128Section, caseStudyActiveIndexRef, slideParagraphsRef) => {
-    if (!slide128Section || !caseStudyActiveIndexRef || !slideParagraphsRef) {
-      console.warn('ScrollTrigger Composable: Missing elements for slide-128 animation setup.');
-      return;
-    }
-
-    // Reset animation state
-    animationStates.value['slide-128-initialAnimPlayed'] = false;
-
-    // Get all required elements
-    const h2 = slide128Section.querySelector('h2.text-element.aya');
-    const caseStudyImage = slide128Section.querySelector('.case-study-image');
-    const caseStudyHeaders = Array.from(slide128Section.querySelectorAll('.case-study-header'));
-    const caseStudyContents = Array.from(slide128Section.querySelectorAll('[id^="case-study-content-"]'));
-
-    if (!h2 || !caseStudyImage || caseStudyHeaders.length === 0 || caseStudyContents.length === 0) {
-      console.warn('ScrollTrigger Composable: Core animatable elements not found in slide-128.');
-      return;
-    }
-
-    // Set initial states for all elements
-    const setInitialAnimationStates = () => {
-      // Hide main elements initially (will be animated in)
-      gsap.set([h2, caseStudyImage, ...caseStudyHeaders], { autoAlpha: 0 });
-      gsap.set(h2, { y: 50 });
-      gsap.set(caseStudyImage, { scale: 0.8 });
-      gsap.set(caseStudyHeaders, { x: -30 });
-
-      // Hide ALL case study contents initially
-      caseStudyContents.forEach(content => {
-        gsap.set(content, { 
-          autoAlpha: 0,
-          display: 'none'
-        });
-      });
-    };
-
-    // Apply initial states
-    setInitialAnimationStates();
-
-    // Reference to intra-slide observer for wheel/touch events
-    let slide128IntraObserver = null;
-
-    // Function to handle case study content changes
-    const updateCaseStudyContent = (newIndex) => {
-      if (newIndex < 0 || newIndex >= slideParagraphsRef.value.length) return;
-      
-      // Short animation timeline for content transition
-      const tl = gsap.timeline({
-        onStart: () => {
-          isNavigating.value = true; // Block main scroll during transition
-        },
-        onComplete: () => {
-          isNavigating.value = false; // Unblock scroll after transition
-          caseStudyActiveIndexRef.value = newIndex; // Update the active index
-        }
-      });
-
-      // Convert to 1-based indexing for element IDs
-      const currentDisplayIndex = caseStudyActiveIndexRef.value + 1;
-      const newDisplayIndex = newIndex + 1;
-
-      // Hide current content
-      const currentContent = slide128Section.querySelector(`[id="case-study-content-${currentDisplayIndex}"]`);
-      if (currentContent) {
-        tl.to(currentContent, { 
-          autoAlpha: 0, 
-          display: 'none',
-          duration: 0.3 
-        });
-      }
-
-      // Show new content
-      const newContent = slide128Section.querySelector(`[id="case-study-content-${newDisplayIndex}"]`);
-      if (newContent) {
-        tl.to(newContent, { 
-          autoAlpha: 1, 
-          display: 'block',
-          duration: 0.3 
-        }, "+=0.1");
-      }
-    };
-
-    // Main ScrollTrigger for slide-128
-    const mainSlide128Trigger = ScrollTrigger.create({
-      trigger: slide128Section,
-      scroller: SCROLLER_SELECTOR,
-      start: "top top",
-      end: "bottom bottom",
-      // markers: true, // For debugging
-      onEnter: () => {
-        console.log("Enter slide-128");
-        // Reset to no content initially
-        caseStudyActiveIndexRef.value = -1; // No content selected initially
-        
-        // Ensure all contents are hidden
-        caseStudyContents.forEach(content => {
-          gsap.set(content, { 
-            autoAlpha: 0,
-            display: 'none'
-          });
-        });
-
-        // Only play initial animations if they haven't been played yet
-        if (!animationStates.value['slide-128-initialAnimPlayed']) {
-          console.log("Playing initial animations for slide-128");
-          isNavigating.value = true; // Block main scroll during animation
-          
-          // Sequential animation timeline
-          const tl = gsap.timeline({
-            onComplete: () => {
-              console.log("Initial animations complete, showing first content");
-              // After main elements are animated, show first content
-              updateCaseStudyContent(0);
-              animationStates.value['slide-128-initialAnimPlayed'] = true;
-              isNavigating.value = false; // Unblock main scroll
-              if (slide128IntraObserver) slide128IntraObserver.enable();
-            }
-          });
-
-          // Animate H2
-          tl.to(h2, { 
-            autoAlpha: 1, 
-            y: 0, 
-            duration: 0.8, 
-            ease: 'power2.out' 
-          });
-          
-          // Animate case study image
-          tl.to(caseStudyImage, { 
-            autoAlpha: 1, 
-            scale: 1, 
-            duration: 0.8, 
-            ease: 'power2.out' 
-          }, "-=0.4");
-          
-          // Animate case study headers with stagger
-          tl.to(caseStudyHeaders, {
-            autoAlpha: 1,
-            x: 0,
-            duration: 0.6,
-            stagger: 0.2,
-            ease: 'power2.out'
-          }, "-=0.4");
-        } else {
-          console.log("Animations already played, showing first content");
-          // If animation already played, show first content and enable observer
-          updateCaseStudyContent(0);
-          if (slide128IntraObserver) slide128IntraObserver.enable();
-        }
-      },
-      onLeave: () => {
-        console.log("Leave slide-128");
-        if (slide128IntraObserver) slide128IntraObserver.disable();
-      },
-      onEnterBack: () => {
-        console.log("Enter back slide-128");
-        // When coming back to the slide, reset to no content initially
-        caseStudyActiveIndexRef.value = -1;
-        
-        // Ensure all contents are hidden
-        caseStudyContents.forEach(content => {
-          gsap.set(content, { 
-            autoAlpha: 0,
-            display: 'none'
-          });
-        });
-        
-        // Then show first content
-        updateCaseStudyContent(0);
-        if (slide128IntraObserver) slide128IntraObserver.enable();
-      },
-      onLeaveBack: () => {
-        console.log("Leave back slide-128");
-        if (slide128IntraObserver) slide128IntraObserver.disable();
-      }
-    });
-
-    // ScrollTrigger observer for handling scroll/swipe within slide-128
-    slide128IntraObserver = ScrollTrigger.observe({
-      target: slide128Section, 
-      type: "wheel,touch",
-      debounce: false,
-      preventDefault: true,
-      onUp: (e) => { // Scroll up / Swipe up
-        if (isNavigating.value || !animationStates.value['slide-128-initialAnimPlayed']) return;
-        
-        console.log("Scroll up in slide-128, current index:", caseStudyActiveIndexRef.value);
-        const newIndex = caseStudyActiveIndexRef.value - 1;
-        
-        if (newIndex >= 0) {
-          // If not at first content, show previous content
-          console.log("Showing previous content:", newIndex + 1);
-          e.preventDefault(); // Ensure we're handling the scroll
-          updateCaseStudyContent(newIndex);
-        } else if (caseStudyActiveIndexRef.value === 0) {
-          // If at first content and scrolling up, navigate to previous slide
-          console.log("At first content, releasing scroll to go to previous slide");
-          // Temporarily disable our observer to allow main scroll to happen
-          slide128IntraObserver.disable();
-          // Let the main scroll happen naturally
-          setTimeout(() => {
-            if (slide128IntraObserver) slide128IntraObserver.enable();
-          }, 1500); // Give enough time for slide transition
-        }
-      },
-      onDown: (e) => { // Scroll down / Swipe down
-        if (isNavigating.value || !animationStates.value['slide-128-initialAnimPlayed']) return;
-        
-        console.log("Scroll down in slide-128, current index:", caseStudyActiveIndexRef.value);
-        const newIndex = caseStudyActiveIndexRef.value + 1;
-        
-        if (newIndex < slideParagraphsRef.value.length) {
-          // If not at last content, show next content
-          console.log("Showing next content:", newIndex + 1);
-          e.preventDefault(); // Ensure we're handling the scroll
-          updateCaseStudyContent(newIndex);
-        } else if (caseStudyActiveIndexRef.value === slideParagraphsRef.value.length - 1) {
-          // If at last content and scrolling down, navigate to next slide
-          console.log("At last content, releasing scroll to go to next slide");
-          // Temporarily disable our observer to allow main scroll to happen
-          slide128IntraObserver.disable();
-          // Let the main scroll happen naturally
-          setTimeout(() => {
-            if (slide128IntraObserver) slide128IntraObserver.enable();
-          }, 1500); // Give enough time for slide transition
-        }
-      },
-    });
-
-    // Initially disable the observer (will be enabled after initial animation)
-    if (slide128IntraObserver) {
-      slide128IntraObserver.disable();
-      specificAnimationTriggers.push(slide128IntraObserver);
-    }
-    
-    if (mainSlide128Trigger) {
-      specificAnimationTriggers.push(mainSlide128Trigger);
-    }
-  };
-
   // --- Logique de Navigation ---
 
   const goToSection = (index, duration = 1) => {
@@ -1015,26 +728,6 @@ export function useFullpageScrollTrigger() {
             animationStates.value['slide-21-playedOnce'] = true;
           }
           isNavigating.value = false;
-        }
-        // Animation pour slide-22
-        else if (targetSectionElement && targetSectionElement.id === 'slide-22' && 
-                 !animationStates.value['slide-22-playedOnce']) {
-          const thoiathoing2Elements = targetSectionElement.querySelectorAll('#thoiathoing2');
-          if (thoiathoing2Elements && thoiathoing2Elements.length > 0) {
-            gsap.to(thoiathoing2Elements, {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.8,
-              stagger: 0.2, // Ajouter un décalage entre chaque élément
-              ease: 'power2.out',
-              onComplete: () => {
-                animationStates.value['slide-22-playedOnce'] = true;
-              }
-            });
-          } else {
-            animationStates.value['slide-22-playedOnce'] = true;
-          }
-          isNavigating.value = false;
         } else {
           isNavigating.value = false;
         }
@@ -1053,86 +746,44 @@ export function useFullpageScrollTrigger() {
   const setupFullpageObserver = () => {
     if (sections.value.length === 0) return;
 
-    // Variables pour la gestion du throttling
-    let lastScrollTime = 0;
-    const scrollThrottleDelay = 800; // Délai entre les scrolls autorisés (en ms)
-    
-    // Gestionnaire de défilement avec throttling
-    const handleWheelScroll = (direction) => {
-      const now = Date.now();
-      
-      // Si un scroll a été traité récemment, ignorer ce scroll
-      if (now - lastScrollTime < scrollThrottleDelay) {
-        return;
-      }
-      
-      // Marquer le temps de ce scroll
-      lastScrollTime = now;
-      
-      handleFirstInteraction();
-      if (isNavigating.value) return;
-      
-      const currentSectionElement = sections.value[currentSectionIndex.value];
-      
-      if (direction === "up") {
-        // Défiler vers le haut (slide précédente)
+    stObserve = ScrollTrigger.observe({
+      target: SCROLLER_SELECTOR,
+      type: "wheel,touch",
+      debounce: false,
+      onUp: () => {
+        handleFirstInteraction();
+        if (isNavigating.value) return;
         goToSection(currentSectionIndex.value - 1);
-      } else {
-        // Défiler vers le bas (slide suivante)
+      },
+      onDown: () => {
+        handleFirstInteraction();
+        if (isNavigating.value) return;
+        
+        const currentSectionElement = sections.value[currentSectionIndex.value];
         
         // Gérer le cas spécial pour slide-73
         if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
-            animationStates.value['slide-73'] !== true) {
+          animationStates.value['slide-73'] !== true) {
           return;
         }
         
         // Gérer le cas spécial pour slide-20
         if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+          // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
           if (animationStates.value['slide-20-initialAnimPlayed'] && 
               !animationStates.value['slide-20-text5Shown']) {
+            // Afficher text-element-5
             playSlide20Text5Animation(currentSectionElement);
-            return;
+            return; // Bloquer le défilement pour le moment
           }
         }
         
         goToSection(currentSectionIndex.value + 1);
-      }
-    };
-
-    // Configuration de l'observateur pour les événements de roue (souris/trackpad)
-    const wheelObserver = ScrollTrigger.observe({
-      target: SCROLLER_SELECTOR,
-      type: "wheel",
-      debounce: false,
-      onUp: () => handleWheelScroll("up"),
-      onDown: () => handleWheelScroll("down"),
+      },
     });
-    
-    // Configuration de l'observateur pour les événements tactiles
-    // Note: Pour le tactile, on inverse la direction pour une expérience plus intuitive
-    const touchObserver = ScrollTrigger.observe({
-      target: SCROLLER_SELECTOR,
-      type: "touch",
-      debounce: false,
-      // Inversion des directions pour l'expérience tactile
-      onUp: () => handleWheelScroll("down"),   // Swipe vers le haut = slide suivante
-      onDown: () => handleWheelScroll("up"),   // Swipe vers le bas = slide précédente
-    });
-    
-    // Stocker les deux observateurs pour pouvoir les nettoyer plus tard
-    stObserve = { wheelObserver, touchObserver };
 
     // Mise à jour également du gestionnaire clavier
     keyboardListener.value = (e) => {
-      const now = Date.now();
-      
-      // Appliquer le même throttling aux événements clavier
-      if (now - lastScrollTime < scrollThrottleDelay) {
-        e.preventDefault();
-        return;
-      }
-      
-      lastScrollTime = now;
       handleFirstInteraction();
       if (isNavigating.value) return;
 
@@ -1175,11 +826,9 @@ export function useFullpageScrollTrigger() {
   /**
    * Initialise le composable avec les éléments de section.
    * @param {HTMLElement[]} sectionsElements - Un tableau d'éléments DOM représentant les sections.
-   * @param {object} [options] - Optional options for specific slides, like refs for slide-128.
    */
-  const init = (sectionsElements, options = {}) => {
+  const init = (sectionsElements) => {
     if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
-      console.error('ScrollTrigger Composable: init() received invalid sectionsElements.');
       return;
     }
     sections.value = sectionsElements;
@@ -1188,18 +837,7 @@ export function useFullpageScrollTrigger() {
       nextTick(() => {
         registerSlide73Animation();
         registerSlide21Animation();
-        registerSlide20Animation();
-        registerSlide22Animation();
-        
-        const slide128Section = sections.value.find(s => s.id === 'slide-128');
-        if (slide128Section && options.slide128) {
-          registerSlide128Animation(
-            slide128Section, 
-            options.slide128.caseStudyActiveIndexRef,
-            options.slide128.slideParagraphsRef
-          );
-        }
-
+        registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
         setupFullpageObserver();
         goToSection(0, 0); 
         ScrollTrigger.refresh();
@@ -1212,8 +850,7 @@ export function useFullpageScrollTrigger() {
    */
   const cleanup = () => {
     if (stObserve) {
-      if (stObserve.wheelObserver) stObserve.wheelObserver.kill();
-      if (stObserve.touchObserver) stObserve.touchObserver.kill();
+      stObserve.kill();
       stObserve = null;
     }
     if (keyboardListener.value) {
