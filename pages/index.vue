@@ -446,8 +446,8 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
             </div>
           </div>
           
-          <div id="slide-59" v-else-if="slide.id === 59" class="slide">
-            <div id="killerjunior" class="ouh">
+          <div id="slide-59" v-else-if="slide.id === 59" class="slide d-flex align-items-center justify-content-center">
+            <div id="killerjunior" class="ouh container">
               <div class="row">
                 <div class="col-md-5 leporc">
                   <h2 class="text-element aya" v-html="slide.title"></h2>
@@ -464,19 +464,20 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
           
           <div id="slide-128" v-else-if="slide.id === 128" class="slide">
             <div id="killerwu" class="ouh">
-              <div class="case-study-container">
+              <div class="case-study-container container">
                 <div class="row">
-                  <div class="col-md-7">
+                  <div id="bawse" class="col-md-7">
                     <div id="casestudy">
                       <div id="dec">  
                         <h2 class="text-element aya" v-html="slide.title"></h2>
                         <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
                           class="text-element col m-0 p-2" 
+                          :id="`case-study-item-${idx+1}`"
                           :class="{'case-study-active': idx === caseStudyActiveIndex, 'case-study-item': true}">
                           <h3 class="case-study-header">
                             {{ extractTitle(paragraph) }}
                           </h3>
-                          <div class="case-study-content" :class="{'case-study-content-visible': idx === caseStudyActiveIndex}" :id="`case-study-content-${idx+1}`">
+                          <div class="case-study-content" :id="`case-study-content-${idx+1}`">
                             <div v-html="extractTextContent(paragraph)"></div>
                           </div>
                         </div>

@@ -20,6 +20,8 @@ export function useFullpageScrollTrigger() {
   let stObserve = null; // Instance de ScrollTrigger.observe
   const keyboardListener = ref(null); // Référence au gestionnaire d'événements clavier
   const specificAnimationTriggers = []; // Pour stocker les instances de ScrollTrigger spécifiques à des slides
+  const slideSpecificEventListeners = []; // Pour stocker les event listeners spécifiques aux slides
+  const isAnimating = ref(false); // Pour suivre si une animation particulière est en cours
 
   // --- Gestion des Animations Spécifiques (ex: Slide 73) ---
 
@@ -699,6 +701,259 @@ export function useFullpageScrollTrigger() {
     animationStates.value['slide-20-bubbles-animated'] = true;
   };
 
+  const registerSlide128Animation = (options = {}) => {
+    const slide128Section = sections.value.find(s => s.id === 'slide-128');
+    if (!slide128Section) {
+      console.warn('ScrollTrigger Composable: Section slide-128 non trouvée pour l\'animation.');
+      return;
+    }
+
+    const killerwuDiv = slide128Section.querySelector('#killerwu');
+    if (!killerwuDiv) {
+      console.warn('ScrollTrigger Composable: Div #killerwu non trouvée dans slide-128.');
+      return;
+    }
+
+    // État d'animation initial pour la slide 128
+    // -1: animation initiale non démarrée
+    // 0: animation initiale terminée, prêt pour case-study-item-1
+    // 1: case-study-item-1 terminé, prêt pour case-study-item-2
+    // 2: case-study-item-2 terminé, prêt pour case-study-item-3
+    // 3: tous les items terminés, prêt pour passer à la slide suivante
+    animationStates.value['slide-128'] = -1;
+
+    // Initialisation: cacher tous les contenus d'étude de cas
+    const caseStudyItems = Array.from(slide128Section.querySelectorAll('.case-study-item'));
+    const caseStudyContents = Array.from(slide128Section.querySelectorAll('.case-study-content'));
+    const caseStudyHeaders = Array.from(slide128Section.querySelectorAll('.case-study-header'));
+  
+    // Configuration initiale avec GSAP
+    gsap.set(killerwuDiv, { autoAlpha: 0, y: 50 });
+    caseStudyItems.forEach(item => {
+      gsap.set(item, { color: '#000000' });
+    });
+    caseStudyContents.forEach(content => {
+      gsap.set(content, { autoAlpha: 0, display: 'none' });
+    });
+    caseStudyHeaders.forEach(header => {
+      header.classList.remove('active');
+    });
+
+    const st = ScrollTrigger.create({
+      trigger: slide128Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%',
+      onEnter: (self) => {
+        console.log(`ScrollTrigger Composable: Slide 128 onEnter. Anim state: ${animationStates.value['slide-128']}, hasScrolledOnce: ${hasScrolledOnce.value}, currentIndex: ${currentSectionIndex.value}`);
+      
+        const slide128Index = sections.value.findIndex(s => s.id === 'slide-128');
+      
+        // Si c'est la première fois qu'on entre dans la slide
+        if (animationStates.value['slide-128'] === -1) {
+          // Ajouter un délai pour laisser la slide-128 apparaître d'abord
+          console.log("ScrollTrigger Composable: Attente avant animation de killerwu...");
+          
+          // Attendre un délai avant de démarrer l'animation
+          setTimeout(() => {
+            // Animation initiale: faire apparaître #killerwu
+            gsap.to(killerwuDiv, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 1,
+              ease: 'power2.out',
+              onComplete: () => {
+                console.log('ScrollTrigger Composable: Animation initiale slide 128 terminée.');
+                // Prêt pour le premier item
+                animationStates.value['slide-128'] = 0;
+              }
+            });
+          }, 800); // Délai de 800ms pour laisser la slide s'afficher d'abord
+          
+          self.disable(); // Désactive ce trigger après l'animation initiale
+        }
+      }
+    });
+    specificAnimationTriggers.push(st);
+
+    // Fonction pour fermer tous les contenus et réinitialiser les styles/classes
+    const closeAllCaseStudyItems = () => {
+      // Réinitialiser la couleur de tous les items
+      caseStudyItems.forEach(item => {
+        gsap.to(item, {
+          color: '#000000',
+          duration: 0.3,
+          ease: 'power1.out'
+        });
+      });
+      
+      // Cacher tous les contenus
+      caseStudyContents.forEach(content => {
+        gsap.to(content, {
+          autoAlpha: 0,
+          duration: 0.3,
+          ease: 'power1.out',
+          onComplete: () => {
+            gsap.set(content, { display: 'none' });
+          }
+        });
+      });
+      
+      // Retirer la classe active de tous les headers
+      caseStudyHeaders.forEach(header => {
+        header.classList.remove('active');
+      });
+    };
+
+    // Fonction pour activer le prochain item d'étude de cas
+    const activateNextCaseStudyItem = () => {
+      const currentStep = animationStates.value['slide-128'];
+    
+      // Vérifier si tous les items sont déjà activés
+      if (currentStep >= caseStudyItems.length) {
+        console.log('ScrollTrigger Composable: Tous les items de slide 128 sont activés.');
+        return false;
+      }
+    
+      // Le numéro d'item à activer (1-indexed)
+      const itemNumber = currentStep + 1;
+      console.log(`ScrollTrigger Composable: Activation de case-study-item-${itemNumber}`);
+    
+      // Trouver les éléments à animer
+      const itemToActivate = slide128Section.querySelector(`#case-study-item-${itemNumber}`);
+      const contentToShow = slide128Section.querySelector(`#case-study-content-${itemNumber}`);
+      const headerToActivate = itemToActivate ? itemToActivate.querySelector('.case-study-header') : null;
+    
+      if (!itemToActivate || !contentToShow) {
+        console.warn(`ScrollTrigger Composable: Item ${itemNumber} ou son contenu non trouvé.`);
+        animationStates.value['slide-128']++;
+        return false;
+      }
+      
+      // D'abord fermer tous les contenus existants
+      closeAllCaseStudyItems();
+    
+      // Animation pour activer l'item et afficher son contenu
+      const timeline = gsap.timeline({
+        onComplete: () => {
+          console.log(`ScrollTrigger Composable: Animation de case-study-item-${itemNumber} terminée.`);
+          animationStates.value['slide-128']++;
+          // Débloquer après l'animation
+          isAnimating.value = false;
+        }
+      });
+    
+      timeline.to(itemToActivate, {
+        color: '#ff0000',
+        duration: 0.4,
+        ease: 'power1.out'
+      });
+      
+      // Ajouter la classe active au header
+      if (headerToActivate) {
+        timeline.add(() => {
+          headerToActivate.classList.add('active');
+        }, "-=0.4");
+      }
+    
+      timeline.to(contentToShow, {
+        autoAlpha: 1,
+        display: 'block',
+        duration: 0.6,
+        ease: 'power2.out'
+      }, "-=0.2");
+    
+      return true;
+    };
+
+    // Observer la roue de la souris pour la progression séquentielle de slide 128
+    const handleSlide128ScrollProgress = (e) => {
+      // Vérifier si nous sommes actuellement sur la slide-128
+      if (currentSectionIndex.value === sections.value.findIndex(s => s.id === 'slide-128')) {
+        const currentStateValue = animationStates.value['slide-128'];
+      
+        // Si on essaie de scroller vers le bas et qu'il y a encore des items à activer
+        if (e.deltaY > 0 && currentStateValue >= 0 && currentStateValue < caseStudyItems.length) {
+          e.preventDefault();
+          e.stopPropagation();
+        
+          // Activer le prochain item si ce n'est pas déjà en cours d'animation
+          if (!isAnimating.value) {
+            isAnimating.value = true;
+            activateNextCaseStudyItem();
+          }
+        
+          return false;
+        }
+      }
+    };
+
+    // Ajouter l'observateur d'événement pour la slide 128
+    slide128Section.addEventListener('wheel', handleSlide128ScrollProgress, { passive: false });
+  
+    // Stocker la référence pour le nettoyage
+    slideSpecificEventListeners.push({
+      element: slide128Section,
+      event: 'wheel',
+      handler: handleSlide128ScrollProgress
+    });
+  };
+
+  const registerSlide59Animation = () => {
+    const slide59Section = sections.value.find(s => s.id === 'slide-59');
+    if (!slide59Section) {
+      console.warn('ScrollTrigger Composable: Section slide-59 non trouvée pour l\'animation.');
+      return;
+    }
+
+    const killerJuniorDiv = slide59Section.querySelector('#killerjunior');
+    if (!killerJuniorDiv) {
+      console.warn('ScrollTrigger Composable: Div #killerjunior non trouvée dans slide-59.');
+      return;
+    }
+
+    // État d'animation initial pour la slide 59
+    animationStates.value['slide-59'] = false; // false = animation non jouée, true = animation terminée
+
+    // Configuration initiale avec GSAP - cacher initialement #killerjunior
+    gsap.set(killerJuniorDiv, { autoAlpha: 0, y: 50 });
+
+    const st = ScrollTrigger.create({
+      trigger: slide59Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%',
+      onEnter: (self) => {
+        console.log(`ScrollTrigger Composable: Slide 59 onEnter. Anim state: ${animationStates.value['slide-59']}, currentIndex: ${currentSectionIndex.value}`);
+      
+        const slide59Index = sections.value.findIndex(s => s.id === 'slide-59');
+      
+        // Si l'animation n'a pas encore été jouée
+        if (!animationStates.value['slide-59']) {
+          // Ajouter un délai pour laisser la slide-59 apparaître d'abord
+          console.log("ScrollTrigger Composable: Attente avant animation de killerjunior...");
+          
+          // Attendre un délai avant de démarrer l'animation
+          setTimeout(() => {
+            // Animation: faire apparaître #killerjunior
+            gsap.to(killerJuniorDiv, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 1,
+              ease: 'power2.out',
+              onComplete: () => {
+                console.log('ScrollTrigger Composable: Animation slide 59 terminée.');
+                // Marquer l'animation comme terminée
+                animationStates.value['slide-59'] = true;
+              }
+            });
+          }, 800); // Délai de 800ms pour laisser la slide s'afficher d'abord
+          
+          self.disable(); // Désactive ce trigger après son unique exécution
+        }
+      }
+    });
+    specificAnimationTriggers.push(st);
+  };
+
   // --- Logique de Navigation ---
 
   const goToSection = (index, duration = 1) => {
@@ -874,22 +1129,25 @@ export function useFullpageScrollTrigger() {
    * Initialise le composable avec les éléments de section.
    * @param {HTMLElement[]} sectionsElements - Un tableau d'éléments DOM représentant les sections.
    */
-  const init = (sectionsElements) => {
+  const init = (sectionsElements, options = {}) => {
     if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
       return;
     }
     sections.value = sectionsElements;
 
+    console.log('ScrollTrigger Composable: Initialisation avec sections:', sections.value.length, sections.value.map(s=>s.id));
+    
     if (sections.value.length > 0) {
-      nextTick(() => {
-        registerSlide73Animation();
-        registerSlide21Animation();
-        registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
-        registerSlide22Animation();
-        setupFullpageObserver();
-        goToSection(0, 0); 
-        ScrollTrigger.refresh();
-      });
+      // hasScrolledOnce est initialisé à false par défaut.
+      // La logique pour différer l'animation de la slide 73 (si première) est dans son onEnter.
+      registerSlide73Animation(); // Enregistrer après que sections.value soit défini
+      registerSlide128Animation(options.slide128 || {}); // Enregistrer l'animation pour la slide 128
+      registerSlide59Animation(); // Enregistrer l'animation pour la slide 59
+      registerSlide21Animation();
+      registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
+      registerSlide22Animation();
+      setupFullpageObserver(); // Configurer les observateurs après que sections.value soit défini
+      goToSection(0, 0); // Aller à la première section sans animation
     }
   };
 
@@ -897,6 +1155,7 @@ export function useFullpageScrollTrigger() {
    * Nettoie les instances de ScrollTrigger, les écouteurs d'événements et les tweens GSAP.
    */
   const cleanup = () => {
+    console.log("ScrollTrigger Composable: Nettoyage...");
     if (stObserve) {
       stObserve.kill();
       stObserve = null;
@@ -907,11 +1166,18 @@ export function useFullpageScrollTrigger() {
     }
     specificAnimationTriggers.forEach(st => st.kill());
     specificAnimationTriggers.length = 0;
-    gsap.killTweensOf(SCROLLER_SELECTOR);
-
-    // Réinitialisation de l'état
+    
+    // Nettoyage des event listeners spécifiques aux slides
+    slideSpecificEventListeners.forEach(listener => {
+      listener.element.removeEventListener(listener.event, listener.handler);
+    });
+    slideSpecificEventListeners.length = 0;
+    
+    gsap.killTweensOf(SCROLLER_SELECTOR); // Cible le conteneur de défilement
+    // Réinitialiser les refs si nécessaire pour une réinitialisation complète
     currentSectionIndex.value = 0;
     isNavigating.value = false;
+    isAnimating.value = false;
     hasScrolledOnce.value = false;
     Object.keys(animationStates.value).forEach(key => delete animationStates.value[key]);
     sections.value = [];
