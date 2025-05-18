@@ -698,21 +698,6 @@ export function useFullpageScrollTrigger() {
       trigger: slide22Section,
       scroller: SCROLLER_SELECTOR,
       // markers: true,
-      onEnter: () => {
-        // Animation à l'entrée de la slide-22
-        if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.to(thoiathoing2Elements, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.8,
-            stagger: 0.2, // Ajouter un décalage entre chaque élément
-            ease: "power2.out",
-            onComplete: () => {
-              animationStates.value['slide-22-playedOnce'] = true;
-            }
-          });
-        }
-      },
       onLeave: () => {
         // Si l'animation n'a pas encore eu lieu et on quitte la slide, 
         // s'assurer que les éléments restent dans leur état initial
@@ -725,21 +710,6 @@ export function useFullpageScrollTrigger() {
         // s'assurer que les éléments restent dans leur état initial
         if (!animationStates.value['slide-22-playedOnce']) {
           gsap.set(thoiathoing2Elements, { autoAlpha: 0, y: 50 });
-        }
-      },
-      onEnterBack: () => {
-        // Animation à l'entrée de la slide-22 depuis la slide suivante
-        if (!animationStates.value['slide-22-playedOnce']) {
-          gsap.to(thoiathoing2Elements, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.8,
-            stagger: 0.2, // Ajouter un décalage entre chaque élément
-            ease: "power2.out",
-            onComplete: () => {
-              animationStates.value['slide-22-playedOnce'] = true;
-            }
-          });
         }
       }
     });
@@ -802,6 +772,26 @@ export function useFullpageScrollTrigger() {
             });
           } else {
             animationStates.value['slide-21-playedOnce'] = true;
+          }
+          isNavigating.value = false;
+        }
+        // Animation pour slide-22
+        else if (targetSectionElement && targetSectionElement.id === 'slide-22' && 
+                 !animationStates.value['slide-22-playedOnce']) {
+          const thoiathoing2Elements = targetSectionElement.querySelectorAll('#thoiathoing2');
+          if (thoiathoing2Elements && thoiathoing2Elements.length > 0) {
+            gsap.to(thoiathoing2Elements, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.8,
+              stagger: 0.2, // Ajouter un décalage entre chaque élément
+              ease: 'power2.out',
+              onComplete: () => {
+                animationStates.value['slide-22-playedOnce'] = true;
+              }
+            });
+          } else {
+            animationStates.value['slide-22-playedOnce'] = true;
           }
           isNavigating.value = false;
         } else {
