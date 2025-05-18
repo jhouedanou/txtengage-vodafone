@@ -218,17 +218,30 @@ onMounted(async () => {
     activeAccordionImage.value = firstAccordionSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1];
   }
 
-  caseStudyActiveIndex.value = 0;
+  const caseStudyActiveIndex = ref(0);
 
-  nextTick(() => {
-      if (sortedSlides.value.length > 0) {
-        const sectionElements = gsap.utils.toArray('.slide-section');
-        initFullpageScroll(sectionElements); // Initialisez le composable avec les éléments DOM
-      } else {
-        console.warn('Slides not loaded yet, FullpageScrollTrigger setup will be delayed or might fail.');
-      }
-  });
+  await nextTick(); // Assurer que le DOM est prêt
+  const sectionsArray = Array.from(document.querySelectorAll('.slide-section'));
+  
+  // Préparer les options pour slide-128
+  const slide128Data = sortedSlides.value.find(s => s.id === 128);
+  let slide128ParagraphsRef = ref([]);
+  if (slide128Data) {
+    slide128ParagraphsRef = ref(slide128Data.paragraphs || []);
+  }
 
+  const fullpageOptions = {
+    slide128: {
+      caseStudyActiveIndexRef: caseStudyActiveIndex, // Pass the existing ref
+      slideParagraphsRef: slide128ParagraphsRef      // Pass the ref for paragraphs of slide 128
+    }
+  };
+
+  initFullpageScroll(sectionsArray, fullpageOptions); 
+
+  // Déclenchement de la première mise à jour du fond après l'initialisation et le chargement des slides
+  updateBackground(); 
+  
   setTimeout(() => showButton.value = true, 2000);
 });
 
@@ -261,7 +274,6 @@ const extractImage = (html) => {
   return match ? match[1] : '';
 };
 
-const caseStudyActiveIndex = ref(0);
 const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; };
 
 </script>
@@ -356,19 +368,21 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
           </div>
           
           <div v-else-if="slide.id === 20" id="kiff" class="p-0 m-0 slide">
-
-                              <img id="turtlebeach" src="/images/hs.png" alt="">
-
-              <div id="mzu" class="nusrru">
+            <img id="turtlebeach" src="/images/hs.png" alt="">
+            <div id="ozaru" class=" row">
+              <div id="mzu" class="nusrru col-md-5">
                 <h2 id="slide2a" class="text-element" v-html="slide.wp_title"></h2>
                 <h2 id="slide2b" class="text-element" v-html="slide.title"></h2>
+                <h2 id="slide2c" class="text-element" v-html="slide.wp_content"></h2>
+
               </div>
-              <div id="guysamuel" class="gee">
-                <!-- <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" class="text-element"
+              <div id="guysamuel" class="gee col-md-7">
+                <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" class="text-element"
                    :id="`text-element-${idx}`" 
                   v-html="paragraph">
-                </div> -->
+                </div> 
               </div>
+            </div>
           </div>
           
           <div v-else-if="slide.id === 114" id="kiffyu" class="p-0 m-0 bgblur slide">
@@ -388,6 +402,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
               </div>
               <div class="row flex-row align-content-center align-items-center juustify-content-center">
                 <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
+                id="thoiathoing2"
                   class="text-element col m-0 p-2" v-html="paragraph">
                 </div>
               </div>
@@ -458,11 +473,10 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
                         <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
                           class="text-element col m-0 p-2" 
                           :class="{'case-study-active': idx === caseStudyActiveIndex, 'case-study-item': true}">
-                          <h3 @click="toggleCaseStudySection(idx)" class="case-study-header">
+                          <h3 class="case-study-header">
                             {{ extractTitle(paragraph) }}
-                            <span class="case-study-indicator">{{ idx === caseStudyActiveIndex ? '−' : '+' }}</span>
                           </h3>
-                          <div class="case-study-content" :class="{'case-study-content-visible': idx === caseStudyActiveIndex}">
+                          <div class="case-study-content" :class="{'case-study-content-visible': idx === caseStudyActiveIndex}" :id="`case-study-content-${idx+1}`">
                             <div v-html="extractTextContent(paragraph)"></div>
                           </div>
                         </div>
