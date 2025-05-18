@@ -3,5 +3,6 @@
   "handler": "index.mjs",
   "launcherType": "Nodejs",
   "shouldAddHelpers": false,
-  "supportsResponseStreaming": true
+  "supportsResponseStreaming": true,
+  "defaultRuntime": "nodejs20.x"
 }
