@@ -217,9 +217,12 @@ body {
         background     : -ms-linear-gradient(top, #D50002, #ED1311);
         background     : linear-gradient(90deg, #b70104, #ED1311);
         /* For Internet Explorer 10+ */
+z-index:-1;
 
         padding-left: 2.1em;
-
+        transform: translateX(100%); /* Positionner hors écran à droite */
+        visibility: hidden; /* Masquer complètement au chargement */
+        opacity: 0; /* Assurer une opacité nulle */
     }
 }
 

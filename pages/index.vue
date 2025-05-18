@@ -610,7 +610,11 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
   top: 0;
   left: 0;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
+  background: -webkit-linear-gradient(top, #D50002, #ED1311);
+  background: -moz-linear-gradient(top, #D50002, #ED1311);
+  background: -o-linear-gradient(top, #D50002, #ED1311);
+  background: -ms-linear-gradient(top, #D50002, #ED1311);
+  background: linear-gradient(90deg, #b70104, #ED1311);
   z-index: 9999;
 }
 
