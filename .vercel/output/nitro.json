@@ -1,5 +1,5 @@
 {
-  "date": "2025-05-18T16:41:51.464Z",
+  "date": "2025-05-18T16:49:37.366Z",
   "preset": "vercel",
   "framework": {
     "name": "nuxt",
@@ -16,6 +16,9 @@
     "vercel": {
       "functions": {
         "defaultRuntime": "nodejs20.x"
+      },
+      "config": {
+        "runtime": "nodejs20.x"
       }
     }
   }

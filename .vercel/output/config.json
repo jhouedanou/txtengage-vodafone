@@ -56,5 +56,6 @@
       "src": "/(.*)",
       "dest": "/__nitro"
     }
-  ]
+  ],
+  "runtime": "nodejs20.x"
 }
