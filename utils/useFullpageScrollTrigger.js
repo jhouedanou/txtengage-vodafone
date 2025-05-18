@@ -765,6 +765,51 @@ export function useFullpageScrollTrigger() {
                 console.log('ScrollTrigger Composable: Animation initiale slide 128 terminée.');
                 // Prêt pour le premier item
                 animationStates.value['slide-128'] = 0;
+                
+                // Activer automatiquement le premier élément case-study après un court délai
+                setTimeout(() => {
+                  // Le code suivant est extrait de la fonction activateNextCaseStudyItem
+                  // mais appliqué directement pour le premier item
+                  console.log("ScrollTrigger Composable: Activation automatique du premier case-study-item");
+                  
+                  const itemNumber = 1;
+                  const itemToActivate = slide128Section.querySelector(`#case-study-item-${itemNumber}`);
+                  const contentToShow = slide128Section.querySelector(`#case-study-content-${itemNumber}`);
+                  const headerToActivate = itemToActivate ? itemToActivate.querySelector('.case-study-header') : null;
+                  
+                  if (itemToActivate && contentToShow) {
+                    // D'abord fermer tous les contenus
+                    closeAllCaseStudyItems();
+                    
+                    // Animation pour activer l'item et afficher son contenu
+                    const timeline = gsap.timeline({
+                      onComplete: () => {
+                        console.log(`ScrollTrigger Composable: Animation de case-study-item-${itemNumber} terminée.`);
+                        animationStates.value['slide-128'] = 1; // Mettre directement à 1 car c'est le premier item
+                      }
+                    });
+                    
+                    timeline.to(itemToActivate, {
+                      color: '#ff0000',
+                      duration: 0.4,
+                      ease: 'power1.out'
+                    });
+                    
+                    // Ajouter la classe active au header
+                    if (headerToActivate) {
+                      timeline.add(() => {
+                        headerToActivate.classList.add('active');
+                      }, "-=0.4");
+                    }
+                  
+                    timeline.to(contentToShow, {
+                      autoAlpha: 1,
+                      display: 'block',
+                      duration: 0.6,
+                      ease: 'power2.out'
+                    }, "-=0.2");
+                  }
+                }, 300); // Petit délai pour une transition visuelle plus agréable
               }
             });
           }, 800); // Délai de 800ms pour laisser la slide s'afficher d'abord
@@ -911,11 +956,31 @@ export function useFullpageScrollTrigger() {
       return;
     }
 
-    // État d'animation initial pour la slide 59
-    animationStates.value['slide-59'] = false; // false = animation non jouée, true = animation terminée
+    const llassImg = slide59Section.querySelector('#llass');
+    if (!llassImg) {
+      console.warn('ScrollTrigger Composable: Image #llass non trouvée dans slide-59.');
+      // Continuer l'exécution même si #llass n'est pas trouvé
+    }
+
+    // États d'animation pour la slide 59
+    // -1: animation initiale non jouée
+    // 0: killerjunior affiché, prêt pour l'animation de llass
+    // 1: toutes les animations terminées
+    animationStates.value['slide-59'] = -1;
 
     // Configuration initiale avec GSAP - cacher initialement #killerjunior
     gsap.set(killerJuniorDiv, { autoAlpha: 0, y: 50 });
+    
+    // Cacher llass initialement et le configurer pour l'animation de remplissage
+    if (llassImg) {
+      gsap.set(llassImg, { 
+        display: 'block',
+        autoAlpha: 1,
+        // Utiliser strokeDasharray/strokeDashoffset sur un SVG est idéal mais ici
+        // on simule un effet de remplissage avec un polygone qui se dévoile de gauche à droite
+        clipPath: 'polygon(0% 0%, 0% 100%, 0% 100%, 0% 0%)'
+      });
+    }
 
     const st = ScrollTrigger.create({
       trigger: slide59Section,
@@ -927,7 +992,7 @@ export function useFullpageScrollTrigger() {
         const slide59Index = sections.value.findIndex(s => s.id === 'slide-59');
       
         // Si l'animation n'a pas encore été jouée
-        if (!animationStates.value['slide-59']) {
+        if (animationStates.value['slide-59'] === -1) {
           // Ajouter un délai pour laisser la slide-59 apparaître d'abord
           console.log("ScrollTrigger Composable: Attente avant animation de killerjunior...");
           
@@ -940,9 +1005,9 @@ export function useFullpageScrollTrigger() {
               duration: 1,
               ease: 'power2.out',
               onComplete: () => {
-                console.log('ScrollTrigger Composable: Animation slide 59 terminée.');
-                // Marquer l'animation comme terminée
-                animationStates.value['slide-59'] = true;
+                console.log('ScrollTrigger Composable: Animation initiale slide 59 terminée.');
+                // Marquer que killerjunior est affiché, prêt pour la suite de l'animation
+                animationStates.value['slide-59'] = 0;
               }
             });
           }, 800); // Délai de 800ms pour laisser la slide s'afficher d'abord
@@ -952,36 +1017,90 @@ export function useFullpageScrollTrigger() {
       }
     });
     specificAnimationTriggers.push(st);
+    
+    // Observer la roue de la souris pour l'animation de llass
+    const handleSlide59ScrollProgress = (e) => {
+      // Vérifier si nous sommes actuellement sur la slide-59 
+      if (currentSectionIndex.value === sections.value.findIndex(s => s.id === 'slide-59')) {
+        // Si killerjunior est affiché mais llass pas encore
+        if (animationStates.value['slide-59'] === 0) {
+          if (e.deltaY > 0) { // Défilement vers le bas
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Activer l'animation de llass si elle n'est pas déjà en cours
+            if (!isAnimating.value && llassImg) {
+              console.log("ScrollTrigger Composable: Animation de llass...");
+              isAnimating.value = true;
+              
+              // Animation avec effet de remplissage progressif des arcs rouges
+              gsap.to(llassImg, {
+                clipPath: 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)',
+                duration: 2.5, 
+                ease: 'power1.inOut',
+                onComplete: () => {
+                  console.log('ScrollTrigger Composable: Animation llass terminée.');
+                  animationStates.value['slide-59'] = 1; // Animation complète
+                  isAnimating.value = false; // Libérer le défilement
+                }
+              });
+            }
+            
+            return false;
+          }
+        }
+      }
+    };
+
+    // Ajouter l'observateur d'événement pour la slide 59
+    slide59Section.addEventListener('wheel', handleSlide59ScrollProgress, { passive: false });
+  
+    // Stocker la référence pour le nettoyage
+    slideSpecificEventListeners.push({
+      element: slide59Section,
+      event: 'wheel',
+      handler: handleSlide59ScrollProgress
+    });
   };
 
   // --- Logique de Navigation ---
 
   const goToSection = (index, duration = 1) => {
+    console.log(`ScrollTrigger Composable: Tentative goToSection(${index}). Actuel: ${currentSectionIndex.value}, isNavigating: ${isNavigating.value}`);
     if (index < 0 || index >= sections.value.length || (isNavigating.value && duration !== 0)) {
-      return;
+      console.log('ScrollTrigger Composable: goToSection bloqué (limites ou navigation en cours)');
+      return; // Ne pas retourner si duration === 0 pour permettre la mise en place initiale
     }
     if (index === currentSectionIndex.value && duration !== 0) {
+      console.log('ScrollTrigger Composable: goToSection bloqué (déjà sur la section)');
       return;
     }
 
-    const previousSectionElement = sections.value[currentSectionIndex.value];
-    const targetSectionElement = sections.value[index];
-
-    // Vérifications pour bloquer le défilement
-    if (previousSectionElement && previousSectionElement.id === 'slide-73' && 
-      animationStates.value['slide-73'] !== true && index > currentSectionIndex.value) {
+    const currentSectionElement = sections.value[currentSectionIndex.value];
+    
+    // Blocage pour slide-73
+    if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+      console.log("ScrollTrigger Composable: Tentative de navigation depuis slide 73 avant fin animation. Bloqué.");
       return;
     }
     
-    // Bloquer le défilement de slide-20 vers slide-21 si text-element-5 n'est pas affiché
-    if (previousSectionElement && previousSectionElement.id === 'slide-20' && 
+    // Blocage pour slide-59
+    if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
+        animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
+        index > currentSectionIndex.value) { // Seulement bloquer vers le bas
+      console.log("ScrollTrigger Composable: Navigation depuis slide-59 bloquée (animation en cours).");
+      return;
+    }
+    
+    // Blocage pour slide-20
+    if (currentSectionElement && currentSectionElement.id === 'slide-20' && 
       !animationStates.value['slide-20-text5Shown'] && index > currentSectionIndex.value) {
       return;
     }
 
     isNavigating.value = true;
     gsap.to(SCROLLER_SELECTOR, {
-      scrollTo: { y: targetSectionElement, autoKill: false },
+      scrollTo: { y: sections.value[index], autoKill: false },
       duration: duration,
       ease: 'power2.inOut',
       onStart: () => {
@@ -989,15 +1108,15 @@ export function useFullpageScrollTrigger() {
       },
       onComplete: () => {
         // Animation initiale pour slide-20
-        if (targetSectionElement && targetSectionElement.id === 'slide-20' && 
+        if (sections.value[index] && sections.value[index].id === 'slide-20' && 
           !animationStates.value['slide-20-initialAnimPlayed']) {
           // Garder isNavigating à true pendant l'animation
-          playSlide20InitialAnimation(targetSectionElement);
+          playSlide20InitialAnimation(sections.value[index]);
         } 
         // Animation pour slide-21
-        else if (targetSectionElement && targetSectionElement.id === 'slide-21' && 
+        else if (sections.value[index] && sections.value[index].id === 'slide-21' && 
                  !animationStates.value['slide-21-playedOnce']) {
-          const thoiathoingDiv = targetSectionElement.querySelector('#thoiathoing');
+          const thoiathoingDiv = sections.value[index].querySelector('#thoiathoing');
           if (thoiathoingDiv) {
             gsap.to(thoiathoingDiv, {
               autoAlpha: 1,
@@ -1016,8 +1135,8 @@ export function useFullpageScrollTrigger() {
           isNavigating.value = false;
         }
         
-        if (targetSectionElement && targetSectionElement.id === 'slide-22' && !animationStates.value['slide-22-played']) {
-          const thoiathoingDiv = targetSectionElement.querySelector('#thoiathoing');
+        if (sections.value[index] && sections.value[index].id === 'slide-22' && !animationStates.value['slide-22-played']) {
+          const thoiathoingDiv = sections.value[index].querySelector('#thoiathoing');
           if (thoiathoingDiv) {
             gsap.to(thoiathoingDiv, {
               autoAlpha: 1,
@@ -1095,19 +1214,23 @@ export function useFullpageScrollTrigger() {
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
         
-        // Bloquer pour slide-73
+        // Blocage pour slide-73
         if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
           animationStates.value['slide-73'] !== true) {
           return;
         }
         
-        // Gérer le cas spécial pour slide-20
-        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
-          if (animationStates.value['slide-20-initialAnimPlayed'] && 
-              !animationStates.value['slide-20-text5Shown']) {
-            playSlide20Text5Animation(currentSectionElement);
-            return;
-          }
+        // Blocage pour slide-59
+        if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
+            animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
+            newIndex > currentSectionIndex.value) { // Seulement bloquer vers le bas
+          return;
+        }
+        
+        // Blocage pour slide-20
+        if (currentSectionElement && currentSectionElement.id === 'slide-20' && 
+          !animationStates.value['slide-20-text5Shown'] && newIndex > currentSectionIndex.value) {
+          return;
         }
         
         newIndex++;

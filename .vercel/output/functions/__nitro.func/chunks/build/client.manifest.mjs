@@ -1,10 +1,10 @@
 const client_manifest = {
-  "_Dm725WD2.js": {
+  "_C8R_spXU.js": {
     "resourceType": "script",
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "Dm725WD2.js",
+    "file": "C8R_spXU.js",
     "name": "vue.8fc199ce",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
@@ -15,13 +15,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "lKLzCFFc.js",
+    "file": "CGKhSMmr.js",
     "name": "error-404",
     "src": "node_modules/nuxt/dist/app/components/error-404.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_Dm725WD2.js"
+      "_C8R_spXU.js"
     ],
     "css": [
       "error-404.CoZKRZXM.css"
@@ -38,13 +38,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "CGt5UXRf.js",
+    "file": "CPYjciP5.js",
     "name": "error-500",
     "src": "node_modules/nuxt/dist/app/components/error-500.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_Dm725WD2.js"
+      "_C8R_spXU.js"
     ],
     "css": [
       "error-500.D6506J9O.css"
@@ -61,7 +61,7 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "BGxK_zf6.js",
+    "file": "CxEvzeQx.js",
     "name": "entry",
     "src": "node_modules/nuxt/dist/app/entry.js",
     "isEntry": true,
@@ -70,11 +70,11 @@ const client_manifest = {
       "node_modules/nuxt/dist/app/components/error-500.vue"
     ],
     "css": [
-      "entry.C052oswP.css"
+      "entry.t-pnKPXr.css"
     ]
   },
-  "entry.C052oswP.css": {
-    "file": "entry.C052oswP.css",
+  "entry.t-pnKPXr.css": {
+    "file": "entry.t-pnKPXr.css",
     "resourceType": "style",
     "prefetch": true,
     "preload": true
@@ -84,13 +84,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "Bw9inq8A.js",
+    "file": "b42ZHA-L.js",
     "name": "index",
     "src": "pages/index.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_Dm725WD2.js"
+      "_C8R_spXU.js"
     ],
     "css": [
       "index.DhnRixp2.css"

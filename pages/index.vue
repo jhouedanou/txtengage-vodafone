@@ -454,6 +454,13 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
                   <p v-html="slide.wp_content"></p>
                 </div>
                 <div class="col-md-7 kankan">
+                  <div id="gorr">
+                    <div id="gor">
+
+                    <img id="llass" src="/images/Group105.svg" alt=" ">
+                    <img id="lele" src="/images/Group203.svg" alt=" ">
+                    </div>
+                  </div>
                   <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" class="lemouds"
                     v-html="paragraph">
                   </div>

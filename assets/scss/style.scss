@@ -826,6 +826,21 @@ text-transform: uppercase;
 
 #slide-59 {
     width:100vw;
+    #gorr{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding:2em 0;
+        #llass{ 
+            display: none;
+            position:absolute;
+        }
+        img{
+            width: 100% !important;
+            max-width: 502px;
+        height: 479px
+        }
+    }
     #killerjunior {
         width: 95vw;
         .kankan{
@@ -859,9 +874,7 @@ text-transform: uppercase;
             img{
                 margin:0 auto;
                 &:nth-of-type(1) {
-                    width: 100% !important;
-                    max-width: 502px;
-                height: 479px
+                  
                 };
             }
         }
