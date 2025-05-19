@@ -414,21 +414,18 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
               <div id="perdrix" class="row">
                 <div class="perdrix-slider">
                   <div class="perdrix-slider-container">
+        
+                    
                     <div id="joce" class="perdrix-slides-wrapper">
                       <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" 
-                        class="perdrix-slide" :class="{ 'active': idx === activeAccordionIndex }">
+                        class="perdrix-slide">
                         <div class="split-container row">
                           <div class="text-container col-md-6">
                             <h3 v-if="extractTitle(paragraph)">{{ extractTitle(paragraph) }}</h3>
                             <div class="text-content" v-html="extractTextContent(paragraph)"></div>
                           </div>
                           <div :id="`image-container-${idx+1}`" class="image-container col-md-6">
-                            <div :id="`innerphone-${idx+1}`" class="innerphone">
-
-                              <div :id="`telphjoen-${idx+1}`" class="telphjoen">
-                            <!--image d'arrire plan,trouver une façon de l'ajotuer dans l'API -->
-                          </div>
-                            </div>
+                            <img :src="extractImage(paragraph)" alt="Image" class="img-fluid" />
                           </div>
                         </div>
                       </div>
