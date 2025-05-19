@@ -414,9 +414,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
               <div id="perdrix" class="row">
                 <div class="perdrix-slider">
                   <div class="perdrix-slider-container">
-        
-                    
-                    <div class="perdrix-slides-wrapper">
+                    <div id="joce" class="perdrix-slides-wrapper">
                       <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" 
                         class="perdrix-slide" :class="{ 'active': idx === activeAccordionIndex }">
                         <div class="split-container row">

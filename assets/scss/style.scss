@@ -2076,7 +2076,7 @@ body {
             font-weight: normal;
             font-stretch: normal;
             font-style: normal;
-            line-height: 26px;
+            line-height: 23px;
             letter-spacing: normal;
             text-align: left;
             padding: 0px 0px 0px 30px;
@@ -2450,43 +2450,28 @@ body {
 }
 .image-container{
     display: flex;
-    align-items: center;
+    align-items:center;
     justify-content: center;
     flex-direction: column;
-    padding: 59px 99px 0 0;
-    margin: 0;
-    background: url(/images/Subtract.png);
-    background-position: bottom center;
-    background-size: 593px;
-    background-repeat: no-repeat;
 }
 .innerphone{
+    background:url(/images/Subtract.png);
     background-repeat: no-repeat;
     height: 100%;
     width: 100%;
+    background-position: bottom center;
+    background-size: contain;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-position: relative;
+
     .telphjoen {
-        background: url(/images/spriteBg.webp) red;
+        background: url(/images/spriteBg.webp);
         background-repeat: no-repeat;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        z-index: 10;
-        height: 539px;
-        background-position: top;
+        height: 577px;
+        width: 286px;
     }
 
 
 
-}
-.split-container{
-    .text-container{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    }
 }
