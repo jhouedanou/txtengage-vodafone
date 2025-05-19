@@ -1927,7 +1927,6 @@ body {
             letter-spacing: normal;
             text-align: center;
             color: #fff;
-            color: white;
         }
     }
 }
@@ -2449,20 +2448,33 @@ body {
         }
     }
 }
-
-.image-container {
+.image-container{
+    display: flex;
+    align-items:center;
+    justify-content: center;
+    flex-direction: column;
+}
+.innerphone{
     background: url(/images/Subtract.png);
     background-repeat: no-repeat;
-
-    background: url(/images/Subtract.png);
-    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
     background-position: bottom center;
+    background-size: auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
 
     .telphjoen {
         background: url(/images/spriteBg.webp);
         background-repeat: no-repeat;
-        height: 577px;
-        width: 286px;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        z-index: 10;
+        height: 100%;
+        background-size: cover;
+        background-position: top;
     }
 
 
