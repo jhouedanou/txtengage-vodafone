@@ -1198,14 +1198,7 @@ export function useFullpageScrollTrigger() {
           
           if (currentPerdrixIndex < perdrixSlides.length) {
             console.log(`Animation perdrix ${currentPerdrixIndex} - apparition`);
-            // S'assurer que la nouvelle slide est bien positionnée avant de la faire apparaître
-            gsap.set(perdrixSlides[currentPerdrixIndex], { 
-              autoAlpha: 0,
-              y: 0,
-              position: 'relative'
-            });
-            
-            // Animation d'apparition
+            // Laisser la transformation en place sur l'élément, mais changer juste l'opacité
             gsap.to(perdrixSlides[currentPerdrixIndex], {
               autoAlpha: 1,
               duration: 0.6,

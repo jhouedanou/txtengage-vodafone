@@ -1,10 +1,10 @@
 const client_manifest = {
-  "_DqSYmzHn.js": {
+  "_dZBbI1Bt.js": {
     "resourceType": "script",
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "DqSYmzHn.js",
+    "file": "dZBbI1Bt.js",
     "name": "vue.8fc199ce",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
@@ -15,13 +15,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "CxwSj4aB.js",
+    "file": "6K2laWfQ.js",
     "name": "error-404",
     "src": "node_modules/nuxt/dist/app/components/error-404.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_DqSYmzHn.js"
+      "_dZBbI1Bt.js"
     ],
     "css": [
       "error-404.CoZKRZXM.css"
@@ -38,13 +38,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "CZzFYyyP.js",
+    "file": "cAc3QFpc.js",
     "name": "error-500",
     "src": "node_modules/nuxt/dist/app/components/error-500.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_DqSYmzHn.js"
+      "_dZBbI1Bt.js"
     ],
     "css": [
       "error-500.D6506J9O.css"
@@ -61,7 +61,7 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "CemmiGi3.js",
+    "file": "CwqVnPvS.js",
     "name": "entry",
     "src": "node_modules/nuxt/dist/app/entry.js",
     "isEntry": true,
@@ -70,11 +70,11 @@ const client_manifest = {
       "node_modules/nuxt/dist/app/components/error-500.vue"
     ],
     "css": [
-      "entry.H4luFWbO.css"
+      "entry.ecNrWzH5.css"
     ]
   },
-  "entry.H4luFWbO.css": {
-    "file": "entry.H4luFWbO.css",
+  "entry.ecNrWzH5.css": {
+    "file": "entry.ecNrWzH5.css",
     "resourceType": "style",
     "prefetch": true,
     "preload": true
@@ -84,13 +84,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "BCEy1iVi.js",
+    "file": "DWGSjG-v.js",
     "name": "index",
     "src": "pages/index.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_DqSYmzHn.js"
+      "_dZBbI1Bt.js"
     ],
     "css": [
       "index.DhnRixp2.css"
