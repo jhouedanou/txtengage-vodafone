@@ -906,6 +906,8 @@ export function useFullpageScrollTrigger() {
         duration: 0.6,
         ease: 'power2.out'
       }, "-=0.2");
+    
+      return true;
     };
 
     // Observer la roue de la souris pour la progression séquentielle de slide 128
@@ -1040,8 +1042,7 @@ export function useFullpageScrollTrigger() {
       // Vérifier si nous sommes actuellement sur la slide-59 
       if (currentSectionIndex.value === sections.value.findIndex(s => s.id === 'slide-59')) {
         // Si l'animation n'est pas encore terminée et qu'on essaie de défiler vers le bas
-        if (animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
-            e.deltaY > 0) { // Défilement vers le bas
+        if (animationStates.value['slide-59'] !== 1 && e.deltaY > 0) {
           // Bloquer le défilement
           e.preventDefault();
           e.stopPropagation();
@@ -1063,254 +1064,247 @@ export function useFullpageScrollTrigger() {
 
   const registerSlide23Animation = () => {
     console.log("Démarrage de registerSlide23Animation");
+  
+    const slide23Section = document.getElementById('bygone-bip');
+    if (!slide23Section) {
+      console.warn('ScrollTrigger Composable: Section bygone-bip (slide-23) non trouvée.');
+      return;
+    }
 
-    // Attendre un peu pour que le DOM soit complètement chargé
-    setTimeout(() => {
-      // Récupérer la section slide-23 par son ID
-      const slide23Section = document.getElementById('slide-23');
-      if (!slide23Section) {
-        console.warn('ScrollTrigger Composable: Section slide-23 non trouvée pour l\'animation.');
-        return;
+    const joceDiv = slide23Section.querySelector('#joce');
+    if (!joceDiv) {
+      console.warn('ScrollTrigger Composable: Div #joce non trouvée dans slide-23.');
+      return;
+    }
+
+    const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
+    console.log("Nombre de .perdrix-slide trouvées:", perdrixSlides.length);
+
+    if (perdrixSlides.length === 0) {
+      console.warn('ScrollTrigger Composable: Aucun élément .perdrix-slide trouvé dans slide-23.');
+      return;
+    }
+
+    // États d'animation pour slide-23:
+    // -1: Initiale, joce pas encore visible
+    // 0: joce visible et premier perdrix-slide affiché
+    // 1 à N: N perdrix-slides affichées
+    animationStates.value['slide-23'] = -1;
+    let currentPerdrixIndex = -1;
+
+    // Configuration initiale - IMPORTANT: vérifiez dans l'inspecteur que ces styles sont bien appliqués
+    gsap.set(joceDiv, { autoAlpha: 0, display: 'none' });
+    perdrixSlides.forEach((slide) => {
+      gsap.set(slide, { autoAlpha: 0, y: '100%', display: 'none' });
+    });
+
+    // Fonction pour activer le prochain perdrix-slide - version corrigée
+    const activateNextPerdrixSlide = () => {
+      // Déboggage - afficher l'état actuel
+      console.log(`État actuel: currentPerdrixIndex=${currentPerdrixIndex}, perdrixSlides.length=${perdrixSlides.length}`);
+      
+      // Si tous les éléments sont déjà affichés
+      if (currentPerdrixIndex >= perdrixSlides.length - 1) {
+        console.log("Tous les éléments sont déjà affichés, défilement libéré");
+        if (typeof fullpage_api !== 'undefined') {
+          fullpage_api.setAllowScrolling(true);
+          fullpage_api.setKeyboardScrolling(true);
+        }
+        return false;
       }
-      console.log("Slide-23 trouvée via document.getElementById:", slide23Section);
 
-      // Mise à jour: cibler directement le div #joce dans la nouvelle structure
-      const joceDiv = slide23Section.querySelector('#joce');
-      if (!joceDiv) {
-        console.warn('ScrollTrigger Composable: Div #joce non trouvée dans slide-23.');
-        return;
-      }
-      console.log("Div #joce trouvée:", joceDiv);
-
-      const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
-      console.log("Nombre de .perdrix-slide trouvées:", perdrixSlides.length);
-
-      if (perdrixSlides.length === 0) {
-        console.warn('ScrollTrigger Composable: Aucun élément .perdrix-slide trouvé dans slide-23.');
-        return;
-      }
-
-      // États d'animation pour slide-23:
-      // -1: Initiale, animation pas encore démarrée
-      // 0: joce et perdrix-slide-1 affichésfz, attendant scroll
-      // 1 à N-1: N perdrix-slides sont affichées (de 1 à N-1)
-      // N: Toutes les perdrix-slides sont affichées, défilement libéré
-      animationStates.value['slide-23'] = -1;
-      let currentPerdrixIndex = -1;
-
-      // Configuration initiale: cacher joce et toutes les perdrix-slide
-      gsap.set(joceDiv, { autoAlpha: 0 });
-      perdrixSlides.forEach((slide) => {
-        // On laisse les styles de positionnement mais on cache avec opacity
-        gsap.set(slide, { 
-          autoAlpha: 0,
-          // On conserve la position mais sans animation de translation
-          y: 0,
-          // On s'assure que l'élément reste dans le flux
-          position: 'relative'
-        });
+      // Augmenter l'index pour passer au prochain slide
+      currentPerdrixIndex++;
+      const slideToAnimate = perdrixSlides[currentPerdrixIndex];
+      
+      console.log(`Animation perdrix-slide ${currentPerdrixIndex}/${perdrixSlides.length-1}`, slideToAnimate);
+      
+      // Force display block avant l'animation
+      gsap.set(slideToAnimate, { display: 'block' });
+      
+      // Animation
+      gsap.to(slideToAnimate, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        onStart: () => {
+          console.log(`Animation de perdrix-slide ${currentPerdrixIndex} démarre`);
+        },
+        onComplete: () => {
+          animationStates.value['slide-23'] = currentPerdrixIndex + 1;
+          console.log(`Animation complétée, état: ${animationStates.value['slide-23']}`);
+          
+          // Si c'est le dernier élément, libérer le défilement
+          if (currentPerdrixIndex === perdrixSlides.length - 1) {
+            console.log("Dernier élément affiché, défilement libéré");
+            if (typeof fullpage_api !== 'undefined') {
+              fullpage_api.setAllowScrolling(true);
+              fullpage_api.setKeyboardScrolling(true);
+            }
+          }
+        }
       });
+      
+      return true;
+    };
 
-      // Créer un point d'ancrage pour ScrollTrigger
-      const anchorElement = document.createElement('div');
-      anchorElement.id = 'slide23-anchor';
-      anchorElement.style.position = 'absolute';
-      anchorElement.style.top = '0';
-      anchorElement.style.width = '100%';
-      anchorElement.style.height = '100%';
-      anchorElement.style.pointerEvents = 'none';
-      slide23Section.appendChild(anchorElement);
-
-      // Fonction pour bloquer le défilement, fonctionne même sans fullpage_api
-      const blockScrolling = () => {
-        console.log("Blocage du défilement pour slide-23");
-        isNavigating.value = true; // Bloquer la navigation interne
+    // Gestionnaire de scroll pour la slide-23 - version corrigée
+    const handlePerdrixScroll = (event) => {
+      // Vérifier si nous sommes sur la slide-23
+      const activeSlideId = document.querySelector('.slide.active')?.id;
+      console.log("Événement wheel détecté. Slide active:", activeSlideId);
+      
+      if (activeSlideId !== 'bygone-bip') {
+        console.log("Ignoré: pas sur la bonne slide");
+        return;
+      }
+      
+      // Ignorer si l'animation n'est pas démarrée
+      if (animationStates.value['slide-23'] < 0) {
+        console.log("Ignoré: animation pas encore démarrée");
+        return;
+      }
+      
+      // Détection du scroll vers le HAUT uniquement
+      console.log("deltaY détecté:", event.deltaY);
+      
+      if (event.deltaY < 0) {
+        console.log("Scroll VERS LE HAUT détecté");
         
-        // Utiliser fullpage_api si disponible
-        if (typeof fullpage_api !== 'undefined') {
-          try {
-            fullpage_api.setAllowScrolling(false);
-            fullpage_api.setKeyboardScrolling(false);
-          } catch (error) {
-            console.error("Erreur lors du blocage du défilement via fullpage_api:", error);
-          }
-        }
-      };
-
-      // Fonction pour libérer le défilement
-      const unblockScrolling = () => {
-        console.log("Défilement libéré pour slide-23");
-        isNavigating.value = false;
-        
-        if (typeof fullpage_api !== 'undefined') {
-          try {
-            fullpage_api.setAllowScrolling(true);
-            fullpage_api.setKeyboardScrolling(true);
-          } catch (error) {
-            console.error("Erreur lors de la libération du défilement via fullpage_api:", error);
-          }
-        }
-      };
-
-      // Gestionnaire d'événement pour les scrolls sur la slide-23
-      const handlePerdrixScroll = (event) => {
-        // Vérifier si nous sommes actuellement sur la slide-23
-        const currentSlideId = sections.value[currentSectionIndex.value]?.id;
-        console.log("handlePerdrixScroll - ID de la slide actuelle:", currentSlideId);
-        
-        if (currentSlideId !== 'slide-23') {
-          console.log("handlePerdrixScroll - Pas sur la slide-23, événement ignoré");
-          return; // Ne pas traiter l'événement si nous ne sommes pas sur la slide-23
-        }
-
-        console.log("Event wheel sur slide-23 détecté:", event.deltaY, "État:", animationStates.value['slide-23']);
-        
-        // Toujours bloquer l'événement de défilement par défaut
         event.preventDefault();
         event.stopPropagation();
-
-        // Ignorer si l'animation n'est pas au bon stade
-        if (animationStates.value['slide-23'] < 0 || 
-            animationStates.value['slide-23'] >= perdrixSlides.length) {
-          console.log("Animation pas au bon stade, état:", animationStates.value['slide-23']);
-          return;
-        }
         
-        // IMPORTANT: Pour macOS/trackpad, deltaY peut avoir des valeurs positives ou négatives très petites
-        // On considère que le scroll est vers le bas si deltaY > 0
-        console.log("Direction de scroll:", event.deltaY > 0 ? "BAS" : "HAUT", "avec valeur:", event.deltaY);
-        
-        // UNIQUEMENT réagir au scroll vers le BAS (deltaY > 0)
-        if (event.deltaY > 0) {
-          console.log("Scroll vers le BAS détecté - Activation de la prochaine perdrix", currentPerdrixIndex + 1);
-          
-          // Masquer la perdrix actuelle avec un fondu
-          if (currentPerdrixIndex >= 0 && currentPerdrixIndex < perdrixSlides.length) {
-            gsap.to(perdrixSlides[currentPerdrixIndex], { 
-              autoAlpha: 0, 
-              duration: 0.3,
-              ease: 'power2.inOut'
-            });
-          }
-          
-          // Passer à la suivante
-          currentPerdrixIndex++;
-          
-          if (currentPerdrixIndex < perdrixSlides.length) {
-            console.log(`Animation perdrix ${currentPerdrixIndex} - apparition`);
-            // S'assurer que la nouvelle slide est bien positionnée avant de la faire apparaître
-            gsap.set(perdrixSlides[currentPerdrixIndex], { 
-              autoAlpha: 0,
-              y: 0,
-              position: 'relative'
-            });
-            
-            // Animation d'apparition
-            gsap.to(perdrixSlides[currentPerdrixIndex], {
-              autoAlpha: 1,
-              duration: 0.6,
-              ease: 'power2.inOut',
-              onComplete: () => {
-                animationStates.value['slide-23'] = currentPerdrixIndex + 1;
-                console.log(`Animation état mise à jour: ${animationStates.value['slide-23']}`);
-                
-                // Si c'est la dernière perdrix-slide, libérer le défilement
-                if (currentPerdrixIndex === perdrixSlides.length - 1) {
-                  unblockScrolling();
-                  animationStates.value['slide-23'] = perdrixSlides.length;
-                  console.log('ScrollTrigger Composable: Animation slide-23 terminée, défilement libéré.');
-                }
-              }
-            });
-          }
-        }
-      };
+        const activated = activateNextPerdrixSlide();
+        console.log(`Activation ${activated ? 'réussie' : 'échouée'}`);
+      } else {
+        console.log("Ignoré: scroll vers le bas");
+      }
+    };
 
-      // Créer un ScrollTrigger pour la slide-23
-      const st = ScrollTrigger.create({
-        trigger: anchorElement,
-        scroller: SCROLLER_SELECTOR,
-        start: 'top center',
-        onEnter: () => {
-          console.log(`ScrollTrigger Composable: Slide-23 onEnter. État d'animation: ${animationStates.value['slide-23']}`);
-      
-          // Lors de la première entrée dans la slide
-          if (animationStates.value['slide-23'] === -1) {
-            // Bloquer immédiatement le défilement
-            blockScrolling();
+    // Configuration du ScrollTrigger
+    const st = ScrollTrigger.create({
+      trigger: slide23Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center',
+      onEnter: () => {
+        console.log("ScrollTrigger.onEnter pour slide-23");
+        
+        if (animationStates.value['slide-23'] === -1) {
+          console.log("Animation initiale avec délai pour #joce");
+          
+          // Animation initiale avec délai
+          setTimeout(() => {
+            // Faire apparaître #joce
+            console.log("Début animation de #joce");
             
-            // 1. Faire apparaître #slide-23 immédiatement
+            // Force display block avant l'animation
+            gsap.set(joceDiv, { display: 'block' });
+            
             gsap.to(joceDiv, {
               autoAlpha: 1,
-              duration: 0.8,
+              duration: 1,
               ease: 'power2.out',
+              onStart: () => {
+                console.log("Animation de #joce commence");
+              },
               onComplete: () => {
-                console.log('ScrollTrigger Composable: #slide-23 affiché, prêt pour la première perdrix-slide.');
+                console.log('Animation de #joce terminée');
+                animationStates.value['slide-23'] = 0;
                 
-                // 2. Faire apparaître la première perdrix-slide automatiquement
+                // Bloquer le défilement
+                if (typeof fullpage_api !== 'undefined') {
+                  console.log("Blocage du défilement");
+                  fullpage_api.setAllowScrolling(false);
+                  fullpage_api.setKeyboardScrolling(false);
+                }
+                
+                // Faire apparaître le premier perdrix-slide immédiatement
                 if (perdrixSlides.length > 0) {
+                  console.log("Animation du premier perdrix-slide");
                   currentPerdrixIndex = 0;
+                  
+                  // Force display block avant l'animation
+                  gsap.set(perdrixSlides[0], { display: 'block' });
+                  
                   gsap.to(perdrixSlides[0], {
                     autoAlpha: 1,
                     y: 0,
                     duration: 0.6,
                     ease: 'power2.out',
+                    onStart: () => {
+                      console.log("Animation du premier perdrix-slide commence");
+                    },
                     onComplete: () => {
+                      console.log("Animation du premier perdrix-slide terminée");
                       animationStates.value['slide-23'] = 1;
-                      console.log(`Première perdrix affichée, état: ${animationStates.value['slide-23']}`);
-                      
-                      // Après affichage de la première perdrix, écouter les scrolls
-                      document.addEventListener('wheel', handlePerdrixScroll, { passive: false });
-                      slideSpecificEventListeners.push({
-                        element: document,
-                        event: 'wheel',
-                        handler: handlePerdrixScroll
-                      });
                     }
                   });
                 }
+                
+                // Ajouter l'écouteur de scroll
+                console.log("Ajout de l'écouteur wheel");
+                document.addEventListener('wheel', handlePerdrixScroll, { passive: false });
+                slideSpecificEventListeners.push({
+                  element: document,
+                  event: 'wheel',
+                  handler: handlePerdrixScroll
+                });
+                
+                // Bouton de test avec style plus visible
+                const testButton = document.createElement('button');
+                testButton.textContent = "Test Perdrix Slide";
+                testButton.style.position = "fixed";
+                testButton.style.top = "20px";
+                testButton.style.right = "20px";
+                testButton.style.zIndex = "9999";
+                testButton.style.padding = "10px 15px";
+                testButton.style.backgroundColor = "#f00";
+                testButton.style.color = "#fff";
+                testButton.style.fontWeight = "bold";
+                testButton.style.border = "none";
+                testButton.style.borderRadius = "5px";
+                testButton.onclick = () => {
+                  console.log("Bouton de test cliqué");
+                  activateNextPerdrixSlide();
+                };
+                document.body.appendChild(testButton);
               }
             });
-          } else if (animationStates.value['slide-23'] > 0 && 
-                     animationStates.value['slide-23'] < perdrixSlides.length) {
-            // Si on revient sur la slide pendant que l'animation est en cours
-            blockScrolling();
-          }
-        },
-        onLeave: () => {
-          // S'assurer que l'animation est terminée avant de permettre la navigation
-          if (animationStates.value['slide-23'] < perdrixSlides.length) {
-            // Bloquer la navigation si l'animation n'est pas terminée
-            return false;
-          }
-        },
-        onLeaveBack: () => {
-          // Si on revient en arrière vers slide-22, réinitialiser si nécessaire
-          if (animationStates.value['slide-23'] < perdrixSlides.length) {
-            // Réinitialiser uniquement si l'animation n'était pas terminée
-            console.log("Réinitialisation de l'animation slide-23 lors du retour en arrière");
-            
-            // Libérer le défilement
-            unblockScrolling();
-            
-            // Détacher l'écouteur d'événement wheel
-            document.removeEventListener('wheel', handlePerdrixScroll);
-            
-            // Réinitialiser l'état
-            animationStates.value['slide-23'] = -1;
-            currentPerdrixIndex = -1;
-            
-            // Réinitialiser visuellement
-            gsap.set(joceDiv, { autoAlpha: 0 });
-            perdrixSlides.forEach((slide) => {
-              gsap.set(slide, { autoAlpha: 0, y: '100%' });
-            });
-          }
+          }, 1000);
         }
-      });
-  
-      specificAnimationTriggers.push(st);
-    }, 500);
+      },
+      onLeaveBack: () => {
+        // Réinitialiser si on quitte la slide
+        console.log("onLeaveBack pour slide-23");
+        animationStates.value['slide-23'] = -1;
+        currentPerdrixIndex = -1;
+        
+        // Supprimer les écouteurs d'événements
+        const wheelListeners = slideSpecificEventListeners.filter(l => 
+          l.element === document && l.event === 'wheel' && l.handler === handlePerdrixScroll);
+        
+        wheelListeners.forEach(l => {
+          l.element.removeEventListener(l.event, l.handler);
+          console.log("Écouteur wheel supprimé");
+        });
+        
+        // Réactiver le défilement par sécurité
+        if (typeof fullpage_api !== 'undefined') {
+          fullpage_api.setAllowScrolling(true);
+          fullpage_api.setKeyboardScrolling(true);
+        }
+        
+        // Supprimer le bouton de test
+        const testButton = document.querySelector('button[textContent="Test Perdrix Slide"]');
+        if (testButton) {
+          testButton.remove();
+          console.log("Bouton de test supprimé");
+        }
+      }
+    });
+
+    specificAnimationTriggers.push(st);
   };
 
   // --- Logique de Navigation ---
@@ -1327,17 +1321,6 @@ export function useFullpageScrollTrigger() {
     }
 
     const currentSectionElement = sections.value[currentSectionIndex.value];
-    
-    // BLOCAGE STRICT pour slide-23: empêcher de quitter la slide tant que l'animation n'est pas terminée
-    if (currentSectionElement && currentSectionElement.id === 'slide-23') {
-      const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-      // Vérifier si l'animation des perdrix-slides n'est pas terminée
-      if (animationStates.value['slide-23'] !== undefined && 
-          animationStates.value['slide-23'] < perdrixSlides.length) {
-        console.log("ScrollTrigger Composable: Navigation depuis slide-23 BLOQUÉE - Animation perdrix en cours.");
-        return; // Blocage strict de la navigation
-      }
-    }
     
     // Blocage pour slide-73
     if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
@@ -1438,7 +1421,7 @@ export function useFullpageScrollTrigger() {
         
         // Bloquer le défilement vers le haut si on est sur slide-23 et l'animation n'est pas terminée
         const currentSectionElement = sections.value[currentSectionIndex.value];
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+        if (currentSectionElement && currentSectionElement.id === 'bygone-bip') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined &&
               animationStates.value['slide-23'] <= perdrixSlides.length) {
@@ -1472,7 +1455,7 @@ export function useFullpageScrollTrigger() {
         }
         
         // Gérer le cas spécial pour slide-23
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+        if (currentSectionElement && currentSectionElement.id === 'bygone-bip') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
               animationStates.value['slide-23'] <= perdrixSlides.length) {
@@ -1515,7 +1498,7 @@ export function useFullpageScrollTrigger() {
         }
         
         // Blocage pour slide-23
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+        if (currentSectionElement && currentSectionElement.id === 'bygone-bip') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
               animationStates.value['slide-23'] <= perdrixSlides.length) {
@@ -1524,7 +1507,7 @@ export function useFullpageScrollTrigger() {
         }
         
         // Bloquer la navigation de slide-22 vers slide-23 si l'animation de slide-23 n'est pas terminée
-        const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
+        const slide23Index = sections.value.findIndex(s => s.id === 'bygone-bip');
         if (newIndex + 1 === slide23Index) {
           const slide23Section = sections.value[slide23Index];
           const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
@@ -1539,7 +1522,7 @@ export function useFullpageScrollTrigger() {
         e.preventDefault();
         
         // Bloquer la navigation de slide-23 vers slide-22
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+        if (currentSectionElement && currentSectionElement.id === 'bygone-bip') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
               animationStates.value['slide-23'] <= perdrixSlides.length) {
@@ -1548,7 +1531,7 @@ export function useFullpageScrollTrigger() {
         }
         
         // Bloquer la navigation de slide-59 vers slide-23 si l'animation de slide-23 n'est pas terminée
-        const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
+        const slide23Index = sections.value.findIndex(s => s.id === 'bygone-bip');
         if (currentSectionIndex.value - 1 === slide23Index) {
           const slide23Section = sections.value[slide23Index];
           const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));

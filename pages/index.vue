@@ -41,6 +41,8 @@ const isMobile = ref(false);
 const scrollMagicController = ref(null);
 let mastertl = null;
 
+const caseStudyActiveIndex = ref(0);
+
 const preloadImage = (src) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -411,13 +413,23 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
           
           <div v-else-if="slide.id === 23" id="bygone-bip" class="p-0 m-0 slide">
             <div class="container">
+              <div id="decodemerde">
+                <div class="row">
+                  <div class="col-md-6">
+                    <p></p>
+                  </div>          
+                  <div class="col-md-6">
+                    <div id="teste">
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div id="perdrix" class="row">
                 <div class="perdrix-slider">
                   <div class="perdrix-slider-container">
-        
-                    
                     <div id="joce" class="perdrix-slides-wrapper">
-                      <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" 
+                      <div v-for="(paragraph, idx) in slide.paragraphs" :id="`perdrix-slide-${idx+1}`" :key="idx" 
                         class="perdrix-slide">
                         <div class="split-container row">
                           <div class="text-container col-md-6">
