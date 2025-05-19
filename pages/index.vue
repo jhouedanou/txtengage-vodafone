@@ -425,12 +425,8 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
                             <div class="text-content" v-html="extractTextContent(paragraph)"></div>
                           </div>
                           <div :id="`image-container-${idx+1}`" class="image-container col-md-6">
-                            <div :id="`innerphone-${idx+1}`" class="innerphone">
-
-                              <div :id="`telphjoen-${idx+1}`" class="telphjoen">
-                            <!--image d'arrire plan,trouver une façon de l'ajotuer dans l'API -->
-                          </div>
-                            </div>
+                            <img :src="extractImage(paragraph)" alt="Image"
+                              class="img-fluid" />
                           </div>
                         </div>
                       </div>
