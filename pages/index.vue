@@ -414,32 +414,26 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
               <div id="perdrix" class="row">
                 <div class="perdrix-slider">
                   <div class="perdrix-slider-container">
-                    <div class="perdrix-slider-navigation">
-                      <button class="perdrix-nav-prev"><i class="fas fa-chevron-left"></i></button>
-                      <button class="perdrix-nav-next"><i class="fas fa-chevron-right"></i></button>
-                    </div>
+        
                     
                     <div class="perdrix-slides-wrapper">
                       <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx" 
                         class="perdrix-slide" :class="{ 'active': idx === activeAccordionIndex }">
-                        <div class="split-container">
-                          <div class="text-container">
+                        <div class="split-container row">
+                          <div class="text-container col-md-6">
                             <h3 v-if="extractTitle(paragraph)">{{ extractTitle(paragraph) }}</h3>
                             <div class="text-content" v-html="extractTextContent(paragraph)"></div>
                           </div>
-                          <div class="image-container">
-                            <img v-if="extractImage(paragraph)" :src="extractImage(paragraph)" 
-                              alt="Feature illustration" class="feature-image" />
+                          <div :id="`image-container-${idx+1}`" class="image-container col-md-6">
+                          <div :id="`telphjoen-${idx+1}`" class="telphjoen">
+                            <!--image d'arrire plan,trouver une façon de l'ajotuer dans l'API -->
+                          </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div class="perdrix-pagination">
-                      <span v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
-                        class="perdrix-bullet" :class="{ 'active': idx === activeAccordionIndex }"
-                        @click="activeAccordionIndex = idx"></span>
-                    </div>
+                 
                   </div>
                 </div>
               </div>
