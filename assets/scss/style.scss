@@ -14,6 +14,7 @@ body {
     padding: 0 !important;
     box-sizing: border-box;
     background-size: cover;
+    overflow-y: scroll !important; /* Force scrollbar to always show */
 
     p,
     * {
@@ -2528,4 +2529,35 @@ position: relative;
         justify-content: center;
         flex-direction: column;
     }
+}
+
+/* Custom Scrollbar Styling - macOS style */
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $vodafone-red !important;
+  border-radius: 10px !important;
+  border: 2px solid transparent !important;
+  background-clip: content-box !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff0000 !important;
+  border: 2px solid transparent !important;
+  background-clip: content-box !important;
+}
+
+/* Firefox */
+html, body {
+  scrollbar-width: thin !important;
+  scrollbar-color: $vodafone-red rgba(0, 0, 0, 0.3) !important;
+  overflow-y: auto !important;
 }
