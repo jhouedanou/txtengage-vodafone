@@ -5,7 +5,6 @@ import { useRuntimeConfig } from '#app';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-// Importation des fichiers JS personnalisés
 import { useFullpageScrollTrigger } from '~/utils/useFullpageScrollTrigger'; // Importez le composable
 
 // Initialisation du système de fullpage personnalisé

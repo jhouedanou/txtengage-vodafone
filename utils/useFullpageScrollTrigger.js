@@ -174,27 +174,9 @@ export function useFullpageScrollTrigger() {
     gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
     animationStates.value['slide-21-playedOnce'] = false; // Pour suivre si l'animation a été jouée une fois
 
-    // Ce ScrollTrigger peut être simplifié ou supprimé si on ne veut plus de réinitialisation
-    // pour rejouer. Si on veut juste l'animer une fois, on n'a pas besoin de onLeave/onLeaveBack
-    // pour réinitialiser l'état en vue d'une nouvelle animation.
-    // Cependant, il peut être utile si l'utilisateur quitte la slide AVANT que l'animation
-    // "jouer une fois" ne se soit déclenchée.
     const st21 = ScrollTrigger.create({
       trigger: slide21Section,
-      scroller: SCROLLER_SELECTOR,
-      // markers: true,
-      onLeave: () => {
-        // Si l'animation "jouer une fois" n'a pas encore eu lieu,
-        // et que l'on quitte la slide, on s'assure qu'elle reste dans son état initial.
-        if (!animationStates.value['slide-21-playedOnce']) {
-          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
-        }
-      },
-      onLeaveBack: () => {
-        if (!animationStates.value['slide-21-playedOnce']) {
-          gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
-        }
-      },
+      scroller: SCROLLER_SELECTOR
     });
     specificAnimationTriggers.push(st21);
   };
@@ -216,15 +198,11 @@ export function useFullpageScrollTrigger() {
 
     // État initial de #thoiathoing: invisible et décalé vers le bas
     gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
-    animationStates.value['slide-22-played'] = false; // Pour suivre si l'animation a été jouée
-
-    // Ce ScrollTrigger est simplifié - pas de réinitialisation dans onLeave/onLeaveBack
-    // car on veut conserver l'animation une fois jouée
+    animationStates.value['slide-22-playedOnce'] = false; // Pour suivre si l'animation a été jouée
     const st22 = ScrollTrigger.create({
       trigger: slide22Section,
-      scroller: SCROLLER_SELECTOR,
-      // markers: true, // Pour débogage
-      // Les callbacks onLeave et onLeaveBack sont supprimés pour conserver l'état final
+      scroller: SCROLLER_SELECTOR
+
     });
     specificAnimationTriggers.push(st22);
   };
@@ -276,13 +254,18 @@ export function useFullpageScrollTrigger() {
         // Réinitialiser l'état du text-element-5 au premier passage ou retour
         if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
         animationStates.value['slide-20-text5Shown'] = false;
-        
-        // Setup the bubbles mouse animation when slide first enters
-        setupBubblesMouseAnimation(slide20Section);
+        // Aucune animation de bulles nécessaire
       },
       onEnterBack: () => {
         // En remontant depuis la slide suivante
-        if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
+        if (textElement5) gsap.set(textElement5, { autoAlpha: 1, y: 0 });
+        if (turtleBeach) gsap.set(turtleBeach, { scale: 1, autoAlpha: 1 });
+        if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 1, y: 0 });
+        if (textElement3) gsap.set(textElement3, { autoAlpha: 1, y: 0 });
+        if (textElement0) gsap.set(textElement0, { autoAlpha: 1, y: 0 });
+        if (textElement4) gsap.set(textElement4, { autoAlpha: 1, y: 0 });
+        if (textElement2) gsap.set(textElement2, { autoAlpha: 1, y: 0 });
+        if (textElement1) gsap.set(textElement1, { autoAlpha: 1, y: 0 });
         animationStates.value['slide-20-text5Shown'] = false;
         
         // Toujours afficher les éléments immédiatement lorsqu'on revient depuis slide-21
@@ -353,8 +336,7 @@ export function useFullpageScrollTrigger() {
           }
         }
         
-        // Setup the bubbles mouse animation when returning to slide
-        setupBubblesMouseAnimation(slide20Section);
+        // Aucune animation de bulles nécessaire
       },
       onLeave: () => {
         // Si on quitte avant d'avoir terminé l'animation initiale
@@ -406,11 +388,7 @@ export function useFullpageScrollTrigger() {
           animationStates.value['slide-20-text5Shown'] = false;
         }
         
-        // Clean up bubble animation when leaving slide
-        if (typeof animationStates.value['slide-20-bubbles-cleanup'] === 'function') {
-          animationStates.value['slide-20-bubbles-cleanup']();
-          animationStates.value['slide-20-bubbles-animated'] = false;
-        }
+        // Aucune animation de bulles à nettoyer
       },
       onLeaveBack: () => {
         // Si on quitte vers le haut avant d'avoir terminé l'animation initiale
@@ -419,11 +397,7 @@ export function useFullpageScrollTrigger() {
                             textElement4, textElement2, textElement1);
         }
         
-        // Clean up bubble animation when leaving slide
-        if (typeof animationStates.value['slide-20-bubbles-cleanup'] === 'function') {
-          animationStates.value['slide-20-bubbles-cleanup']();
-          animationStates.value['slide-20-bubbles-animated'] = false;
-        }
+        // Aucune animation de bulles à nettoyer
       }
     });
     specificAnimationTriggers.push(st20);
@@ -591,114 +565,11 @@ export function useFullpageScrollTrigger() {
       duration: 0.8,
       ease: "power2.out",
       onComplete: () => {
+        // Marquer l'animation comme terminée
         animationStates.value['slide-20-text5Shown'] = true;
-        // Maintenant que l'animation est terminée, passer à la slide suivante automatiquement
-        setTimeout(() => {
-          goToSection(currentSectionIndex.value + 1);
-        }, 500); // Délai court pour que l'utilisateur puisse voir le texte avant de passer à la slide suivante
+        // Ne pas naviguer automatiquement - laisser l'utilisateur scroller
       }
     });
-  };
-
-  /**
-   * Sets up continuous subtle animation for bubble text elements reacting to mouse movement
-   * This animation will be active as long as the slide is visible
-   */
-  const setupBubblesMouseAnimation = (sectionElement) => {
-    // Early return if animation is already set up - prevents multiple initialization
-    if (animationStates.value['slide-20-bubbles-animated'] === true) return;
-
-    // Get all bubble text elements
-    const bubbleElements = [
-      sectionElement.querySelector('#text-element-3'),
-      sectionElement.querySelector('#text-element-0'),
-      sectionElement.querySelector('#text-element-4'),
-      sectionElement.querySelector('#text-element-2'),
-      sectionElement.querySelector('#text-element-1')
-    ].filter(el => el); // Filter out any null elements
-  
-    if (bubbleElements.length === 0) return;
-
-    // Initialize mouse position variables
-    let mouseX = 0, mouseY = 0;
-    let windowWidth = window.innerWidth;
-    let windowHeight = window.innerHeight;
-
-    // Function to update mouse position
-    const updateMousePosition = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    };
-
-    // Add mouse move listener
-    window.addEventListener('mousemove', updateMousePosition);
-  
-    // Animation parameters - different for each bubble to create organic movement
-    const animParams = bubbleElements.map((_, i) => ({
-      xFactor: 0.01 + (i * 0.005),   // Different x movement factor for each bubble
-      yFactor: 0.01 + (i * 0.004),   // Different y movement factor for each bubble
-      speedFactor: 0.1 + (i * 0.05)  // Different speed for each bubble
-    }));
-  
-    // Set up the continuous animation for bubbles
-    let animating = true;
-  
-    // Animation function that will run continuously
-    const animateBubbles = () => {
-      if (!animating) return;
-    
-      // Calculate normalized mouse position (0-1)
-      const normalizedX = mouseX / windowWidth;
-      const normalizedY = mouseY / windowHeight;
-    
-      // Animate each bubble element with subtle parallax effect
-      bubbleElements.forEach((bubble, i) => {
-        if (!bubble) return;
-      
-        // Calculate offsets based on mouse position - kept subtle
-        const xOffset = (normalizedX - 0.5) * 20 * animParams[i].xFactor;
-        const yOffset = (normalizedY - 0.5) * 15 * animParams[i].yFactor;
-      
-        // Apply the animation
-        gsap.to(bubble, {
-          x: xOffset,
-          y: yOffset,
-          duration: animParams[i].speedFactor,
-          ease: 'power1.out'
-        });
-      });
-    
-      // Request next frame
-      requestAnimationFrame(animateBubbles);
-    };
-  
-    // Start the animation
-    animateBubbles();
-  
-    // Handle window resize
-    const handleResize = () => {
-      windowWidth = window.innerWidth;
-      windowHeight = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-  
-    // Clean up function - used when the section is completely left
-    const cleanupBubbleAnimation = () => {
-      animating = false;
-      window.removeEventListener('mousemove', updateMousePosition);
-      window.removeEventListener('resize', handleResize);
-      bubbleElements.forEach(bubble => {
-        if (bubble) {
-          gsap.killTweensOf(bubble);
-        }
-      });
-    };
-  
-    // Store the cleanup function for later use
-    animationStates.value['slide-20-bubbles-cleanup'] = cleanupBubbleAnimation;
-  
-    // Mark as initialized
-    animationStates.value['slide-20-bubbles-animated'] = true;
   };
 
   // ===========================================================================
