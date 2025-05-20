@@ -37,8 +37,31 @@ const defaultBackground = ref('url(/images/bg12.webp)');
 const specialBackground = ref('url(/images/nono.webp)');
 const currentBackground = ref(defaultBackground.value);
 const isMobile = ref(false);
+const scrollCursor = ref(null);
 
 const caseStudyActiveIndex = ref(0);
+
+// Fonction pour mettre à jour la position du curseur de scrollbar
+const updateScrollbarCursor = () => {
+  if (!scrollCursor.value) return;
+  
+  // Nombre fixe de slides à prendre en compte pour la progression
+  const TOTAL_SLIDES = 8;
+  
+  // Calculer la position du curseur en fonction du slide actif
+  const currentPosition = activeSlideIndex.value;
+  // Ajuster pour que la position soit de 0 à 7 (pour 8 slides)
+  const clampedPosition = Math.min(Math.max(currentPosition, 0), TOTAL_SLIDES - 1);
+  const percentage = clampedPosition / (TOTAL_SLIDES - 1);
+  
+  console.log(`Scrollbar - Current index: ${activeSlideIndex.value}, Percentage: ${percentage * 100}%`);
+  
+  // Déplacer le curseur en utilisant top au lieu de transform
+  // Le -10px est pour centrer le curseur (moitié de sa hauteur de 20px)
+  const trackHeight = scrollCursor.value.parentElement.offsetHeight - 20; // Hauteur de la piste moins hauteur du curseur
+  const topPosition = percentage * trackHeight;
+  scrollCursor.value.style.top = `${topPosition}px`;
+};
 
 const preloadImage = (src) => {
   return new Promise((resolve, reject) => {
@@ -60,6 +83,11 @@ const updateBackground = () => {
       } else {
         wrapper.style.backgroundImage = defaultBackground.value;
       }
+      
+      // Mettre à jour la position du curseur de scrollbar
+      updateScrollbarCursor();
+      
+      // Appliquer les autres styles de fond
       wrapper.style.backgroundSize = 'cover';
       wrapper.style.backgroundPosition = 'center center';
       wrapper.style.backgroundRepeat = 'no-repeat';
@@ -204,6 +232,13 @@ onMounted(async () => {
 
   window.addEventListener('resize', handleResize);
   handleResize(); // Appel initial
+
+  // Ajouter un watcher pour mettre à jour la scrollbar quand le slide actif change
+  watch(activeSlideIndex, (newIndex) => {
+    nextTick(() => {
+      updateScrollbarCursor();
+    });
+  });
 
   // Observer les changements de activeSlideIndex pour mettre à jour le fond
   // watch(activeSlideId, (newId, oldId) => {
@@ -573,6 +608,12 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
       </section> 
     </div> 
   </div> 
+
+  <!-- Custom scrollbar indicator -->
+  <div class="custom-scrollbar">
+    <div class="scrollbar-track"></div>
+    <div class="scrollbar-cursor" ref="scrollCursor"></div>
+  </div>
 </template>
 
 <style lang="scss">
