@@ -413,7 +413,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
           
           <div v-else-if="slide.id === 23" id="bygone-bip" class="p-0 m-0 slide">
             <div id="perdrix-container" class="container">
-              <div id="decodemerde">
+              <!-- <div id="decodemerde" class="hidden hide">
                 <div class="row">
                   <div class="col-md-6">
                     <p></p>
@@ -424,7 +424,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> -->
               <div id="perdrix" class="row">
                 <div class="perdrix-slider">
                   <div class="perdrix-slider-container">

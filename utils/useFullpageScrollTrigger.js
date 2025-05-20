@@ -1121,6 +1121,14 @@ export function useFullpageScrollTrigger() {
       anchorElement.style.pointerEvents = 'none';
       slide23Section.appendChild(anchorElement);
 
+      // Variables pour contrôler le throttling du scroll
+      let isAnimating = false;
+      let lastScrollTime = 0;
+      const scrollCooldown = 750; // Délai minimum entre chaque animation (en ms)
+      let lastDeltaY = 0;
+      let cumulativeDeltaY = 0;
+      const deltaYThreshold = 20; // Seuil pour déclencher une animation (ajustez selon sensibilité)
+
       // Fonction pour bloquer le défilement, fonctionne même sans fullpage_api
       const blockScrolling = () => {
         console.log("Blocage du défilement pour slide-23");
@@ -1163,8 +1171,6 @@ export function useFullpageScrollTrigger() {
           return; // Ne pas traiter l'événement si nous ne sommes pas sur la slide-23
         }
 
-        console.log("Event wheel sur slide-23 détecté:", event.deltaY, "État:", animationStates.value['slide-23']);
-        
         // Toujours bloquer l'événement de défilement par défaut
         event.preventDefault();
         event.stopPropagation();
@@ -1176,49 +1182,84 @@ export function useFullpageScrollTrigger() {
           return;
         }
         
+        // Mesurer le temps écoulé depuis le dernier scroll traité
+        const now = Date.now();
+        const timeSinceLastScroll = now - lastScrollTime;
+        
         // IMPORTANT: Pour macOS/trackpad, deltaY peut avoir des valeurs positives ou négatives très petites
         // On considère que le scroll est vers le bas si deltaY > 0
-        console.log("Direction de scroll:", event.deltaY > 0 ? "BAS" : "HAUT", "avec valeur:", event.deltaY);
+        console.log("[SCROLL DEBUG] Direction:", event.deltaY > 0 ? "BAS" : "HAUT", 
+                 "| Valeur:", event.deltaY.toFixed(2), 
+                 "| Temps depuis dernier scroll:", timeSinceLastScroll, "ms", 
+                 "| Animation en cours:", isAnimating, 
+                 "| Cumul deltaY:", cumulativeDeltaY.toFixed(2));
         
-        // UNIQUEMENT réagir au scroll vers le BAS (deltaY > 0)
-        if (event.deltaY > 0) {
-          console.log("Scroll vers le BAS détecté - Activation de la prochaine perdrix", currentPerdrixIndex + 1);
-          
-          // Masquer la perdrix actuelle avec un fondu
-          if (currentPerdrixIndex >= 0 && currentPerdrixIndex < perdrixSlides.length) {
-            gsap.to(perdrixSlides[currentPerdrixIndex], { 
-              autoAlpha: 0, 
-              duration: 0.3,
-              ease: 'power2.inOut'
-            });
-          }
-          
-          // Passer à la suivante
-          currentPerdrixIndex++;
-          
-          if (currentPerdrixIndex < perdrixSlides.length) {
-            console.log(`Animation perdrix ${currentPerdrixIndex} - apparition`);
-            // Laisser la transformation en place sur l'élément, mais changer juste l'opacité
-            gsap.to(perdrixSlides[currentPerdrixIndex], {
-              autoAlpha: 1,
-              duration: 0.6,
-              ease: 'power2.inOut',
-              onComplete: () => {
-                animationStates.value['slide-23'] = currentPerdrixIndex + 1;
-                console.log(`Animation état mise à jour: ${animationStates.value['slide-23']}`);
-                
-                // Si c'est la dernière perdrix-slide, libérer le défilement
-                if (currentPerdrixIndex === perdrixSlides.length - 1) {
-                  unblockScrolling();
-                  animationStates.value['slide-23'] = perdrixSlides.length;
-                  console.log('ScrollTrigger Composable: Animation slide-23 terminée, défilement libéré.');
-                }
+        // Vérifier que le sens est vers le bas (deltaY > 0)
+        if (event.deltaY <= 0) return;
+        
+        // Accumuler les deltaY pour détecter l'intention de scroll
+        cumulativeDeltaY += event.deltaY;
+        lastDeltaY = event.deltaY;
+        
+        // Si une animation est déjà en cours ou si le délai de cooldown n'est pas écoulé, ignorer l'événement
+        if (isAnimating || timeSinceLastScroll < scrollCooldown) {
+          console.log("[SCROLL DEBUG] Scroll ignoré - Animation en cours ou délai non écoulé");
+          return;
+        }
+        
+        // Vérifier si le seuil cumulatif est atteint
+        if (cumulativeDeltaY < deltaYThreshold) {
+          console.log("[SCROLL DEBUG] Seuil non atteint, accumulation: " + cumulativeDeltaY.toFixed(2) + "/" + deltaYThreshold);
+          return;
+        }
+        
+        // Marquer l'animation comme en cours
+        isAnimating = true;
+        lastScrollTime = now;
+        cumulativeDeltaY = 0; // Réinitialiser l'accumulation
+        
+        console.log("[SCROLL DEBUG] Déclenchement de l'animation - Prochaine perdrix:", currentPerdrixIndex + 1);
+        
+        // Masquer la perdrix actuelle avec un fondu
+        if (currentPerdrixIndex >= 0 && currentPerdrixIndex < perdrixSlides.length) {
+          gsap.to(perdrixSlides[currentPerdrixIndex], { 
+            autoAlpha: 0, 
+            duration: 0.3,
+            ease: 'power2.inOut'
+          });
+        }
+        
+        // Passer à la suivante
+        currentPerdrixIndex++;
+        
+        if (currentPerdrixIndex < perdrixSlides.length) {
+          console.log(`[SCROLL DEBUG] Animation perdrix ${currentPerdrixIndex} - apparition`);
+          // Laisser la transformation en place sur l'élément, mais changer juste l'opacité
+          gsap.to(perdrixSlides[currentPerdrixIndex], {
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: 'power2.inOut',
+            onComplete: () => {
+              animationStates.value['slide-23'] = currentPerdrixIndex + 1;
+              console.log(`[SCROLL DEBUG] Animation terminée - État: ${animationStates.value['slide-23']}`);
+              
+              // Si c'est la dernière perdrix-slide, libérer le défilement
+              if (currentPerdrixIndex === perdrixSlides.length - 1) {
+                unblockScrolling();
+                animationStates.value['slide-23'] = perdrixSlides.length;
+                console.log('[SCROLL DEBUG] Animation slide-23 terminée, défilement libéré.');
               }
-            });
-          }
+              
+              // Réinitialiser le flag d'animation après un délai
+              setTimeout(() => {
+                isAnimating = false;
+                console.log("[SCROLL DEBUG] Système prêt pour la prochaine animation");
+              }, 300); // Délai supplémentaire pour éviter les déclenchements trop rapides
+            }
+          });
         }
       };
-
+      
       // Créer un ScrollTrigger pour la slide-23
       const st = ScrollTrigger.create({
         trigger: anchorElement,
@@ -1489,8 +1530,7 @@ export function useFullpageScrollTrigger() {
         e.preventDefault();
         
         // Blocage pour slide-73
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
-          animationStates.value['slide-73'] !== true) {
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
           return;
         }
         
