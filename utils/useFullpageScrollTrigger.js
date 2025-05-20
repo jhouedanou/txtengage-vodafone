@@ -16,16 +16,20 @@ export function useFullpageScrollTrigger() {
   const isNavigating = ref(false);
   const hasScrolledOnce = ref(false);
   const animationStates = ref({});
-  const isAnimating = ref(false);
+  const isAnimating = ref(false); // Used for intra-slide animations like slide-128 items
+  const isScrolling = ref(false); // Flag for wheel event cooldown
   
   // Constantes
   const SCROLLER_SELECTOR = "#master-scroll-container";
+  const SCROLL_COOLDOWN = 500; // Milliseconds, adjusted for smoother control
+  const WHEEL_TOLERANCE = 20; // Pixels, minimum deltaY to trigger event
   
   // Variables internes de gestion
   let stObserve = null;
   const keyboardListener = ref(null);
   const specificAnimationTriggers = [];
   const slideSpecificEventListeners = [];
+  let lastScrollTime = 0;
 
   // ===========================================================================
   // SECTION 3: MÉCANISMES GLOBAUX DE NAVIGATION
@@ -255,149 +259,48 @@ export function useFullpageScrollTrigger() {
         if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
         animationStates.value['slide-20-text5Shown'] = false;
         // Aucune animation de bulles nécessaire
+
+        // Jouer l'animation initiale si elle n'a pas encore été jouée
+        // et que nous ne sommes pas dans un état où elle est déjà considérée comme visible
+        if (!animationStates.value['slide-20-initialAnimPlayed'] && !animationStates.value['slide-20-elementsVisible']) {
+          playSlide20InitialAnimation(slide20Section);
+        } else if (animationStates.value['slide-20-elementsVisible']) {
+          // Si les éléments sont marqués comme visibles (ex: après un onEnterBack complet)
+          // s'assurer qu'ils le sont effectivement.
+          gsap.set(turtleBeach, { scale: 1, autoAlpha: 1 });
+          gsap.set(mzuH2Elements, { autoAlpha: 1, y: 0 });
+          const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
+          bubbleElements.forEach(element => gsap.set(element, { autoAlpha: 1, y: 0 }));
+        }
       },
       onEnterBack: () => {
-        // En remontant depuis la slide suivante
-        if (textElement5) gsap.set(textElement5, { autoAlpha: 1, y: 0 });
+        // En remontant depuis la slide suivante (slide-21)
+        // Masquer text-element-5 et réinitialiser son état pour permettre de le re-déclencher au scroll down
+        if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
+        animationStates.value['slide-20-text5Shown'] = false;
+
+        // Afficher immédiatement tous les autres éléments principaux sans animation
         if (turtleBeach) gsap.set(turtleBeach, { scale: 1, autoAlpha: 1 });
         if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 1, y: 0 });
-        if (textElement3) gsap.set(textElement3, { autoAlpha: 1, y: 0 });
-        if (textElement0) gsap.set(textElement0, { autoAlpha: 1, y: 0 });
-        if (textElement4) gsap.set(textElement4, { autoAlpha: 1, y: 0 });
-        if (textElement2) gsap.set(textElement2, { autoAlpha: 1, y: 0 });
-        if (textElement1) gsap.set(textElement1, { autoAlpha: 1, y: 0 });
-        animationStates.value['slide-20-text5Shown'] = false;
+        const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
+        bubbleElements.forEach(element => {
+          gsap.set(element, { autoAlpha: 1, y: 0 });
+        });
+        animationStates.value['slide-20-elementsVisible'] = true; // Marque que les éléments principaux sont visibles
+        animationStates.value['slide-20-initialAnimPlayed'] = true; // L'animation initiale est considérée comme jouée
         
-        // Toujours afficher les éléments immédiatement lorsqu'on revient depuis slide-21
-        // après que text-element-5 a été affiché
-        if (animationStates.value['slide-20-text5Shown'] || animationStates.value['slide-20-elementsVisible']) {
-          // Afficher immédiatement tous les éléments sans animation (set au lieu de to)
-          // Rendre visible les éléments bulle
-          const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
-          bubbleElements.forEach(element => {
-            gsap.set(element, {
-              autoAlpha: 1,
-              y: 0
-            });
-          });
-          
-          // Rendre visible turtleBeach
-          if (turtleBeach) {
-            gsap.set(turtleBeach, {
-              autoAlpha: 1,
-              scale: 1
-            });
-          }
-          
-          // Rendre visible les éléments mzuH2
-          if (mzuH2Elements && mzuH2Elements.length) {
-            gsap.set(mzuH2Elements, {
-              autoAlpha: 1,
-              y: 0
-            });
-          }
-          
-          animationStates.value['slide-20-elementsVisible'] = true;
-        } else {
-          // Sinon, jouer l'animation initiale si elle n'a pas encore été jouée
-          if (!animationStates.value['slide-20-initialAnimPlayed']) {
-            playSlide20InitialAnimation(slide20Section);
-          } else {
-            // Show bubble elements again when coming back from slide-21
-            const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
-            bubbleElements.forEach(element => {
-              gsap.to(element, {
-                autoAlpha: 1,
-                duration: 0.5,
-                ease: "power2.out"
-              });
-            });
-            
-            // Show turtleBeach again
-            if (turtleBeach) {
-              gsap.to(turtleBeach, {
-                autoAlpha: 1,
-                scale: 1,
-                duration: 0.5,
-                ease: "power2.out"
-              });
-            }
-            
-            // Show mzuH2Elements again
-            if (mzuH2Elements && mzuH2Elements.length) {
-              gsap.to(mzuH2Elements, {
-                autoAlpha: 1,
-                y: 0,
-                duration: 0.5,
-                stagger: 0.1,
-                ease: "power2.out"
-              });
-            }
-          }
-        }
-        
-        // Aucune animation de bulles nécessaire
+        // L'ancien code plus complexe pour onEnterBack n'est plus nécessaire avec cette approche simplifiée.
       },
       onLeave: () => {
-        // Si on quitte avant d'avoir terminé l'animation initiale
-        if (!animationStates.value['slide-20-initialAnimPlayed']) {
-          resetSlide20Elements(turtleBeach, mzuH2Elements, textElement3, textElement0, 
-                            textElement4, textElement2, textElement1);
-        }
-        
-        // Cacher text-element-5 lors du passage à la slide suivante
-        if (textElement5) {
-          gsap.to(textElement5, {
-            autoAlpha: 0,
-            duration: 0.3,
-            ease: "power2.out"
-          });
-        }
-        
-        // S'assurer que tous les autres éléments sont visibles pour le retour
-        if (animationStates.value['slide-20-text5Shown']) {
-          // Afficher immédiatement tous les éléments sans animation (set au lieu de to)
-          // Rendre visible les éléments bulle
-          const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
-          bubbleElements.forEach(element => {
-            gsap.set(element, {
-              autoAlpha: 1,
-              y: 0
-            });
-          });
-          
-          // Rendre visible turtleBeach
-          if (turtleBeach) {
-            gsap.set(turtleBeach, {
-              autoAlpha: 1,
-              scale: 1
-            });
-          }
-          
-          // Rendre visible les éléments mzuH2
-          if (mzuH2Elements && mzuH2Elements.length) {
-            gsap.set(mzuH2Elements, {
-              autoAlpha: 1,
-              y: 0
-            });
-          }
-          
-          // Créer un nouvel état pour suivre que les éléments doivent rester visibles
-          animationStates.value['slide-20-elementsVisible'] = true;
-          // Réinitialiser l'état pour indiquer que text-element-5 n'est plus affiché
-          animationStates.value['slide-20-text5Shown'] = false;
-        }
-        
-        // Aucune animation de bulles à nettoyer
+        // Potentiellement réinitialiser des états si on quitte la slide vers le bas et que text-5 a été montré
+        // Par exemple, si on veut que l'anim initiale rejoue si on revient de loin.
+        // Pour l'instant, on garde les états tels quels.
       },
       onLeaveBack: () => {
-        // Si on quitte vers le haut avant d'avoir terminé l'animation initiale
-        if (!animationStates.value['slide-20-initialAnimPlayed']) {
-          resetSlide20Elements(turtleBeach, mzuH2Elements, textElement3, textElement0, 
-                            textElement4, textElement2, textElement1);
-        }
-        
-        // Aucune animation de bulles à nettoyer
+        // Si on quitte la slide vers le haut (vers slide-19)
+        // On peut vouloir réinitialiser complètement 'slide-20-initialAnimPlayed' pour que tout rejoue
+        // animationStates.value['slide-20-initialAnimPlayed'] = false;
+        // animationStates.value['slide-20-elementsVisible'] = false;
       }
     });
     specificAnimationTriggers.push(st20);
@@ -512,7 +415,9 @@ export function useFullpageScrollTrigger() {
     const textElement5 = sectionElement.querySelector('#text-element-5');
     if (!textElement5) {
       animationStates.value['slide-20-text5Shown'] = true; // Marquer comme complété même si l'élément n'existe pas
-      goToSection(currentSectionIndex.value + 1); // Passer à la slide suivante immédiatement si l'élément n'existe pas
+      // Si text-element-5 n'existe pas, on ne devrait pas essayer de naviguer. 
+      // On laisse le scroll par défaut (via setupFullpageObserver) gérer la navigation.
+      // goToSection(currentSectionIndex.value + 1); // Retiré
       return;
     }
     
@@ -531,33 +436,42 @@ export function useFullpageScrollTrigger() {
       sectionElement.querySelector('#text-element-1')
     ].filter(el => el); // Filter out any null elements
 
-    // Hide all bubble elements with fade out animation
+    // Forcefully hide all bubble elements immediately using gsap.set()
+    bubbleElements.forEach(element => {
+      gsap.set(element, { autoAlpha: 0 }); 
+    });
+
+    // Then, apply fade out animation (optional, as they are already hidden by set)
+    // Keeping it can be a fallback or if set isn't enough for some complex cases,
+    // but usually, set is definitive.
     bubbleElements.forEach(element => {
       gsap.to(element, {
-        autoAlpha: 0,
-        duration: 0.5,
+        autoAlpha: 0, // Target state is already 0, but .to() can ensure it if there were other tweens
+        duration: 0.3, // Shorter duration as they are already hidden
         ease: "power2.out"
       });
     });
-    
-    // Hide turtleBeach element
+  
+    // Forcefully hide turtleBeach element immediately
     if (turtleBeach) {
+      gsap.set(turtleBeach, { autoAlpha: 0 });
       gsap.to(turtleBeach, {
-        autoAlpha: 0,
-        duration: 0.5,
+        autoAlpha: 0, // Target state
+        duration: 0.3,
         ease: "power2.out"
       });
     }
-    
-    // Hide mzuH2Elements
+  
+    // Forcefully hide mzuH2Elements immediately
     if (mzuH2Elements && mzuH2Elements.length) {
+      gsap.set(mzuH2Elements, { autoAlpha: 0 });
       gsap.to(mzuH2Elements, {
-        autoAlpha: 0,
-        duration: 0.5,
+        autoAlpha: 0, // Target state
+        duration: 0.3,
         ease: "power2.out"
       });
     }
-    
+  
     // Show text-element-5 with animation
     gsap.to(textElement5, {
       autoAlpha: 1,
@@ -565,6 +479,7 @@ export function useFullpageScrollTrigger() {
       duration: 0.8,
       ease: "power2.out",
       onComplete: () => {
+
         // Marquer l'animation comme terminée
         animationStates.value['slide-20-text5Shown'] = true;
         // Ne pas naviguer automatiquement - laisser l'utilisateur scroller
@@ -593,28 +508,23 @@ export function useFullpageScrollTrigger() {
 
     // État d'animation initial pour la slide 128
     // -1: animation initiale non démarrée
-    // 0: animation initiale terminée, prêt pour case-study-item-1
-    // 1: case-study-item-1 terminé, prêt pour case-study-item-2
-    // 2: case-study-item-2 terminé, prêt pour case-study-item-3
-    // 3: tous les items terminés, prêt pour passer à la slide suivante
+    // 0: killerjunior affiché, prêt pour l'animation de llass
+    // 1: toutes les animations terminées
     animationStates.value['slide-128'] = -1;
 
-    // Initialisation: cacher tous les contenus d'étude de cas
-    const caseStudyItems = Array.from(slide128Section.querySelectorAll('.case-study-item'));
-    const caseStudyContents = Array.from(slide128Section.querySelectorAll('.case-study-content'));
-    const caseStudyHeaders = Array.from(slide128Section.querySelectorAll('.case-study-header'));
-  
-    // Configuration initiale avec GSAP
+    // Configuration initiale avec GSAP - cacher initialement #killerjunior
     gsap.set(killerwuDiv, { autoAlpha: 0, y: 50 });
-    caseStudyItems.forEach(item => {
-      gsap.set(item, { color: '#000000' });
-    });
-    caseStudyContents.forEach(content => {
-      gsap.set(content, { autoAlpha: 0, display: 'none' });
-    });
-    caseStudyHeaders.forEach(header => {
-      header.classList.remove('active');
-    });
+    
+    // Cacher llass initialement et le configurer pour l'animation de remplissage de droite à gauche
+    const llassImg = slide128Section.querySelector('#llass');
+    if (llassImg) {
+      gsap.set(llassImg, { 
+        display: 'block',
+        autoAlpha: 1,
+        // Configuration pour un remplissage de droite à gauche
+        clipPath: 'polygon(100% 0%, 100% 100%, 100% 100%, 100% 0%)'
+      });
+    }
 
     const st = ScrollTrigger.create({
       trigger: slide128Section,
@@ -625,14 +535,14 @@ export function useFullpageScrollTrigger() {
       
         const slide128Index = sections.value.findIndex(s => s.id === 'slide-128');
       
-        // Si c'est la première fois qu'on entre dans la slide
+        // Si l'animation n'a pas encore été jouée
         if (animationStates.value['slide-128'] === -1) {
           // Ajouter un délai pour laisser la slide-128 apparaître d'abord
 
           
           // Attendre un délai avant de démarrer l'animation
           setTimeout(() => {
-            // Animation initiale: faire apparaître #killerwu
+            // Animation: faire apparaître #killerjunior
             gsap.to(killerwuDiv, {
               autoAlpha: 1,
               y: 0,
@@ -640,168 +550,53 @@ export function useFullpageScrollTrigger() {
               ease: 'power2.out',
               onComplete: () => {
 
-                // Prêt pour le premier item
+                // Marquer que killerjunior est affiché, prêt pour la suite de l'animation
                 animationStates.value['slide-128'] = 0;
                 
-                // Activer automatiquement le premier élément case-study après un court délai
-                setTimeout(() => {
-                  // Le code suivant est extrait de la fonction activateNextCaseStudyItem
-                  // mais appliqué directement pour le premier item
+                // Lancer automatiquement l'animation de llass après un court délai
+                if (llassImg) {
+                  setTimeout(() => {
 
-                  
-                  const itemNumber = 1;
-                  const itemToActivate = slide128Section.querySelector(`#case-study-item-${itemNumber}`);
-                  const contentToShow = slide128Section.querySelector(`#case-study-content-${itemNumber}`);
-                  const headerToActivate = itemToActivate ? itemToActivate.querySelector('.case-study-header') : null;
-                  
-                  if (itemToActivate && contentToShow) {
-                    // D'abord fermer tous les contenus
-                    closeAllCaseStudyItems();
+                    isAnimating.value = true;
                     
-                    // Animation pour activer l'item et afficher son contenu
-                    const timeline = gsap.timeline({
+                    // Animation avec effet de remplissage progressif des arcs rouges (de droite à gauche)
+                    gsap.to(llassImg, {
+                      clipPath: 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)',
+                      duration: 2.5,
+                      ease: 'power1.inOut',
                       onComplete: () => {
 
-                        animationStates.value['slide-128'] = 1; // Mettre directement à 1 car c'est le premier item
+                        animationStates.value['slide-128'] = 1; // Animation complète
+                        isAnimating.value = false; // Libérer le défilement
                       }
                     });
-                    
-                    timeline.to(itemToActivate, {
-                      color: '#ff0000',
-                      duration: 0.4,
-                      ease: 'power1.out'
-                    });
-                    
-                    // Ajouter la classe active au header
-                    if (headerToActivate) {
-                      timeline.add(() => {
-                        headerToActivate.classList.add('active');
-                      }, "-=0.4");
-                    }
-                  
-                    timeline.to(contentToShow, {
-                      autoAlpha: 1,
-                      display: 'block',
-                      duration: 0.6,
-                      ease: 'power2.out'
-                    }, "-=0.2");
-                  }
-                }, 300); // Petit délai pour une transition visuelle plus agréable
+                  }, 300); // Petit délai pour une transition visuelle plus agréable
+                }
               }
             });
           }, 800); // Délai de 800ms pour laisser la slide s'afficher d'abord
           
-          self.disable(); // Désactive ce trigger après l'animation initiale
+          self.disable(); // Désactive ce trigger après son unique exécution
         }
       }
     });
     specificAnimationTriggers.push(st);
-
-    // Fonction pour fermer tous les contenus et réinitialiser les styles/classes
-    const closeAllCaseStudyItems = () => {
-      // Réinitialiser la couleur de tous les items
-      caseStudyItems.forEach(item => {
-        gsap.to(item, {
-          color: '#000000',
-          duration: 0.3,
-          ease: 'power1.out'
-        });
-      });
-      
-      // Cacher tous les contenus
-      caseStudyContents.forEach(content => {
-        gsap.to(content, {
-          autoAlpha: 0,
-          duration: 0.3,
-          ease: 'power1.out',
-          onComplete: () => {
-            gsap.set(content, { display: 'none' });
-          }
-        });
-      });
-      
-      // Retirer la classe active de tous les headers
-      caseStudyHeaders.forEach(header => {
-        header.classList.remove('active');
-      });
-    };
-
-    // Fonction pour activer le prochain item d'étude de cas
-    const activateNextCaseStudyItem = () => {
-      const currentStep = animationStates.value['slide-128'];
     
-      // Vérifier si tous les items sont déjà activés
-      if (currentStep >= caseStudyItems.length) {
-
-        return false;
-      }
-    
-      // Le numéro d'item à activer (1-indexed)
-      const itemNumber = currentStep + 1;
-
-    
-      // Trouver les éléments à animer
-      const itemToActivate = slide128Section.querySelector(`#case-study-item-${itemNumber}`);
-      const contentToShow = slide128Section.querySelector(`#case-study-content-${itemNumber}`);
-      const headerToActivate = itemToActivate ? itemToActivate.querySelector('.case-study-header') : null;
-    
-      if (!itemToActivate || !contentToShow) {
-        console.warn(`ScrollTrigger Composable: Item ${itemNumber} ou son contenu non trouvé.`);
-        animationStates.value['slide-128']++;
-        return false;
-      }
-      
-      // D'abord fermer tous les contenus existants
-      closeAllCaseStudyItems();
-    
-      // Animation pour activer l'item et afficher son contenu
-      const timeline = gsap.timeline({
-        onComplete: () => {
-          console.log(`ScrollTrigger Composable: Animation de case-study-item-${itemNumber} terminée.`);
-          animationStates.value['slide-128']++;
-          // Débloquer après l'animation
-          isAnimating.value = false;
-        }
-      });
-    
-      timeline.to(itemToActivate, {
-        color: '#ff0000',
-        duration: 0.4,
-        ease: 'power1.out'
-      });
-      
-      // Ajouter la classe active au header
-      if (headerToActivate) {
-        timeline.add(() => {
-          headerToActivate.classList.add('active');
-        }, "-=0.4");
-      }
-    
-      timeline.to(contentToShow, {
-        autoAlpha: 1,
-        display: 'block',
-        duration: 0.6,
-        ease: 'power2.out'
-      }, "-=0.2");
-    };
-
-    // Observer la roue de la souris pour la progression séquentielle de slide 128
+    // Observer la roue de la souris pour bloquer le défilement pendant l'animation
     const handleSlide128ScrollProgress = (e) => {
-      // Vérifier si nous sommes actuellement sur la slide-128
+      // Vérifier si nous sommes actuellement sur la slide-128 
+      if (isScrolling.value || isNavigating.value) { // Added isScrolling check
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
       if (currentSectionIndex.value === sections.value.findIndex(s => s.id === 'slide-128')) {
-        const currentStateValue = animationStates.value['slide-128'];
-      
-        // Si on essaie de scroller vers le bas et qu'il y a encore des items à activer
-        if (e.deltaY > 0 && currentStateValue >= 0 && currentStateValue < caseStudyItems.length) {
+        // Si l'animation n'est pas encore terminée et qu'on essaie de défiler vers le bas
+        if (animationStates.value['slide-128'] !== 1 && // L'animation n'est pas complète
+            e.deltaY > 0) { // Défilement vers le bas
+          // Bloquer le défilement
           e.preventDefault();
           e.stopPropagation();
-        
-          // Activer le prochain item si ce n'est pas déjà en cours d'animation
-          if (!isAnimating.value) {
-            isAnimating.value = true;
-            activateNextCaseStudyItem();
-          }
-        
           return false;
         }
       }
@@ -920,6 +715,11 @@ export function useFullpageScrollTrigger() {
     // Observer la roue de la souris pour bloquer le défilement pendant l'animation
     const handleSlide59ScrollProgress = (e) => {
       // Vérifier si nous sommes actuellement sur la slide-59 
+      if (isScrolling.value || isNavigating.value) { // Added isScrolling check
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
       if (currentSectionIndex.value === sections.value.findIndex(s => s.id === 'slide-59')) {
         // Si l'animation n'est pas encore terminée et qu'on essaie de défiler vers le bas
         if (animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
@@ -949,8 +749,6 @@ export function useFullpageScrollTrigger() {
   // Fonctionnement: Navigation par étapes entre les perdrix-slide avec blocage de scroll
   
   const registerSlide23Animation = () => {
-
-
     // Attendre un peu pour que le DOM soit complètement chargé
     setTimeout(() => {
       // Récupérer la section slide-23 par son ID
@@ -960,7 +758,6 @@ export function useFullpageScrollTrigger() {
         return;
       }
 
-
       // Mise à jour: cibler directement le div #joce dans la nouvelle structure
       const joceDiv = slide23Section.querySelector('#joce');
       if (!joceDiv) {
@@ -968,9 +765,7 @@ export function useFullpageScrollTrigger() {
         return;
       }
 
-
       const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
-
 
       if (perdrixSlides.length === 0) {
         console.warn('ScrollTrigger Composable: Aucun élément .perdrix-slide trouvé dans slide-23.');
@@ -1010,11 +805,11 @@ export function useFullpageScrollTrigger() {
 
       // Variables pour contrôler le throttling du scroll
       let isAnimating = false;
-      let lastScrollTime = 0;
+      let lastScroll = 0;
       const scrollCooldown = 750; // Délai minimum entre chaque animation (en ms)
       let lastDeltaY = 0;
       let cumulativeDeltaY = 0;
-      const deltaYThreshold = 20; // Seuil pour déclencher une animation (ajustez selon sensibilité)
+      const deltaYThreshold = 5; // Seuil pour déclencher une animation (ajustez selon sensibilité)
 
       // Fonction pour bloquer le défilement, fonctionne même sans fullpage_api
       const blockScrolling = () => {
@@ -1053,83 +848,55 @@ export function useFullpageScrollTrigger() {
       
       // Gestionnaire d'événement pour les scrolls sur la slide-23
       const handlePerdrixScroll = (event) => {
-        // Vérifier si nous sommes actuellement sur la slide-23
+        let cumulativeDeltaY = 0; // Initialize cumulative scroll delta
+        const deltaYThreshold = 5; // Set desired sensitivity
+        if (isScrolling.value || isNavigating.value) { // Added isScrolling check
+          event.preventDefault();
+          return;
+        }
+        // Vérifier si nous sommes actuellement sur la slide-23 
         const currentSlideId = sections.value[currentSectionIndex.value]?.id;
         
         if (currentSlideId !== 'slide-23') {
-          // Si l'écouteur est toujours actif mais qu'on n'est plus sur slide-23,
-          // il est préférable de le retirer pour éviter des traitements inutiles.
-          // Cependant, la logique de cleanup devrait s'en charger.
-          // Pour l'instant, on retourne simplement.
-          postSequenceDeltaY = 0; // Réinitialiser si on quitte la slide
-          return; 
+          // Nettoyer l'écouteur si on n'est plus sur la slide-23 (mesure de sécurité)
+          document.removeEventListener('wheel', handlePerdrixScroll);
+          return;
         }
 
+        const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
+        // Correction: Fetch perdrixSlides from the current section if it's slide-23
+        let slide23SectionElement = sections.value[currentSectionIndex.value];
+        if (slide23SectionElement.id !== 'slide-23') slide23SectionElement = sections.value.find(s => s.id === 'slide-23');
+        const actualPerdrixSlides = slide23SectionElement ? Array.from(slide23SectionElement.querySelectorAll('.perdrix-slide')) : [];
+
         // Si la séquence d'animation des perdrix est complètement terminée
-        if (animationStates.value['slide-23'] === perdrixSlides.length) {
-
-
-          // 1. S'assurer que le scroll est bien débloqué.
-          if (isNavigating.value) {
-
-            unblockScrolling(); // Assure la libération
-          }
-          
-          // 2. Accumuler le deltaY pour potentiellement forcer le changement de slide
-          postSequenceDeltaY += Math.abs(event.deltaY);
-
-          
-          // 3. Si l'accumulation dépasse le seuil, forcer le changement de slide
-          if (postSequenceDeltaY >= POST_SEQUENCE_THRESHOLD) {
-            // Déterminer la direction et appeler goToSection en conséquence
-            if (event.deltaY > 0) {
-
-              postSequenceDeltaY = 0; // Réinitialiser l'accumulateur
-              event.preventDefault(); // Empêcher les comportements par défaut
-              event.stopPropagation();
-              goToSection(currentSectionIndex.value + 1); // Aller à la slide suivante
-              return;
-            } else if (event.deltaY < 0) {
-
-              postSequenceDeltaY = 0; // Réinitialiser l'accumulateur
-              event.preventDefault(); // Empêcher les comportements par défaut
-              event.stopPropagation();
-              goToSection(currentSectionIndex.value - 1); // Aller à la slide précédente
-              return;
-            }
-          }
-          
-          // 4. Laisser le scroll se propager si on n'a pas forcé de changement
-
+        if (animationStates.value['slide-23'] === actualPerdrixSlides.length) {
+          // Laisser le scroll se propager à l'observateur principal (setupFullpageObserver)
+          // Ne pas appeler preventDefault() ou stopPropagation() ici.
+          // Le `postSequenceDeltaY` et `POST_SEQUENCE_THRESHOLD` sont retirés.
           return; 
         }
         
-        // Si l'état de l'animation n'est pas valide pour une gestion active 
         // (par exemple, -1 avant initialisation complète par onEnter, ou > perdrixSlides.length)
-        if (animationStates.value['slide-23'] < 0 || animationStates.value['slide-23'] > perdrixSlides.length) {
-
-           return; 
+        // Utiliser actualPerdrixSlides.length pour la vérification
+        if (animationStates.value['slide-23'] < 0 || animationStates.value['slide-23'] > actualPerdrixSlides.length) {
+          return; 
         }
 
-        // À ce stade :
-        // 1. Nous sommes sur slide-23.
-        // 2. Les animations Perdrix ne sont PAS encore terminées (état de 0 à perdrixSlides.length - 1).
-        // 3. Nous DEVONS contrôler le scroll pour les slides perdrix.
-
-        event.preventDefault(); // Bloquer le défilement par défaut UNIQUEMENT MAINTENANT.
+        event.preventDefault(); // Bloquer le défilement par défaut UNIQUEMENT MAINTENANT (pendant la sequence perdrix).
         event.stopPropagation();
 
+        const timeSinceLastScroll = Date.now() - lastScroll;
+        const scrollCooldown = 300; // 'scrollCooldown' is local to handlePerdrixScroll
+        
         // Mesurer le temps écoulé depuis le dernier scroll traité
         const now = Date.now();
-        const timeSinceLastScroll = now - lastScrollTime;
         
         // IMPORTANT: Pour macOS/trackpad, deltaY peut avoir des valeurs positives ou négatives très petites
         // On considère que le scroll est vers le bas si deltaY > 0
 
-        
         // Vérifier que le sens est vers le bas (deltaY > 0)
         if (event.deltaY <= 0) {
-
           return;
         }
         
@@ -1139,23 +906,20 @@ export function useFullpageScrollTrigger() {
         
         // Si une animation est déjà en cours ou si le délai de cooldown n'est pas écoulé, ignorer l'événement
         if (isAnimating || timeSinceLastScroll < scrollCooldown) {
-
           return;
         }
         
         // Vérifier si le seuil cumulatif est atteint
         if (cumulativeDeltaY < deltaYThreshold) {
-
           return;
         }
         
         // Marquer l'animation comme en cours
         isAnimating = true;
-        lastScrollTime = now;
+        lastScroll = now;
         cumulativeDeltaY = 0; // Réinitialiser l'accumulation
         
 
-        
         // Masquer la perdrix actuelle avec un fondu
         if (currentPerdrixIndex >= 0 && currentPerdrixIndex < perdrixSlides.length) {
           gsap.to(perdrixSlides[currentPerdrixIndex], { 
@@ -1169,7 +933,6 @@ export function useFullpageScrollTrigger() {
         currentPerdrixIndex++;
         
         if (currentPerdrixIndex < perdrixSlides.length) {
-
           // Laisser la transformation en place sur l'élément, mais changer juste l'opacité
           gsap.to(perdrixSlides[currentPerdrixIndex], {
             autoAlpha: 1,
@@ -1178,7 +941,6 @@ export function useFullpageScrollTrigger() {
             onComplete: () => {
               animationStates.value['slide-23'] = currentPerdrixIndex + 1;
 
-              
               // Si c'est la dernière perdrix-slide, libérer le défilement
               if (currentPerdrixIndex === perdrixSlides.length - 1) {
                 unblockScrolling(); // Libère isNavigating et potentiellement fullpage_api
@@ -1202,8 +964,6 @@ export function useFullpageScrollTrigger() {
         scroller: SCROLLER_SELECTOR,
         start: 'top center',
         onEnter: () => {
-
-      
           // Lors de la première entrée dans la slide
           if (animationStates.value['slide-23'] === -1) {
             // Bloquer immédiatement le défilement
@@ -1215,8 +975,6 @@ export function useFullpageScrollTrigger() {
               duration: 0.8,
               ease: 'power2.out',
               onComplete: () => {
-
-                
                 // 2. Faire apparaître la première perdrix-slide automatiquement
                 if (perdrixSlides.length > 0) {
                   currentPerdrixIndex = 0;
@@ -1228,7 +986,6 @@ export function useFullpageScrollTrigger() {
                     onComplete: () => {
                       animationStates.value['slide-23'] = 1;
 
-                      
                       // Après affichage de la première perdrix, écouter les scrolls
                       document.addEventListener('wheel', handlePerdrixScroll, { passive: false });
                       slideSpecificEventListeners.push({
@@ -1259,7 +1016,6 @@ export function useFullpageScrollTrigger() {
           if (animationStates.value['slide-23'] < perdrixSlides.length) {
             // Réinitialiser uniquement si l'animation n'était pas terminée
 
-            
             // Libérer le défilement
             unblockScrolling();
             
@@ -1292,13 +1048,10 @@ export function useFullpageScrollTrigger() {
   // des animations spécifiques à chaque slide à l'arrivée
   
   const goToSection = (index, duration = 1) => {
-
     if (index < 0 || index >= sections.value.length || (isNavigating.value && duration !== 0)) {
-
       return; // Ne pas retourner si duration === 0 pour permettre la mise en place initiale
     }
     if (index === currentSectionIndex.value && duration !== 0) {
-
       return;
     }
 
@@ -1310,14 +1063,12 @@ export function useFullpageScrollTrigger() {
       // Vérifier si l'animation des perdrix-slides n'est pas terminée
       if (animationStates.value['slide-23'] !== undefined && 
           animationStates.value['slide-23'] < perdrixSlides.length) {
-
         return; // Blocage strict de la navigation
       }
     }
     
     // Blocage pour slide-73
     if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
-
       return;
     }
     
@@ -1325,7 +1076,6 @@ export function useFullpageScrollTrigger() {
     if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
         animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
         index > currentSectionIndex.value) { // Seulement bloquer vers le bas
-
       return;
     }
     
@@ -1407,58 +1157,102 @@ export function useFullpageScrollTrigger() {
     stObserve = ScrollTrigger.observe({
       target: SCROLLER_SELECTOR,
       type: "wheel,touch",
-      debounce: false,
+      debounce: false, // Debounce is handled manually with SCROLL_COOLDOWN
+      tolerance: WHEEL_TOLERANCE, // GSAP's built-in tolerance
       onUp: () => {
+        const currentTime = Date.now();
+        if (isScrolling.value || isNavigating.value || (currentTime - lastScrollTime < SCROLL_COOLDOWN)) {
+          return;
+        }
+        isScrolling.value = true;
+        lastScrollTime = currentTime;
+
         handleFirstInteraction();
-        if (isNavigating.value) return;
+        if (isNavigating.value) { 
+          setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN); // Ensure isScrolling resets
+          return; 
+        }
         
         // Bloquer le défilement vers le haut si on est sur slide-23 et l'animation n'est pas terminée
         const currentSectionElement = sections.value[currentSectionIndex.value];
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined &&
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
+              animationStates.value['slide-23'] < perdrixSlides.length && animationStates.value['slide-23'] !== -1) { // Changed <= to <
+            setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
             return; // Bloquer le défilement
           }
         }
         
         goToSection(currentSectionIndex.value - 1);
+        setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
       },
       onDown: () => {
+        const currentTime = Date.now();
+        if (isScrolling.value || isNavigating.value || (currentTime - lastScrollTime < SCROLL_COOLDOWN)) {
+          return;
+        }
+        isScrolling.value = true;
+        lastScrollTime = currentTime;
+
         handleFirstInteraction();
-        if (isNavigating.value) return;
-        
+        if (isNavigating.value) { 
+          setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN); // Ensure isScrolling resets
+          return; 
+        }
+
         const currentSectionElement = sections.value[currentSectionIndex.value];
         
-        // Gérer le cas spécial pour slide-73
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
-          animationStates.value['slide-73'] !== true) {
+        // Blocage pour slide-73
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+          setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
           return;
         }
         
-        // Gérer le cas spécial pour slide-20
-        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
-          // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
-          if (animationStates.value['slide-20-initialAnimPlayed'] && 
-              !animationStates.value['slide-20-text5Shown']) {
-            // Afficher text-element-5
-            playSlide20Text5Animation(currentSectionElement);
-            return; // Bloquer le défilement pour le moment
-          }
+        // Blocage pour slide-59
+        if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
+            animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
+            currentSectionIndex.value > sections.value.findIndex(s => s.id === 'slide-59')) { // Seulement bloquer vers le bas
+          setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
+          return;
         }
         
-        // Gérer le cas spécial pour slide-23
+        // Blocage pour slide-20
+        if (currentSectionElement && currentSectionElement.id === 'slide-20' && 
+          !animationStates.value['slide-20-text5Shown'] && currentSectionIndex.value > sections.value.findIndex(s => s.id === 'slide-20')) {
+          setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
+          return;
+        }
+        
+        // Blocage pour slide-23
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
+              animationStates.value['slide-23'] < perdrixSlides.length && animationStates.value['slide-23'] !== -1) {
+            setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
             return; // Bloquer le défilement
           }
         }
         
+        // Blocage pour slide-20
+        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+          if (animationStates.value['slide-20-initialAnimPlayed'] && 
+              !animationStates.value['slide-20-text5Shown']) {
+            // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
+            playSlide20Text5Animation(currentSectionElement);
+            setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
+            return; // Bloquer le défilement pour le moment, car playSlide20Text5Animation va s'exécuter
+          } 
+          // Si text-element-5 est déjà affiché (animationStates.value['slide-20-text5Shown'] === true),
+          // alors on ne bloque pas, et on passe à goToSection(currentSectionIndex.value + 1)
+        }
+        
         goToSection(currentSectionIndex.value + 1);
+        setTimeout(() => { isScrolling.value = false; }, SCROLL_COOLDOWN);
       },
+      // Potentially add onWheel if more granular control is needed before onUp/onDown
     });
+    specificAnimationTriggers.push(stObserve);
 
     // Mise à jour également du gestionnaire clavier
     keyboardListener.value = (e) => {
@@ -1493,8 +1287,8 @@ export function useFullpageScrollTrigger() {
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
-            return; // Bloquer la navigation vers le bas
+              animationStates.value['slide-23'] < perdrixSlides.length && animationStates.value['slide-23'] !== -1) {
+            return; // Blocage strict de la navigation vers le bas
           }
         }
         
@@ -1506,8 +1300,8 @@ export function useFullpageScrollTrigger() {
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
-            return; // Bloquer la navigation vers le haut
+              animationStates.value['slide-23'] < perdrixSlides.length && animationStates.value['slide-23'] !== -1) {
+            return; // Blocage strict de la navigation vers le haut
           }
         }
         
@@ -1517,8 +1311,8 @@ export function useFullpageScrollTrigger() {
           const slide23Section = sections.value[slide23Index];
           const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
-            return; // Bloquer la navigation
+              animationStates.value['slide-23'] < perdrixSlides.length && animationStates.value['slide-23'] !== -1) {
+            return; // Blocage strict de la navigation
           }
         }
         

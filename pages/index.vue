@@ -6,6 +6,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { useFullpageScrollTrigger } from '~/utils/useFullpageScrollTrigger'; // Importez le composable
+// Lenis n'a pas pu être intégré correctement, nous utilisons une approche native
 
 // Initialisation du système de fullpage personnalisé
 
@@ -36,9 +37,6 @@ const defaultBackground = ref('url(/images/bg12.webp)');
 const specialBackground = ref('url(/images/nono.webp)');
 const currentBackground = ref(defaultBackground.value);
 const isMobile = ref(false);
-
-const scrollMagicController = ref(null);
-let mastertl = null;
 
 const caseStudyActiveIndex = ref(0);
 
@@ -189,39 +187,33 @@ const scrollToSection = (target) => {
 };
 
 const handleResize = () => {
-    isMobile.value = window.innerWidth < 768; 
-    ScrollTrigger.refresh(); 
+    isMobile.value = window.innerWidth <= 768;
+    // Potentiellement re-calculer des éléments si nécessaire
 };
 
 onMounted(async () => {
-// Supprimé : initAnimations();
-  
-  // Supprimé : registerSlideAnimation('slide-73', { ... });
-
-  
-  await slidesStore.fetchSlides(); 
-
-  isMobile.value = window.innerWidth < 768; 
-  window.addEventListener('resize', handleResize);
-
-  try {
-    await Promise.all([
-      preloadImage('/images/nono.webp'),
-      preloadImage('/images/bg12.webp')
-    ]);
-  } catch (error) { /* Ignorer les erreurs de préchargement */ }
-
-  // slidesStore.startAutoRefresh(); 
-  
-  activeAccordionIndex.value = 0;
-  const firstAccordionSlide = sortedSlides.value.find(s => s.id === 23);
-  if (firstAccordionSlide?.paragraphs?.[0]) {
-    activeAccordionImage.value = firstAccordionSlide.paragraphs[0].match(/src="([^"]*)"/)?.[1];
+  await slidesStore.fetchSlides(config.public.apiUrl);
+  if (slidesStore.error) {
+    console.error("Failed to load slides:", slidesStore.error);
+    // Afficher un message à l'utilisateur ou gérer l'erreur autrement
+    return; // Arrêter l'exécution si les slides ne sont pas chargées
   }
+  preloadImage(defaultBackground.value);
+  preloadImage(specialBackground.value);
+  updateBackground();
 
-  const caseStudyActiveIndex = ref(0);
+  window.addEventListener('resize', handleResize);
+  handleResize(); // Appel initial
 
-  await nextTick(); // Assurer que le DOM est prêt
+  // Observer les changements de activeSlideIndex pour mettre à jour le fond
+  // watch(activeSlideId, (newId, oldId) => {
+  //   if (newId !== oldId) {
+  //     updateBackground();
+  //   }
+  // });
+
+  // Initialiser le scroll fullpage après que le DOM soit prêt et les slides chargées
+  await nextTick(); 
   const sectionsArray = Array.from(document.querySelectorAll('.slide-section'));
   
   // Préparer les options pour slide-128
@@ -233,22 +225,35 @@ onMounted(async () => {
 
   const fullpageOptions = {
     slide128: {
-      caseStudyActiveIndexRef: caseStudyActiveIndex, // Pass the existing ref
-      slideParagraphsRef: slide128ParagraphsRef      // Pass the ref for paragraphs of slide 128
+      caseStudyActiveIndexRef: caseStudyActiveIndex, 
+      paragraphsRef: slide128ParagraphsRef 
     }
   };
-
-  initFullpageScroll(sectionsArray, fullpageOptions); 
-
-  // Déclenchement de la première mise à jour du fond après l'initialisation et le chargement des slides
-  updateBackground(); 
   
-  setTimeout(() => showButton.value = true, 2000);
+  if (sectionsArray.length > 0) {
+    initFullpageScroll(sectionsArray, fullpageOptions);
+  } else {
+    console.warn("No sections found for fullpage scroll initialization.");
+  }
+
+  // Bouton Back to Top
+  const backToTopButton = document.getElementById('backToTop');
+  const masterScrollContainer = document.getElementById('master-scroll-container');
+
+  if (masterScrollContainer && backToTopButton) {
+    masterScrollContainer.addEventListener('scroll', () => {
+      if (masterScrollContainer.scrollTop > 300) { // Afficher après 300px de scroll
+        backToTopButton.classList.add('show');
+      } else {
+        backToTopButton.classList.remove('show');
+      }
+    });
+  }
 });
 
 onBeforeUnmount(() => {
+  // Le cleanup de useFullpageScrollTrigger (incluant stObserve) est géré dans le composable lui-même.
   window.removeEventListener('resize', handleResize);
-  // Le cleanup du composable useFullpageScrollTrigger est automatique
 });
 
 const isMenuOpen = ref(false);
