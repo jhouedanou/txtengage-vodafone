@@ -283,7 +283,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
 <template>
   <div id="vodacomwrapper">
     <div v-if="loading" class="loader-container">
-      <nuxt-img src="/images/logovector.svg" class="logo-loader" alt="Logo" />
+      <img src="/images/logovector.svg" class="logo-loader" alt="Logo" />
     </div>
     
     <div v-if="!loading && slidesStore.error" class="error-container">

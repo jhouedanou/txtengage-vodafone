@@ -6,29 +6,31 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 export function useFullpageScrollTrigger() {
-  // --- Refs et Variables d'état ---
+  // ===========================================================================
+  // SECTION 1: CONFIGURATION ET VARIABLES GÉNÉRALES
+  // ===========================================================================
+  
+  // Références et états globaux
   const sections = ref([]);
   const currentSectionIndex = ref(0);
   const isNavigating = ref(false);
-  const hasScrolledOnce = ref(false); // True après la première interaction utilisateur
-  const animationStates = ref({}); // Stocke l'état des animations spécifiques (ex: 'slide-73': true si terminée)
-
-  // --- Constantes ---
+  const hasScrolledOnce = ref(false);
+  const animationStates = ref({});
+  const isAnimating = ref(false);
+  
+  // Constantes
   const SCROLLER_SELECTOR = "#master-scroll-container";
+  
+  // Variables internes de gestion
+  let stObserve = null;
+  const keyboardListener = ref(null);
+  const specificAnimationTriggers = [];
+  const slideSpecificEventListeners = [];
 
-  // --- Variables Internes ---
-  let stObserve = null; // Instance de ScrollTrigger.observe
-  const keyboardListener = ref(null); // Référence au gestionnaire d'événements clavier
-  const specificAnimationTriggers = []; // Pour stocker les instances de ScrollTrigger spécifiques à des slides
-  const slideSpecificEventListeners = []; // Pour stocker les event listeners spécifiques aux slides
-  const isAnimating = ref(false); // Pour suivre si une animation particulière est en cours
-
-  // --- Gestion des Animations Spécifiques (ex: Slide 73) ---
-
-  /**
-   * Gère la première interaction utilisateur pour déclencher des animations initiales si nécessaire.
-   * Actuellement utilisé pour l'animation de la slide-73 si elle est la première affichée.
-   */
+  // ===========================================================================
+  // SECTION 3: MÉCANISMES GLOBAUX DE NAVIGATION
+  // ===========================================================================
+  
   const handleFirstInteraction = () => {
     if (hasScrolledOnce.value) return;
     hasScrolledOnce.value = true;
@@ -36,12 +38,11 @@ export function useFullpageScrollTrigger() {
     const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
     if (slide73Index === 0 && currentSectionIndex.value === 0) {
       const slide73Section = sections.value.find(s => s.id === 'slide-73');
-      // Déclencher seulement si l'animation n'est pas déjà terminée ou en cours par ScrollTrigger
       if (slide73Section && animationStates.value['slide-73'] !== true && animationStates.value['slide-73'] !== 'pending_st') {
         const pointsFortDiv = slide73Section.querySelector('.points-fort');
         const slidesContainerDiv = slide73Section.querySelector('.slides-container');
 
-        animationStates.value['slide-73'] = false; // Marquer comme initiée par interaction
+        animationStates.value['slide-73'] = false;
 
         if (pointsFortDiv) {
           gsap.to(pointsFortDiv, {
@@ -49,7 +50,7 @@ export function useFullpageScrollTrigger() {
             duration: 0.5,
             ease: 'power2.out',
             onComplete: () => {
-              if (animationStates.value['slide-73'] === false) { // S'assurer que ST n'a pas pris le dessus
+              if (animationStates.value['slide-73'] === false) {
                 animationStates.value['slide-73'] = true;
               }
             }
@@ -64,18 +65,15 @@ export function useFullpageScrollTrigger() {
             ease: 'power2.out',
           });
         }
-        // Il est important de rafraîchir ScrollTrigger si des dimensions ou positions changent dynamiquement
-        // avant que ScrollTrigger n'ait eu la chance de les recalculer.
-        // Cependant, si l'animation ne change pas les dimensions/offsets de manière significative
-        // pour les autres triggers, cela peut ne pas être toujours nécessaire ici.
-        // ScrollTrigger.refresh(); // Peut être nécessaire dans certains cas.
       }
     }
   };
 
-  /**
-   * Configure les animations spécifiques pour la slide-73 via ScrollTrigger.
-   */
+  // ===========================================================================
+  // SECTION 8: ANIMATION DE LA SLIDE 73 (POINTS FORTS)
+  // ===========================================================================
+  // Fonctionnement: Animation des éléments .points-fort via ScrollTrigger
+  
   const registerSlide73Animation = () => {
     const slide73Section = sections.value.find(s => s.id === 'slide-73');
     if (!slide73Section) {
@@ -156,10 +154,11 @@ export function useFullpageScrollTrigger() {
     });
     specificAnimationTriggers.push(st);
   };
-  /**
-   * Configure les animations spécifiques pour la slide-21.
-   * L'animation d'entrée est déclenchée via goToSection et ne se joue qu'une fois.
-   */
+  // ===========================================================================
+  // SECTION 5: ANIMATION DE LA SLIDE 21
+  // ===========================================================================
+  // Fonctionnement: Animation déclenchée uniquement via goToSection
+  
   const registerSlide21Animation = () => {
     const slide21Section = sections.value.find(s => s.id === 'slide-21');
     if (!slide21Section) {
@@ -199,11 +198,11 @@ export function useFullpageScrollTrigger() {
     });
     specificAnimationTriggers.push(st21);
   };
-  /**
-   * Configure les animations spécifiques pour la slide-22.
-   * L'animation d'entrée est déclenchée via goToSection et ne se joue qu'une seule fois,
-   * peu importe si l'utilisateur revient sur la slide.
-   */
+  // ===========================================================================
+  // SECTION 6: ANIMATION DE LA SLIDE 22
+  // ===========================================================================
+  // Fonctionnement: Animation déclenchée uniquement via goToSection (une seule fois)
+  
   const registerSlide22Animation = () => {
     const slide22Section = sections.value.find(s => s.id === 'slide-22');
     if (!slide22Section) {
@@ -230,12 +229,13 @@ export function useFullpageScrollTrigger() {
     specificAnimationTriggers.push(st22);
   };
 
-  /**
-   * Configure les animations spécifiques pour la slide-20.
-   * Animation en deux phases:
-   * 1. Animation initiale des éléments au chargement de la slide
-   * 2. Animation de #text-element-5 au prochain scroll vers le bas
-   */
+  // ===========================================================================
+  // SECTION 4: ANIMATION DE LA SLIDE 20 (TURTLE BEACH)
+  // ===========================================================================
+  // Fonctionnement: 
+  // 1. Animation initiale: turtlebeach + éléments textuels en séquence
+  // 2. Animation secondaire: text-element-5 sur scroll vers le bas
+  
   const registerSlide20Animation = () => {
     const slide20Section = sections.value.find(s => s.id === 'slide-20');
     if (!slide20Section) {
@@ -701,6 +701,12 @@ export function useFullpageScrollTrigger() {
     animationStates.value['slide-20-bubbles-animated'] = true;
   };
 
+  // ===========================================================================
+  // SECTION 10: ANIMATION DE LA SLIDE 128 (CASE STUDY)
+  // ===========================================================================
+  // Fonctionnement: Navigation entre études de cas avec scroll vertical
+  // Les animations: H2 + image d'étude + titres + contenus défilables
+  
   const registerSlide128Animation = (options = {}) => {
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
     if (!slide128Section) {
@@ -744,14 +750,14 @@ export function useFullpageScrollTrigger() {
       scroller: SCROLLER_SELECTOR,
       start: 'top center+=10%',
       onEnter: (self) => {
-        console.log(`ScrollTrigger Composable: Slide 128 onEnter. Anim state: ${animationStates.value['slide-128']}, hasScrolledOnce: ${hasScrolledOnce.value}, currentIndex: ${currentSectionIndex.value}`);
+
       
         const slide128Index = sections.value.findIndex(s => s.id === 'slide-128');
       
         // Si c'est la première fois qu'on entre dans la slide
         if (animationStates.value['slide-128'] === -1) {
           // Ajouter un délai pour laisser la slide-128 apparaître d'abord
-          console.log("ScrollTrigger Composable: Attente avant animation de killerwu...");
+
           
           // Attendre un délai avant de démarrer l'animation
           setTimeout(() => {
@@ -762,7 +768,7 @@ export function useFullpageScrollTrigger() {
               duration: 1,
               ease: 'power2.out',
               onComplete: () => {
-                console.log('ScrollTrigger Composable: Animation initiale slide 128 terminée.');
+
                 // Prêt pour le premier item
                 animationStates.value['slide-128'] = 0;
                 
@@ -770,7 +776,7 @@ export function useFullpageScrollTrigger() {
                 setTimeout(() => {
                   // Le code suivant est extrait de la fonction activateNextCaseStudyItem
                   // mais appliqué directement pour le premier item
-                  console.log("ScrollTrigger Composable: Activation automatique du premier case-study-item");
+
                   
                   const itemNumber = 1;
                   const itemToActivate = slide128Section.querySelector(`#case-study-item-${itemNumber}`);
@@ -784,7 +790,7 @@ export function useFullpageScrollTrigger() {
                     // Animation pour activer l'item et afficher son contenu
                     const timeline = gsap.timeline({
                       onComplete: () => {
-                        console.log(`ScrollTrigger Composable: Animation de case-study-item-${itemNumber} terminée.`);
+
                         animationStates.value['slide-128'] = 1; // Mettre directement à 1 car c'est le premier item
                       }
                     });
@@ -855,13 +861,13 @@ export function useFullpageScrollTrigger() {
     
       // Vérifier si tous les items sont déjà activés
       if (currentStep >= caseStudyItems.length) {
-        console.log('ScrollTrigger Composable: Tous les items de slide 128 sont activés.');
+
         return false;
       }
     
       // Le numéro d'item à activer (1-indexed)
       const itemNumber = currentStep + 1;
-      console.log(`ScrollTrigger Composable: Activation de case-study-item-${itemNumber}`);
+
     
       // Trouver les éléments à animer
       const itemToActivate = slide128Section.querySelector(`#case-study-item-${itemNumber}`);
@@ -941,6 +947,11 @@ export function useFullpageScrollTrigger() {
     });
   };
 
+  // ===========================================================================
+  // SECTION 9: ANIMATION DE LA SLIDE 59
+  // ===========================================================================
+  // Fonctionnement: Animation séquentielle contrôlée par scroll
+  
   const registerSlide59Animation = () => {
     const slide59Section = sections.value.find(s => s.id === 'slide-59');
     if (!slide59Section) {
@@ -984,14 +995,14 @@ export function useFullpageScrollTrigger() {
       scroller: SCROLLER_SELECTOR,
       start: 'top center+=10%',
       onEnter: (self) => {
-        console.log(`ScrollTrigger Composable: Slide 59 onEnter. Anim state: ${animationStates.value['slide-59']}, currentIndex: ${currentSectionIndex.value}`);
+
       
         const slide59Index = sections.value.findIndex(s => s.id === 'slide-59');
       
         // Si l'animation n'a pas encore été jouée
         if (animationStates.value['slide-59'] === -1) {
           // Ajouter un délai pour laisser la slide-59 apparaître d'abord
-          console.log("ScrollTrigger Composable: Attente avant animation de killerjunior...");
+
           
           // Attendre un délai avant de démarrer l'animation
           setTimeout(() => {
@@ -1002,14 +1013,14 @@ export function useFullpageScrollTrigger() {
               duration: 1,
               ease: 'power2.out',
               onComplete: () => {
-                console.log('ScrollTrigger Composable: Animation initiale slide 59 terminée.');
+
                 // Marquer que killerjunior est affiché, prêt pour la suite de l'animation
                 animationStates.value['slide-59'] = 0;
                 
                 // Lancer automatiquement l'animation de llass après un court délai
                 if (llassImg) {
                   setTimeout(() => {
-                    console.log("ScrollTrigger Composable: Animation automatique de llass...");
+
                     isAnimating.value = true;
                     
                     // Animation avec effet de remplissage progressif des arcs rouges (de droite à gauche)
@@ -1018,7 +1029,7 @@ export function useFullpageScrollTrigger() {
                       duration: 2.5,
                       ease: 'power1.inOut',
                       onComplete: () => {
-                        console.log('ScrollTrigger Composable: Animation llass terminée.');
+
                         animationStates.value['slide-59'] = 1; // Animation complète
                         isAnimating.value = false; // Libérer le défilement
                       }
@@ -1061,8 +1072,13 @@ export function useFullpageScrollTrigger() {
     });
   };
 
+  // ===========================================================================
+  // SECTION 7: ANIMATION DE LA SLIDE 23 (PERDRIX)
+  // ===========================================================================
+  // Fonctionnement: Navigation par étapes entre les perdrix-slide avec blocage de scroll
+  
   const registerSlide23Animation = () => {
-    console.log("Démarrage de registerSlide23Animation");
+
 
     // Attendre un peu pour que le DOM soit complètement chargé
     setTimeout(() => {
@@ -1072,7 +1088,7 @@ export function useFullpageScrollTrigger() {
         console.warn('ScrollTrigger Composable: Section slide-23 non trouvée pour l\'animation.');
         return;
       }
-      console.log("Slide-23 trouvée via document.getElementById:", slide23Section);
+
 
       // Mise à jour: cibler directement le div #joce dans la nouvelle structure
       const joceDiv = slide23Section.querySelector('#joce');
@@ -1080,10 +1096,10 @@ export function useFullpageScrollTrigger() {
         console.warn('ScrollTrigger Composable: Div #joce non trouvée dans slide-23.');
         return;
       }
-      console.log("Div #joce trouvée:", joceDiv);
+
 
       const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
-      console.log("Nombre de .perdrix-slide trouvées:", perdrixSlides.length);
+
 
       if (perdrixSlides.length === 0) {
         console.warn('ScrollTrigger Composable: Aucun élément .perdrix-slide trouvé dans slide-23.');
@@ -1131,7 +1147,7 @@ export function useFullpageScrollTrigger() {
 
       // Fonction pour bloquer le défilement, fonctionne même sans fullpage_api
       const blockScrolling = () => {
-        console.log("Blocage du défilement pour slide-23");
+
         isNavigating.value = true; // Bloquer la navigation interne
         
         // Utiliser fullpage_api si disponible
@@ -1147,7 +1163,7 @@ export function useFullpageScrollTrigger() {
 
       // Fonction pour libérer le défilement
       const unblockScrolling = () => {
-        console.log("Défilement libéré pour slide-23");
+
         isNavigating.value = false;
         
         if (typeof fullpage_api !== 'undefined') {
@@ -1180,30 +1196,30 @@ export function useFullpageScrollTrigger() {
 
         // Si la séquence d'animation des perdrix est complètement terminée
         if (animationStates.value['slide-23'] === perdrixSlides.length) {
-          console.log("[SCROLL DEBUG] Séquence Perdrix terminée (état:", animationStates.value['slide-23'], "). Scroll sur slide-23 post-séquence. DeltaY:", event.deltaY);
+
 
           // 1. S'assurer que le scroll est bien débloqué.
           if (isNavigating.value) {
-            console.log("[SCROLL DEBUG] Séquence Perdrix terminée, mais isNavigating encore true. Forçage unblockScrolling.");
+
             unblockScrolling(); // Assure la libération
           }
           
           // 2. Accumuler le deltaY pour potentiellement forcer le changement de slide
           postSequenceDeltaY += Math.abs(event.deltaY);
-          console.log(`[SCROLL DEBUG] Accumulation post-séquence: ${postSequenceDeltaY}/${POST_SEQUENCE_THRESHOLD}`);
+
           
           // 3. Si l'accumulation dépasse le seuil, forcer le changement de slide
           if (postSequenceDeltaY >= POST_SEQUENCE_THRESHOLD) {
             // Déterminer la direction et appeler goToSection en conséquence
             if (event.deltaY > 0) {
-              console.log("[SCROLL DEBUG] Seuil post-séquence atteint. FORÇAGE passage à la slide SUIVANTE.");
+
               postSequenceDeltaY = 0; // Réinitialiser l'accumulateur
               event.preventDefault(); // Empêcher les comportements par défaut
               event.stopPropagation();
               goToSection(currentSectionIndex.value + 1); // Aller à la slide suivante
               return;
             } else if (event.deltaY < 0) {
-              console.log("[SCROLL DEBUG] Seuil post-séquence atteint. FORÇAGE passage à la slide PRÉCÉDENTE.");
+
               postSequenceDeltaY = 0; // Réinitialiser l'accumulateur
               event.preventDefault(); // Empêcher les comportements par défaut
               event.stopPropagation();
@@ -1213,14 +1229,14 @@ export function useFullpageScrollTrigger() {
           }
           
           // 4. Laisser le scroll se propager si on n'a pas forcé de changement
-          console.log("[SCROLL DEBUG] Séquence Perdrix terminée. Laissant le scroll être géré par setupFullpageObserver.");
+
           return; 
         }
         
         // Si l'état de l'animation n'est pas valide pour une gestion active 
         // (par exemple, -1 avant initialisation complète par onEnter, ou > perdrixSlides.length)
         if (animationStates.value['slide-23'] < 0 || animationStates.value['slide-23'] > perdrixSlides.length) {
-           console.log("[SCROLL DEBUG] État d'animation Perdrix invalide pour gestion active. État:", animationStates.value['slide-23']);
+
            return; 
         }
 
@@ -1228,7 +1244,7 @@ export function useFullpageScrollTrigger() {
         // 1. Nous sommes sur slide-23.
         // 2. Les animations Perdrix ne sont PAS encore terminées (état de 0 à perdrixSlides.length - 1).
         // 3. Nous DEVONS contrôler le scroll pour les slides perdrix.
-        console.log("[SCROLL DEBUG] Gestion active du scroll Perdrix. État:", animationStates.value['slide-23'], "DeltaY:", event.deltaY);
+
         event.preventDefault(); // Bloquer le défilement par défaut UNIQUEMENT MAINTENANT.
         event.stopPropagation();
 
@@ -1238,15 +1254,11 @@ export function useFullpageScrollTrigger() {
         
         // IMPORTANT: Pour macOS/trackpad, deltaY peut avoir des valeurs positives ou négatives très petites
         // On considère que le scroll est vers le bas si deltaY > 0
-        console.log("[SCROLL DEBUG] Direction:", event.deltaY > 0 ? "BAS" : "HAUT", 
-                 "| Valeur:", event.deltaY.toFixed(2), 
-                 "| Temps depuis dernier scroll:", timeSinceLastScroll, "ms", 
-                 "| Animation en cours:", isAnimating, 
-                 "| Cumul deltaY:", cumulativeDeltaY.toFixed(2));
+
         
         // Vérifier que le sens est vers le bas (deltaY > 0)
         if (event.deltaY <= 0) {
-          console.log("[SCROLL DEBUG] Scroll vers le HAUT ignoré pour animation perdrix.");
+
           return;
         }
         
@@ -1256,13 +1268,13 @@ export function useFullpageScrollTrigger() {
         
         // Si une animation est déjà en cours ou si le délai de cooldown n'est pas écoulé, ignorer l'événement
         if (isAnimating || timeSinceLastScroll < scrollCooldown) {
-          console.log("[SCROLL DEBUG] Scroll ignoré - Animation en cours ou délai non écoulé");
+
           return;
         }
         
         // Vérifier si le seuil cumulatif est atteint
         if (cumulativeDeltaY < deltaYThreshold) {
-          console.log("[SCROLL DEBUG] Seuil non atteint, accumulation: " + cumulativeDeltaY.toFixed(2) + "/" + deltaYThreshold);
+
           return;
         }
         
@@ -1271,7 +1283,7 @@ export function useFullpageScrollTrigger() {
         lastScrollTime = now;
         cumulativeDeltaY = 0; // Réinitialiser l'accumulation
         
-        console.log("[SCROLL DEBUG] Déclenchement de l'animation - Prochaine perdrix:", currentPerdrixIndex + 1);
+
         
         // Masquer la perdrix actuelle avec un fondu
         if (currentPerdrixIndex >= 0 && currentPerdrixIndex < perdrixSlides.length) {
@@ -1286,7 +1298,7 @@ export function useFullpageScrollTrigger() {
         currentPerdrixIndex++;
         
         if (currentPerdrixIndex < perdrixSlides.length) {
-          console.log(`[SCROLL DEBUG] Animation perdrix ${currentPerdrixIndex} - apparition`);
+
           // Laisser la transformation en place sur l'élément, mais changer juste l'opacité
           gsap.to(perdrixSlides[currentPerdrixIndex], {
             autoAlpha: 1,
@@ -1294,19 +1306,19 @@ export function useFullpageScrollTrigger() {
             ease: 'power2.inOut',
             onComplete: () => {
               animationStates.value['slide-23'] = currentPerdrixIndex + 1;
-              console.log(`[SCROLL DEBUG] Animation terminée - État: ${animationStates.value['slide-23']}`);
+
               
               // Si c'est la dernière perdrix-slide, libérer le défilement
               if (currentPerdrixIndex === perdrixSlides.length - 1) {
                 unblockScrolling(); // Libère isNavigating et potentiellement fullpage_api
                 animationStates.value['slide-23'] = perdrixSlides.length; // Marque la fin complète de la séquence Perdrix
-                console.log('[SCROLL DEBUG] Séquence animation slide-23 terminée, défilement libéré. État final:', animationStates.value['slide-23']);
+
               }
               
               // Réinitialiser le flag d'animation après un délai
               setTimeout(() => {
                 isAnimating = false;
-                console.log("[SCROLL DEBUG] Système prêt pour la prochaine animation");
+
               }, 300); // Délai supplémentaire pour éviter les déclenchements trop rapides
             }
           });
@@ -1319,7 +1331,7 @@ export function useFullpageScrollTrigger() {
         scroller: SCROLLER_SELECTOR,
         start: 'top center',
         onEnter: () => {
-          console.log(`ScrollTrigger Composable: Slide-23 onEnter. État d'animation: ${animationStates.value['slide-23']}`);
+
       
           // Lors de la première entrée dans la slide
           if (animationStates.value['slide-23'] === -1) {
@@ -1332,7 +1344,7 @@ export function useFullpageScrollTrigger() {
               duration: 0.8,
               ease: 'power2.out',
               onComplete: () => {
-                console.log('ScrollTrigger Composable: #slide-23 affiché, prêt pour la première perdrix-slide.');
+
                 
                 // 2. Faire apparaître la première perdrix-slide automatiquement
                 if (perdrixSlides.length > 0) {
@@ -1344,7 +1356,7 @@ export function useFullpageScrollTrigger() {
                     ease: 'power2.out',
                     onComplete: () => {
                       animationStates.value['slide-23'] = 1;
-                      console.log(`Première perdrix affichée, état: ${animationStates.value['slide-23']}`);
+
                       
                       // Après affichage de la première perdrix, écouter les scrolls
                       document.addEventListener('wheel', handlePerdrixScroll, { passive: false });
@@ -1375,7 +1387,7 @@ export function useFullpageScrollTrigger() {
           // Si on revient en arrière vers slide-22, réinitialiser si nécessaire
           if (animationStates.value['slide-23'] < perdrixSlides.length) {
             // Réinitialiser uniquement si l'animation n'était pas terminée
-            console.log("Réinitialisation de l'animation slide-23 lors du retour en arrière");
+
             
             // Libérer le défilement
             unblockScrolling();
@@ -1402,14 +1414,20 @@ export function useFullpageScrollTrigger() {
 
   // --- Logique de Navigation ---
 
+  // ===========================================================================
+  // SECTION 11: NAVIGATION ENTRE SLIDES
+  // ===========================================================================
+  // Fonctionnement: Animation du scroll entre les sections avec déclenchement
+  // des animations spécifiques à chaque slide à l'arrivée
+  
   const goToSection = (index, duration = 1) => {
-    console.log(`ScrollTrigger Composable: Tentative goToSection(${index}). Actuel: ${currentSectionIndex.value}, isNavigating: ${isNavigating.value}`);
+
     if (index < 0 || index >= sections.value.length || (isNavigating.value && duration !== 0)) {
-      console.log('ScrollTrigger Composable: goToSection bloqué (limites ou navigation en cours)');
+
       return; // Ne pas retourner si duration === 0 pour permettre la mise en place initiale
     }
     if (index === currentSectionIndex.value && duration !== 0) {
-      console.log('ScrollTrigger Composable: goToSection bloqué (déjà sur la section)');
+
       return;
     }
 
@@ -1421,14 +1439,14 @@ export function useFullpageScrollTrigger() {
       // Vérifier si l'animation des perdrix-slides n'est pas terminée
       if (animationStates.value['slide-23'] !== undefined && 
           animationStates.value['slide-23'] < perdrixSlides.length) {
-        console.log("ScrollTrigger Composable: Navigation depuis slide-23 BLOQUÉE - Animation perdrix en cours.");
+
         return; // Blocage strict de la navigation
       }
     }
     
     // Blocage pour slide-73
     if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
-      console.log("ScrollTrigger Composable: Tentative de navigation depuis slide 73 avant fin animation. Bloqué.");
+
       return;
     }
     
@@ -1436,7 +1454,7 @@ export function useFullpageScrollTrigger() {
     if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
         animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
         index > currentSectionIndex.value) { // Seulement bloquer vers le bas
-      console.log("ScrollTrigger Composable: Navigation depuis slide-59 bloquée (animation en cours).");
+
       return;
     }
     
@@ -1506,12 +1524,12 @@ export function useFullpageScrollTrigger() {
       }
     });
   };
-
-  // --- Configuration des Observateurs et Gestionnaires d'Événements ---
-
-  /**
-   * Configure les observateurs de défilement (molette, tactile) et les écouteurs de clavier.
-   */
+  
+  // ===========================================================================
+  // SECTION 12: SYSTÈME D'OBSERVATION DU SCROLL
+  // ===========================================================================
+  // Capture des événements de scroll et gestion des interactions spéciales
+  
   const setupFullpageObserver = () => {
     if (sections.value.length === 0) return;
 
@@ -1645,57 +1663,55 @@ export function useFullpageScrollTrigger() {
 
   // --- Initialisation et Nettoyage ---
 
-  /**
-   * Initialise le composable avec les éléments de section.
-   * @param {HTMLElement[]} sectionsElements - Un tableau d'éléments DOM représentant les sections.
-   */
+  // ===========================================================================
+  // SECTION 2: INITIALISATION ET NETTOYAGE
+  // ===========================================================================
+  
   const init = (sectionsElements, options = {}) => {
     if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
       return;
     }
     sections.value = sectionsElements;
-
-    console.log('ScrollTrigger Composable: Initialisation avec sections:', sections.value.length, sections.value.map(s=>s.id));
     
     if (sections.value.length > 0) {
-      // hasScrolledOnce est initialisé à false par défaut.
-      // La logique pour différer l'animation de la slide 73 (si première) est dans son onEnter.
-      registerSlide73Animation(); // Enregistrer après que sections.value soit défini
-      registerSlide128Animation(options.slide128 || {}); // Enregistrer l'animation pour la slide 128
-      registerSlide59Animation(); // Enregistrer l'animation pour la slide 59
+      // Enregistrement des animations pour chaque slide
+      registerSlide20Animation();
       registerSlide21Animation();
-      registerSlide20Animation(); // Ajouter l'enregistrement de slide-20
       registerSlide22Animation();
-      registerSlide23Animation(); // Ajouter l'animation pour slide-23
-      setupFullpageObserver(); // Configurer les observateurs après que sections.value soit défini
-      goToSection(0, 0); // Aller à la première section sans animation
+      registerSlide23Animation();
+      registerSlide59Animation();
+      registerSlide73Animation();
+      registerSlide128Animation(options.slide128 || {});
+      
+      // Configuration des interactions et positionnement initial
+      setupFullpageObserver();
+      goToSection(0, 0);
     }
   };
 
-  /**
-   * Nettoie les instances de ScrollTrigger, les écouteurs d'événements et les tweens GSAP.
-   */
   const cleanup = () => {
-    console.log("ScrollTrigger Composable: Nettoyage...");
+    // Nettoyage des ScrollTriggers
     if (stObserve) {
       stObserve.kill();
       stObserve = null;
     }
+    specificAnimationTriggers.forEach(st => st.kill());
+    specificAnimationTriggers.length = 0;
+    
+    // Nettoyage des event listeners
     if (keyboardListener.value) {
       window.removeEventListener('keydown', keyboardListener.value);
       keyboardListener.value = null;
     }
-    specificAnimationTriggers.forEach(st => st.kill());
-    specificAnimationTriggers.length = 0;
-    
-    // Nettoyage des event listeners spécifiques aux slides
     slideSpecificEventListeners.forEach(listener => {
       listener.element.removeEventListener(listener.event, listener.handler);
     });
     slideSpecificEventListeners.length = 0;
     
-    gsap.killTweensOf(SCROLLER_SELECTOR); // Cible le conteneur de défilement
-    // Réinitialiser les refs si nécessaire pour une réinitialisation complète
+    // Nettoyage des animations
+    gsap.killTweensOf(SCROLLER_SELECTOR);
+    
+    // Réinitialisation des états
     currentSectionIndex.value = 0;
     isNavigating.value = false;
     isAnimating.value = false;
@@ -1704,13 +1720,17 @@ export function useFullpageScrollTrigger() {
     sections.value = [];
   };
 
+  // Nettoyer les ressources lors du démontage du composant
   onUnmounted(cleanup);
 
+  // Exposer l'API publique du composable
   return {
     currentSectionIndex,
     isNavigating,
     init,
     goToSection,
+    // Exposer les fonctions d'enregistrement d'animation pour permettre
+    // l'enregistrement individuel de slides si nécessaire
     registerSlide20Animation,
     registerSlide21Animation,
     registerSlide22Animation,
