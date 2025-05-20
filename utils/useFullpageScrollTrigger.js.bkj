@@ -1160,60 +1160,19 @@ export function useFullpageScrollTrigger() {
         }
       };
 
-      // Variables pour l'accumulation du scroll post-séquence
-      let postSequenceDeltaY = 0; // Pour accumuler le scroll après la fin de séquence
-      const POST_SEQUENCE_THRESHOLD = 150; // Seuil pour déclencher le changement de slide après la séquence
-      
       // Gestionnaire d'événement pour les scrolls sur la slide-23
       const handlePerdrixScroll = (event) => {
         // Vérifier si nous sommes actuellement sur la slide-23
         const currentSlideId = sections.value[currentSectionIndex.value]?.id;
         
         if (currentSlideId !== 'slide-23') {
-          // Si l'écouteur est toujours actif mais qu'on n'est plus sur slide-23,
-          // il est préférable de le retirer pour éviter des traitements inutiles.
-          // Cependant, la logique de cleanup devrait s'en charger.
-          // Pour l'instant, on retourne simplement.
-          postSequenceDeltaY = 0; // Réinitialiser si on quitte la slide
-          return; 
+          return; // Ne pas traiter l'événement si nous ne sommes pas sur la slide-23
         }
 
-        // Si la séquence d'animation des perdrix est complètement terminée
+        // Si la séquence d'animation des perdrix est complètement terminée,
+        // ne pas interférer avec le défilement et laisser le comportement par défaut.
         if (animationStates.value['slide-23'] === perdrixSlides.length) {
-          console.log("[SCROLL DEBUG] Séquence Perdrix terminée (état:", animationStates.value['slide-23'], "). Scroll sur slide-23 post-séquence. DeltaY:", event.deltaY);
-
-          // 1. S'assurer que le scroll est bien débloqué.
-          if (isNavigating.value) {
-            console.log("[SCROLL DEBUG] Séquence Perdrix terminée, mais isNavigating encore true. Forçage unblockScrolling.");
-            unblockScrolling(); // Assure la libération
-          }
-          
-          // 2. Accumuler le deltaY pour potentiellement forcer le changement de slide
-          postSequenceDeltaY += Math.abs(event.deltaY);
-          console.log(`[SCROLL DEBUG] Accumulation post-séquence: ${postSequenceDeltaY}/${POST_SEQUENCE_THRESHOLD}`);
-          
-          // 3. Si l'accumulation dépasse le seuil, forcer le changement de slide
-          if (postSequenceDeltaY >= POST_SEQUENCE_THRESHOLD) {
-            // Déterminer la direction et appeler goToSection en conséquence
-            if (event.deltaY > 0) {
-              console.log("[SCROLL DEBUG] Seuil post-séquence atteint. FORÇAGE passage à la slide SUIVANTE.");
-              postSequenceDeltaY = 0; // Réinitialiser l'accumulateur
-              event.preventDefault(); // Empêcher les comportements par défaut
-              event.stopPropagation();
-              goToSection(currentSectionIndex.value + 1); // Aller à la slide suivante
-              return;
-            } else if (event.deltaY < 0) {
-              console.log("[SCROLL DEBUG] Seuil post-séquence atteint. FORÇAGE passage à la slide PRÉCÉDENTE.");
-              postSequenceDeltaY = 0; // Réinitialiser l'accumulateur
-              event.preventDefault(); // Empêcher les comportements par défaut
-              event.stopPropagation();
-              goToSection(currentSectionIndex.value - 1); // Aller à la slide précédente
-              return;
-            }
-          }
-          
-          // 4. Laisser le scroll se propager si on n'a pas forcé de changement
-          console.log("[SCROLL DEBUG] Séquence Perdrix terminée. Laissant le scroll être géré par setupFullpageObserver.");
+          console.log("[SCROLL DEBUG] Séquence Perdrix terminée (état:", animationStates.value['slide-23'], "). Défilement par défaut autorisé.");
           return; 
         }
         
@@ -1298,9 +1257,9 @@ export function useFullpageScrollTrigger() {
               
               // Si c'est la dernière perdrix-slide, libérer le défilement
               if (currentPerdrixIndex === perdrixSlides.length - 1) {
-                unblockScrolling(); // Libère isNavigating et potentiellement fullpage_api
-                animationStates.value['slide-23'] = perdrixSlides.length; // Marque la fin complète de la séquence Perdrix
-                console.log('[SCROLL DEBUG] Séquence animation slide-23 terminée, défilement libéré. État final:', animationStates.value['slide-23']);
+                unblockScrolling();
+                animationStates.value['slide-23'] = perdrixSlides.length;
+                console.log('[SCROLL DEBUG] Animation slide-23 terminée, défilement libéré.');
               }
               
               // Réinitialiser le flag d'animation après un délai
@@ -1609,6 +1568,17 @@ export function useFullpageScrollTrigger() {
           }
         }
         
+        // Bloquer la navigation de slide-22 vers slide-23 si l'animation de slide-23 n'est pas terminée
+        const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
+        if (newIndex + 1 === slide23Index) {
+          const slide23Section = sections.value[slide23Index];
+          const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
+          if (animationStates.value['slide-23'] !== undefined && 
+              animationStates.value['slide-23'] <= perdrixSlides.length) {
+            return; // Bloquer la navigation
+          }
+        }
+        
         newIndex++;
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
@@ -1711,12 +1681,6 @@ export function useFullpageScrollTrigger() {
     isNavigating,
     init,
     goToSection,
-    registerSlide20Animation,
-    registerSlide21Animation,
-    registerSlide22Animation,
-    registerSlide23Animation,
-    registerSlide59Animation,
-    registerSlide73Animation,
-    registerSlide128Animation
+    // cleanup n'est généralement pas exposé car géré par onUnmounted
   };
 }
