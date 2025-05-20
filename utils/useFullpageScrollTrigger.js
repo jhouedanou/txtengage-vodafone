@@ -18,6 +18,7 @@ export function useFullpageScrollTrigger() {
   const animationStates = ref({});
   const isAnimating = ref(false); // Used for intra-slide animations like slide-128 items
   const isScrolling = ref(false); // Flag for wheel event cooldown
+  const caseStudyActiveIndex = ref(0); // For slide-128 content items
   
   // Constantes
   const SCROLLER_SELECTOR = "#master-scroll-container";
@@ -493,126 +494,160 @@ export function useFullpageScrollTrigger() {
   // Fonctionnement: Navigation entre études de cas avec scroll vertical
   // Les animations: H2 + image d'étude + titres + contenus défilables
   
-  const registerSlide128Animation = (options = {}) => {
+  const NUM_CASE_STUDY_ITEMS = 3; // For slide-128
+
+  const showCaseStudyItem = (index) => {
+    console.log(`Slide-128: showCaseStudyItem called for index ${index}`);
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
-    if (!slide128Section) {
-      console.warn('ScrollTrigger Composable: Section slide-128 non trouvée pour l\'animation.');
-      return;
-    }
+    if (!slide128Section) return;
 
-    const killerwuDiv = slide128Section.querySelector('#killerwu');
-    if (!killerwuDiv) {
-      console.warn('ScrollTrigger Composable: Div #killerwu non trouvée dans slide-128.');
-      return;
-    }
-
-    // État d'animation initial pour la slide 128
-    // -1: animation initiale non démarrée
-    // 0: killerjunior affiché, prêt pour l'animation de llass
-    // 1: toutes les animations terminées
-    animationStates.value['slide-128'] = -1;
-
-    // Configuration initiale avec GSAP - cacher initialement #killerjunior
-    gsap.set(killerwuDiv, { autoAlpha: 0, y: 50 });
-    
-    // Cacher llass initialement et le configurer pour l'animation de remplissage de droite à gauche
-    const llassImg = slide128Section.querySelector('#llass');
-    if (llassImg) {
-      gsap.set(llassImg, { 
-        display: 'block',
-        autoAlpha: 1,
-        // Configuration pour un remplissage de droite à gauche
-        clipPath: 'polygon(100% 0%, 100% 100%, 100% 100%, 100% 0%)'
-      });
-    }
-
-    const st = ScrollTrigger.create({
-      trigger: slide128Section,
-      scroller: SCROLLER_SELECTOR,
-      start: 'top center+=10%',
-      onEnter: (self) => {
-
-      
-        const slide128Index = sections.value.findIndex(s => s.id === 'slide-128');
-      
-        // Si l'animation n'a pas encore été jouée
-        if (animationStates.value['slide-128'] === -1) {
-          // Ajouter un délai pour laisser la slide-128 apparaître d'abord
-
-          
-          // Attendre un délai avant de démarrer l'animation
-          setTimeout(() => {
-            // Animation: faire apparaître #killerjunior
-            gsap.to(killerwuDiv, {
-              autoAlpha: 1,
-              y: 0,
-              duration: 1,
-              ease: 'power2.out',
-              onComplete: () => {
-
-                // Marquer que killerjunior est affiché, prêt pour la suite de l'animation
-                animationStates.value['slide-128'] = 0;
-                
-                // Lancer automatiquement l'animation de llass après un court délai
-                if (llassImg) {
-                  setTimeout(() => {
-
-                    isAnimating.value = true;
-                    
-                    // Animation avec effet de remplissage progressif des arcs rouges (de droite à gauche)
-                    gsap.to(llassImg, {
-                      clipPath: 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)',
-                      duration: 2.5,
-                      ease: 'power1.inOut',
-                      onComplete: () => {
-
-                        animationStates.value['slide-128'] = 1; // Animation complète
-                        isAnimating.value = false; // Libérer le défilement
-                      }
-                    });
-                  }, 300); // Petit délai pour une transition visuelle plus agréable
-                }
-              }
-            });
-          }, 800); // Délai de 800ms pour laisser la slide s'afficher d'abord
-          
-          self.disable(); // Désactive ce trigger après son unique exécution
+    // Hide all content sections first
+    gsap.to(slide128Section.querySelectorAll('.case-study-content'), { 
+      autoAlpha: 0,
+      duration: 0.3,
+      onComplete: () => {
+        // Then show the target one
+        const targetContent = slide128Section.querySelector(`#case-study-content-${index + 1}`);
+        if (targetContent) {
+          gsap.to(targetContent, { autoAlpha: 1, duration: 0.3 });
         }
       }
     });
-    specificAnimationTriggers.push(st);
-    
-    // Observer la roue de la souris pour bloquer le défilement pendant l'animation
-    const handleSlide128ScrollProgress = (e) => {
-      // Vérifier si nous sommes actuellement sur la slide-128 
-      if (isScrolling.value || isNavigating.value) { // Added isScrolling check
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
+
+    // Update active header class
+    slide128Section.querySelectorAll('.case-study-item').forEach((item, i) => {
+      if (i === index) {
+        item.classList.add('case-study-active');
+      } else {
+        item.classList.remove('case-study-active');
       }
-      if (currentSectionIndex.value === sections.value.findIndex(s => s.id === 'slide-128')) {
-        // Si l'animation n'est pas encore terminée et qu'on essaie de défiler vers le bas
-        if (animationStates.value['slide-128'] !== 1 && // L'animation n'est pas complète
-            e.deltaY > 0) { // Défilement vers le bas
-          // Bloquer le défilement
+    });
+    caseStudyActiveIndex.value = index;
+    console.log(`Slide-128: caseStudyActiveIndex set to ${caseStudyActiveIndex.value}`);
+  };
+
+  const registerSlide128Animation = (options = {}) => {
+    console.log('%cSlide-128: registerSlide128Animation CALLED', 'color: blue; font-weight: bold;');
+
+    const slide128Section = sections.value.find(s => s.id === 'slide-128');
+    console.log('Slide-128: slide128Section object:', slide128Section);
+    if (!slide128Section) {
+      console.warn('Slide-128: Section not found for animation.');
+      return;
+    }
+
+    const h2Element = slide128Section.querySelector('#dec h2.text-element.aya');
+    const caseStudyImage = slide128Section.querySelector('#killerwu'); // Assuming #killerwu is the main image/container to animate
+    const caseStudyHeaders = slide128Section.querySelectorAll('#dec .case-study-header');
+
+    if (!h2Element) console.warn('Slide-128: H2 element not found.');
+    if (!caseStudyImage) console.warn('Slide-128: Case study image (#killerwu) not found.');
+    if (caseStudyHeaders.length === 0) console.warn('Slide-128: Case study headers not found.');
+
+    // Initial animation state for slide 128
+    // -1: initial animation not started
+    //  1: initial animation complete, ready for item interaction
+    animationStates.value['slide-128'] = -1;
+    console.log('Slide-128: Initial animationStates[slide-128] set to:', animationStates.value['slide-128']);
+
+    // Initial GSAP setup: hide elements for the intro animation
+    gsap.set(h2Element, { autoAlpha: 0, y: 30 });
+    gsap.set(caseStudyImage, { autoAlpha: 0, scale: 0.8 });
+    gsap.set(caseStudyHeaders, { autoAlpha: 0, x: -30 });
+    gsap.set(slide128Section.querySelectorAll('.case-study-content'), {autoAlpha: 0}); // Hide all content initially
+
+    console.log('Slide-128: SCROLLER_SELECTOR value:', SCROLLER_SELECTOR);
+    console.log('%cSlide-128: Attempting ScrollTrigger.create() for initial animation', 'color: orange; font-weight: bold;');
+    
+    const st = ScrollTrigger.create({
+      trigger: slide128Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=20%', // Adjusted for potentially taller intro content
+      markers: true, // Keep markers for visual debugging
+      onEnter: (self) => {
+        console.log('%cSlide-128: onEnter TRIGGERED for initial animation', 'color: green; font-weight: bold;');
+        console.log('Slide-128: current animationStates[slide-128] in onEnter:', animationStates.value['slide-128']);
+
+        if (animationStates.value['slide-128'] === -1) {
+          isAnimating.value = true; // Block scroll during this initial animation
+          console.log('Slide-128: onEnter - Initial animation sequence starting (state was -1).');
+          
+          const tl = gsap.timeline({
+            onComplete: () => {
+              console.log('Slide-128: Initial animation timeline COMPLETE. Setting state to 1.');
+              animationStates.value['slide-128'] = 1;
+              isAnimating.value = false; // Release scroll block for main navigation
+              showCaseStudyItem(0); // Show the first case study item
+              console.log('Slide-128: Initial animation done, first case study item shown.');
+              self.disable(); // Disable this ScrollTrigger after it has run once
+            }
+          });
+
+          if (h2Element) {
+            tl.to(h2Element, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' });
+          }
+          if (caseStudyImage) {
+            tl.to(caseStudyImage, { autoAlpha: 1, scale: 1, duration: 1, ease: 'power2.out' }, "-=0.5"); // Overlap slightly
+          }
+          if (caseStudyHeaders.length > 0) {
+            tl.to(caseStudyHeaders, { autoAlpha: 1, x: 0, duration: 0.6, stagger: 0.2, ease: 'power2.out' }, "-=0.5"); // Overlap slightly
+          }
+        } else if (animationStates.value['slide-128'] === 1) {
+            // If animation already played, ensure first item is shown if returning to slide
+            showCaseStudyItem(caseStudyActiveIndex.value); // Or always show 0 upon re-entry?
+            self.disable(); // Still disable if it somehow re-triggers
+        }
+      },
+      onLeave: () => {
+        // Optional: Reset if scrolled away before completion? Or let it complete.
+      },
+      onLeaveBack: () => {
+        // Optional: Reset animations if scrolling back past it?
+        // For now, the self.disable() should prevent re-triggering the main intro.
+        // We might need a different logic if we want the intro to replay.
+      }
+    });
+    specificAnimationTriggers.push(st);
+    console.log('Slide-128: ScrollTrigger for initial animation created and pushed.');
+  
+    const handleSlide128ScrollProgress = (e) => {
+      console.log('Slide-128: handleSlide128ScrollProgress event. deltaY:', e.deltaY, 'animationState:', animationStates.value['slide-128'], 'isAnimating:', isAnimating.value, 'caseStudyActiveIndex:', caseStudyActiveIndex.value);
+      
+      const slide128Index = sections.value.findIndex(s => s.id === 'slide-128');
+      if (currentSectionIndex.value !== slide128Index) return; // Not on slide-128
+
+      // If the initial animation of slide-128 hasn't completed, block downward scroll past the slide.
+      if (animationStates.value['slide-128'] !== 1) {
+        if (e.deltaY > 0) { // Trying to scroll down
+          console.log('Slide-128: Initial animation not complete, blocking downward scroll.');
           e.preventDefault();
           e.stopPropagation();
           return false;
         }
+        // Allow scrolling up to previous slide if initial animation not done
+        return;
       }
+
+      // --- Placeholder for Case Study Item Scrolling Logic (PART 2) ---
+      // This part will be implemented next, once the initial animation is confirmed.
+      // For now, after initial animation, it will allow normal slide scrolling.
+      console.log('Slide-128: Initial animation complete. Item scrolling logic to be implemented.');
+      // Prevent default to stop main scroller if we are to handle item scrolling here.
+      // e.preventDefault(); 
+      // e.stopPropagation();
+      // --- End Placeholder ---
     };
 
-    // Ajouter l'observateur d'événement pour la slide 128
     slide128Section.addEventListener('wheel', handleSlide128ScrollProgress, { passive: false });
-  
-    // Stocker la référence pour le nettoyage
+    console.log('Slide-128: Wheel event listener ADDED.');
+
     slideSpecificEventListeners.push({
       element: slide128Section,
       event: 'wheel',
       handler: handleSlide128ScrollProgress
     });
+    console.log('Slide-128: Event listener reference stored for cleanup.');
   };
-
   // ===========================================================================
   // SECTION 9: ANIMATION DE LA SLIDE 59
   // ===========================================================================
@@ -714,6 +749,7 @@ export function useFullpageScrollTrigger() {
     
     // Observer la roue de la souris pour bloquer le défilement pendant l'animation
     const handleSlide59ScrollProgress = (e) => {
+      console.log('Slide-59: handleSlide59ScrollProgress event. deltaY:', e.deltaY);
       // Vérifier si nous sommes actuellement sur la slide-59 
       if (isScrolling.value || isNavigating.value) { // Added isScrolling check
         e.preventDefault();
@@ -848,12 +884,7 @@ export function useFullpageScrollTrigger() {
       
       // Gestionnaire d'événement pour les scrolls sur la slide-23
       const handlePerdrixScroll = (event) => {
-        let cumulativeDeltaY = 0; // Initialize cumulative scroll delta
-        const deltaYThreshold = 5; // Set desired sensitivity
-        if (isScrolling.value || isNavigating.value) { // Added isScrolling check
-          event.preventDefault();
-          return;
-        }
+        console.log('Slide-23: handlePerdrixScroll event. deltaY:', event.deltaY);
         // Vérifier si nous sommes actuellement sur la slide-23 
         const currentSlideId = sections.value[currentSectionIndex.value]?.id;
         
