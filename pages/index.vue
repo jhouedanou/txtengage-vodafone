@@ -710,7 +710,7 @@ header.fixed-top.scrolled {
 }
 
 .hamburger {
-  display: none; 
+  display: flex; 
   flex-direction: column;
   justify-content: space-around;
   width: 30px;
@@ -746,7 +746,24 @@ header.fixed-top.scrolled {
 }
 
 #menu {
+  position: fixed;
+  top: 0;
+  left: -100%; 
+  width: 300px; 
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: left 0.5s ease;
+  padding-top: 60px;
+  z-index: 9;
   display: flex;
+}
+
+#menu.is-open {
+  left: 0;
 }
 
 #menu ul {
@@ -754,11 +771,15 @@ header.fixed-top.scrolled {
   padding: 0;
   margin: 0;
   display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 100%;
 }
 
 #menu ul li {
-  margin-left: 20px;
+  margin: 15px 0;
   cursor: pointer;
+  padding: 10px 20px;
 }
 
 #menu ul li .slide-label {
@@ -774,28 +795,8 @@ header.fixed-top.scrolled {
 }
 
 @media (max-width: 1024px) { 
-  .hamburger {
-    display: flex;
-  }
   #menu {
-    position: fixed;
-    top: 0;
-    left: -100%; 
-    width: 70%; 
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.95);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: left 0.5s ease;
-    padding-top: 60px; 
-  }
-  #menu.is-open {
-    left: 0;
-  }
-  #menu ul {
-    flex-direction: column;
-    text-align: center;
+    width: 70%;
   }
   #menu ul li {
     margin: 20px 0;
