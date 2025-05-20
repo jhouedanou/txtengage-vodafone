@@ -475,7 +475,7 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
                             <h3 v-if="extractTitle(paragraph)">{{ extractTitle(paragraph) }}</h3>
                             <div class="text-content" v-html="extractTextContent(paragraph)"></div>
                           </div>
-                          <div :id="`image-container-${idx+1}`" class="image-container col-md-6">
+                          <div :id="`image-container-${idx+1}`" class="image-container col-md-6 dflex d-flex align-items-end justify-content-end">
                             <img :src="extractImage(paragraph)" alt="Image" class="img-fluid" />
                           </div>
                         </div>
