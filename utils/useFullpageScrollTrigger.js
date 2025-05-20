@@ -819,7 +819,7 @@ export function useFullpageScrollTrigger() {
   };
 
   // ===========================================================================
-  // SECTION 9: ANIMATION DE LA SLIDE 59
+  // SECTION 9: ANIMATION DE LA SLIDE 59 
   // ===========================================================================
   // Fonctionnement: Animation séquentielle contrôlée par scroll
   
@@ -1011,7 +1011,7 @@ export function useFullpageScrollTrigger() {
       // Variables pour contrôler le throttling du scroll
       let isAnimating = false;
       let lastScrollTime = 0;
-      const scrollCooldown = 750; // Délai minimum entre chaque animation (en ms)
+      const scrollCooldown = 0; // Délai minimum entre chaque animation (en ms)
       let lastDeltaY = 0;
       let cumulativeDeltaY = 0;
       const deltaYThreshold = 20; // Seuil pour déclencher une animation (ajustez selon sensibilité)

@@ -1,0 +1,1163 @@
+import { ref, onUnmounted, nextTick, inject } from 'vue';
+import { ref, onUnmounted, nextTick } from 'vue';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+export function useFullpageScrollTrigger() {
+  // --- Refs et Variables d'état ---
+  const sections = ref([]);
+  const currentSectionIndex = ref(0);
+  const isNavigating = ref(false);
+  const hasScrolledOnce = ref(false); // True après la première interaction utilisateur
+  const animationStates = ref({}); // Stocke l'état des animations spécifiques
+  const isAnimating = ref(false); // Pour suivre si une animation particulière est en cours
+  
+  // --- Constantes ---
+  const SCROLLER_SELECTOR = "#master-scroll-container";
+  
+  // --- Variables Internes ---
+  let stObserve = null; // Instance de ScrollTrigger.observe
+  const keyboardListener = ref(null); // Référence au gestionnaire d'événements clavier
+  const specificAnimationTriggers = []; // Pour stocker les instances de ScrollTrigger spécifiques à des slides
+  const slideSpecificEventListeners = []; // Pour stocker les event listeners spécifiques aux slides
+  
+  // --- Instance Lenis ---
+  let lenis = null; // Sera défini lors de l'initialisation
+    // ===========================================================================
+  // SECTION 1: INTÉGRATION LENIS
+  // ===========================================================================
+  
+  /**
+   * Configure l'intégration avec Lenis pour normaliser les événements de scroll
+   * @param {Object} lenisInstance - L'instance Lenis créée dans le composant principal
+   */
+  const setupLenisScrollHandling = (lenisInstance) => {
+    if (!lenisInstance) return;
+    
+    lenis = lenisInstance;
+    
+    // Configurer lenis pour bloquer le scroll pendant les animations
+    const originalScroll = lenis.scrollTo;
+    lenis.scrollTo = (...args) => {
+      isNavigating.value = true;
+      return originalScroll.call(lenis, ...args);
+    };
+    
+    // Écouter les événements lenis
+    lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
+      // Mise à jour pour le système de défilement progressive
+      if (!isNavigating.value) {
+        ScrollTrigger.update();
+      }
+    });
+  };
+  
+  // Références et états globaux
+  const sections = ref([]);
+  const currentSectionIndex = ref(0);
+  const isNavigating = ref(false);
+  const hasScrolledOnce = ref(false);
+  const animationStates = ref({});
+  const isAnimating = ref(false);
+  
+  // Constantes
+  const SCROLLER_SELECTOR = "#master-scroll-container";
+  
+  // Variables internes de gestion
+  let stObserve = null;
+  const keyboardListener = ref(null);
+  const specificAnimationTriggers = [];
+  const slideSpecificEventListeners = [];
+
+  // ===========================================================================
+  // SECTION 2: GESTION DES INTERACTIONS
+  // ===========================================================================
+  
+  /**
+   * Gère la première interaction utilisateur pour déclencher des animations initiales si nécessaire.
+   * Actuellement utilisé pour l'animation de la slide-73 si elle est la première affichée.
+   */
+  const handleFirstInteraction = () => {
+    if (hasScrolledOnce.value) return;
+    hasScrolledOnce.value = true;
+
+    const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
+    if (slide73Index === 0 && currentSectionIndex.value === 0) {
+      const slide73Section = sections.value.find(s => s.id === 'slide-73');
+      if (slide73Section && animationStates.value['slide-73'] !== true && animationStates.value['slide-73'] !== 'pending_st') {
+        const pointsFortDiv = slide73Section.querySelector('.points-fort');
+        const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+
+        animationStates.value['slide-73'] = false;
+
+        if (pointsFortDiv) {
+          gsap.to(pointsFortDiv, {
+            x: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            onComplete: () => {
+              if (animationStates.value['slide-73'] === false) {
+                animationStates.value['slide-73'] = true;
+              }
+            }
+          });
+        }
+
+        if (slidesContainerDiv) {
+          gsap.to(slidesContainerDiv, {
+            backgroundSize: 'cover',
+            backgroundPositionX: '-25vw',
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        }
+      }
+    }
+  };
+  
+  // Fonction pour configurer la gestion des événements de scroll normalisés par Lenis
+  const setupLenisScrollHandling = (lenisInstance) => {
+    if (!lenisInstance) return;
+    
+    lenis = lenisInstance;
+    
+    // Configurer lenis pour bloquer le scroll pendant les animations
+    const originalScroll = lenis.scrollTo;
+    lenis.scrollTo = (...args) => {
+      isNavigating.value = true;
+      return originalScroll.call(lenis, ...args);
+    };
+    
+    // Écouter les événements lenis
+    lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
+      // Mise à jour pour le système de défilement progressive
+      if (!isNavigating.value) {
+        ScrollTrigger.update();
+      }
+    });
+  };
+  
+  const handleFirstInteraction = () => {
+    if (hasScrolledOnce.value) return;
+    hasScrolledOnce.value = true;
+
+    const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
+    if (slide73Index === 0 && currentSectionIndex.value === 0) {
+      const slide73Section = sections.value.find(s => s.id === 'slide-73');
+      if (slide73Section && animationStates.value['slide-73'] !== true && animationStates.value['slide-73'] !== 'pending_st') {
+        const pointsFortDiv = slide73Section.querySelector('.points-fort');
+        const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+
+        animationStates.value['slide-73'] = false;
+
+        if (pointsFortDiv) {
+          gsap.to(pointsFortDiv, {
+            x: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            onComplete: () => {
+              if (animationStates.value['slide-73'] === false) {
+                animationStates.value['slide-73'] = true;
+              }
+            }
+          });
+        }
+
+        if (slidesContainerDiv) {
+          gsap.to(slidesContainerDiv, {
+            backgroundSize: 'cover',
+            backgroundPositionX: '-25vw',
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        }
+      }
+    }
+  };
+
+  // ===========================================================================
+  // SECTION 8: ANIMATION DE LA SLIDE 73 (POINTS FORTS)
+  // ===========================================================================
+  // Fonctionnement: Animation des éléments .points-fort via ScrollTrigger
+  
+  const registerSlide73Animation = () => {
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (!slide73Section) {
+      // console.warn('ScrollTrigger Composable: Section slide-73 non trouvée pour l\'animation.');
+      return;
+    }
+    const pointsFortDiv = slide73Section.querySelector('.points-fort');
+    const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+
+    if (pointsFortDiv) {
+      gsap.set(pointsFortDiv, { x: '100vw', autoAlpha: 1 });
+    }
+    if (slidesContainerDiv) {
+      gsap.set(slidesContainerDiv, { backgroundSize: 'cover', backgroundPositionX: '0vw' });//etat initial du background avec la
+    }
+    
+    animationStates.value['slide-73'] = false; // Initialement, l'animation n'est pas terminée/déclenchée
+
+    const st = ScrollTrigger.create({
+      trigger: slide73Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%', // Ajuster selon le besoin
+      // markers: true, // Pour débogage
+      onEnter: (self) => {
+        const slide73Index = sections.value.findIndex(s => s.id === 'slide-73');
+        // Si c'est la première slide et qu'il n'y a pas eu d'interaction, on attend handleFirstInteraction
+        if (slide73Index === 0 && currentSectionIndex.value === 0 && !hasScrolledOnce.value) {
+          return;
+        }
+
+        // Déclencher si pas déjà fait par handleFirstInteraction ou un onEnter précédent
+        if (!self.userData || !self.userData.triggeredST) {
+          if (animationStates.value['slide-73'] === true) { // Déjà complétée par handleFirstInteraction
+             if(self.userData) self.userData.triggeredST = true;
+            return;
+          }
+          
+          if(self.userData) self.userData.triggeredST = true;
+          else self.userData = { triggeredST: true };
+          
+          animationStates.value['slide-73'] = 'pending_st'; // ST prend le relais
+
+          if (pointsFortDiv) {
+            gsap.to(pointsFortDiv, {
+              x: 0,
+              duration: 0.8,
+              ease: 'power2.out',
+              onComplete: () => {
+                if (animationStates.value['slide-73'] === 'pending_st') {
+                  animationStates.value['slide-73'] = true;
+                }
+              }
+            });
+          }
+
+        if (slidesContainerDiv) {
+          gsap.to(slidesContainerDiv, {
+            backgroundSize: 'cover',
+            backgroundPositionX: '-25vw',
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        }
+          // self.disable(); // Optionnel: désactiver après la première exécution
+        }
+      },
+      onLeave: (self) => {
+        // Optionnel: réinitialiser pour rejouer l'animation à chaque entrée
+        // if (self.userData) self.userData.triggeredST = false;
+        // gsap.set(pointsFortDiv, { x: '-100%', autoAlpha: 1 });
+        // gsap.set(slidesContainerDiv, { backgroundSize: '200%', backgroundPositionX: '0vw' });
+        // animationStates.value['slide-73'] = false;
+      },
+      onEnterBack: (self) => {
+        // Similaire à onLeave si on veut rejouer l'animation en revenant par le haut
+        // if (self.userData) self.userData.triggeredST = false;
+      }
+    });
+    specificAnimationTriggers.push(st);
+  };
+  // ===========================================================================
+  // SECTION 5: ANIMATION DE LA SLIDE 21
+  // ===========================================================================
+  // Fonctionnement: Animation déclenchée uniquement via goToSection
+  
+  const registerSlide21Animation = () => {
+    const slide21Section = sections.value.find(s => s.id === 'slide-21');
+    if (!slide21Section) {
+      return;
+    }
+    const thoiathoingDiv = slide21Section.querySelector('#thoiathoing');
+
+    if (!thoiathoingDiv) {
+      return;
+    }
+
+    // État initial de #thoiathoing: invisible et décalé vers le bas
+    gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+    animationStates.value['slide-21-playedOnce'] = false; // Pour suivre si l'animation a été jouée une fois
+
+    const st21 = ScrollTrigger.create({
+      trigger: slide21Section,
+      scroller: SCROLLER_SELECTOR
+    });
+    specificAnimationTriggers.push(st21);
+  };
+  // ===========================================================================
+  // SECTION 6: ANIMATION DE LA SLIDE 22
+  // ===========================================================================
+  // Fonctionnement: Animation déclenchée uniquement via goToSection (une seule fois)
+  
+  const registerSlide22Animation = () => {
+    const slide22Section = sections.value.find(s => s.id === 'slide-22');
+    if (!slide22Section) {
+      return;
+    }
+    const thoiathoingDiv = slide22Section.querySelector('#thoiathoing');
+
+    if (!thoiathoingDiv) {
+      return;
+    }
+
+    // État initial de #thoiathoing: invisible et décalé vers le bas
+    gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
+    animationStates.value['slide-22-playedOnce'] = false; // Pour suivre si l'animation a été jouée
+    const st22 = ScrollTrigger.create({
+      trigger: slide22Section,
+      scroller: SCROLLER_SELECTOR
+
+    });
+    specificAnimationTriggers.push(st22);
+  };
+
+  // ===========================================================================
+  // SECTION 4: ANIMATION DE LA SLIDE 20 (TURTLE BEACH)
+  // ===========================================================================
+  const registerSlide20Animation = () => {
+    const slide20Section = sections.value.find(s => s.id === 'slide-20');
+    if (!slide20Section) {
+      return;
+    }
+    
+    // Références aux éléments à animer
+    const turtleBeach = slide20Section.querySelector('#turtlebeach');
+    const mzuH2Elements = slide20Section.querySelectorAll('#mzu h2');
+    const textElement3 = slide20Section.querySelector('#text-element-3');
+    const textElement0 = slide20Section.querySelector('#text-element-0');
+    const textElement4 = slide20Section.querySelector('#text-element-4');
+    const textElement2 = slide20Section.querySelector('#text-element-2');
+    const textElement1 = slide20Section.querySelector('#text-element-1');
+    const textElement5 = slide20Section.querySelector('#text-element-5');
+    
+    // État initial des éléments
+    if (turtleBeach) gsap.set(turtleBeach, { scale: 0, autoAlpha: 1 });
+    if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 0, y: 20 });
+    if (textElement3) gsap.set(textElement3, { autoAlpha: 0, y: 20 });
+    if (textElement0) gsap.set(textElement0, { autoAlpha: 0, y: 20 });
+    if (textElement4) gsap.set(textElement4, { autoAlpha: 0, y: 20 });
+    if (textElement2) gsap.set(textElement2, { autoAlpha: 0, y: 20 });
+    if (textElement1) gsap.set(textElement1, { autoAlpha: 0, y: 20 });
+    if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
+    
+    // ScrollTrigger pour la slide-20
+    const st20 = ScrollTrigger.create({
+      trigger: slide20Section,
+      scroller: SCROLLER_SELECTOR,
+      onEnter: () => {
+        // Configuration initiale
+      },
+      onEnterBack: () => {
+        // Comportement au retour
+      },
+      onLeave: () => {
+        // Comportement au départ
+      },
+      onLeaveBack: () => {
+        // Comportement au retour en arrière
+      }
+    });
+    specificAnimationTriggers.push(st20);
+  };
+
+  // Fonction de navigation entre sections
+  const goToSection = (index, duration = 1) => {
+    if (index < 0 || index >= sections.value.length || isNavigating.value || isAnimating.value) {
+      return;
+    }
+
+    isNavigating.value = true;
+    const targetSection = sections.value[index];
+    
+    // Utiliser Lenis pour un défilement fluide si disponible
+    if (lenis) {
+      lenis.scrollTo(targetSection.offsetTop, {
+        duration: duration,
+        lock: true,
+        onComplete: () => {
+          currentSectionIndex.value = index;
+          isNavigating.value = false;
+          // Mise à jour du fond si nécessaire
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('sectionChanged', { detail: { index } }));
+          }
+        }
+      });
+    } else {
+      // Fallback sur GSAP si Lenis n'est pas disponible
+      gsap.to(SCROLLER_SELECTOR, {
+        duration: duration,
+        scrollTo: { y: targetSection.offsetTop, autoKill: false },
+        onStart: () => {
+          // Empêcher d'autres navigations pendant l'animation
+          isNavigating.value = true;
+        },
+        onComplete: () => {
+          currentSectionIndex.value = index;
+          isNavigating.value = false;
+          // Mise à jour du fond si nécessaire
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('sectionChanged', { detail: { index } }));
+          }
+        }
+      });
+    }
+  };
+  
+  // Observer la roue de la souris pour la progression séquentielle de slide 128
+  const handleSlide128ScrollProgress = (e) => {
+    // Si nous ne sommes pas sur la slide 128, ne rien faire
+    if (currentSectionIndex.value !== sections.value.findIndex(s => s.id === 'slide-128')) {
+      return;
+    }
+
+    // Empêcher le comportement par défaut
+    e.preventDefault();
+
+    // Utiliser un delta normalisé, plus cohérent avec Lenis
+    // La valeur normalisée nous donne une meilleure précision et cohérence sur différents périphériques
+    const delta = e.deltaY || e.detail || e.wheelDelta;
+
+    // Utiliser un seuil minimal pour éviter les déclenchements accidentels
+    // Particulièrement utile pour les trackpads sensibles
+    const SCROLL_THRESHOLD = 10;
+    if (Math.abs(delta) < SCROLL_THRESHOLD) return;
+
+    // Si déjà en train de défiler, ignorer
+    if (animationStates.value['slide-128'].isScrollingToNext) {
+      return;
+    }
+
+    const state = animationStates.value['slide-128'];
+    const slide128Section = sections.value.find(s => s.id === 'slide-128');
+
+    // Défiler vers le bas
+    if (delta > 0) {
+      // Activer le prochain item si ce n'est pas déjà en cours d'animation
+      if (!isAnimating.value) {
+        isAnimating.value = true;
+        state.isScrollingToNext = true;
+
+        // Animer le prochain item
+        const nextItemIndex = state.currentItem + 1;
+        if (nextItemIndex < state.totalItems) {
+          const nextItem = slide128Section.querySelector(`#case-study-item-${nextItemIndex}`);
+          const nextItemContent = slide128Section.querySelector(`#case-study-content-${nextItemIndex}`);
+
+          if (nextItem && nextItemContent) {
+            // Animer l'affichage du contenu
+            gsap.to(nextItemContent, {
+              autoAlpha: 1,
+              display: 'block',
+              duration: 0.6,
+              ease: 'power2.out',
+              onComplete: () => {
+                state.currentItem = nextItemIndex;
+                state.isScrollingToNext = false;
+                isAnimating.value = false;
+              }
+            });
+          }
+        }
+      }
+    }
+  }
+};
+
+// SECTION 12: SYSTÈME D'OBSERVATION DU SCROLL
+// ===========================================================================
+// Capture des événements de scroll et gestion des interactions spéciales
+
+const setupFullpageObserver = () => {
+  stObserve = ScrollTrigger.create({
+    trigger: SCROLLER_SELECTOR,
+    scroller: SCROLLER_SELECTOR,
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: (self) => {
+      if (isNavigating.value) return; // Ne pas traiter pendant les animations de transition
+
+      // Calcule l'index de section basé sur la position de défilement actuelle
+      const scrollPositionY = self.scroll();
+      let currentIndex = 0;
+
+      for (let i = 0; i < sections.value.length; i++) {
+        const section = sections.value[i];
+        const sectionTop = section.offsetTop;
+        const sectionBottom = sectionTop + section.offsetHeight;
+        
+        // Ajuster la zone de détection avec une marge plus généreuse pour Lenis
+        if (scrollPositionY >= sectionTop - 200 && scrollPositionY < sectionBottom - 200) {
+          currentIndex = i;
+          break;
+        }
+      }
+
+      if (currentSectionIndex.value !== currentIndex) {
+        currentSectionIndex.value = currentIndex;
+        // Permet à d'autres composants de réagir au changement de section
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('sectionChanged', { detail: { index: currentIndex } }));
+        }
+      }
+    }
+  });
+  
+  // Gérer le cas spécial pour slide-20 et slide-23 via un observateur d'événements
+  const wheelObserver = (e) => {
+    if (isNavigating.value) return;
+    
+    const currentSectionElement = sections.value[currentSectionIndex.value];
+    
+    // Si on est sur slide-20
+    if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+      // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
+      if (animationStates.value['slide-20-initialAnimPlayed'] && 
+          !animationStates.value['slide-20-text5Shown'] && e.deltaY > 0) {
+        e.preventDefault();
+        // Afficher text-element-5
+        playSlide20Text5Animation(currentSectionElement);
+        return; // Bloquer le défilement pour le moment
+      }
+    }
+    
+    // Gérer le cas spécial pour slide-23
+    if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+      const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
+      if (animationStates.value['slide-23'] !== undefined && 
+          animationStates.value['slide-23'] <= perdrixSlides.length && e.deltaY > 0) {
+        e.preventDefault();
+        return; // Bloquer le défilement
+      }
+    }
+    
+    // Navigation normale vers le bas
+    if (e.deltaY > 0 && !isNavigating.value) {
+      goToSection(currentSectionIndex.value + 1);
+    } else if (e.deltaY < 0 && !isNavigating.value) {
+      goToSection(currentSectionIndex.value - 1);
+    }
+  };
+  
+  // Ajouter l'observateur au document pour intercepter les événements de défilement
+  document.addEventListener('wheel', wheelObserver, { passive: false });
+  
+  // Stocker pour le nettoyage
+  slideSpecificEventListeners.push({
+    element: document,
+    event: 'wheel',
+    handler: wheelObserver
+  });
+
+  // Mise à jour également du gestionnaire clavier
+    keyboardListener.value = (e) => {
+      handleFirstInteraction();
+      if (isNavigating.value) return;
+
+      let newIndex = currentSectionIndex.value;
+      const currentSectionElement = sections.value[currentSectionIndex.value];
+
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        
+        // Blocage pour slide-73
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+          return;
+        }
+        
+        // Blocage pour slide-59
+        if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
+            animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
+            newIndex > currentSectionIndex.value) { // Seulement bloquer vers le bas
+          return;
+        }
+        
+        // Blocage pour slide-20
+        if (currentSectionElement && currentSectionElement.id === 'slide-20' && 
+          !animationStates.value['slide-20-text5Shown'] && newIndex > currentSectionIndex.value) {
+          return;
+        }
+        
+        // Blocage pour slide-23
+        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
+          if (animationStates.value['slide-23'] !== undefined && 
+              animationStates.value['slide-23'] <= perdrixSlides.length) {
+            return; // Bloquer la navigation vers le bas
+          }
+        }
+        
+        newIndex++;
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        
+        // Bloquer la navigation de slide-23 vers slide-22
+        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
+          if (animationStates.value['slide-23'] !== undefined && 
+              animationStates.value['slide-23'] <= perdrixSlides.length) {
+            return; // Bloquer la navigation vers le haut
+          }
+        }
+        
+        // Bloquer la navigation de slide-59 vers slide-23 si l'animation de slide-23 n'est pas terminée
+        const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
+        if (currentSectionIndex.value - 1 === slide23Index) {
+          const slide23Section = sections.value[slide23Index];
+          const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
+          if (animationStates.value['slide-23'] !== undefined && 
+              animationStates.value['slide-23'] <= perdrixSlides.length) {
+            return; // Bloquer la navigation
+          }
+        }
+        
+        newIndex--;
+      }
+
+      if (newIndex !== currentSectionIndex.value) {
+        goToSection(newIndex);
+      }
+    };
+    window.addEventListener('keydown', keyboardListener.value);
+  };
+
+  // --- Initialisation et Nettoyage ---
+
+  // ===========================================================================
+  // SECTION 2: INITIALISATION ET NETTOYAGE
+  // ===========================================================================
+  
+  const init = (sectionsElements, options = {}) => {
+    if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
+      return;
+    }
+    sections.value = sectionsElements;
+    
+    if (sections.value.length > 0) {
+      // Enregistrement des animations pour chaque slide
+      registerSlide20Animation();
+      registerSlide21Animation();
+      registerSlide22Animation();
+      registerSlide23Animation();
+      registerSlide59Animation();
+      registerSlide73Animation();
+      registerSlide128Animation(options.slide128 || {});
+      
+      // Configuration des interactions et positionnement initial
+      setupFullpageObserver();
+      goToSection(0, 0);
+      
+      // Vérifier si une instance Lenis a été passée dans les options
+      if (options.lenis) {
+        setupLenisScrollHandling(options.lenis);
+      }
+    }
+  };
+
+  const cleanup = () => {
+    // Nettoyage des ScrollTriggers
+    if (stObserve) {
+      stObserve.kill();
+      stObserve = null;
+    }
+    specificAnimationTriggers.forEach(st => st.kill());
+    specificAnimationTriggers.length = 0;
+    
+    // Nettoyage des event listeners
+    if (keyboardListener.value) {
+      window.removeEventListener('keydown', keyboardListener.value);
+      keyboardListener.value = null;
+    }
+    slideSpecificEventListeners.forEach(listener => {
+      listener.element.removeEventListener(listener.event, listener.handler);
+    });
+    slideSpecificEventListeners.length = 0;
+    
+    // Nettoyage des animations
+    gsap.killTweensOf(SCROLLER_SELECTOR);
+    
+    // Réinitialisation des états
+    currentSectionIndex.value = 0;
+    isNavigating.value = false;
+    isAnimating.value = false;
+    hasScrolledOnce.value = false;
+    Object.keys(animationStates.value).forEach(key => delete animationStates.value[key]);
+    sections.value = [];
+  };
+
+  // Nettoyer les ressources lors du démontage du composant
+  onUnmounted(() => {
+    cleanup();
+    if (lenis) {
+      // Ne pas appeler destroy() ici car l'instance lenis sera nettoyée au niveau du composant principal
+      lenis = null;
+    }
+  });
+
+  // Exposer l'API publique du composable
+  // ===========================================================================
+  // SECTION 3: NAVIGATION ENTRE SECTIONS
+  // ===========================================================================
+  
+  /**
+   * Navigate vers une section spécifique.
+   * @param {number} index - Index de la section cible dans le tableau sections.
+   * @param {number} duration - Durée de l'animation en secondes (0 pour instantané).  
+   */
+  const goToSection = (index, duration = 1) => {
+    if (index < 0 || index >= sections.value.length || isNavigating.value || isAnimating.value) {
+      return;
+    }
+
+    isNavigating.value = true;
+    const targetSection = sections.value[index];
+    
+    // Utiliser Lenis pour un défilement fluide si disponible
+    if (lenis) {
+      lenis.scrollTo(targetSection.offsetTop, {
+        duration: duration,
+        lock: true,
+        onComplete: () => {
+          currentSectionIndex.value = index;
+          isNavigating.value = false;
+          // Mise à jour du fond si nécessaire
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('sectionChanged', { detail: { index } }));
+          }
+        }
+      });
+    } else {
+      // Fallback sur GSAP si Lenis n'est pas disponible
+      gsap.to(SCROLLER_SELECTOR, {
+        duration: duration,
+        scrollTo: { y: targetSection.offsetTop, autoKill: false },
+        onStart: () => {
+          // Empêcher d'autres navigations pendant l'animation
+          isNavigating.value = true;
+        },
+        onComplete: () => {
+          currentSectionIndex.value = index;
+          isNavigating.value = false;
+          // Mise à jour du fond si nécessaire
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('sectionChanged', { detail: { index } }));
+          }
+        }
+      });
+    }
+  };
+
+  /**
+   * Observe le défilement pour détecter les changements de section
+   */
+  const setupFullpageObserver = () => {
+    stObserve = ScrollTrigger.create({
+      trigger: SCROLLER_SELECTOR,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        if (isNavigating.value) return; // Ne pas traiter pendant les animations
+
+        // Calcule l'index de section basé sur la position de défilement actuelle
+        const scrollPositionY = self.scroll();
+        let currentIndex = 0;
+
+        for (let i = 0; i < sections.value.length; i++) {
+          const section = sections.value[i];
+          const sectionTop = section.offsetTop;
+          const sectionBottom = sectionTop + section.offsetHeight;
+          
+          // Ajuster la zone de détection avec une marge pour Lenis
+          if (scrollPositionY >= sectionTop - 200 && scrollPositionY < sectionBottom - 200) {
+            currentIndex = i;
+            break;
+          }
+        }
+
+        if (currentSectionIndex.value !== currentIndex) {
+          currentSectionIndex.value = currentIndex;
+          // Permet à d'autres composants de réagir au changement de section
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('sectionChanged', { detail: { index: currentIndex } }));
+          }
+        }
+      }
+    });
+    
+    // Gérer le cas spécial pour slide-20 et slide-23 via un observateur d'événements
+    const wheelObserver = (e) => {
+      if (isNavigating.value) return;
+      
+      const currentSectionElement = sections.value[currentSectionIndex.value];
+      
+      // Utiliser un delta normalisé avec Lenis pour meilleure expérience sur trackpads
+      const delta = e.deltaY || e.detail || e.wheelDelta;
+      const SCROLL_THRESHOLD = 10;
+      
+      // Seuil minimal pour éviter déclenchements accidentels sur trackpads sensibles
+      if (Math.abs(delta) < SCROLL_THRESHOLD) return;
+      
+      // Si on est sur slide-20
+      if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+        if (animationStates.value['slide-20-initialAnimPlayed'] && 
+            !animationStates.value['slide-20-text5Shown'] && delta > 0) {
+          e.preventDefault();
+          // Animation spécifique pour slide-20
+          const textElement5 = currentSectionElement.querySelector('#text-element-5');
+          if (textElement5) {
+            isAnimating.value = true;
+            gsap.to(textElement5, {
+              autoAlpha: 1, 
+              y: 0,
+              duration: 0.5,
+              onComplete: () => {
+                animationStates.value['slide-20-text5Shown'] = true;
+                isAnimating.value = false;
+              }
+            });
+          }
+          return;
+        }
+      }
+      
+      // Gérer le cas spécial pour slide-23
+      if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+        const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
+        if (animationStates.value['slide-23'] !== undefined && 
+            animationStates.value['slide-23'] <= perdrixSlides.length && delta > 0) {
+          e.preventDefault();
+          return; // Bloquer le défilement
+        }
+      }
+      
+      // Navigation normale
+      if (delta > 0 && !isNavigating.value) {
+        goToSection(currentSectionIndex.value + 1);
+      } else if (delta < 0 && !isNavigating.value) {
+        goToSection(currentSectionIndex.value - 1);
+      }
+    };
+    
+    // Ajouter l'observateur avec option passive: false pour permettre preventDefault()
+    document.addEventListener('wheel', wheelObserver, { passive: false });
+    
+    // Stocker pour le nettoyage
+    slideSpecificEventListeners.push({
+      element: document,
+      event: 'wheel',
+      handler: wheelObserver
+    });
+
+    // Gestionnaire d'événements clavier
+    keyboardListener.value = (e) => {
+      handleFirstInteraction();
+      if (isNavigating.value) return;
+
+      let newIndex = currentSectionIndex.value;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault();
+        newIndex++;
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        newIndex--;
+      }
+
+      if (newIndex !== currentSectionIndex.value) {
+        goToSection(newIndex);
+      }
+    };
+    window.addEventListener('keydown', keyboardListener.value);
+  };
+  
+  // ===========================================================================
+  // SECTION 4: ANIMATIONS SPÉCIFIQUES AUX SLIDES
+  // ===========================================================================
+  
+  /**
+   * Configure les animations spécifiques pour la slide-73.
+   */
+  const registerSlide73Animation = () => {
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (!slide73Section) return;
+    
+    const pointsFortDiv = slide73Section.querySelector('.points-fort');
+    const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+
+    if (pointsFortDiv) {
+      gsap.set(pointsFortDiv, { x: '100vw', autoAlpha: 1 });
+    }
+    if (slidesContainerDiv) {
+      gsap.set(slidesContainerDiv, { backgroundSize: 'cover', backgroundPositionX: '0vw' });
+    }
+    
+    animationStates.value['slide-73'] = false;
+
+    const st = ScrollTrigger.create({
+      trigger: slide73Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%',
+      onEnter: (self) => {
+        // Animation d'entrée
+      },
+      onLeave: (self) => {
+        // Animation de sortie
+      }
+    });
+    specificAnimationTriggers.push(st);
+  };
+  
+  /**
+   * Configuration de l'animation pour slide-20
+   */
+  const registerSlide20Animation = () => {
+    const slide20Section = sections.value.find(s => s.id === 'slide-20');
+    if (!slide20Section) return;
+    
+    // Références aux éléments à animer
+    const turtleBeach = slide20Section.querySelector('#turtlebeach');
+    const mzuH2Elements = slide20Section.querySelectorAll('#mzu h2');
+    const textElement3 = slide20Section.querySelector('#text-element-3');
+    const textElement0 = slide20Section.querySelector('#text-element-0');
+    const textElement4 = slide20Section.querySelector('#text-element-4');
+    const textElement2 = slide20Section.querySelector('#text-element-2');
+    const textElement1 = slide20Section.querySelector('#text-element-1');
+    const textElement5 = slide20Section.querySelector('#text-element-5');
+    
+    // État initial des éléments
+    if (turtleBeach) gsap.set(turtleBeach, { scale: 0, autoAlpha: 1 });
+    if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 0, y: 20 });
+    if (textElement3) gsap.set(textElement3, { autoAlpha: 0, y: 20 });
+    if (textElement0) gsap.set(textElement0, { autoAlpha: 0, y: 20 });
+    if (textElement4) gsap.set(textElement4, { autoAlpha: 0, y: 20 });
+    if (textElement2) gsap.set(textElement2, { autoAlpha: 0, y: 20 });
+    if (textElement1) gsap.set(textElement1, { autoAlpha: 0, y: 20 });
+    if (textElement5) gsap.set(textElement5, { autoAlpha: 0, y: 20 });
+    
+    // Variables d'état
+    animationStates.value['slide-20-initialAnimPlayed'] = false;
+    animationStates.value['slide-20-text5Shown'] = false;
+    
+    // ScrollTrigger pour la slide-20
+    const st20 = ScrollTrigger.create({
+      trigger: slide20Section,
+      scroller: SCROLLER_SELECTOR,
+      onEnter: () => {
+        // Animation d'entrée
+      },
+      onEnterBack: () => {
+        // Animation en revenant sur la slide
+      }
+    });
+    specificAnimationTriggers.push(st20);
+  };
+  
+  /**
+   * Configuration de l'animation pour slide-21
+   */
+  const registerSlide21Animation = () => {
+    const slide21Section = sections.value.find(s => s.id === 'slide-21');
+    if (!slide21Section) return;
+    
+    // Implémentation simplifiée
+    animationStates.value['slide-21-playedOnce'] = false;
+    
+    const st21 = ScrollTrigger.create({
+      trigger: slide21Section,
+      scroller: SCROLLER_SELECTOR
+    });
+    specificAnimationTriggers.push(st21);
+  };
+  
+  /**
+   * Configuration de l'animation pour slide-22
+   */
+  const registerSlide22Animation = () => {
+    const slide22Section = sections.value.find(s => s.id === 'slide-22');
+    if (!slide22Section) return;
+    
+    // Implémentation simplifiée
+    animationStates.value['slide-22-playedOnce'] = false;
+    
+    const st22 = ScrollTrigger.create({
+      trigger: slide22Section,
+      scroller: SCROLLER_SELECTOR
+    });
+    specificAnimationTriggers.push(st22);
+  };
+  
+  /**
+   * Configuration de l'animation pour slide-23
+   */
+  const registerSlide23Animation = () => {
+    const slide23Section = sections.value.find(s => s.id === 'slide-23');
+    if (!slide23Section) return;
+    
+    // Implémentation simplifiée
+    animationStates.value['slide-23'] = -1;
+    
+    const st23 = ScrollTrigger.create({
+      trigger: slide23Section,
+      scroller: SCROLLER_SELECTOR
+    });
+    specificAnimationTriggers.push(st23);
+  };
+  
+  /**
+   * Configuration de l'animation pour slide-59
+   */
+  const registerSlide59Animation = () => {
+    const slide59Section = sections.value.find(s => s.id === 'slide-59');
+    if (!slide59Section) return;
+    
+    // Implémentation simplifiée
+    animationStates.value['slide-59'] = -1;
+    
+    const st59 = ScrollTrigger.create({
+      trigger: slide59Section,
+      scroller: SCROLLER_SELECTOR
+    });
+    specificAnimationTriggers.push(st59);
+  };
+  
+  /**
+   * Configuration de l'animation pour slide-128
+   */
+  const registerSlide128Animation = (options = {}) => {
+    const slide128Section = sections.value.find(s => s.id === 'slide-128');
+    if (!slide128Section) return;
+
+    // Implémentation simplifiée
+    animationStates.value['slide-128'] = { 
+      mainAnimationPlayed: false,
+      currentItem: 0,
+      totalItems: 3, // Exemple
+      isScrollingToNext: false
+    };
+    
+    const st128 = ScrollTrigger.create({
+      trigger: slide128Section,
+      scroller: SCROLLER_SELECTOR
+    });
+    specificAnimationTriggers.push(st128);
+    
+    // Observer pour la progression entre les études de cas
+    const handleSlide128ScrollProgress = (e) => {
+      // Si nous ne sommes pas sur la slide 128, ne rien faire
+      if (currentSectionIndex.value !== sections.value.findIndex(s => s.id === 'slide-128')) {
+        return;
+      }
+
+      // Empêcher le comportement par défaut
+      e.preventDefault();
+
+      // Utiliser un delta normalisé avec Lenis
+      const delta = e.deltaY || e.detail || e.wheelDelta;
+      const SCROLL_THRESHOLD = 10;
+      if (Math.abs(delta) < SCROLL_THRESHOLD) return;
+
+      // Logique de navigation entre études de cas
+    };
+    
+    // Ajouter l'observateur
+    slide128Section.addEventListener('wheel', handleSlide128ScrollProgress, { passive: false });
+    slideSpecificEventListeners.push({
+      element: slide128Section,
+      event: 'wheel',
+      handler: handleSlide128ScrollProgress
+    });
+  };
+  
+  // ===========================================================================
+  // SECTION 5: INITIALISATION ET NETTOYAGE
+  // ===========================================================================
+  
+  /**
+   * Initialise le composable avec les éléments de section
+   */
+  const init = (sectionsElements, options = {}) => {
+    if (!Array.isArray(sectionsElements) || sectionsElements.some(el => !(el instanceof HTMLElement))) {
+      return;
+    }
+    sections.value = sectionsElements;
+    
+    if (sections.value.length > 0) {
+      // Enregistrer les animations pour chaque slide
+      registerSlide20Animation();
+      registerSlide21Animation();
+      registerSlide22Animation();
+      registerSlide23Animation();
+      registerSlide59Animation();
+      registerSlide73Animation();
+      registerSlide128Animation(options.slide128 || {});
+      
+      // Configuration des interactions et positionnement initial
+      setupFullpageObserver();
+      goToSection(0, 0);
+      
+      // Vérifier si une instance Lenis a été passée dans les options
+      if (options.lenis) {
+        setupLenisScrollHandling(options.lenis);
+      }
+    }
+  };
+
+  /**
+   * Nettoie les instances, écouteurs d'événements et animations
+   */
+  const cleanup = () => {
+    if (stObserve) {
+      stObserve.kill();
+      stObserve = null;
+    }
+    
+    if (keyboardListener.value) {
+      window.removeEventListener('keydown', keyboardListener.value);
+      keyboardListener.value = null;
+    }
+    
+    specificAnimationTriggers.forEach(st => st.kill());
+    specificAnimationTriggers.length = 0;
+    
+    slideSpecificEventListeners.forEach(listener => {
+      listener.element.removeEventListener(listener.event, listener.handler);
+    });
+    slideSpecificEventListeners.length = 0;
+    
+    gsap.killTweensOf(SCROLLER_SELECTOR);
+    
+    currentSectionIndex.value = 0;
+    isNavigating.value = false;
+    isAnimating.value = false;
+    hasScrolledOnce.value = false;
+    Object.keys(animationStates.value).forEach(key => delete animationStates.value[key]);
+    sections.value = [];
+    
+    lenis = null; // Réinitialiser la référence Lenis
+  };
+
+  // Nettoyer lors du démontage du composant
+  onUnmounted(cleanup);
+
+  // Exposer l'API publique
+  return {
+    currentSectionIndex,
+    isNavigating,
+    init,
+    goToSection,
+    setupLenisScrollHandling,
+    // Fonctions d'enregistrement d'animation
+    registerSlide20Animation,
+    registerSlide21Animation,
+    registerSlide22Animation,
+    registerSlide23Animation,
+    registerSlide59Animation,
+    registerSlide73Animation,
+    registerSlide128Animation
+  };
+}
