@@ -3816,6 +3816,11 @@ fsevents@~2.3.2, fsevents@~2.3.3:
   resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
+fullpage.js@^4.0.35:
+  version "4.0.35"
+  resolved "https://registry.npmjs.org/fullpage.js/-/fullpage.js-4.0.35.tgz"
+  integrity sha512-kER2zF32Ah402tgLVNa9Er+3l615a5jV6sZK2D7R8g1rivsiUejKZsIpyTdBi7h3YAx/FX1oFDUKGlM9sqrCbw==
+
 function-bind@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz"

@@ -22,6 +22,7 @@
     "@studio-freight/lenis": "^1.0.42",
     "animate.css": "^4.1.1",
     "bootstrap": "^5.3.3",
+    "fullpage.js": "^4.0.35",
     "gsap": "^3.13.0",
     "locomotive-scroll": "^4.1.4",
     "nuxt": "^3.14.1592",

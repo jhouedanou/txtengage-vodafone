@@ -1,11 +1,35 @@
-import { ref, onUnmounted, nextTick } from 'vue';
+import { ref, onUnmounted, nextTick, onMounted } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+// S'assurer que les plugins sont enregistrés
+if (typeof gsap.registerPlugin === 'function') {
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+} else {
+  console.error('GSAP registerPlugin not available');
+}
+
+// Gestionnaire global pour les erreurs asynchrones
+const setupErrorHandlers = () => {
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled Promise Rejection:', event.reason);
+    // Prevent the default browser behavior
+    event.preventDefault();
+  });
+  
+  window.addEventListener('error', (event) => {
+    console.error('Global error caught:', event);
+    // Prevent the default browser behavior
+    event.preventDefault();
+  });
+};
 
 export function useFullpageScrollTrigger() {
+  // Setup global error handlers on module initialization
+  if (typeof window !== 'undefined') {
+    setupErrorHandlers();
+  }
   // ===========================================================================
   // SECTION 1: CONFIGURATION ET VARIABLES GÉNÉRALES
   // ===========================================================================
@@ -573,6 +597,9 @@ export function useFullpageScrollTrigger() {
   // };
   //version optimisée 
   const playSlide20Text5Animation = (sectionElement) => {
+    // Protection contre erreurs asynchrones
+    return new Promise((resolve, reject) => {
+      try {
     // Vérification des prérequis
     if (!sectionElement || !animationStates?.value) {
       console.error('Invalid context for playSlide20Text5Animation');
@@ -641,7 +668,21 @@ export function useFullpageScrollTrigger() {
       ease: EASE
     }, `>-=0.2`); // Démarre légèrement avant la fin du fadeOut
   
-    return tl; // Retourne la timeline pour un contrôle ultérieur si nécessaire
+    // Gestion de la résolution de la promesse
+  tl.eventCallback('onComplete', () => resolve());
+  tl.eventCallback('onError', (err) => reject(err));
+
+  return tl; // Retourne la timeline pour un contrôle ultérieur si nécessaire
+      } catch (error) {
+        console.error('Error in playSlide20Text5Animation creation:', error);
+        reject(error);
+        animationStates.value[stateKey] = true; // Assurer que l'état est mis à jour
+      }
+    }).catch(error => {
+      console.error('Promise rejected in playSlide20Text5Animation:', error);
+      animationStates.value['slide-20-text5Shown'] = true;
+      return null;
+    });
   };
 
   // ===========================================================================
@@ -788,8 +829,14 @@ export function useFullpageScrollTrigger() {
           ease: 'power1.out',
           onComplete: () => {
             gsap.set(content, { display: 'none' });
+            } catch (error) {
+              console.error('Error in ScrollTrigger onDown:', error);
+            }
           }
         });
+      } catch (error) {
+        console.error('Error setting up ScrollTrigger.observe:', error);
+      }
       });
       
       // Retirer la classe active de tous les headers
@@ -1358,13 +1405,6 @@ export function useFullpageScrollTrigger() {
   // --- Logique de Navigation ---
 
   // ===========================================================================
-  // SECTION 11: NAVIGATION ENTRE SLIDES
-  // ===========================================================================
-  // Fonctionnement: Animation du scroll entre les sections avec déclenchement
-  // des animations spécifiques à chaque slide à l'arrivée
-  
-  const goToSection = (index, duration = 1) => {
-
     if (index < 0 || index >= sections.value.length || (isNavigating.value && duration !== 0)) {
 
       return; // Ne pas retourner si duration === 0 pour permettre la mise en place initiale
@@ -1466,126 +1506,136 @@ export function useFullpageScrollTrigger() {
         isNavigating.value = false;
       }
     });
-  };
+  } catch (error) {
+    console.error('Error in goToSection:', error);
+  }
+};
+
+// ===========================================================================
+// SECTION 12: SYSTÈME D'OBSERVATION DU SCROLL
+// ===========================================================================
+// Capture des événements de scroll et gestion des interactions spéciales
   
-  // ===========================================================================
-  // SECTION 12: SYSTÈME D'OBSERVATION DU SCROLL
-  // ===========================================================================
-  // Capture des événements de scroll et gestion des interactions spéciales
-  
-  const setupFullpageObserver = () => {
-    if (sections.value.length === 0) return;
-
-    // AJOUT: Définir des seuils de vélocité pour le changement de slide.
-    // Ces valeurs devront être ajustées par essais/erreurs.
-    const WHEEL_VELOCITY_THRESHOLD = 150; // Pour les événements de type 'wheel'
-    const TOUCH_VELOCITY_THRESHOLD = 1;   // Pour les événements de type 'touch' (généralement plus sensible)
-
-    // AJOUT: Délai minimum entre les changements de section pour éviter les déclenchements multiples rapides
-    let lastSectionChangeTime = 0;
-    const SECTION_CHANGE_COOLDOWN = 300; // Millisecondes (ajuster au besoin, ex: 200-500ms)
-
-    if (stObserve) {
-      stObserve.kill(); // S'assurer de nettoyer un observateur précédent si la fonction est appelée plusieurs fois
+// Fonction utilitaire pour sécuriser les animations GSAP
+const safeAnimate = (element, animation, callback = null) => {
+  if (!element) return null;
+  try {
+    const anim = gsap.to(element, animation);
+    if (callback && typeof callback === 'function') {
+      anim.eventCallback('onComplete', () => {
+        try {
+          callback();
+        } catch (error) {
+          console.error('Error in animation callback:', error);
+        }
+      });
     }
+    return anim;
+  } catch (error) {
+    console.error('Animation error:', error);
+    if (callback && typeof callback === 'function') {
+      try {
+        callback();
+      } catch (callbackError) {
+        console.error('Error in fallback callback:', callbackError);
+      }
+    }
+    return null;
+  }
+};
 
+const setupFullpageObserver = () => {
+  if (sections.value.length === 0) return;
+
+  try {
     stObserve = ScrollTrigger.observe({
       target: SCROLLER_SELECTOR,
-      type: "wheel,touch",
-      // MODIFICATION: Augmenter le debounce pour regrouper les événements de scroll fins de macOS
-      debounce: 80, // ms, à ajuster. (ex: 50-100ms)
-      // MODIFICATION: Augmenter la tolérance pour ignorer les micro-mouvements
-      tolerance: 15, // pixels, à ajuster. (ex: 10-20px)
-      preventDefault: true, // Important pour que l'observer contrôle le scroll
-
-      onUp: (self) => { // self contient des informations sur l'événement, y compris la vélocité
-        handleFirstInteraction();
-        if (isNavigating.value) return;
-
-        const now = Date.now();
-        if (now - lastSectionChangeTime < SECTION_CHANGE_COOLDOWN) {
-          return;
-        }
-
-        const velocity = Math.abs(self.velocityY);
-        const threshold = self.event.type === 'wheel' ? WHEEL_VELOCITY_THRESHOLD : TOUCH_VELOCITY_THRESHOLD;
-        
-        // AJOUT: Vérifier la vélocité pour les événements 'wheel'
-        if (self.event.type === 'wheel' && velocity < threshold) {
-          return; // Vélocité trop faible, ignorer
-        }
-        // Pour les événements 'touch', on peut se fier davantage à la tolérance et au cooldown,
-        // mais on pourrait aussi ajouter un seuil de vélocité si nécessaire.
-
-        const currentSectionElement = sections.value[currentSectionIndex.value];
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
-          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined &&
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
-            // Si l'animation des perdrix n'est pas terminée (ou est à la dernière étape),
-            // on ne permet pas de remonter via le scroll général.
-            // La navigation interne à slide-23 (handlePerdrixScroll) gère le scroll vers le haut si nécessaire.
-            return; 
+      type: "wheel,touch,scroll",
+      wheelSpeed: -1,
+      tolerance: WHEEL_TOLERANCE,
+      onUp: () => {
+        try {
+          handleFirstInteraction();
+          if (isNavigating.value) return;
+          
+          // Bloquer le défilement vers le haut si on est sur slide-23 et l'animation n'est pas terminée
+          const currentSectionElement = sections.value[currentSectionIndex.value];
+          if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+            const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
+            if (animationStates.value['slide-23'] !== undefined &&
+                animationStates.value['slide-23'] <= perdrixSlides.length) {
+              return; // Bloquer le défilement
+            }
           }
+          
+          goToSection(currentSectionIndex.value - 1);
+        } catch (error) {
+          console.error('Error in ScrollTrigger onUp:', error);
         }
-        
-        lastSectionChangeTime = now; // Mettre à jour le temps du dernier changement
-        goToSection(currentSectionIndex.value - 1);
       },
-      onDown: (self) => { // self contient des informations sur l'événement
-        handleFirstInteraction();
-        if (isNavigating.value) return;
-
-        const now = Date.now();
-        if (now - lastSectionChangeTime < SECTION_CHANGE_COOLDOWN) {
-          return;
-        }
-
-        const velocity = Math.abs(self.velocityY);
-        const threshold = self.event.type === 'wheel' ? WHEEL_VELOCITY_THRESHOLD : TOUCH_VELOCITY_THRESHOLD;
-
-        // AJOUT: Vérifier la vélocité pour les événements 'wheel'
-        if (self.event.type === 'wheel' && velocity < threshold) {
-          return; // Vélocité trop faible, ignorer
-        }
-
-        const currentSectionElement = sections.value[currentSectionIndex.value];
-        
-        // Gérer le cas spécial pour slide-73
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
-          animationStates.value['slide-73'] !== true) {
-          return;
-        }
-        
-        // Gérer le cas spécial pour slide-20
-        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
-          if (animationStates.value['slide-20-initialAnimPlayed'] && 
-              !animationStates.value['slide-20-text5Shown']) {
-            // Afficher text-element-5
-            playSlide20Text5Animation(currentSectionElement);
-            // On ne met pas à jour lastSectionChangeTime ici car ce n'est pas un changement de section
-            return; 
+      onDown: () => {
+        try {
+          handleFirstInteraction();
+          if (isNavigating.value) return;
+          
+          const currentSectionElement = sections.value[currentSectionIndex.value];
+          
+          // Gérer le cas spécial pour slide-73
+          if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
+            animationStates.value['slide-73'] !== true) {
+            return;
           }
-        }
-        
-        // Gérer le cas spécial pour slide-23
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
-          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] < perdrixSlides.length) {
-            // Si l'animation des perdrix n'est pas terminée, on bloque le scroll général vers le bas.
-            // La navigation interne à slide-23 (handlePerdrixScroll) gère la progression.
-            return; 
+          
+          // Gérer le cas spécial pour slide-20
+          if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+            // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
+            if (animationStates.value['slide-20-initialAnimPlayed'] && 
+                !animationStates.value['slide-20-text5Shown']) {
+              // Afficher text-element-5
+              try {
+                if (typeof playSlide20Text5Animation === 'function') {
+                  // Protéger l'appel et éviter toute erreur asynchrone
+                  const tl = playSlide20Text5Animation(currentSectionElement);
+                  if (tl && typeof tl.catch === 'function') {
+                    tl.catch(error => {
+                      console.error('Timeline error in playSlide20Text5Animation:', error);
+                      animationStates.value['slide-20-text5Shown'] = true;
+                    });
+                  }
+                } else {
+                  console.error('playSlide20Text5Animation is not a function');
+                  animationStates.value['slide-20-text5Shown'] = true;
+                }
+              } catch (error) {
+                console.error('Error in playSlide20Text5Animation:', error);
+                // Assurer que l'état est mis à jour même en cas d'erreur
+                animationStates.value['slide-20-text5Shown'] = true;
+              }
+              return; // Bloquer le défilement pour le moment
+            }
           }
+          
+          // Gérer le cas spécial pour slide-23
+          if (currentSectionElement && currentSectionElement.id === 'slide-23') {
+            const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
+            if (animationStates.value['slide-23'] !== undefined && 
+                animationStates.value['slide-23'] <= perdrixSlides.length) {
+              return; // Bloquer le défilement
+            }
+          }
+          
+          goToSection(currentSectionIndex.value + 1);
+        } catch (error) {
+          console.error('Error in ScrollTrigger onDown:', error);
         }
-        
-        lastSectionChangeTime = now; // Mettre à jour le temps du dernier changement
-        goToSection(currentSectionIndex.value + 1);
       },
     });
 
     // Mise à jour également du gestionnaire clavier
     keyboardListener.value = (e) => {
+      try {
+        handleFirstInteraction();
+        if (isNavigating.value) return;
       handleFirstInteraction();
       if (isNavigating.value) return;
 

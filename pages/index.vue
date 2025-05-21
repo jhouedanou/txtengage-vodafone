@@ -5,10 +5,7 @@ import { useRuntimeConfig } from '#app';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import { useFullpageScrollTrigger } from '~/utils/useFullpageScrollTrigger'; // Importez le composable
-// Lenis n'a pas pu être intégré correctement, nous utilisons une approche native
-
-// Initialisation du système de fullpage personnalisé
+import { useFullpageScrollTrigger } from '~/utils/useFullpageScrollTrigger'; 
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
