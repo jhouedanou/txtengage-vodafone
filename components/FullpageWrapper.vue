@@ -116,11 +116,11 @@ const options = {
   
   onLeave: function(origin, destination, direction) {
    // Si on est sur la slide 73 et que l'animation n'est pas jouée
-    if (origin.item.getAttribute('data-slide-id') === '73' && !animationStates['slide-73-points-fort']) {
-      // Lancer l'animation GSAP (via un event ou une méthode exposée)
-      // Bloquer le scroll
-      return false;
-    }
+    // if (origin.item.getAttribute('data-slide-id') === '73' && !animationStates['slide-73-points-fort']) {
+    //   // Lancer l'animation GSAP (via un event ou une méthode exposée)
+    //   // Bloquer le scroll
+    //   return false;
+    // }
     // dansles autres cas cas, ne jamais bloquer la navigation, laisser fullpage gérer le scroll normalement
     return true;
   }
