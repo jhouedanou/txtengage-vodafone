@@ -33,9 +33,10 @@ export function useFullpageScrollTrigger() {
   let macScrollUpTimeoutId = null;
   let macScrollDownTimeoutId = null;
 
-  // Variables pour débouncer le scroll sur Mac (trackpad)
+  // Variables pour débouncer les interations spécifiques à chaque slide
   let macScrollSlide20TimeoutId = null;
   let macScrollSlide23TimeoutId = null;
+  let macScrollSlide73TimeoutId = null;
   let macScrollSlide128TimeoutId = null;
   let lastInteractionTime = 0; // Horodatage de la dernière interaction
 
@@ -126,6 +127,7 @@ export function useFullpageScrollTrigger() {
           if(self.userData) self.userData.triggeredST = true;
           else self.userData = { triggeredST: true };
           
+          console.log('Slide-73: Début de l\'animation - état changé à pending_st');
           animationStates.value['slide-73'] = 'pending_st'; // ST prend le relais
 
           if (pointsFortDiv) {
@@ -135,7 +137,14 @@ export function useFullpageScrollTrigger() {
               ease: 'power2.out',
               onComplete: () => {
                 if (animationStates.value['slide-73'] === 'pending_st') {
-                  animationStates.value['slide-73'] = true;
+                  // Ajouter un délai avant de permettre le scroll vers la prochaine slide
+                  // Ceci permet d'éviter qu'un seul événement de scroll déclenche à la fois
+                  // l'animation et le passage à la slide suivante
+                  console.log('Slide-73: Animation des points-fort terminée - début du délai de 800ms');
+                  setTimeout(() => {
+                    animationStates.value['slide-73'] = true;
+                    console.log('Slide-73: Animation terminée, scroll vers la slide suivante maintenant possible');
+                  }, 800); // 800ms de délai supplémentaire
                 }
               }
             });
