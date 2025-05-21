@@ -27,6 +27,12 @@ export function useFullpageScrollTrigger() {
   const specificAnimationTriggers = [];
   const slideSpecificEventListeners = [];
 
+  // Détection macOS et configuration du debounce pour le trackpad
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  const MAC_TRACKPAD_SCROLL_DEBOUNCE_MS = 400; // Ajustez cette valeur si nécessaire (en ms)
+  let macScrollUpTimeoutId = null;
+  let macScrollDownTimeoutId = null;
+
   // ===========================================================================
   // SECTION 3: MÉCANISMES GLOBAUX DE NAVIGATION
   // ===========================================================================
@@ -565,6 +571,7 @@ export function useFullpageScrollTrigger() {
       duration: 0.8,
       ease: "power2.out",
       onComplete: () => {
+
         // Marquer l'animation comme terminée
         animationStates.value['slide-20-text5Shown'] = true;
         // Ne pas naviguer automatiquement - laisser l'utilisateur scroller
@@ -1342,18 +1349,42 @@ export function useFullpageScrollTrigger() {
       ease: 'power2.inOut',
       onStart: () => {
         currentSectionIndex.value = index;
+        const targetSectionOnStart = sections.value[index];
+        if (targetSectionOnStart && targetSectionOnStart.id === 'slide-20') {
+          const textElement5 = targetSectionOnStart.querySelector('#text-element-5');
+          if (textElement5) {
+            gsap.set(textElement5, { autoAlpha: 0, y: 50 }); // Cacher dès le début de la transition
+          }
+        }
       },
       onComplete: () => {
-        // Animation initiale pour slide-20
-        if (sections.value[index] && sections.value[index].id === 'slide-20' && 
-          !animationStates.value['slide-20-initialAnimPlayed']) {
-          // Garder isNavigating à true pendant l'animation
-          playSlide20InitialAnimation(sections.value[index]);
+        const targetSection = sections.value[index]; // Récupérer la section cible ici
+
+        // Si on arrive sur slide-20
+        if (targetSection && targetSection.id === 'slide-20') {
+          // text-element-5 est déjà caché par onStart, la ligne suivante n'est plus nécessaire ici
+          // const textElement5 = targetSection.querySelector('#text-element-5');
+          // if (textElement5) {
+          //   gsap.set(textElement5, { autoAlpha: 0, y: 50 }); 
+          // }
+          animationStates.value['slide-20-text5Shown'] = false; // Toujours réinitialiser son état
+
+          if (!animationStates.value['slide-20-initialAnimPlayed']) {
+            playSlide20InitialAnimation(targetSection); // Jouer l'anim complète si jamais jouée
+          } else {
+            // Si l'anim initiale a déjà été jouée, s'assurer que les bulles sont visibles
+            // car playSlide20InitialAnimation (qui les montre) ne sera pas appelée.
+            const textElementsToReset = ['#text-element-3', '#text-element-0', '#text-element-4', '#text-element-2', '#text-element-1']
+              .map(sel => targetSection.querySelector(sel))
+              .filter(el => el);
+            gsap.to(textElementsToReset, { autoAlpha: 1, y: 0, duration: 0.01 }); // Presque instantané pour les (ré)afficher
+          }
+          isNavigating.value = false; // Fin de navigation spécifique à slide-20
         } 
         // Animation pour slide-21
-        else if (sections.value[index] && sections.value[index].id === 'slide-21' && 
+        else if (targetSection && targetSection.id === 'slide-21' && 
                  !animationStates.value['slide-21-playedOnce']) {
-          const thoiathoingDiv = sections.value[index].querySelector('#thoiathoing');
+          const thoiathoingDiv = targetSection.querySelector('#thoiathoing');
           if (thoiathoingDiv) {
             gsap.to(thoiathoingDiv, {
               autoAlpha: 1,
@@ -1365,15 +1396,13 @@ export function useFullpageScrollTrigger() {
               }
             });
           } else {
-            animationStates.value['slide-21-playedOnce'] = true;
+            animationStates.value['slide-21-playedOnce'] = true; // Marquer comme fait même si l'élément n'est pas trouvé
           }
-          isNavigating.value = false;
-        } else {
-          isNavigating.value = false;
+          isNavigating.value = false; // Fin de navigation spécifique à slide-21
         }
-        
-        if (sections.value[index] && sections.value[index].id === 'slide-22' && !animationStates.value['slide-22-played']) {
-          const thoiathoingDiv = sections.value[index].querySelector('#thoiathoing');
+        // Animation pour slide-22
+        else if (targetSection && targetSection.id === 'slide-22' && !animationStates.value['slide-22-played']) {
+          const thoiathoingDiv = targetSection.querySelector('#thoiathoing');
           if (thoiathoingDiv) {
             gsap.to(thoiathoingDiv, {
               autoAlpha: 1,
@@ -1386,8 +1415,12 @@ export function useFullpageScrollTrigger() {
               }
             });
           } else {
-            animationStates.value['slide-22-played'] = true;
+            animationStates.value['slide-22-played'] = true; // Marquer comme fait même si l'élément n'est pas trouvé
           }
+          isNavigating.value = false; // Fin de navigation spécifique à slide-22
+        } else {
+          // Pour toutes les autres slides, ou si les conditions spécifiques ne sont pas remplies
+          isNavigating.value = false;
         }
       },
       onInterrupt: () => {
@@ -1408,7 +1441,7 @@ export function useFullpageScrollTrigger() {
       target: SCROLLER_SELECTOR,
       type: "wheel,touch",
       debounce: false,
-      onUp: () => {
+      onUp: (self) => {
         handleFirstInteraction();
         if (isNavigating.value) return;
         
@@ -1422,41 +1455,69 @@ export function useFullpageScrollTrigger() {
           }
         }
         
-        goToSection(currentSectionIndex.value - 1);
+        const event = self.event; // Accéder à l'événement original
+        const isMobile = window.innerWidth <= 768; // Détection simplifiée du mobile
+        
+        // Action de navigation par défaut pour "onUp"
+        const navigateDefaultUp = () => goToSection(currentSectionIndex.value - 1);
+        // Action de navigation inversée pour mobile pour "onUp"
+        const navigateMobileUpInverted = () => goToSection(currentSectionIndex.value + 1);
+
+        if (isMac && event.type === 'wheel') { // Si c'est un Mac et un événement de molette
+          clearTimeout(macScrollUpTimeoutId);
+          console.log(`Mac Trackpad (UP): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
+          macScrollUpTimeoutId = setTimeout(() => {
+            console.log(`Mac Trackpad (UP): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Navigation !`);
+            navigateDefaultUp();
+          }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
+        } else if (event.type.startsWith('touch') && isMobile) { // Si c'est un swipe tactile sur mobile
+          navigateMobileUpInverted(); // Swipe HAUT sur mobile -> SUIVANT
+        } else { // Pour tous les autres cas (molette non-Mac, etc.)
+          navigateDefaultUp();
+        }
       },
-      onDown: () => {
+      onDown: (self) => {
         handleFirstInteraction();
         if (isNavigating.value) return;
+
+        const event = self.event; // Accéder à l'événement original
+        const isMobile = window.innerWidth <= 768; // Détection simplifiée du mobile
         
+        // Logique de blocage spécifique à onDown (exemples: slides 73, 20, 23)
         const currentSectionElement = sections.value[currentSectionIndex.value];
-        
-        // Gérer le cas spécial pour slide-73
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && 
-          animationStates.value['slide-73'] !== true) {
+        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
           return;
         }
-        
-        // Gérer le cas spécial pour slide-20
         if (currentSectionElement && currentSectionElement.id === 'slide-20') {
-          // Si l'animation initiale est terminée mais text-element-5 pas encore affiché
-          if (animationStates.value['slide-20-initialAnimPlayed'] && 
-              !animationStates.value['slide-20-text5Shown']) {
-            // Afficher text-element-5
+          if (animationStates.value['slide-20-initialAnimPlayed'] && !animationStates.value['slide-20-text5Shown']) {
             playSlide20Text5Animation(currentSectionElement);
-            return; // Bloquer le défilement pour le moment
+            return; 
           }
         }
-        
-        // Gérer le cas spécial pour slide-23
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
-            return; // Bloquer le défilement
+          if (animationStates.value['slide-23'] !== undefined && animationStates.value['slide-23'] <= perdrixSlides.length) {
+            return; 
           }
         }
-        
-        goToSection(currentSectionIndex.value + 1);
+
+        // Action de navigation par défaut pour "onDown"
+        const navigateDefaultDown = () => goToSection(currentSectionIndex.value + 1);
+        // Action de navigation inversée pour mobile pour "onDown"
+        const navigateMobileDownInverted = () => goToSection(currentSectionIndex.value - 1);
+
+        if (isMac && event.type === 'wheel') { // Si c'est un Mac et un événement de molette
+          clearTimeout(macScrollDownTimeoutId);
+          console.log(`Mac Trackpad (DOWN): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
+          macScrollDownTimeoutId = setTimeout(() => {
+            console.log(`Mac Trackpad (DOWN): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Navigation !`);
+            navigateDefaultDown();
+          }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
+        } else if (event.type.startsWith('touch') && isMobile) { // Si c'est un swipe tactile sur mobile
+          navigateMobileDownInverted(); // Swipe BAS sur mobile -> PRÉCÉDENT
+        } else { // Pour tous les autres cas (molette non-Mac, etc.)
+          navigateDefaultDown();
+        }
       },
     });
 
@@ -1476,25 +1537,24 @@ export function useFullpageScrollTrigger() {
           return;
         }
         
-        // Blocage pour slide-59
-        if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
-            animationStates.value['slide-59'] !== 1 && // L'animation n'est pas complète
-            newIndex > currentSectionIndex.value) { // Seulement bloquer vers le bas
-          return;
-        }
+        // Blocage pour slide-59 (vérifier si cette logique est toujours désirée pour le clavier)
+        // if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
+        //     animationStates.value['slide-59'] !== 1 && 
+        //     newIndex > currentSectionIndex.value) { 
+        //   return;
+        // }
         
-        // Blocage pour slide-20
-        if (currentSectionElement && currentSectionElement.id === 'slide-20' && 
-          !animationStates.value['slide-20-text5Shown'] && newIndex > currentSectionIndex.value) {
-          return;
-        }
+        // Blocage pour slide-20 (vérifier si cette logique est toujours désirée pour le clavier)
+        // if (currentSectionElement && currentSectionElement.id === 'slide-20' && 
+        //   !animationStates.value['slide-20-text5Shown'] && newIndex > currentSectionIndex.value) {
+        //   return;
+        // }
         
-        // Blocage pour slide-23
+        // Blocage pour slide-23 (vérifier si cette logique est toujours désirée pour le clavier)
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
-            return; // Bloquer la navigation vers le bas
+          if (animationStates.value['slide-23'] !== undefined && animationStates.value['slide-23'] <= perdrixSlides.length) {
+            return; 
           }
         }
         
@@ -1502,25 +1562,25 @@ export function useFullpageScrollTrigger() {
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
         
-        // Bloquer la navigation de slide-23 vers slide-22
+        // Bloquer la navigation de slide-23 vers slide-22 (vérifier si cette logique est toujours désirée pour le clavier)
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && 
+          if (animationStates.value['slide-23'] !== undefined &&
               animationStates.value['slide-23'] <= perdrixSlides.length) {
-            return; // Bloquer la navigation vers le haut
+            return; 
           }
         }
         
-        // Bloquer la navigation de slide-59 vers slide-23 si l'animation de slide-23 n'est pas terminée
-        const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
-        if (currentSectionIndex.value - 1 === slide23Index) {
-          const slide23Section = sections.value[slide23Index];
-          const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
-            return; // Bloquer la navigation
-          }
-        }
+        // Bloquer la navigation de slide-59 vers slide-23 (vérifier si cette logique est toujours désirée pour le clavier)
+        // const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
+        // if (currentSectionIndex.value - 1 === slide23Index) {
+        //   const slide23Section = sections.value[slide23Index];
+        //   const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
+        //   if (animationStates.value['slide-23'] !== undefined && 
+        //       animationStates.value['slide-23'] <= perdrixSlides.length) {
+        //     return; 
+        //   }
+        // }
         
         newIndex--;
       }
