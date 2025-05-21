@@ -33,6 +33,12 @@ export function useFullpageScrollTrigger() {
   let macScrollUpTimeoutId = null;
   let macScrollDownTimeoutId = null;
 
+  // Variables pour débouncer le scroll sur Mac (trackpad)
+  let macScrollSlide20TimeoutId = null;
+  let macScrollSlide23TimeoutId = null;
+  let macScrollSlide128TimeoutId = null;
+  let lastInteractionTime = 0; // Horodatage de la dernière interaction
+
   // ===========================================================================
   // SECTION 3: MÉCANISMES GLOBAUX DE NAVIGATION
   // ===========================================================================
@@ -1573,9 +1579,18 @@ export function useFullpageScrollTrigger() {
             const perdrixSlides = Array.from(currentSectionElementForTouch.querySelectorAll('.perdrix-slide'));
             if (animationStates.value['slide-23'] !== undefined && 
                 animationStates.value['slide-23'] < perdrixSlides.length) {
-              // Avancer à la prochaine perdrix-slide
+              // Avancer à la prochaine perdrix-slide avec protection contre les scrolls multiples
               if (window.advancePerdrixSlide) {
-                window.advancePerdrixSlide(currentSectionElementForTouch);
+                if (isMac && event.type === 'wheel') {
+                  clearTimeout(macScrollSlide23TimeoutId);
+                  console.log(`Mac Trackpad (Slide-23): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
+                  macScrollSlide23TimeoutId = setTimeout(() => {
+                    console.log(`Mac Trackpad (Slide-23): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Animation!`);
+                    window.advancePerdrixSlide(currentSectionElementForTouch);
+                  }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
+                } else {
+                  window.advancePerdrixSlide(currentSectionElementForTouch);
+                }
               }
               return;
             }
@@ -1586,9 +1601,18 @@ export function useFullpageScrollTrigger() {
             const currentStep = animationStates.value['slide-128'];
             // Vérifier si on est dans un état valide pour avancer
             if (currentStep >= 0 && currentStep < 3) { // 3 est le nombre de case-study-items
-              // Avancer au prochain case-study-item
+              // Avancer au prochain case-study-item avec protection contre les scrolls multiples
               if (window.advanceCaseStudyItem) {
-                window.advanceCaseStudyItem(currentSectionElementForTouch);
+                if (isMac && event.type === 'wheel') {
+                  clearTimeout(macScrollSlide128TimeoutId);
+                  console.log(`Mac Trackpad (Slide-128): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
+                  macScrollSlide128TimeoutId = setTimeout(() => {
+                    console.log(`Mac Trackpad (Slide-128): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Animation!`);
+                    window.advanceCaseStudyItem(currentSectionElementForTouch);
+                  }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
+                } else {
+                  window.advanceCaseStudyItem(currentSectionElementForTouch);
+                }
               }
               return;
             }
@@ -1626,7 +1650,17 @@ export function useFullpageScrollTrigger() {
         // Blocage pour slide-20
         if (currentSectionElement && currentSectionElement.id === 'slide-20') {
           if (animationStates.value['slide-20-initialAnimPlayed'] && !animationStates.value['slide-20-text5Shown']) {
-            playSlide20Text5Animation(currentSectionElement);
+            // Protection contre les scrolls multiples
+            if (isMac && event.type === 'wheel') {
+              clearTimeout(macScrollSlide20TimeoutId);
+              console.log(`Mac Trackpad (Slide-20): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
+              macScrollSlide20TimeoutId = setTimeout(() => {
+                console.log(`Mac Trackpad (Slide-20): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Animation!`);
+                playSlide20Text5Animation(currentSectionElement);
+              }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
+            } else {
+              playSlide20Text5Animation(currentSectionElement);
+            }
             return;
           }
         }
@@ -1636,8 +1670,17 @@ export function useFullpageScrollTrigger() {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
               animationStates.value['slide-23'] < perdrixSlides.length) {
-            // Avancer à la prochaine perdrix-slide au lieu de simplement bloquer
+            // Avancer à la prochaine perdrix-slide avec protection contre les interactions multiples
             if (window.advancePerdrixSlide) {
+              const now = Date.now();
+              const timeSinceLastInteraction = now - lastInteractionTime;
+              
+              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
+                console.log(`Clavier (Slide-23): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
+                return;
+              }
+              
+              lastInteractionTime = now;
               window.advancePerdrixSlide(currentSectionElement);
             }
             return;
@@ -1649,8 +1692,17 @@ export function useFullpageScrollTrigger() {
           const currentStep = animationStates.value['slide-128'];
           // Vérifier si on est dans un état valide pour avancer
           if (currentStep >= 0 && currentStep < 3) { // 3 est le nombre de case-study-items
-            // Avancer au prochain case-study-item
+            // Avancer au prochain case-study-item avec protection contre les interactions multiples
             if (window.advanceCaseStudyItem) {
+              const now = Date.now();
+              const timeSinceLastInteraction = now - lastInteractionTime;
+              
+              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
+                console.log(`Clavier (Slide-128): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
+                return;
+              }
+              
+              lastInteractionTime = now;
               window.advanceCaseStudyItem(currentSectionElement);
             }
             return;
