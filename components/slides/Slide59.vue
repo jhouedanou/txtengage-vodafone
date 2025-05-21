@@ -40,38 +40,8 @@ const killerJuniorDiv = ref(null);
 const llassImgContainer = ref(null);
 
 onMounted(() => {
-  // Initialiser l'état d'animation pour la slide 59
-  // animationStates['slide-59'] peut représenter l'étape de l'animation (0, 1, etc.)
-  if (props.animationStates['slide-59'] === undefined) {
-    props.animationStates['slide-59'] = 0; // 0: rien n'est encore joué, 1: tout est joué
-  }
-
-  killerJuniorDiv.value = document.querySelector('#killer-junior');
-  llassImgContainer.value = document.querySelector('#llass-container');
-
-  // Préparer les éléments pour l'animation
-  gsap.set([killerJuniorDiv.value, llassImgContainer.value, '.slide-59-title', '.slide-59-content'], { autoAlpha: 0, y: 30 });
-
-  // Déclencher l'animation d'entrée
-  // Cette animation pourrait être plus complexe et contrôlée par le scroll dans la version originale
-  // Pour fullpage.js, on la déclenche à l'entrée de la section.
-  playFullSequence();
 });
 
-const playFullSequence = () => {
-  if (props.animationStates['slide-59'] === 1) return; // Déjà jouée
-
-  const tl = gsap.timeline({
-    onComplete: () => {
-      props.animationStates['slide-59'] = 1; // Marquer comme complètement jouée
-    }
-  });
-
-  tl.to('.slide-59-title', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' })
-    .to('.slide-59-content', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, "-=")
-    .to(killerJuniorDiv.value, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }, "-=")
-    .to(llassImgContainer.value, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }, "-=");
-};
 
 </script>
 

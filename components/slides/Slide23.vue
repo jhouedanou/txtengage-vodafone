@@ -68,31 +68,6 @@ const toggleAccordion = (index) => {
 };
 
 onMounted(() => {
-  // Initialiser l'état d'animation pour la slide 23
-  // animationStates['slide-23'] pourrait représenter l'index de la perdrix active ou un compteur
-  if (props.animationStates['slide-23'] === undefined) {
-    props.animationStates['slide-23'] = -1; // -1 signifie qu'aucune perdrix n'est sélectionnée initialement
-  }
-  
-  if (props.slide.paragraphs && props.slide.paragraphs.length > 0) {
-    activeAccordionImage.value = extractImageSrc(props.slide.paragraphs[0]);
-    props.animationStates['slide-23'] = 0; // Première perdrix active
-  }
-
-  // Animation d'entrée pour le composant si nécessaire
-  gsap.fromTo(`#slide-${props.slide.id}`, 
-    { autoAlpha: 0, y: 50 }, 
-    { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }
-  );
-});
-
-watch(activeAccordionImage, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
-    gsap.fromTo('.perdrix-image', 
-      { autoAlpha: 0, scale: 0.95 }, 
-      { autoAlpha: 1, scale: 1, duration: 0.5, ease: 'power2.out' }
-    );
-  }
 });
 
 </script>

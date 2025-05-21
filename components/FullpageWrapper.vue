@@ -1,28 +1,34 @@
 <template>
   <div id="fullpage-wrapper">
-    <full-page
-      ref="fullpage"
-      :options="options"
-      id="fullpage"
-      @after-load="afterLoad"
-      @leave="onLeave"
-    >
-      <div v-for="(slide, index) in slides" :key="slide.id" class="section" :data-slide-id="slide.id">
-        <!-- Utilisation des composants dynamiques pour chaque slide -->
-        <component 
-          :is="getSlideComponent(slide.id)"
-          :slide="slide"
-          :animationStates="animationStates"
-          :isMobile="isMobile"
-        />
-      </div>
-    </full-page>
+    <client-only>
+      <full-page
+        ref="fullpage"
+        :options="options"
+        id="fullpage"
+        @after-load="afterLoad"
+        @leave="onLeave"
+      >
+        <section 
+          :id="`slide-${slide.id}`" 
+          v-for="(slide, index) in slides" 
+          :key="slide.id" 
+          class="section fp-section" 
+          :data-slide-id="slide.id"
+        >
+          <!-- Utilisation des composants dynamiques pour chaque slide -->
+          <component 
+            :is="getSlideComponent(slide.id)"
+            :slide="slide"
+            :animationStates="animationStates"
+          />
+        </section>
+      </full-page>
+    </client-only>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, defineProps, reactive, defineExpose } from 'vue';
-import { FullPage } from 'vue-fullpage';
+import { ref, reactive, onMounted, defineProps, defineExpose, nextTick } from 'vue';
 import { gsap } from 'gsap';
 
 // Importer tous les composants de slides
@@ -69,81 +75,70 @@ const getSlideComponent = (slideId) => {
   return components[slideId] || SlideDefault;
 };
 
+// Fonction pour gérer l'animation du slide 20
+const handleSlide20Animation = () => {
+  // Implémentez ici l'animation pour le slide 20
+  animationStates['slide-20-initialAnimPlayed'] = true;
+  // Exemple d'animation avec GSAP
+  // gsap.to(...);
+};
+
+// Fonction pour gérer l'animation du slide 23
+const handleSlide23Animation = () => {
+  // Implémentez ici l'animation pour le slide 23
+};
+
+// Fonction pour gérer l'animation du slide 59
+const handleSlide59Animation = () => {
+  // Implémentez ici l'animation pour le slide 59
+};
+
 // Options pour fullpage.js
 const options = {
-  // Utiliser la licence GPL v3 en développement
   licenseKey: 'gplv3-license', // Remplacer par votre licence commerciale en production
-  scrollingSpeed: 1000,
   navigation: true,
   navigationPosition: 'right',
   showActiveTooltip: false,
-  css3: true, // Utiliser CSS3 lorsque c'est possible
+  css3: true,
+  autoScrolling: true,
+  fitToSection: true,
+  scrollingSpeed: 700,
   scrollBar: false,
+  scrollOverflow: false,
   responsiveWidth: 768,
-  parallax: true,
-  parallaxOptions: {
-    type: 'reveal',
-    percentage: 62,
-    property: 'translate'
-  },
   
-  // Empêcher le défilement auto sur les appareils tactiles
-  touchSensitivity: 15, // Ajuster pour macOS
-  normalScrollElementTouchThreshold: 5,
-  
-  // Callbacks pour contrôler les animations
-  afterLoad: (origin, destination, direction) => {
+  // Callbacks synchronisés avec notre système d'animation
+  afterLoad: function(origin, destination, direction) {
     currentSectionIndex.value = destination.index;
-    const slideId = destination.item.dataset.slideId;
     
-    // Émission d'un événement pour mettre à jour le fond d'écran si nécessaire
-    if (slideId === '20' || slideId === '114') {
-      document.dispatchEvent(new CustomEvent('updateBackground', { detail: { type: 'special' } }));
-    } else {
-      document.dispatchEvent(new CustomEvent('updateBackground', { detail: { type: 'default' } }));
-    }
-    
-    // Mise à jour de la scrollbar personnalisée
-    document.dispatchEvent(new CustomEvent('updateScrollbar', { 
-      detail: { index: destination.index, total: props.slides.length } 
-    }));
+    // Vous pouvez déclencher ici des animations, mais ne jamais bloquer le scroll
   },
   
-  onLeave: (origin, destination, direction) => {
-    const originSlideId = origin.item.dataset.slideId;
-    
-    // Vérifier si des animations doivent bloquer la navigation
-    if (originSlideId === '73' && !animationStates['slide-73']) {
+  onLeave: function(origin, destination, direction) {
+   // Si on est sur la slide 73 et que l'animation n'est pas jouée
+    if (origin.item.getAttribute('data-slide-id') === '73' && !animationStates['slide-73-points-fort']) {
+      // Lancer l'animation GSAP (via un event ou une méthode exposée)
+      // Bloquer le scroll
       return false;
     }
-    
-    if (originSlideId === '23') {
-      const perdrixSlidesLength = props.slides.find(s => s.id === 23)?.paragraphs?.length || 0;
-      if (animationStates['slide-23'] !== undefined && 
-          animationStates['slide-23'] < perdrixSlidesLength) {
-        return false;
-      }
-    }
-    
-    if (originSlideId === '20' && !animationStates['slide-20-text5Shown'] && direction === 'down') {
-      return false;
-    }
-    
+    // dansles autres cas cas, ne jamais bloquer la navigation, laisser fullpage gérer le scroll normalement
     return true;
   }
 };
 
 const afterLoad = (origin, destination, direction) => {
+  // Déléguer au callback des options
   options.afterLoad(origin, destination, direction);
 };
 
 const onLeave = (origin, destination, direction) => {
+  // Déléguer au callback des options
   return options.onLeave(origin, destination, direction);
 };
 
 // Fonction pour naviguer programmatiquement vers une section
 const goToSection = (index) => {
-  if (fullpage.value) {
+  if (fullpage.value && fullpage.value.api) {
     fullpage.value.api.moveTo(index + 1);
   }
 };
@@ -153,6 +148,33 @@ defineExpose({
   currentSectionIndex,
   goToSection,
   animationStates
+});
+
+onMounted(async () => {
+  // Attendre que le DOM soit complètement chargé
+  await nextTick();
+  
+  // S'assurer que l'API fullpage est disponible globalement
+  if (process.client && fullpage.value && fullpage.value.api) {
+    window.fullpage_api = {
+      setAllowScrolling: (allow) => {
+        fullpage.value.api.setAllowScrolling(allow);
+      },
+      setKeyboardScrolling: (allow) => {
+        fullpage.value.api.setKeyboardScrolling(allow);
+      },
+      moveTo: (index) => {
+        fullpage.value.api.moveTo(index);
+      },
+      // Ajouter d'autres méthodes si nécessaire
+    };
+    
+    // Initialiser les animations après la création complète de fullpage
+    const sections = document.querySelectorAll('.section');
+    if (sections.length > 0) {
+      // Initialiser les animations si nécessaire
+    }
+  }
 });
 </script>
 
@@ -173,4 +195,5 @@ defineExpose({
 #fp-nav ul li a span, 
 .fp-slidesNav ul li a span {
   background: #e60000; /* Couleur Vodafone */
-}</style>
+}
+</style>

@@ -113,25 +113,6 @@ const activateCaseStudyItem = (index) => {
 import { nextTick } from 'vue'; // Assurez-vous que nextTick est importé
 
 onMounted(() => {
-  if (props.animationStates['slide-128'] === undefined) {
-    props.animationStates['slide-128'] = 0; // Index de l'item actif
-  }
-  activeCaseStudyIndex.value = props.animationStates['slide-128'] || 0;
-
-  // Animation d'entrée pour le composant
-  gsap.fromTo(`#slide-${props.slide.id}`, 
-    { autoAlpha: 0 }, 
-    { autoAlpha: 1, duration: 0.5, ease: 'power2.out' }
-  );
-  if (activeCaseStudyItemData.value) {
-      const newContent = document.querySelector('.case-study-content');
-      if (newContent) {
-        gsap.fromTo(newContent, 
-          { autoAlpha: 0, y: -20 }, 
-          { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' }
-        );
-      }
-  }
 });
 
 </script>

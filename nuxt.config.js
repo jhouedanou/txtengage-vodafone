@@ -69,6 +69,7 @@ export default defineNuxtConfig({
 
   // Enregistrer nos plugins
   plugins: [
+    '~/plugins/vue-fullpage.js' // Ajout du plugin fullpage
   ],
 
   image: {

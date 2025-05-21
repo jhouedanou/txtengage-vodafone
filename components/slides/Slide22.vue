@@ -28,30 +28,6 @@ const props = defineProps({
 });
 
 onMounted(() => {
-  // Initialiser l'état d'animation si non défini
-  if (props.animationStates[`slide-${props.slide.id}-played`] === undefined) {
-    props.animationStates[`slide-${props.slide.id}-played`] = false;
-  }
-
-  // Ne jouer l'animation que si elle n'a pas encore été jouée
-  if (!props.animationStates[`slide-${props.slide.id}-played`]) {
-    const thoiathoingDiv = document.querySelector(`#thoiathoing-${props.slide.id}`);
-    if (thoiathoingDiv) {
-      gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
-      gsap.to(thoiathoingDiv, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power2.out',
-        onComplete: () => {
-          props.animationStates[`slide-${props.slide.id}-played`] = true;
-        }
-      });
-    } else {
-      // Si l'élément n'est pas trouvé, marquer comme joué pour éviter des blocages
-      props.animationStates[`slide-${props.slide.id}-played`] = true;
-    }
-  }
 });
 </script>
 

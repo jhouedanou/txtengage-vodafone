@@ -145,11 +145,7 @@ useHead({ title: 'TXT Engage - Vodafone' });
       </div>
     </div>
 
-    <!-- Custom scrollbar indicator -->
-    <div class="custom-scrollbar">
-      <div class="scrollbar-track"></div>
-      <div class="scrollbar-cursor" ref="scrollCursor"></div>
-    </div>
+
   </div>
 </template>
 
@@ -159,14 +155,14 @@ useHead({ title: 'TXT Engage - Vodafone' });
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* overflow: hidden; */ /* Commenté pour fullpage.js */
 }
 
 #vodacomwrapper {
   transition: background-image 0.5s ease-in-out;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */ /* Commenté pour fullpage.js */
 }
 
 /* Ajouter les autres styles existants... */

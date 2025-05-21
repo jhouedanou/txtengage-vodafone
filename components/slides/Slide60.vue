@@ -39,32 +39,6 @@ const props = defineProps({
 });
 
 onMounted(() => {
-  // Initialiser l'état d'animation pour la slide 60
-  if (props.animationStates[`slide-${props.slide.id}-played`] === undefined) {
-    props.animationStates[`slide-${props.slide.id}-played`] = false;
-  }
-
-  if (!props.animationStates[`slide-${props.slide.id}-played`]) {
-    const elementsToAnimate = [
-      `.slide-60-title`,
-      `.slide-60-content`,
-      `.slide-60-paragraph`,
-      `.slide-60-image`
-    ];
-
-    gsap.set(elementsToAnimate.join(', '), { autoAlpha: 0, y: 30 });
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        props.animationStates[`slide-${props.slide.id}-played`] = true;
-      }
-    });
-
-    tl.to('.slide-60-title', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' })
-      .to('.slide-60-content', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, "-=")
-      .to('.slide-60-paragraph', { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.2, ease: 'power2.out' }, "-=")
-      .to('.slide-60-image', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, "-=");
-  }
 });
 
 </script>
