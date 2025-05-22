@@ -1692,104 +1692,125 @@ export function useFullpageScrollTrigger() {
     });
 
     // Mise à jour également du gestionnaire clavier
-
     keyboardListener.value = (e) => {
-      handleFirstInteraction();
+      handleFirstInteraction(); // Appelée à chaque fois, mais handleFirstInteraction est idempotent
       if (isNavigating.value) return;
 
       const currentSectionElement = sections.value[currentSectionIndex.value];
 
-      // Logique pour les touches ArrowDown, PageDown, Espace
-      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-        e.preventDefault();
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'PageDown':
+        case ' ': // Barre d'espace pour descendre
+          e.preventDefault();
 
-        // Gestion spécifique pour slide-23 (Perdrix)
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
-          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined &&
-              animationStates.value['slide-23'] < perdrixSlides.length) {
-            if (window.advancePerdrixSlide) { // Vérifier si la fonction globale existe
-              const now = Date.now();
-              const timeSinceLastInteraction = now - lastInteractionTime;
-              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
-                console.log(`Clavier (Slide-23 ArrowDown): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
-                return;
-              }
-              lastInteractionTime = now;
+          // Gestion spécifique pour slide-23 (Perdrix) vers le bas
+          if (currentSectionElement?.id === 'slide-23') {
+            if (window.advancePerdrixSlide) {
+              // Optionnel: debounce pour 'down' pour éviter spam. Exemple :
+              // const now = Date.now(); 
+              // if (now - (window.lastPerdrixDownKeyTime || 0) < 300) { console.debug('Clavier (bas/espace) Slide-23: Debounce'); return; }
+              // window.lastPerdrixDownKeyTime = now;
               const didHandle = window.advancePerdrixSlide(currentSectionElement, true, 'down');
               if (didHandle) {
-                console.debug('Touche bas (Slide-23) - animation perdrix déclenchée');
-                return; // Empêche la navigation goToSection si l'animation interne a été gérée
-              }
-            }
-            // Si advancePerdrixSlide n'a rien fait (ou n'existe pas), on pourrait vouloir bloquer goToSection
-            return; // Bloque goToSection si on est encore dans les perdrix
-          }
-        }
-
-        // Gestion spécifique pour slide-128 (Case Study)
-        if (currentSectionElement && currentSectionElement.id === 'slide-128') {
-          const caseStudyItems = Array.from(currentSectionElement.querySelectorAll('.case-study-item'));
-          const currentStep = animationStates.value['slide-128'];
-          if (currentStep >= 0 && currentStep < caseStudyItems.length) {
-            if (window.advanceCaseStudyItem) { // Vérifier si la fonction globale existe
-              const now = Date.now();
-              const timeSinceLastInteraction = now - lastInteractionTime;
-              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
-                console.log(`Clavier (Slide-128 ArrowDown): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
+                console.debug('Clavier (bas/espace) Slide-23: Perdrix a géré.');
                 return;
               }
-              lastInteractionTime = now;
-              const didHandle = window.advanceCaseStudyItem(currentSectionElement);
-              if (didHandle) {
-                console.debug('Touche bas (Slide-128) - animation case study déclenchée');
-                return; // Empêche la navigation goToSection
-              }
             }
-            return; // Bloque goToSection si on est encore dans les case studies
+            // Si advancePerdrixSlide n'a pas géré (ou n'existe pas), et qu'on est encore "dans" l'animation Perdrix,
+            // bloquer la navigation principale pour éviter de sauter par-dessus des étapes Perdrix.
+            const perdrixSlidesLength = currentSectionElement.querySelectorAll('.perdrix-slide').length;
+            if (animationStates.value['slide-23'] >= 0 && animationStates.value['slide-23'] < perdrixSlidesLength) {
+              console.debug('Clavier (bas/espace) Slide-23: Bloqué par état animation Perdrix (n\'a pas avancé et pas fini).');
+              return; 
+            }
           }
-        }
 
-        // Blocages généraux avant d'appeler goToSection
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) return;
-        if (currentSectionElement && currentSectionElement.id === 'slide-20' && !animationStates.value['slide-20-text5Shown']) {
-          playSlide20Text5Animation(currentSectionElement); // Jouer l'animation interne
-          return; // Empêche la navigation goToSection
-        }
-        // ... autres blocages si nécessaire ...
-
-        goToSection(currentSectionIndex.value + 1);
-
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-
-        // Gestion spécifique pour slide-23 (Perdrix) en remontant
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
-           // Si vous avez une logique pour reculer dans les perdrix, mettez-la ici.
-           // Par exemple, appeler window.advancePerdrixSlide(currentSectionElement, true, 'up');
-           // Pour l'instant, on bloque simplement le goToSection si on est dans les perdrix.
-          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && animationStates.value['slide-23'] > 0) { // > 0 pour permettre de reculer
-             if (window.advancePerdrixSlide) {
-                const now = Date.now();
-                const timeSinceLastInteraction = now - lastInteractionTime;
-                if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
-                    console.log(`Clavier (Slide-23 ArrowUp): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
-                    return;
-                }
-                lastInteractionTime = now;
-                const didHandle = window.advancePerdrixSlide(currentSectionElement, true, 'up');
+          // Gestion spécifique pour slide-128 (Case Study) vers le bas
+          if (currentSectionElement?.id === 'slide-128') {
+            const caseStudyItemsLength = currentSectionElement.querySelectorAll('.case-study-item').length;
+            // On avance seulement si on n'est pas au dernier item affiché
+            if (animationStates.value['slide-128'] < caseStudyItemsLength -1) { 
+              if (window.advanceCaseStudyItem) {
+                const didHandle = window.advanceCaseStudyItem(currentSectionElement);
                 if (didHandle) {
-                    console.debug('Touche haut (Slide-23) - animation perdrix (recul) déclenchée');
-                    return;
+                  console.debug('Clavier (bas/espace) Slide-128: Case study a géré.');
+                  return; 
                 }
-             }
-            return; // Bloque goToSection
+              }
+               // Si advanceCaseStudyItem n'a pas géré et qu'on n'est pas au dernier, on bloque pour ne pas sauter.
+               console.debug('Clavier (bas/espace) Slide-128: Bloqué par état animation Case Study (n\'a pas avancé et pas fini).');
+              return;
+            }
+            // Si on est au dernier item (state === length -1), on ne rentre pas dans le if, et on continue vers goToSection.
           }
-        }
-        // ... autres logiques spécifiques pour ArrowUp si nécessaire ...
+          
+          // Gestion spécifique pour slide-20 (animation text-element-5)
+          if (currentSectionElement?.id === 'slide-20' && !animationStates.value['slide-20-text5Shown']) {
+            playSlide20Text5Animation(currentSectionElement);
+            console.debug('Clavier (bas/espace) Slide-20: Animation text5 jouée.');
+            return; 
+          }
+          
+          // Blocage général pour slide-73 si l'animation n'est pas terminée
+          if (currentSectionElement?.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+            console.debug('Clavier (bas/espace) Slide-73: Bloqué par animation.');
+            return;
+          }
 
-        goToSection(currentSectionIndex.value - 1);
+          // Blocage général pour slide-59 si l'animation n'est pas terminée
+          if (currentSectionElement?.id === 'slide-59' && animationStates.value['slide-59'] !== 1 && index > currentSectionIndex.value) { // index n'est pas défini ici, on compare avec la direction implicite "bas"
+            console.debug('Clavier (bas/espace) Slide-59: Bloqué par animation.');
+            return;
+          }
+
+          // Navigation par défaut vers la section suivante
+          if (currentSectionIndex.value < sections.value.length - 1) {
+            console.debug('Clavier (bas/espace): goToSection suivante.');
+            goToSection(currentSectionIndex.value + 1);
+          }
+          break;
+
+        case 'ArrowUp':
+        case 'PageUp':
+          e.preventDefault();
+
+          // Gestion spécifique pour slide-23 (Perdrix) vers le haut
+          if (currentSectionElement?.id === 'slide-23') {
+            if (window.advancePerdrixSlide) {
+              // Pas de debounce pour 'up' pour l'instant pour une meilleure réactivité.
+              const didHandle = window.advancePerdrixSlide(currentSectionElement, true, 'up');
+              if (didHandle) {
+                console.debug('Clavier (haut) Slide-23: Perdrix a géré (recul).');
+                return; 
+              }
+              // Si didHandle est false, advancePerdrixSlide n'a pas reculé.
+              // On laisse l'exécution continuer pour permettre goToSection vers la slide précédente.
+              console.debug('Clavier (haut) Slide-23: Perdrix n\'a pas géré le recul, tentative de goToSection précédent.');
+            } else {
+              console.warn('Clavier (haut) Slide-23: advancePerdrixSlide non disponible.');
+            }
+          }
+
+          // Pour slide-128, ArrowUp doit toujours mener à la section précédente.
+          // Pas de logique de recul dans les case studies avec ArrowUp pour l'instant.
+
+          // Navigation par défaut vers la section précédente
+          if (currentSectionIndex.value > 0) {
+            console.debug('Clavier (haut): goToSection précédente.');
+            goToSection(currentSectionIndex.value - 1);
+          }
+          break;
+
+        // Vous pouvez ajouter d'autres cas pour 'Home', 'End', etc., si nécessaire.
+        // case 'Home':
+        //   e.preventDefault();
+        //   goToSection(0); // false pour la durée pour être cohérent ?
+        //   break;
+        // case 'End':
+        //   e.preventDefault();
+        //   goToSection(sections.value.length - 1);
+        //   break;
       }
     };
     window.addEventListener('keydown', keyboardListener.value);
