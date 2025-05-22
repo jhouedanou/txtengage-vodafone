@@ -324,7 +324,8 @@ export function useFullpageScrollTrigger() {
           if (!animationStates.value['slide-20-initialAnimPlayed']) {
             playSlide20InitialAnimation(slide20Section);
           } else {
-            // Show bubble elements again when coming back from slide-21
+            // Si l'anim initiale a déjà été jouée, s'assurer que les bulles sont visibles
+            // car playSlide20InitialAnimation (qui les montre) ne sera pas appelée.
             const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
             bubbleElements.forEach(element => {
               gsap.to(element, {
@@ -1220,6 +1221,7 @@ export function useFullpageScrollTrigger() {
           // Laisser la transformation en place sur l'élément, mais changer juste l'opacité
           gsap.to(perdrixSlides[currentPerdrixIndex], {
             autoAlpha: 1,
+            y: 0,
             duration: 0.6,
             ease: 'power2.inOut',
             onComplete: () => {
@@ -1247,19 +1249,28 @@ export function useFullpageScrollTrigger() {
        * Fonction utilitaire pour avancer manuellement dans les perdrix-slides
        * Peut être appelée depuis le clavier ou les swipes mobiles
        */
-      window.advancePerdrixSlide = (sectionElement) => {
-        // Si nous ne sommes pas sur slide-23, ne rien faire
+      window.advancePerdrixSlide = (sectionElement, force = false) => {
         if (!sectionElement || sectionElement.id !== 'slide-23') return false;
         
-        // Vérifier si on est dans un état valide pour avancer
-        if (animationStates.value['slide-23'] < 0 || 
-            animationStates.value['slide-23'] >= perdrixSlides.length) {
-          return false;
+        const perdrixSlides = sectionElement.querySelectorAll('.perdrix-slide');
+        if (perdrixSlides.length === 0) return false;
+
+        const currentIndex = animationStates.value['slide-23'] ?? -1;
+        if (currentIndex < 0 || currentIndex >= perdrixSlides.length) return false;
+
+        if (force) {
+          handlePerdrixScroll({ deltaY: 100 });
+          return true;
         }
-        
-        // Simuler un scroll vers le bas pour déclencher l'animation
-        const fakeEvent = { deltaY: 100, preventDefault: () => {}, stopPropagation: () => {} };
-        handlePerdrixScroll(fakeEvent);
+
+        const now = Date.now();
+        const timeSinceLastInteraction = now - lastInteractionTime;
+        if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
+          console.log(`Clavier (Slide-23): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
+          return;
+        }
+        lastInteractionTime = now;
+        handlePerdrixScroll({ deltaY: 100 });
         return true;
       };
       
@@ -1282,8 +1293,6 @@ export function useFullpageScrollTrigger() {
               duration: 0.8,
               ease: 'power2.out',
               onComplete: () => {
-
-                
                 // 2. Faire apparaître la première perdrix-slide automatiquement
                 if (perdrixSlides.length > 0) {
                   currentPerdrixIndex = 0;
@@ -1508,7 +1517,7 @@ export function useFullpageScrollTrigger() {
         const currentSectionElement = sections.value[currentSectionIndex.value];
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined &&
+          if (animationStates.value['slide-23'] !== undefined && 
               animationStates.value['slide-23'] <= perdrixSlides.length) {
             return; // Bloquer le défilement
           }
@@ -1731,7 +1740,7 @@ export function useFullpageScrollTrigger() {
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
         
-        // Bloquer la navigation de slide-23 vers slide-22 (vérifier si cette logique est toujours désirée pour le clavier)
+        // Blocage pour slide-23
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined &&
@@ -1740,7 +1749,7 @@ export function useFullpageScrollTrigger() {
           }
         }
         
-        // Bloquer la navigation de slide-59 vers slide-23 (vérifier si cette logique est toujours désirée pour le clavier)
+        // Blocage pour slide-59 (vérifier si cette logique est toujours désirée pour le clavier)
         // const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
         // if (currentSectionIndex.value - 1 === slide23Index) {
         //   const slide23Section = sections.value[slide23Index];
