@@ -485,7 +485,7 @@ const getBackgroundImage = (slide) => {
             <div id="perdrix-container" class="container">
              <div id="decodemerde" class="hidden hide">
                 <div class="row">
-                  <div class="col-md-6">
+                  <div class="col-md-6 d-none d-md-block">
                     <p></p>
                   </div>          
                   <div class="col-md-6">
@@ -501,7 +501,7 @@ const getBackgroundImage = (slide) => {
                     <div id="joce" class="perdrix-slides-wrapper">
                       <div v-for="(paragraph, idx) in slide.paragraphs" :id="`perdrix-slide-${idx+1}`" :key="idx" 
                         class="perdrix-slide">
-                        <div class="split-container row">
+                        <div class="split-container row row-no-gutters">
                           <div class="text-container col-md-6">
                             <h3 v-if="extractTitle(paragraph)">{{ extractTitle(paragraph) }}</h3>
                             <div class="text-content" v-html="extractTextContent(paragraph)"></div>
@@ -547,10 +547,12 @@ const getBackgroundImage = (slide) => {
             <div id="killerwu" class="ouh">
               <div class="case-study-container container">
                 <div class="row">
-                  <div id="bawse" class="col-md-7">
+                  <h2 class="d-block d-md-none text-element aya hightower" v-html="slide.title"></h2>
+
+                  <div id="bawse" class="col-md-7 col-sm-7 col-7">
                     <div id="casestudy">
                       <div id="dec">  
-                        <h2 class="text-element aya" v-html="slide.title"></h2>
+                        <h2 class="d-none d-md-block text-element aya" v-html="slide.title"></h2>
                         <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
                           class="text-element col m-0 p-2" 
                           :id="`case-study-item-${idx+1}`"
@@ -565,7 +567,7 @@ const getBackgroundImage = (slide) => {
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-5">
+                  <div class="col-md-5 col-sm-5 col-5">
                     <div class="case-study-image">
                       <img v-if="slide.thumbnail" :src="slide.thumbnail" alt="Case Study Image" class="img-fluid">
                     </div>

@@ -1360,9 +1360,9 @@ body {
     #slide-73 {
 
         .subint {
-            min-width: 100vw !important;
-            width: 100vw !important;
-            width: 100vw !important;
+           // min-width: 100vw !important;
+            max-width:100% !important;
+            width: 100% !important;
             justify-content: flex-end;
             display: flex;
             align-items: center;
@@ -1382,7 +1382,7 @@ body {
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            max-height: 70vh;
+            max-height: 630px;
             .text-element {
                 margin: 0 auto 2em;
                 display: flex;
@@ -1499,19 +1499,32 @@ body {
     }
 
     #slide-20 {
+        #kiff, #ozaru {
+            width: 100%;}
+        #text-element-5{
+            width:100% !important;
+            h5{
+                font-size: 28px !important;
+            }
+            p{
+                font-size: 23px !important;
+                line-height: 33.1px !important;
+                text-transform: none !important;
+            }
+        }
         #turtlebeach{
             position: absolute !important;
-    top: 23px !important;
-    margin: auto !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    /* background-color: red !important; */
-    max-width: 108vw !important;
-    max-height: 81vh !important;
-    height: 100vh !important;
-    background-size: contain !important;
+            top: 23px !important;
+            margin: auto !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            /* background-color: red !important; */
+            max-width: 378px !important;
+            max-height: 81vh !important;
+            height: 100vh !important;
+            background-size: contain !important;
         }
         #mzu {
             height: auto;
@@ -1596,32 +1609,32 @@ body {
                 }
                 &:nth-of-type(1) {
 
-                    left: 4vw !important;
-    top: 58vh !important;
+                    left: 4% !important;
+    top: 58% !important;
                 }
 
                 &:nth-of-type(2) {
 
-                    left: 5vw !important;
-                    top: 36vh !important;
+                    left: 5% !important;
+                    top: 36% !important;
                 }
 
                 &:nth-of-type(3) {
-                    left: 50vw !important;
-                    bottom: 5vh !important;
+                    left: 50% !important;
+                    bottom: 5% !important;
                 }
 
                 &:nth-of-type(4) {
-                    left: 67vw !important;
-                    top: 49vh !important;
+                    left: 67% !important;
+                    top: 49% !important;
 
                 }
                 &:nth-of-type(5) {
 
                     width: 85px !important;
                     height: 84px !important;
-                    left: 4vw !important;
-                    bottom: 5vh !important;
+                    left: 4% !important;
+                    bottom: 5% !important;
                     h3{
                         font-family: Vodafone;
                         font-size: 44px;
@@ -1693,6 +1706,29 @@ body {
             display:none !important;
         }
     }}
+    #slide-22{
+        .cont{
+height:auto !important;
+        }
+        #thoiathoing{
+            background:none !important;
+        }
+        #thoiathoing2{    
+            flex-grow: 1 !important;
+            padding-top: 1em !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto;
+            padding:1em !important;
+            width: 100% !important;
+        }
+        h3{
+            font-family: Vodafone;
+            font-size: 28px !important;
+            font-weight: bold !important;
+            line-height: 1.44 !important;
+        }
+    }
     #slide-21,
     #slide-22 {
         #mshill {
@@ -1709,8 +1745,40 @@ body {
             }
         }
     }
+    #decodemerde {
 
+        width:100% !important;
+        max-width:100% !important;
+    }
     #bygone-bip {
+        .col-md-6{
+            margin: 0;
+            padding: 0;
+            flex-grow: 0;
+            flex-basis: auto;
+            gap: 0;
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            flex-direction: column;
+        }
+width:100% !important;
+        max-width:100% !important;
+        .row{
+
+            margin:0;
+            padding:0;
+            width:100% !important;
+            max-width:100% !important;
+            *{
+            }
+        }
+        .container{
+
+            width:100% !important;
+            max-width:100% !important;
+        }
+        
         .accordion-item {
             h3 {
                 font-size: 36px;
@@ -1719,6 +1787,12 @@ body {
             p {
                 font-size: 24px;
             }
+        }
+        .perdrix-slide{
+           
+        max-width: 100% !important;
+        margin: 0 auto;
+        padding: 0 1em;
         }
     }
 
@@ -1738,6 +1812,109 @@ body {
         button {
             font-size: 20px;
         }
+    }
+    div#vodacomwrapper {
+        //max-width: 414px;
+        margin: 0 auto;
+        padding: 0em;
+    }
+    #teste::before {
+        background: url(../images/Subtract.png);
+        z-index: 100;
+        background-position: center bottom !important;
+        background-repeat: no-repeat;
+        /* background-color: red; */
+        bottom: 0;
+        content: "";
+        left: 0;
+        margin: auto;
+        right: 0;
+        height: 100%;
+        height: 445px;
+        background-size: 337px !important;
+        position: absolute;
+        width: 345px;
+    }
+    .split-container{
+        background:blue;
+        align-content: space-evenly;
+    }
+    .text-container{
+
+    background: green;
+    height: 294px;
+    margin: 0;
+    padding: 0;
+    }
+    .image-container {
+        height:297px;
+        position:relative;
+        background:yellow;
+        img {
+            margin: auto !important;
+            height: 329px !important;
+            position: absolute;
+            left: 0;
+            right: 56px;
+            top: 7px;
+        }
+    }
+    .case-study-container.container{
+        .row{
+        .col-md-5{
+            order:1;
+            img{
+                width:180px;
+                height: auto;  
+            }
+        }
+        .col-md-7{
+            order:2;
+           
+        }}
+    }
+
+    .hightower{
+        font-weight:bold;
+        text-align:center;
+        font-size:56px;
+        color:#FF0000;
+    }
+    #casestudy{
+        h3{
+            font-family: Vodafone;
+            font-size: 28px !important;
+            font-weight: bold !important;
+            line-height: 1.44 !important;
+            margin-bottom: 0em !important;
+            padding-bottom: 0em !important;
+        }
+        p{
+            font-family: Vodafone;
+            font-size: 20px !important;
+            font-weight: normal !important;
+            font-stretch: normal !important;
+            font-style: normal !important;
+            line-height: 1 !important;
+            letter-spacing: normal !important;
+            text-align:left!important;
+            br{
+                display:none;
+            }
+        }
+    }
+    #slide-59 #gorr {
+        position: relative;
+        #llass,#lele{
+    
+        width: 290px !important;
+        height: 276px !important;
+    }}
+    #killerjunior img{
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
     }
 }
 
@@ -1910,6 +2087,27 @@ body {
     #slide-22 .cont {
         justify-content: center;
     }
+    #case-study-content-3{
+        div{line-height:0;
+        display:flex}
+        ul{
+        flex-direction: column;
+    }}
+    #slide-128 .case-study-item {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #case-study-content-3 ul li {
+        font-size: 14px !important;
+        margin:2px 0 !important;
+        strong{
+        width: 68px !important;
+        height: 68px !important;
+        font-size: 27px !important;
+        span{
+            font-size: 13px !important;
+        }
+    }}
 }
 
 .error-container {
