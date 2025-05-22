@@ -40,6 +40,55 @@ export function useFullpageScrollTrigger() {
   let macScrollSlide128TimeoutId = null;
   let lastInteractionTime = 0; // Horodatage de la dernière interaction
 
+  // NOUVELLE FONCTION POUR GERER LES EVENEMENTS CLAVIER
+  const handleKeyDown = (e) => {
+    if (isNavigating.value) return;
+
+    const currentSectionElement = sections.value[currentSectionIndex.value];
+
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'PageDown':
+        e.preventDefault();
+
+        if (currentSectionElement?.id === 'slide-23') {
+          const didHandle = advancePerdrixSlide(currentSectionElement, true, 'down');
+          if (didHandle) {
+            console.debug('Touche bas - animation Perdrix déclenchée par clavier');
+            return;
+          }
+        }
+
+        if (currentSectionElement?.id === 'slide-20' && !animationStates.value['slide-20-text5Shown']) {
+          playSlide20Text5Animation(currentSectionElement);
+          return;
+        }
+
+        if (currentSectionIndex.value < sections.value.length - 1) {
+          goToSection(currentSectionIndex.value + 1, false);
+        }
+        break;
+
+      case 'ArrowUp':
+      case 'PageUp':
+        e.preventDefault();
+
+        if (currentSectionElement?.id === 'slide-23') {
+          const didHandle = advancePerdrixSlide(currentSectionElement, true, 'up');
+          if (didHandle) {
+            console.debug('Touche haut - animation Perdrix déclenchée par clavier');
+            return;
+          }
+        }
+
+        if (currentSectionIndex.value > 0) {
+          goToSection(currentSectionIndex.value - 1, false);
+        }
+        break;
+    }
+  };
+  // FIN DE LA NOUVELLE FONCTION POUR GERER LES EVENEMENTS CLAVIER
+
   // ===========================================================================
   // SECTION 3: MÉCANISMES GLOBAUX DE NAVIGATION
   // ===========================================================================
@@ -1643,6 +1692,7 @@ export function useFullpageScrollTrigger() {
     });
 
     // Mise à jour également du gestionnaire clavier
+
     keyboardListener.value = (e) => {
       handleFirstInteraction();
       if (isNavigating.value) return;
