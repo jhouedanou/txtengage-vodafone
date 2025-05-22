@@ -27,7 +27,7 @@
               v-html="slide.wp_content"
             ></p>
           </div>
-          <div class="points-fort">
+          <div id="points-fort" class="points-fort">
             <div
               v-for="(paragraph, idx) in slide.paragraphs"
               :key="idx"

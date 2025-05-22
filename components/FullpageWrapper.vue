@@ -1,5 +1,5 @@
 <template>
-  <div id="fullpage-wrapper">
+  <div id="fullpage-wrapper" v-if="!isInitialized">
     <client-only>
       <full-page
         ref="fullpage"
@@ -7,6 +7,7 @@
         id="fullpage"
         @after-load="afterLoad"
         @leave="onLeave"
+        style="height: 100vh; width: 100vw;"
       >
         <section 
           :id="`slide-${slide.id}`" 
@@ -14,8 +15,8 @@
           :key="slide.id" 
           class="section fp-section" 
           :data-slide-id="slide.id"
+          style="height: 100vh; overflow: hidden;"
         >
-          <!-- Utilisation des composants dynamiques pour chaque slide -->
           <component 
             :is="getSlideComponent(slide.id)"
             :slide="slide"
@@ -28,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, defineProps, defineExpose, nextTick } from 'vue';
+import { ref, reactive, onMounted, defineProps, defineExpose, nextTick, watch, onUnmounted } from 'vue';
 import { gsap } from 'gsap';
 
 // Importer tous les composants de slides
@@ -41,6 +42,13 @@ import Slide59 from './slides/Slide59.vue';
 import Slide128 from './slides/Slide128.vue';
 import Slide60 from './slides/Slide60.vue';
 import SlideDefault from './slides/SlideDefault.vue';
+
+if (process.client && window.fullpage_api) {
+  window.fullpage_api.destroy();
+  window.fullpage_api = null;
+}
+
+const isInitialized = ref(false);
 
 const props = defineProps({
   slides: {
@@ -102,27 +110,26 @@ const options = {
   css3: true,
   autoScrolling: true,
   fitToSection: true,
+  fitToSectionDelay: 400,
   scrollingSpeed: 700,
   scrollBar: false,
   scrollOverflow: false,
   responsiveWidth: 768,
-  
-  // Callbacks synchronisés avec notre système d'animation
+  verticalCentered: false,
+  paddingTop: '0',
+  paddingBottom: '0',
+  touchSensitivity: 15,
+  normalScrollElementTouchThreshold: 5,
+  bigSectionsDestination: 'top',
+
   afterLoad: function(origin, destination, direction) {
     currentSectionIndex.value = destination.index;
-    
-    // Vous pouvez déclencher ici des animations, mais ne jamais bloquer le scroll
+    setTimeout(() => fullpage.value.api.reBuild(), 100);
   },
-  
+
   onLeave: function(origin, destination, direction) {
-   // Si on est sur la slide 73 et que l'animation n'est pas jouée
-    if (origin.item.getAttribute('data-slide-id') === '73' && !animationStates['slide-73-points-fort']) {
-      // Lancer l'animation GSAP (via un event ou une méthode exposée)
-      // Bloquer le scroll
-      return false;
-    }
-    // dansles autres cas cas, ne jamais bloquer la navigation, laisser fullpage gérer le scroll normalement
-    return true;
+    const slideId = origin.item.getAttribute('data-slide-id');
+    return animationStates[`slide-${slideId}-completed`] !== true;
   }
 };
 
@@ -151,11 +158,11 @@ defineExpose({
 });
 
 onMounted(async () => {
-  // Attendre que le DOM soit complètement chargé
+  if (isInitialized.value) return;
+
   await nextTick();
   
-  // S'assurer que l'API fullpage est disponible globalement
-  if (process.client && fullpage.value && fullpage.value.api) {
+  if (process.client && fullpage.value && fullpage.value.api && !window.fullpage_api) {
     window.fullpage_api = {
       setAllowScrolling: (allow) => {
         fullpage.value.api.setAllowScrolling(allow);
@@ -174,26 +181,66 @@ onMounted(async () => {
     if (sections.length > 0) {
       // Initialiser les animations si nécessaire
     }
+    isInitialized.value = true;
   }
+});
+
+onUnmounted(() => {
+  if (fullpage.value?.api) {
+    fullpage.value.api.destroy();
+    window.fullpage_api = null;
+  }
+  isInitialized.value = false;
+});
+
+watch(currentSectionIndex, (newVal) => {
+  nextTick(() => {
+    const sections = document.querySelectorAll('.section');
+    if (sections[newVal]) {
+      sections[newVal].style.height = '100vh';
+      sections[newVal].style.overflow = 'hidden';
+    }
+  });
 });
 </script>
 
 <style>
-/* Styles pour le wrapper fullpage.js */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 #fullpage-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100vh;
+  overflow: hidden;
 }
 
 .section {
-  height: 100vh;
-  width: 100%;
-  position: relative;
+  height: 100vh !important;
+  width: 100% !important;
 }
 
-/* Customize la navigation de fullpage.js */
-#fp-nav ul li a span, 
+.fp-tableCell {
+  height: 100vh !important;
+  display: block !important;
+}
+
+/* Correction macOS */
+.fp-section {
+  -webkit-overflow-scrolling: auto !important;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+#fp-nav ul li a span,
 .fp-slidesNav ul li a span {
-  background: #e60000; /* Couleur Vodafone */
+  background: #e60000;
 }
 </style>
