@@ -289,75 +289,6 @@ export function useFullpageScrollTrigger() {
         if (textElement1) gsap.set(textElement1, { autoAlpha: 1, y: 0 });
         animationStates.value['slide-20-text5Shown'] = false;
         
-        // Toujours afficher les éléments immédiatement lorsqu'on revient depuis slide-21
-        // après que text-element-5 a été affiché
-        if (animationStates.value['slide-20-text5Shown'] || animationStates.value['slide-20-elementsVisible']) {
-          // Afficher immédiatement tous les éléments sans animation (set au lieu de to)
-          // Rendre visible les éléments bulle
-          const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
-          bubbleElements.forEach(element => {
-            gsap.set(element, {
-              autoAlpha: 1,
-              y: 0
-            });
-          });
-          
-          // Rendre visible turtleBeach
-          if (turtleBeach) {
-            gsap.set(turtleBeach, {
-              autoAlpha: 1,
-              scale: 1
-            });
-          }
-          
-          // Rendre visible les éléments mzuH2
-          if (mzuH2Elements && mzuH2Elements.length) {
-            gsap.set(mzuH2Elements, {
-              autoAlpha: 1,
-              y: 0
-            });
-          }
-          
-          animationStates.value['slide-20-elementsVisible'] = true;
-        } else {
-          // Sinon, jouer l'animation initiale si elle n'a pas encore été jouée
-          if (!animationStates.value['slide-20-initialAnimPlayed']) {
-            playSlide20InitialAnimation(slide20Section);
-          } else {
-            // Si l'anim initiale a déjà été jouée, s'assurer que les bulles sont visibles
-            // car playSlide20InitialAnimation (qui les montre) ne sera pas appelée.
-            const bubbleElements = [textElement3, textElement0, textElement4, textElement2, textElement1].filter(el => el);
-            bubbleElements.forEach(element => {
-              gsap.to(element, {
-                autoAlpha: 1,
-                duration: 0.5,
-                ease: "power2.out"
-              });
-            });
-            
-            // Show turtleBeach again
-            if (turtleBeach) {
-              gsap.to(turtleBeach, {
-                autoAlpha: 1,
-                scale: 1,
-                duration: 0.5,
-                ease: "power2.out"
-              });
-            }
-            
-            // Show mzuH2Elements again
-            if (mzuH2Elements && mzuH2Elements.length) {
-              gsap.to(mzuH2Elements, {
-                autoAlpha: 1,
-                y: 0,
-                duration: 0.5,
-                stagger: 0.1,
-                ease: "power2.out"
-              });
-            }
-          }
-        }
-        
         // Aucune animation de bulles nécessaire
       },
       onLeave: () => {
@@ -618,9 +549,8 @@ export function useFullpageScrollTrigger() {
     // État d'animation initial pour la slide 128
     // -1: animation initiale non démarrée
     // 0: animation initiale terminée, prêt pour case-study-item-1
-    // 1: case-study-item-1 terminé, prêt pour case-study-item-2
-    // 2: case-study-item-2 terminé, prêt pour case-study-item-3
-    // 3: tous les items terminés, prêt pour passer à la slide suivante
+    // 1 à N-1: N case-study-items sont affichées (de 1 à N-1)
+    // N: tous les items terminés, prêt pour passer à la slide suivante
     animationStates.value['slide-128'] = -1;
 
     // Initialisation: cacher tous les contenus d'étude de cas
@@ -781,7 +711,7 @@ export function useFullpageScrollTrigger() {
       // Animation pour activer l'item et afficher son contenu
       const timeline = gsap.timeline({
         onComplete: () => {
-          console.log(`ScrollTrigger Composable: Animation de case-study-item-${itemNumber} terminée.`);
+
           animationStates.value['slide-128']++;
           // Débloquer après l'animation
           isAnimating.value = false;
@@ -1249,29 +1179,36 @@ export function useFullpageScrollTrigger() {
        * Fonction utilitaire pour avancer manuellement dans les perdrix-slides
        * Peut être appelée depuis le clavier ou les swipes mobiles
        */
-      window.advancePerdrixSlide = (sectionElement, force = false) => {
+      window.advancePerdrixSlide = (sectionElement, force = false, direction = 'down') => {
         if (!sectionElement || sectionElement.id !== 'slide-23') return false;
         
         const perdrixSlides = sectionElement.querySelectorAll('.perdrix-slide');
         if (perdrixSlides.length === 0) return false;
 
         const currentIndex = animationStates.value['slide-23'] ?? -1;
-        if (currentIndex < 0 || currentIndex >= perdrixSlides.length) return false;
-
-        if (force) {
-          handlePerdrixScroll({ deltaY: 100 });
+        if (currentIndex < 0) return false;
+        
+        // Gestion swipe down
+        if (direction === 'down' && currentIndex < perdrixSlides.length - 1) {
+          handlePerdrixScroll({
+            deltaY: 100,
+            preventDefault: () => {},
+            stopPropagation: () => {}
+          });
           return true;
         }
-
-        const now = Date.now();
-        const timeSinceLastInteraction = now - lastInteractionTime;
-        if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
-          console.log(`Clavier (Slide-23): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
-          return;
+        
+        // Gestion swipe up
+        if (direction === 'up' && currentIndex > 0) {
+          handlePerdrixScroll({
+            deltaY: -100,
+            preventDefault: () => {},
+            stopPropagation: () => {}
+          });
+          return true;
         }
-        lastInteractionTime = now;
-        handlePerdrixScroll({ deltaY: 100 });
-        return true;
+        
+        return false;
       };
       
       // Créer un ScrollTrigger pour la slide-23
@@ -1383,7 +1320,6 @@ export function useFullpageScrollTrigger() {
     // BLOCAGE STRICT pour slide-23: empêcher de quitter la slide tant que l'animation n'est pas terminée
     if (currentSectionElement && currentSectionElement.id === 'slide-23') {
       const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-      // Vérifier si l'animation des perdrix-slides n'est pas terminée
       if (animationStates.value['slide-23'] !== undefined && 
           animationStates.value['slide-23'] < perdrixSlides.length) {
         return; // Blocage strict de la navigation
@@ -1574,10 +1510,45 @@ export function useFullpageScrollTrigger() {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
           if (animationStates.value['slide-23'] !== undefined && 
               animationStates.value['slide-23'] < perdrixSlides.length) {
-            return; 
+            // Avancer à la prochaine perdrix-slide avec protection contre les scrolls multiples
+            if (window.advancePerdrixSlide) {
+              const now = Date.now();
+              const timeSinceLastInteraction = now - lastInteractionTime;
+              
+              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
+                console.log(`Clavier (Slide-23): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
+                return;
+              }
+              
+              lastInteractionTime = now;
+              window.advancePerdrixSlide(currentSectionElement);
+            }
+            return;
           }
         }
-
+        
+        // Piloter l'animation des case-study-items avec les touches du clavier
+        if (currentSectionElement && currentSectionElement.id === 'slide-128') {
+          const currentStep = animationStates.value['slide-128'];
+          // Vérifier si on est dans un état valide pour avancer
+          if (currentStep >= 0 && currentStep < 3) { // 3 est le nombre de case-study-items
+            // Avancer au prochain case-study-item avec protection contre les interactions multiples
+            if (window.advanceCaseStudyItem) {
+              const now = Date.now();
+              const timeSinceLastInteraction = now - lastInteractionTime;
+              
+              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
+                console.log(`Clavier (Slide-128): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
+                return;
+              }
+              
+              lastInteractionTime = now;
+              window.advanceCaseStudyItem(currentSectionElement);
+            }
+            return;
+          }
+        }
+        
         // Action de navigation par défaut pour "onDown"
         const navigateDefaultDown = () => goToSection(currentSectionIndex.value + 1);
         // Action de navigation inversée pour mobile pour "onDown"
@@ -1591,59 +1562,6 @@ export function useFullpageScrollTrigger() {
             navigateDefaultDown();
           }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
         } else if (event.type.startsWith('touch') && isMobile) { // Si c'est un swipe tactile sur mobile
-          const currentSectionElementForTouch = sections.value[currentSectionIndex.value]; // Need to get currentSectionElement here as it might not be defined in this scope
-          
-          // Gestion du swipe pour slide-20
-          if (currentSectionElementForTouch && currentSectionElementForTouch.id === 'slide-20') {
-            if (animationStates.value['slide-20-initialAnimPlayed'] && !animationStates.value['slide-20-text5Shown']) {
-              playSlide20Text5Animation(currentSectionElementForTouch);
-              return; 
-            }
-          }
-          
-          // Gestion du swipe pour slide-23
-          if (currentSectionElementForTouch && currentSectionElementForTouch.id === 'slide-23') {
-            const perdrixSlides = Array.from(currentSectionElementForTouch.querySelectorAll('.perdrix-slide'));
-            if (animationStates.value['slide-23'] !== undefined && 
-                animationStates.value['slide-23'] < perdrixSlides.length) {
-              // Avancer à la prochaine perdrix-slide avec protection contre les scrolls multiples
-              if (window.advancePerdrixSlide) {
-                if (isMac && event.type === 'wheel') {
-                  clearTimeout(macScrollSlide23TimeoutId);
-                  console.log(`Mac Trackpad (Slide-23): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
-                  macScrollSlide23TimeoutId = setTimeout(() => {
-                    console.log(`Mac Trackpad (Slide-23): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Animation!`);
-                    window.advancePerdrixSlide(currentSectionElementForTouch);
-                  }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
-                } else {
-                  window.advancePerdrixSlide(currentSectionElementForTouch);
-                }
-              }
-              return;
-            }
-          }
-          
-          // Gestion du swipe pour slide-128
-          if (currentSectionElementForTouch && currentSectionElementForTouch.id === 'slide-128') {
-            const currentStep = animationStates.value['slide-128'];
-            // Vérifier si on est dans un état valide pour avancer
-            if (currentStep >= 0 && currentStep < 3) { // 3 est le nombre de case-study-items
-              // Avancer au prochain case-study-item avec protection contre les scrolls multiples
-              if (window.advanceCaseStudyItem) {
-                if (isMac && event.type === 'wheel') {
-                  clearTimeout(macScrollSlide128TimeoutId);
-                  console.log(`Mac Trackpad (Slide-128): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
-                  macScrollSlide128TimeoutId = setTimeout(() => {
-                    console.log(`Mac Trackpad (Slide-128): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Animation!`);
-                    window.advanceCaseStudyItem(currentSectionElementForTouch);
-                  }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
-                } else {
-                  window.advanceCaseStudyItem(currentSectionElementForTouch);
-                }
-              }
-              return;
-            }
-          }
           navigateMobileDownInverted(); // Swipe BAS sur mobile -> PRÉCÉDENT
         } else { // Pour tous les autres cas (molette non-Mac, etc.)
           navigateDefaultDown();
@@ -1849,3 +1767,28 @@ export function useFullpageScrollTrigger() {
     registerSlide128Animation
   };
 }
+
+// Dans le gestionnaire keydown
+document.addEventListener('keydown', (e) => {
+  switch (e.key) {
+    case 'ArrowDown':
+    case 'PageDown':
+      e.preventDefault();
+      const currentSectionElement = sections.value[currentSectionIndex.value];
+      if (currentSectionElement?.id === 'slide-23') {
+        const didHandle = advancePerdrixSlide(currentSectionElement, true, 'down');
+        if (didHandle) {
+          console.debug('Touche bas - animation déclenchée');
+          return;
+        }
+      }
+      // ... reste du code ...
+
+    case 'ArrowUp':
+    case 'PageUp':
+      // ... gestion de la flèche haut ...
+      break;
+    default:
+      break;
+  }
+});
