@@ -1790,6 +1790,9 @@ width:100% !important;
         }
         .perdrix-slide{
            
+    justify-content: center;
+    display: flex;
+    align-items: flex-end;
         max-width: 100% !important;
         margin: 0 auto;
         padding: 0 1em;
@@ -1835,21 +1838,22 @@ width:100% !important;
         position: absolute;
         width: 345px;
     }
+
     .split-container{
-        background:blue;
         align-content: space-evenly;
+        max-height:660px;
     }
     .text-container{
-
-    background: green;
-    height: 294px;
-    margin: 0;
-    padding: 0;
+        height: 213px;
+        margin: 0;
+        padding: 0;
+        li{
+            font-size: 13px !important;
+        }
     }
     .image-container {
-        height:297px;
+        min-height:372px;
         position:relative;
-        background:yellow;
         img {
             margin: auto !important;
             height: 329px !important;
@@ -1916,6 +1920,7 @@ width:100% !important;
         max-width: 100% !important;
         max-height: 100% !important;
     }
+   
 }
 
 
@@ -2008,7 +2013,9 @@ width:100% !important;
             font-size: 22px !important;
         }
     }
-
+    #lemof{
+        margin:0 auto;
+    }
     #killerjunior {
         h2 {
             font-size: 56px !important;
@@ -2028,7 +2035,7 @@ width:100% !important;
             font-style: normal;
             line-height: 1.2;
             letter-spacing: normal;
-            text-align: center;
+            text-align: center !important;
             color: #f00;
         }
 
@@ -2107,7 +2114,11 @@ width:100% !important;
         span{
             font-size: 13px !important;
         }
-    }}
+    }
+}
+br{
+    display:none !important;
+}
 }
 
 .error-container {
