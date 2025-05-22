@@ -13,7 +13,9 @@
     "update-browserslist": "npx update-browserslist-db@latest",
     "sass-fix": "node scripts/fix-sass-deprecations.js",
     "sass-watch": "npx sass --watch --source-map assets/scss:assets/scss",
-    "sass-optimize": "node scripts/optimize-sourcemaps.js"
+    "sass-optimize": "node scripts/optimize-sourcemaps.js",
+    "bs": "browser-sync start --config bs-config.cjs",
+    "dev:mobile": "concurrently \"npm run dev\" \"npm run bs\""
   },
   "dependencies": {
     "@nuxt/image": "1.8.1",
@@ -33,7 +35,8 @@
   "devDependencies": {
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
-    "browser-sync": "^3.0.3",
+    "browser-sync": "^3.0.4",
+    "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "sass": "^1.77.8",
     "sass-embedded": "^1.88.0",

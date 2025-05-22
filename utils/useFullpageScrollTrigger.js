@@ -767,7 +767,7 @@ export function useFullpageScrollTrigger() {
       const itemToActivate = slide128Section.querySelector(`#case-study-item-${itemNumber}`);
       const contentToShow = slide128Section.querySelector(`#case-study-content-${itemNumber}`);
       const headerToActivate = itemToActivate ? itemToActivate.querySelector('.case-study-header') : null;
-    
+      
       if (!itemToActivate || !contentToShow) {
         console.warn(`ScrollTrigger Composable: Item ${itemNumber} ou son contenu non trouvé.`);
         animationStates.value['slide-128']++;
@@ -1514,6 +1514,14 @@ export function useFullpageScrollTrigger() {
           }
         }
         
+        // Ajout: Gestion spécifique pour slide-20 sur swipe vers le haut (comme sur onDown)
+        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
+          if (animationStates.value['slide-20-initialAnimPlayed'] && !animationStates.value['slide-20-text5Shown']) {
+            playSlide20Text5Animation(currentSectionElement);
+            return; 
+          }
+        }
+        
         const event = self.event; // Accéder à l'événement original
         const isMobile = window.innerWidth <= 768; // Détection simplifiée du mobile
         
@@ -1555,7 +1563,8 @@ export function useFullpageScrollTrigger() {
         }
         if (currentSectionElement && currentSectionElement.id === 'slide-23') {
           const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && animationStates.value['slide-23'] <= perdrixSlides.length) {
+          if (animationStates.value['slide-23'] !== undefined && 
+              animationStates.value['slide-23'] < perdrixSlides.length) {
             return; 
           }
         }
