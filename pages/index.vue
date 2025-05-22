@@ -317,6 +317,34 @@ const extractImage = (html) => {
 
 const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; };
 
+// Nouvelle fonction pour gérer correctement l'affichage des arrière-plans
+const getBackgroundImage = (slide) => {
+  if (!slide) return 'none';
+
+  // Vérifier si on utilise le fallback et si le store a corrigé les images
+  if (slidesStore.usingFallback) {
+    console.log(`Utilisation de l'arrière-plan corrigé pour slide-${slide.id}`);
+  }
+
+  // Adapter en fonction de l'appareil (mobile ou desktop)
+  if (isMobile.value) {
+    // Pour le mobile, utiliser backgroundMobile s'il existe, sinon thumbnail
+    if (slide.backgroundMobile && slide.backgroundMobile !== 'false' && slide.backgroundMobile !== false) {
+      return `url(${slide.backgroundMobile})`;
+    } else if (slide.thumbnail && slide.thumbnail !== 'false' && slide.thumbnail !== false) {
+      return `url(${slide.thumbnail})`;
+    }
+  } else {
+    // Pour desktop, utiliser thumbnail
+    if (slide.thumbnail && slide.thumbnail !== 'false' && slide.thumbnail !== false) {
+      return `url(${slide.thumbnail})`;
+    }
+  }
+  
+  // Fallback par défaut si aucune image n'est disponible
+  return isMobile.value ? 'url(/images/bgmbile.webp)' : 'url(/images/bg12.webp)';
+};
+
 </script>
 
 <template>
@@ -374,7 +402,10 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
             width: '100%', 
             height: '100%', 
             display: 'flex', 
-            backgroundImage: isMobile.value ? (slide.backgroundMobile ? `url(${slide.backgroundMobile})` : 'none') : (slide.thumbnail ? `url(${slide.thumbnail})` : 'none')
+            backgroundImage: getBackgroundImage(slide),
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat'
           }">
           
           <!-- Contenu spécifique pour la slide 73 -->
@@ -400,9 +431,9 @@ const toggleCaseStudySection = (index) => { caseStudyActiveIndex.value = index; 
               <div class="row">
                 <h3 id="mshill" class="slide-21-title" v-html="slide.wp_content"></h3>
               </div>
-              <div class="row flex-row">
+              <div id="doctornek" class="row flex-row">
                 <div v-for="(paragraph, idx) in slide.paragraphs" :key="idx"
-                  class="text-element slide-21-point col m-0 p-2" :class="`point-21-${idx}`" v-html="paragraph">
+                  class="text-element slide-21-point col col-s-12 m-0 p-2" :class="`point-21-${idx}`" v-html="paragraph">
                 </div>
               </div>
             </div>
