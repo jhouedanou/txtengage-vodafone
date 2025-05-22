@@ -4080,7 +4080,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "b2650b5d-02d9-4c5b-b6d2-c94f6b072136",
+    "buildId": "498fd7eb-1a79-4108-907a-5ab70d6ac39c",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -4882,7 +4882,6 @@ const storage = createStorage({});
 storage.mount('/assets', assets);
 
 storage.mount('data', unstorage_47drivers_47fs_45lite({"driver":"fsLite","base":"/home/bigfiver/Documents/GitHub/txtengage-vodafone/.data/kv"}));
-storage.mount('data', unstorage_47drivers_47fs_45lite({"driver":"fsLite","base":"/home/bigfiver/Documents/GitHub/txtengage-vodafone/.data/kv"}));
 
 function useStorage(base = "") {
   return base ? prefixStorage(storage, base) : storage;
@@ -5434,7 +5433,6 @@ function publicAssetsURL(...path) {
 }
 
 const _0f1YMp = lazyEventHandler(() => {
-const _0f1YMp = lazyEventHandler(() => {
   const opts = useRuntimeConfig().ipx || {};
   const fsDir = opts?.fs?.dir ? (Array.isArray(opts.fs.dir) ? opts.fs.dir : [opts.fs.dir]).map((dir) => isAbsolute(dir) ? dir : fileURLToPath(new URL(dir, globalThis._importMeta_.url))) : void 0;
   const fsStorage = opts.fs?.dir ? ipxFSStorage({ ...opts.fs, dir: fsDir }) : void 0;
@@ -5453,12 +5451,8 @@ const _0f1YMp = lazyEventHandler(() => {
 });
 
 const _lazy_SnN7hE = () => import('../routes/renderer.mjs');
-const _lazy_SnN7hE = () => import('../routes/renderer.mjs');
 
 const handlers = [
-  { route: '/__nuxt_error', handler: _lazy_SnN7hE, lazy: true, middleware: false, method: undefined },
-  { route: '/_ipx/**', handler: _0f1YMp, lazy: false, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_SnN7hE, lazy: true, middleware: false, method: undefined }
   { route: '/__nuxt_error', handler: _lazy_SnN7hE, lazy: true, middleware: false, method: undefined },
   { route: '/_ipx/**', handler: _0f1YMp, lazy: false, middleware: false, method: undefined },
   { route: '/**', handler: _lazy_SnN7hE, lazy: true, middleware: false, method: undefined }

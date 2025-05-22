@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:.vercel/output/static/_nuxt/DU12aZ3N.js
-import{R as o,r as u,S as f,G as d,e as v,T as l,U as i,V as h,W as m}from"./Ce1AVxJn.js";function I(t,a={}){const e=a.head||o();if(e)return e.ssr?e.push(t,a):p(e,t,a)}function p(t,a,e={}){const s=u(!1),n=u({});f(()=>{n.value=s.value?{}:h(a)});const r=t.push(n.value,e);return d(n,c=>{r.patch(c)}),m()&&(v(()=>{r.dispose()}),l(()=>{s.value=!0}),i(()=>{s.value=!1})),r}export{I as u};
-========
-import{S as o,r as u,T as f,G as d,e as v,U as l,V as i,W as h,X as m}from"./C1BQFYe7.js";function I(t,a={}){const e=a.head||o();if(e)return e.ssr?e.push(t,a):p(e,t,a)}function p(t,a,e={}){const s=u(!1),n=u({});f(()=>{n.value=s.value?{}:h(a)});const r=t.push(n.value,e);return d(n,c=>{r.patch(c)}),m()&&(v(()=>{r.dispose()}),l(()=>{s.value=!0}),i(()=>{s.value=!1})),r}export{I as u};
->>>>>>>> 61b6969c50e8505e8fa0c4fdb2920f34b6187fcc:.vercel/output/static/_nuxt/BoJaoSMP.js
