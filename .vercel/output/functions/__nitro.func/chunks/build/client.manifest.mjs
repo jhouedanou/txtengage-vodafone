@@ -70,11 +70,11 @@ const client_manifest = {
       "node_modules/nuxt/dist/app/components/error-500.vue"
     ],
     "css": [
-      "entry.jhksRQb6.css"
+      "entry.e6LjhP8R.css"
     ]
   },
-  "entry.jhksRQb6.css": {
-    "file": "entry.jhksRQb6.css",
+  "entry.e6LjhP8R.css": {
+    "file": "entry.e6LjhP8R.css",
     "resourceType": "style",
     "prefetch": true,
     "preload": true

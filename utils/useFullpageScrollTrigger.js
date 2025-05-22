@@ -11,8 +11,8 @@ export function useFullpageScrollTrigger() {
   // ===========================================================================
   
   // Références et états globaux
-  const sections = ref([]);
-  const currentSectionIndex = ref(0);
+  const sections = ref([]); // Déjà défini ici
+  const currentSectionIndex = ref(0); // Déjà défini ici
   const isNavigating = ref(false);
   const hasScrolledOnce = ref(false);
   const animationStates = ref({});
@@ -39,6 +39,55 @@ export function useFullpageScrollTrigger() {
   let macScrollSlide73TimeoutId = null;
   let macScrollSlide128TimeoutId = null;
   let lastInteractionTime = 0; // Horodatage de la dernière interaction
+
+  // NOUVELLE FONCTION POUR GERER LES EVENEMENTS CLAVIER
+  const handleKeyDown = (e) => {
+    if (isNavigating.value) return;
+
+    const currentSectionElement = sections.value[currentSectionIndex.value];
+
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'PageDown':
+        e.preventDefault();
+
+        if (currentSectionElement?.id === 'slide-23') {
+          const didHandle = advancePerdrixSlide(currentSectionElement, true, 'down');
+          if (didHandle) {
+            console.debug('Touche bas - animation Perdrix déclenchée par clavier');
+            return;
+          }
+        }
+
+        if (currentSectionElement?.id === 'slide-20' && !animationStates.value['slide-20-text5Shown']) {
+          playSlide20Text5Animation(currentSectionElement);
+          return;
+        }
+
+        if (currentSectionIndex.value < sections.value.length - 1) {
+          goToSection(currentSectionIndex.value + 1, false);
+        }
+        break;
+
+      case 'ArrowUp':
+      case 'PageUp':
+        e.preventDefault();
+
+        if (currentSectionElement?.id === 'slide-23') {
+          const didHandle = advancePerdrixSlide(currentSectionElement, true, 'up');
+          if (didHandle) {
+            console.debug('Touche haut - animation Perdrix déclenchée par clavier');
+            return;
+          }
+        }
+
+        if (currentSectionIndex.value > 0) {
+          goToSection(currentSectionIndex.value - 1, false);
+        }
+        break;
+    }
+  };
+  // FIN DE LA NOUVELLE FONCTION POUR GERER LES EVENEMENTS CLAVIER
 
   // ===========================================================================
   // SECTION 3: MÉCANISMES GLOBAUX DE NAVIGATION
@@ -1571,118 +1620,124 @@ export function useFullpageScrollTrigger() {
 
     // Mise à jour également du gestionnaire clavier
     keyboardListener.value = (e) => {
-      handleFirstInteraction();
+      handleFirstInteraction(); // Appelée à chaque fois, mais handleFirstInteraction est idempotent
       if (isNavigating.value) return;
 
-      let newIndex = currentSectionIndex.value;
       const currentSectionElement = sections.value[currentSectionIndex.value];
 
-      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-        e.preventDefault();
-        
-        // Blocage pour slide-73
-        if (currentSectionElement && currentSectionElement.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
-          return;
-        }
-        
-        // Blocage pour slide-59 (vérifier si cette logique est toujours désirée pour le clavier)
-        // if (currentSectionElement && currentSectionElement.id === 'slide-59' && 
-        //     animationStates.value['slide-59'] !== 1 && 
-        //     newIndex > currentSectionIndex.value) { 
-        //   return;
-        // }
-        
-        // Blocage pour slide-20
-        if (currentSectionElement && currentSectionElement.id === 'slide-20') {
-          if (animationStates.value['slide-20-initialAnimPlayed'] && !animationStates.value['slide-20-text5Shown']) {
-            // Protection contre les scrolls multiples
-            if (isMac && event.type === 'wheel') {
-              clearTimeout(macScrollSlide20TimeoutId);
-              console.log(`Mac Trackpad (Slide-20): Début debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms...`);
-              macScrollSlide20TimeoutId = setTimeout(() => {
-                console.log(`Mac Trackpad (Slide-20): Fin debounce ${MAC_TRACKPAD_SCROLL_DEBOUNCE_MS}ms. Animation!`);
-                playSlide20Text5Animation(currentSectionElement);
-              }, MAC_TRACKPAD_SCROLL_DEBOUNCE_MS);
-            } else {
-              playSlide20Text5Animation(currentSectionElement);
-            }
-            return;
-          }
-        }
-        
-        // Piloter l'animation des perdrix-slides avec les touches du clavier
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
-          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined && 
-              animationStates.value['slide-23'] < perdrixSlides.length) {
-            // Avancer à la prochaine perdrix-slide avec protection contre les interactions multiples
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'PageDown':
+        case ' ': // Barre d'espace pour descendre
+          e.preventDefault();
+
+          // Gestion spécifique pour slide-23 (Perdrix) vers le bas
+          if (currentSectionElement?.id === 'slide-23') {
             if (window.advancePerdrixSlide) {
-              const now = Date.now();
-              const timeSinceLastInteraction = now - lastInteractionTime;
-              
-              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
-                console.log(`Clavier (Slide-23): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
+              // Optionnel: debounce pour 'down' pour éviter spam. Exemple :
+              // const now = Date.now(); 
+              // if (now - (window.lastPerdrixDownKeyTime || 0) < 300) { console.debug('Clavier (bas/espace) Slide-23: Debounce'); return; }
+              // window.lastPerdrixDownKeyTime = now;
+              const didHandle = window.advancePerdrixSlide(currentSectionElement, true, 'down');
+              if (didHandle) {
+                console.debug('Clavier (bas/espace) Slide-23: Perdrix a géré.');
                 return;
               }
-              
-              lastInteractionTime = now;
-              window.advancePerdrixSlide(currentSectionElement);
             }
-            return;
+            // Si advancePerdrixSlide n'a pas géré (ou n'existe pas), et qu'on est encore "dans" l'animation Perdrix,
+            // bloquer la navigation principale pour éviter de sauter par-dessus des étapes Perdrix.
+            const perdrixSlidesLength = currentSectionElement.querySelectorAll('.perdrix-slide').length;
+            if (animationStates.value['slide-23'] >= 0 && animationStates.value['slide-23'] < perdrixSlidesLength) {
+              console.debug('Clavier (bas/espace) Slide-23: Bloqué par état animation Perdrix (n\'a pas avancé et pas fini).');
+              return; 
+            }
           }
-        }
-        
-        // Piloter l'animation des case-study-items avec les touches du clavier
-        if (currentSectionElement && currentSectionElement.id === 'slide-128') {
-          const currentStep = animationStates.value['slide-128'];
-          // Vérifier si on est dans un état valide pour avancer
-          if (currentStep >= 0 && currentStep < 3) { // 3 est le nombre de case-study-items
-            // Avancer au prochain case-study-item avec protection contre les interactions multiples
-            if (window.advanceCaseStudyItem) {
-              const now = Date.now();
-              const timeSinceLastInteraction = now - lastInteractionTime;
-              
-              if (timeSinceLastInteraction < MAC_TRACKPAD_SCROLL_DEBOUNCE_MS) {
-                console.log(`Clavier (Slide-128): Ignoré - trop rapproché (${timeSinceLastInteraction}ms)`);
-                return;
+
+          // Gestion spécifique pour slide-128 (Case Study) vers le bas
+          if (currentSectionElement?.id === 'slide-128') {
+            const caseStudyItemsLength = currentSectionElement.querySelectorAll('.case-study-item').length;
+            // On avance seulement si on n'est pas au dernier item affiché
+            if (animationStates.value['slide-128'] < caseStudyItemsLength -1) { 
+              if (window.advanceCaseStudyItem) {
+                const didHandle = window.advanceCaseStudyItem(currentSectionElement);
+                if (didHandle) {
+                  console.debug('Clavier (bas/espace) Slide-128: Case study a géré.');
+                  return; 
+                }
               }
-              
-              lastInteractionTime = now;
-              window.advanceCaseStudyItem(currentSectionElement);
+               // Si advanceCaseStudyItem n'a pas géré et qu'on n'est pas au dernier, on bloque pour ne pas sauter.
+               console.debug('Clavier (bas/espace) Slide-128: Bloqué par état animation Case Study (n\'a pas avancé et pas fini).');
+              return;
             }
-            return;
+            // Si on est au dernier item (state === length -1), on ne rentre pas dans le if, et on continue vers goToSection.
           }
-        }
-        
-        newIndex++;
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-        
-        // Blocage pour slide-23
-        if (currentSectionElement && currentSectionElement.id === 'slide-23') {
-          const perdrixSlides = Array.from(currentSectionElement.querySelectorAll('.perdrix-slide'));
-          if (animationStates.value['slide-23'] !== undefined &&
-              animationStates.value['slide-23'] <= perdrixSlides.length) {
+          
+          // Gestion spécifique pour slide-20 (animation text-element-5)
+          if (currentSectionElement?.id === 'slide-20' && !animationStates.value['slide-20-text5Shown']) {
+            playSlide20Text5Animation(currentSectionElement);
+            console.debug('Clavier (bas/espace) Slide-20: Animation text5 jouée.');
             return; 
           }
-        }
-        
-        // Blocage pour slide-59 (vérifier si cette logique est toujours désirée pour le clavier)
-        // const slide23Index = sections.value.findIndex(s => s.id === 'slide-23');
-        // if (currentSectionIndex.value - 1 === slide23Index) {
-        //   const slide23Section = sections.value[slide23Index];
-        //   const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
-        //   if (animationStates.value['slide-23'] !== undefined && 
-        //       animationStates.value['slide-23'] <= perdrixSlides.length) {
-        //     return; 
-        //   }
-        // }
-        
-        newIndex--;
-      }
+          
+          // Blocage général pour slide-73 si l'animation n'est pas terminée
+          if (currentSectionElement?.id === 'slide-73' && animationStates.value['slide-73'] !== true) {
+            console.debug('Clavier (bas/espace) Slide-73: Bloqué par animation.');
+            return;
+          }
 
-      if (newIndex !== currentSectionIndex.value) {
-        goToSection(newIndex);
+          // Blocage général pour slide-59 si l'animation n'est pas terminée
+          if (currentSectionElement?.id === 'slide-59' && animationStates.value['slide-59'] !== 1 && index > currentSectionIndex.value) { // index n'est pas défini ici, on compare avec la direction implicite "bas"
+            console.debug('Clavier (bas/espace) Slide-59: Bloqué par animation.');
+            return;
+          }
+
+          // Navigation par défaut vers la section suivante
+          if (currentSectionIndex.value < sections.value.length - 1) {
+            console.debug('Clavier (bas/espace): goToSection suivante.');
+            goToSection(currentSectionIndex.value + 1);
+          }
+          break;
+
+        case 'ArrowUp':
+        case 'PageUp':
+          e.preventDefault();
+
+          // Gestion spécifique pour slide-23 (Perdrix) vers le haut
+          if (currentSectionElement?.id === 'slide-23') {
+            if (window.advancePerdrixSlide) {
+              // Pas de debounce pour 'up' pour l'instant pour une meilleure réactivité.
+              const didHandle = window.advancePerdrixSlide(currentSectionElement, true, 'up');
+              if (didHandle) {
+                console.debug('Clavier (haut) Slide-23: Perdrix a géré (recul).');
+                return; 
+              }
+              // Si didHandle est false, advancePerdrixSlide n'a pas reculé.
+              // On laisse l'exécution continuer pour permettre goToSection vers la slide précédente.
+              console.debug('Clavier (haut) Slide-23: Perdrix n\'a pas géré le recul, tentative de goToSection précédent.');
+            } else {
+              console.warn('Clavier (haut) Slide-23: advancePerdrixSlide non disponible.');
+            }
+          }
+
+          // Pour slide-128, ArrowUp doit toujours mener à la section précédente.
+          // Pas de logique de recul dans les case studies avec ArrowUp pour l'instant.
+
+          // Navigation par défaut vers la section précédente
+          if (currentSectionIndex.value > 0) {
+            console.debug('Clavier (haut): goToSection précédente.');
+            goToSection(currentSectionIndex.value - 1);
+          }
+          break;
+
+        // Vous pouvez ajouter d'autres cas pour 'Home', 'End', etc., si nécessaire.
+        // case 'Home':
+        //   e.preventDefault();
+        //   goToSection(0); // false pour la durée pour être cohérent ?
+        //   break;
+        // case 'End':
+        //   e.preventDefault();
+        //   goToSection(sections.value.length - 1);
+        //   break;
       }
     };
     window.addEventListener('keydown', keyboardListener.value);
@@ -1711,7 +1766,7 @@ export function useFullpageScrollTrigger() {
       registerSlide128Animation(options.slide128 || {});
       
       // Configuration des interactions et positionnement initial
-      setupFullpageObserver();
+      setupFullpageObserver(); // keyboardListener est défini ici
       goToSection(0, 0);
     }
   };
@@ -1766,29 +1821,7 @@ export function useFullpageScrollTrigger() {
     registerSlide73Animation,
     registerSlide128Animation
   };
-}
+} // <--- FIN DE useFullpageScrollTrigger
 
-// Dans le gestionnaire keydown
-document.addEventListener('keydown', (e) => {
-  switch (e.key) {
-    case 'ArrowDown':
-    case 'PageDown':
-      e.preventDefault();
-      const currentSectionElement = sections.value[currentSectionIndex.value];
-      if (currentSectionElement?.id === 'slide-23') {
-        const didHandle = advancePerdrixSlide(currentSectionElement, true, 'down');
-        if (didHandle) {
-          console.debug('Touche bas - animation déclenchée');
-          return;
-        }
-      }
-      // ... reste du code ...
-
-    case 'ArrowUp':
-    case 'PageUp':
-      // ... gestion de la flèche haut ...
-      break;
-    default:
-      break;
-  }
-});
+// SUPPRIMEZ L'ANCIEN GESTIONNAIRE D'ÉVÉNEMENTS QUI ÉTAIT ICI
+// document.addEventListener('keydown', (e) => { ... });

@@ -1360,9 +1360,9 @@ body {
     #slide-73 {
 
         .subint {
-            min-width: 100vw !important;
-            width: 100vw !important;
-            width: 100vw !important;
+           // min-width: 100vw !important;
+            max-width:100% !important;
+            width: 100% !important;
             justify-content: flex-end;
             display: flex;
             align-items: center;
@@ -1375,23 +1375,34 @@ body {
         }
 
         .points-fort {
-            width: 100%;
+            width: 100vw;
+            max-width:100vw !important;
             padding: 0rem;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-
+            max-height: 630px;
             .text-element {
-                margin: 0 auto;
+                margin: 0 auto 2em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+        
+                text-align:center !important;
             }
 
             h3 {
-                font-size: 2em;
+                font-size: 28px;
+                line-height:35px;
+                text-align: center; 
             }
 
             p {
-                font-size: 1.6em;
+                font-size: 23px;
+                line-height: 35px;
+                text-align: center; /* Added space before the comment */
             }
         }
     }
@@ -1488,6 +1499,33 @@ body {
     }
 
     #slide-20 {
+        #kiff, #ozaru {
+            width: 100%;}
+        #text-element-5{
+            width:100% !important;
+            h5{
+                font-size: 28px !important;
+            }
+            p{
+                font-size: 23px !important;
+                line-height: 33.1px !important;
+                text-transform: none !important;
+            }
+        }
+        #turtlebeach{
+            position: absolute !important;
+            top: 23px !important;
+            margin: auto !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            /* background-color: red !important; */
+            max-width: 378px !important;
+            max-height: 81vh !important;
+            height: 100vh !important;
+            background-size: contain !important;
+        }
         #mzu {
             height: auto;
             max-width: 100% !important;
@@ -1497,6 +1535,20 @@ body {
             left: 0;
             right: 0;
             margin: auto;
+            h2{
+                font-family: Vodafone;
+                font-size: 58px;
+                font-weight: bold;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: normal;
+                letter-spacing: normal;
+                text-align: center;
+                color: #fff;
+        justify-content: center;
+        align-items: center;
+
+            }
         }
 
         #usruu {
@@ -1547,36 +1599,54 @@ body {
 
         .gee {
             .text-element {
-
+                flex-grow:0;
+                line-height: 0 !important;
+                p{
+                    margin-top: 0em !important;
+                }
+                *{
+                    line-height:1;
+                }
                 &:nth-of-type(1) {
 
-                    left: 0 !important;
-                    top: 67vh !important;
+                    left: 4% !important;
+    top: 58% !important;
                 }
 
                 &:nth-of-type(2) {
 
-                    left: 0vw !important;
-                    top: 29vh !important;
+                    left: 5% !important;
+                    top: 36% !important;
                 }
 
                 &:nth-of-type(3) {
-
-                    left: 42vw !important;
-                    top: 42vh !important;
+                    left: 50% !important;
+                    bottom: 5% !important;
                 }
 
                 &:nth-of-type(4) {
-
-                    left: 57vw !important;
-                    top: 70vh !important;
+                    left: 67% !important;
+                    top: 49% !important;
 
                 }
+                &:nth-of-type(5) {
 
+                    width: 85px !important;
+                    height: 84px !important;
+                    left: 4% !important;
+                    bottom: 5% !important;
+                    h3{
+                        font-family: Vodafone;
+                        font-size: 44px;
+                    }
+                    p{
+                        font-size: 13px;
+                    }
+                }
                 &:nth-of-type(1),
                 &:nth-of-type(4) {
-                    width: 120px !important;
-                    height: 120px !important;
+                    width: 105px !important;
+                    height: 105px !important;
 
                     h3 {
                         font-size: 40px;
@@ -1589,25 +1659,80 @@ body {
 
                 &:nth-of-type(2),
                 &:nth-of-type(3) {
-                    width: 152px !important;
-                    height: 152px !important;
+                    width: 147px !important;
+                    height: 147px !important;
 
                     h3 {
-                        font-size: 60px;
+                        font-size: 59px;
                     }
 
                     p {
-                        font-size: 30px;
+                        font-size: 20px;
                     }
                 }
             }
         }
     }
-
+    #doctornek{
+        position: absolute;
+        background:url('images/bottom1z2.webp');
+        display: flex !important;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        align-items: center;
+        flex-direction: column !important;
+        justify-content: center !important;
+        flex-grow: 0;
+        flex-basis: auto;
+        gap: 0;
+        background-size:cover;
+        background-repeat:none;
+        box-sizing:border-box;
+        padding: 0 !important;
+        .text-element{
+            box-sizing: border-box;
+            padding:0 !important;
+            margin: 0; // Réinitialise les marges pour tous les enfants directs
+            line-height: 0 !important;
+            margin:2em  0 !important;
+            height:auto;
+            flex-grow: 0;
+        }
+    }
+    .points-fort {p{
+        br{
+            display:none !important;
+        }
+    }}
+    #slide-22{
+        .cont{
+height:auto !important;
+        }
+        #thoiathoing{
+            background:none !important;
+        }
+        #thoiathoing2{    
+            flex-grow: 1 !important;
+            padding-top: 1em !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto;
+            padding:1em !important;
+            width: 100% !important;
+        }
+        h3{
+            font-family: Vodafone;
+            font-size: 28px !important;
+            font-weight: bold !important;
+            line-height: 1.44 !important;
+        }
+    }
     #slide-21,
     #slide-22 {
         #mshill {
-            font-size: 3em;
+            font-size:56px !important;
         }
 
         .text-element {
@@ -1620,8 +1745,40 @@ body {
             }
         }
     }
+    #decodemerde {
 
+        width:100% !important;
+        max-width:100% !important;
+    }
     #bygone-bip {
+        .col-md-6{
+            margin: 0;
+            padding: 0;
+            flex-grow: 0;
+            flex-basis: auto;
+            gap: 0;
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            flex-direction: column;
+        }
+width:100% !important;
+        max-width:100% !important;
+        .row{
+
+            margin:0;
+            padding:0;
+            width:100% !important;
+            max-width:100% !important;
+            *{
+            }
+        }
+        .container{
+
+            width:100% !important;
+            max-width:100% !important;
+        }
+        
         .accordion-item {
             h3 {
                 font-size: 36px;
@@ -1630,6 +1787,15 @@ body {
             p {
                 font-size: 24px;
             }
+        }
+        .perdrix-slide{
+           
+    justify-content: center;
+    display: flex;
+    align-items: flex-end;
+        max-width: 100% !important;
+        margin: 0 auto;
+        padding: 0 1em;
         }
     }
 
@@ -1650,6 +1816,111 @@ body {
             font-size: 20px;
         }
     }
+    div#vodacomwrapper {
+        //max-width: 414px;
+        margin: 0 auto;
+        padding: 0em;
+    }
+    #teste::before {
+        background: url(../images/Subtract.png);
+        z-index: 100;
+        background-position: center bottom !important;
+        background-repeat: no-repeat;
+        /* background-color: red; */
+        bottom: 0;
+        content: "";
+        left: 0;
+        margin: auto;
+        right: 0;
+        height: 100%;
+        height: 445px;
+        background-size: 337px !important;
+        position: absolute;
+        width: 345px;
+    }
+
+    .split-container{
+        align-content: space-evenly;
+        max-height:660px;
+    }
+    .text-container{
+        height: 213px;
+        margin: 0;
+        padding: 0;
+        li{
+            font-size: 13px !important;
+        }
+    }
+    .image-container {
+        min-height:372px;
+        position:relative;
+        img {
+            margin: auto !important;
+            height: 329px !important;
+            position: absolute;
+            left: 0;
+            right: 56px;
+            top: 7px;
+        }
+    }
+    .case-study-container.container{
+        .row{
+        .col-md-5{
+            order:1;
+            img{
+                width:180px;
+                height: auto;  
+            }
+        }
+        .col-md-7{
+            order:2;
+           
+        }}
+    }
+
+    .hightower{
+        font-weight:bold;
+        text-align:center;
+        font-size:56px;
+        color:#FF0000;
+    }
+    #casestudy{
+        h3{
+            font-family: Vodafone;
+            font-size: 28px !important;
+            font-weight: bold !important;
+            line-height: 1.44 !important;
+            margin-bottom: 0em !important;
+            padding-bottom: 0em !important;
+        }
+        p{
+            font-family: Vodafone;
+            font-size: 20px !important;
+            font-weight: normal !important;
+            font-stretch: normal !important;
+            font-style: normal !important;
+            line-height: 1 !important;
+            letter-spacing: normal !important;
+            text-align:left!important;
+            br{
+                display:none;
+            }
+        }
+    }
+    #slide-59 #gorr {
+        position: relative;
+        #llass,#lele{
+    
+        width: 290px !important;
+        height: 276px !important;
+    }}
+    #killerjunior img{
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+    }
+   
 }
 
 
@@ -1742,7 +2013,9 @@ body {
             font-size: 22px !important;
         }
     }
-
+    #lemof{
+        margin:0 auto;
+    }
     #killerjunior {
         h2 {
             font-size: 56px !important;
@@ -1762,7 +2035,7 @@ body {
             font-style: normal;
             line-height: 1.2;
             letter-spacing: normal;
-            text-align: center;
+            text-align: center !important;
             color: #f00;
         }
 
@@ -1781,9 +2054,8 @@ body {
     }
 
     #headerpadding img {
-        min-height: 25px !important;
-
-        height: 25px !important
+        min-height: 52px !important;
+        height: 52px !important
     }
 
     .ditocard {
@@ -1822,6 +2094,31 @@ body {
     #slide-22 .cont {
         justify-content: center;
     }
+    #case-study-content-3{
+        div{line-height:0;
+        display:flex}
+        ul{
+        flex-direction: column;
+    }}
+    #slide-128 .case-study-item {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #case-study-content-3 ul li {
+        font-size: 14px !important;
+        margin:2px 0 !important;
+        strong{
+        width: 68px !important;
+        height: 68px !important;
+        font-size: 27px !important;
+        span{
+            font-size: 13px !important;
+        }
+    }
+}
+br{
+    display:none !important;
+}
 }
 
 .error-container {
@@ -2600,4 +2897,9 @@ html, body {
     transition: top 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
   }
+}
+#thoiathoing2{
+    br{
+        display:none !important;
+    }
 }
