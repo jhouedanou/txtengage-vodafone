@@ -2590,10 +2590,32 @@ body {
     will-change: opacity;
   }
   
-  .case-study {
+  .case-study-content {
     opacity: 0;
     visibility: hidden;
-    will-change: transform, opacity;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+    
+    &:first-child {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+  
+  .case-study-item {
+    will-change: auto;
+    transition: none; // Laisser GSAP gérer les transitions
+    
+    &:first-child {
+      // Sera géré par JavaScript avec la classe active
+    }
+    
+    &.active {
+      // Styles pour l'élément actif - laissé vide volontairement
+      // L'utilisateur s'occupera du CSS
+    }
   }
 }
 
