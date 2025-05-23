@@ -1,14 +1,14 @@
 <script setup>
-import { onMounted, ref, computed, nextTick, onBeforeUnmount } from 'vue';
+import { onMounted, ref, computed, nextTick, onBeforeUnmount, reactive, watch } from 'vue';
 import { useSlidesStore } from '~/stores/slides';
 import { useRuntimeConfig } from '#app';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import { useFullpageScrollTrigger } from '~/utils/useFullpageScrollTrigger'; // Importez le composable
+import { useResponsiveAnimations } from '~/utils/useResponsiveAnimations'; // Nouveau système responsif
 // Lenis n'a pas pu être intégré correctement, nous utilisons une approche native
 
-// Initialisation du système de fullpage personnalisé
+// Initialisation du système de fullpage personnalisé avec détection automatique mobile/desktop
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -19,12 +19,18 @@ const slidesStore = useSlidesStore();
 const loading = computed(() => slidesStore.loading);
 const sortedSlides = computed(() => slidesStore.sortedSlides);
 
-// Utilisez le composable
+// Nouveau système responsif qui commute automatiquement entre desktop et mobile
 const { 
-  currentSectionIndex: activeSlideIndex, // Alias pour correspondre à votre usage existant
-  init: initFullpageScroll, 
-  goToSection: goToSlideViaComposable // Alias pour éviter conflit si vous avez un goToSlide local
-} = useFullpageScrollTrigger();
+  isMobile: isResponsiveMobile,
+  isInitialized: animationsInitialized,
+  currentAnimationSystem,
+  initResponsiveAnimations,
+  goToSection: goToResponsiveSection,
+  getCurrentSectionIndex
+} = useResponsiveAnimations();
+
+// Utiliser l'index de section depuis le système responsif
+const activeSlideIndex = computed(() => getCurrentSectionIndex());
 
 const activeSlideId = computed(() => {
   if (sortedSlides.value.length > 0 && activeSlideIndex.value < sortedSlides.value.length) {
@@ -266,7 +272,7 @@ onMounted(async () => {
   };
   
   if (sectionsArray.length > 0) {
-    initFullpageScroll(sectionsArray, fullpageOptions);
+    initResponsiveAnimations(sectionsArray, fullpageOptions);
   } else {
     console.warn("No sections found for fullpage scroll initialization.");
   }
@@ -295,7 +301,7 @@ const isMenuOpen = ref(false);
 const toggleMenu = () => { isMenuOpen.value = !isMenuOpen.value; };
 
 const goToSlide = (index) => {
-  goToSlideViaComposable(index); // Appel de la fonction du composable
+  goToResponsiveSection(index); // Utiliser le nouveau système responsif
   isMenuOpen.value = false;
 };
 
