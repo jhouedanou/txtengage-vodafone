@@ -1201,24 +1201,19 @@ const resetSlide73Animation = () => {
       gsap.set(killerwuDiv, { autoAlpha: 0 });
     }
     
-    // Initialiser tous les case-study-content - masqués sauf le premier
-    if (caseStudyContents.length > 0) {
-      caseStudyContents.forEach((content, index) => {
-        if (index === 0) {
-          // Premier content : visible
-          gsap.set(content, { autoAlpha: 1, y: 0 });
-          // Ajouter classe active au parent case-study-item
-          const parentItem = content.closest('.case-study-item');
-          if (parentItem) {
-            parentItem.classList.add('active');
-          }
-        } else {
-          // Autres contents : masqués et positionnés
-          gsap.set(content, { autoAlpha: 0, y: '50px' });
-          // Retirer classe active du parent
-          const parentItem = content.closest('.case-study-item');
-          if (parentItem) {
-            parentItem.classList.remove('active');
+    // Initialiser tous les case-study-item et leurs case-study-content - masqués sauf le premier
+    if (caseStudyItems.length > 0) {
+      caseStudyItems.forEach((item, index) => {
+        const content = item.querySelector('.case-study-content');
+        if (content) {
+          if (index === 0) {
+            // Premier item : visible avec classe active
+            gsap.set(content, { autoAlpha: 1, y: 0 });
+            item.classList.add('active');
+          } else {
+            // Autres items : masqués et positionnés
+            gsap.set(content, { autoAlpha: 0, y: '50px' });
+            item.classList.remove('active');
           }
         }
       });
@@ -1250,7 +1245,8 @@ const resetSlide73Animation = () => {
     
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
     const killerwuDiv = slide128Section?.querySelector('#killerwu');
-    const firstCaseStudyContent = slide128Section?.querySelector('.case-study-content:first-child');
+    const firstCaseStudyItem = slide128Section?.querySelector('.case-study-item:first-child');
+    const firstCaseStudyContent = firstCaseStudyItem?.querySelector('.case-study-content');
     
     console.log('Démarrage animation slide-128 avec cycle des case-study-content');
     
@@ -1262,12 +1258,9 @@ const resetSlide73Animation = () => {
         ease: "power2.out",
         onComplete: () => {
           // S'assurer que le premier case-study-content est visible
-          if (firstCaseStudyContent) {
+          if (firstCaseStudyContent && firstCaseStudyItem) {
             gsap.set(firstCaseStudyContent, { autoAlpha: 1, y: 0 });
-            const parentItem = firstCaseStudyContent.closest('.case-study-item');
-            if (parentItem) {
-              parentItem.classList.add('active');
-            }
+            firstCaseStudyItem.classList.add('active');
           }
           
           animationStates.value['slide-128-initialized'] = true;
@@ -1288,9 +1281,9 @@ const resetSlide73Animation = () => {
 
   const initializeSlide128ScrollLimits = () => {
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
-    const caseStudyContents = slide128Section?.querySelectorAll('.case-study-content');
-    maxSlide128Scroll = caseStudyContents ? caseStudyContents.length - 1 : 0;
-    console.log(`Slide-128 scroll limites: max = ${maxSlide128Scroll}`);
+    const caseStudyItems = slide128Section?.querySelectorAll('.case-study-item');
+    maxSlide128Scroll = caseStudyItems ? caseStudyItems.length - 1 : 0;
+    console.log(`Slide-128 scroll limites: max = ${maxSlide128Scroll} (${caseStudyItems ? caseStudyItems.length : 0} items)`);
   };
 
   const scrollSlide128Forward = () => {
@@ -1312,48 +1305,53 @@ const resetSlide73Animation = () => {
     isNavigating.value = true;
     
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
-    const currentContent = slide128Section?.querySelector(`.case-study-content:nth-child(${slide128ScrollIndex + 1})`);
-    const nextContent = slide128Section?.querySelector(`.case-study-content:nth-child(${slide128ScrollIndex + 2})`);
+    const allItems = slide128Section?.querySelectorAll('.case-study-item');
     
     console.log(`Défilement case-study avant: ${slide128ScrollIndex} -> ${slide128ScrollIndex + 1}`);
+    console.log(`Total items trouvés: ${allItems?.length}`);
     
-    if (currentContent && nextContent) {
-      const currentParent = currentContent.closest('.case-study-item');
-      const nextParent = nextContent.closest('.case-study-item');
+    if (allItems && allItems.length > slide128ScrollIndex + 1) {
+      const currentItem = allItems[slide128ScrollIndex];
+      const nextItem = allItems[slide128ScrollIndex + 1];
+      const currentContent = currentItem?.querySelector('.case-study-content');
+      const nextContent = nextItem?.querySelector('.case-study-content');
       
-      const tl = gsap.timeline({
-        onComplete: () => {
-          slide128ScrollIndex++;
-          animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
-          isScrollingSlide128 = false;
-          isNavigating.value = false;
-          console.log(`Défilement case-study terminé - nouvel index: ${slide128ScrollIndex}`);
-        }
-      });
+      console.log('Current item:', currentItem);
+      console.log('Next item:', nextItem);
+      console.log('Current content:', currentContent);
+      console.log('Next content:', nextContent);
       
-      // Préparer le content suivant
-      gsap.set(nextContent, { autoAlpha: 0, y: '50px' });
-      
-      // Animation simultanée des case-study-content
-      tl.to(currentContent, {
-        autoAlpha: 0,
-        y: '-50px',
-        duration: 0.4,
-        ease: 'power3.easeInOut'
-      }, 0)
-      .to(nextContent, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.4,
-        ease: 'power3.easeInOut'
-      }, 0);
-      
-      // Gérer les classes active
-      if (currentParent) {
-        currentParent.classList.remove('active');
-      }
-      if (nextParent) {
-        nextParent.classList.add('active');
+      if (currentContent && nextContent) {
+        const tl = gsap.timeline({
+          onComplete: () => {
+            slide128ScrollIndex++;
+            animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
+            isScrollingSlide128 = false;
+            isNavigating.value = false;
+            console.log(`Défilement case-study terminé - nouvel index: ${slide128ScrollIndex}`);
+          }
+        });
+        
+        // Préparer le content suivant
+        gsap.set(nextContent, { autoAlpha: 0, y: '50px' });
+        
+        // Animation simultanée des case-study-content
+        tl.to(currentContent, {
+          autoAlpha: 0,
+          y: '-50px',
+          duration: 0.4,
+          ease: 'power3.easeInOut'
+        }, 0)
+        .to(nextContent, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power3.easeInOut'
+        }, 0);
+        
+        // Gérer les classes active sur les case-study-item
+        currentItem.classList.remove('active');
+        nextItem.classList.add('active');
       }
     }
 
@@ -1367,48 +1365,47 @@ const resetSlide73Animation = () => {
     isNavigating.value = true;
     
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
-    const currentContent = slide128Section?.querySelector(`.case-study-content:nth-child(${slide128ScrollIndex + 1})`);
-    const prevContent = slide128Section?.querySelector(`.case-study-content:nth-child(${slide128ScrollIndex})`);
+    const allItems = slide128Section?.querySelectorAll('.case-study-item');
     
     console.log(`Défilement case-study arrière: ${slide128ScrollIndex} -> ${slide128ScrollIndex - 1}`);
     
-    if (currentContent && prevContent) {
-      const currentParent = currentContent.closest('.case-study-item');
-      const prevParent = prevContent.closest('.case-study-item');
+    if (allItems && allItems.length > 0) {
+      const currentItem = allItems[slide128ScrollIndex];
+      const prevItem = allItems[slide128ScrollIndex - 1];
+      const currentContent = currentItem?.querySelector('.case-study-content');
+      const prevContent = prevItem?.querySelector('.case-study-content');
       
-      const tl = gsap.timeline({
-        onComplete: () => {
-          slide128ScrollIndex--;
-          animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
-          isScrollingSlide128 = false;
-          isNavigating.value = false;
-          console.log(`Défilement case-study arrière terminé - nouvel index: ${slide128ScrollIndex}`);
-        }
-      });
-      
-      // Préparer le content précédent
-      gsap.set(prevContent, { autoAlpha: 0, y: '-50px' });
-      
-      // Animation simultanée des case-study-content
-      tl.to(currentContent, {
-        autoAlpha: 0,
-        y: '50px',
-        duration: 0.4,
-        ease: 'power3.easeInOut'
-      }, 0)
-      .to(prevContent, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.4,
-        ease: 'power3.easeInOut'
-      }, 0);
-      
-      // Gérer les classes active
-      if (currentParent) {
-        currentParent.classList.remove('active');
-      }
-      if (prevParent) {
-        prevParent.classList.add('active');
+      if (currentContent && prevContent) {
+        const tl = gsap.timeline({
+          onComplete: () => {
+            slide128ScrollIndex--;
+            animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
+            isScrollingSlide128 = false;
+            isNavigating.value = false;
+            console.log(`Défilement case-study arrière terminé - nouvel index: ${slide128ScrollIndex}`);
+          }
+        });
+        
+        // Préparer le content précédent
+        gsap.set(prevContent, { autoAlpha: 0, y: '-50px' });
+        
+        // Animation simultanée des case-study-content
+        tl.to(currentContent, {
+          autoAlpha: 0,
+          y: '50px',
+          duration: 0.4,
+          ease: 'power3.easeInOut'
+        }, 0)
+        .to(prevContent, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power3.easeInOut'
+        }, 0);
+        
+        // Gérer les classes active sur les case-study-item
+        currentItem.classList.remove('active');
+        prevItem.classList.add('active');
       }
     }
   };
@@ -1416,7 +1413,6 @@ const resetSlide73Animation = () => {
   const resetSlide128Animation = () => {
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
     const killerwuDiv = slide128Section?.querySelector('#killerwu');
-    const caseStudyContents = slide128Section?.querySelectorAll('.case-study-content');
     const caseStudyItems = slide128Section?.querySelectorAll('.case-study-item');
     
     console.log('Reset slide-128 animation');
@@ -1425,25 +1421,19 @@ const resetSlide73Animation = () => {
       gsap.set(killerwuDiv, { autoAlpha: 0 });
     }
     
-    if (caseStudyContents) {
-      caseStudyContents.forEach((content, index) => {
-        if (index === 0) {
-          // Premier content : prêt pour réinitialisation
-          gsap.set(content, { autoAlpha: 1, y: 0 });
-        } else {
-          // Autres contents : masqués
-          gsap.set(content, { autoAlpha: 0, y: '50px' });
-        }
-      });
-    }
-    
-    // Reset des classes active
     if (caseStudyItems) {
       caseStudyItems.forEach((item, index) => {
-        if (index === 0) {
-          item.classList.add('active');
-        } else {
-          item.classList.remove('active');
+        const content = item.querySelector('.case-study-content');
+        if (content) {
+          if (index === 0) {
+            // Premier item : prêt pour réinitialisation
+            gsap.set(content, { autoAlpha: 1, y: 0 });
+            item.classList.add('active');
+          } else {
+            // Autres items : masqués
+            gsap.set(content, { autoAlpha: 0, y: '50px' });
+            item.classList.remove('active');
+          }
         }
       });
     }

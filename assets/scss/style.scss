@@ -2434,6 +2434,38 @@ br{
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    .case-study-item{
+        &.active{
+            h3{
+                color: #f00;
+                opacity: 1;
+
+            }
+        }
+    }
+    .aya{
+        font-family: Vodafone;
+        font-size: 102px;
+        font-weight: bold;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: normal;
+        text-align: left;
+        color: #f00;
+    }
+    .case-study-header{
+        opacity: 0.27;
+        font-family: Vodafone;
+        font-size: 48px;
+        font-weight: bold;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 0.83;
+        letter-spacing: normal;
+        text-align: left;
+        color: #231f20;
+    }
 }
 
 .case-study-container {
