@@ -531,12 +531,6 @@ body {
 
                 p {
                     font-size: 20px;
-                    font-weight: normal;
-                    font-stretch: normal;
-                    font-style: normal;
-                    line-height: normal;
-                    letter-spacing: normal;
-                    text-align: center;
                     color: #fff;
 
                 }
@@ -1354,6 +1348,7 @@ body {
             justify-content: flex-end;
             display: flex;
             align-items: center;
+            height:100dvh;
         }
     }
 
@@ -1719,7 +1714,7 @@ height:auto !important;
             margin: 0 !important;
             padding: 0 !important;
             height: auto;
-            padding:1em !important;
+            padding: 1em !important;
             width: 100% !important;
         }
         h3{
@@ -2269,9 +2264,6 @@ br{
     color: #fff;
     padding: 0; // Removed padding to use full width
     box-sizing: border-box;
-    height: 100%;
-    width: 100vw; // Full viewport width
- position: absolute !important;
  &:nth-of-type(1){
     opacity: 1;
  }
@@ -2382,7 +2374,7 @@ br{
             max-width: 240px;
 
             list-style: none;
-            background: url(images/3968142_200_1_b86905.webp) 10px center no-repeat white;
+            background: url(images/check.jpg) 10px center no-repeat white;
             background-size: 14px 14px;
             height: 28px;
             font-family: Vodafone;
@@ -2465,7 +2457,12 @@ br{
 
 
 //style pour les écrans inférieurs à 1024px
-@media screen and (max-width: 1024px) {}
+@media screen and (max-width: 1024px) {
+    .slide-section{
+        height:100% !important;
+        overflow: hidden;
+    }
+}
 
 html,
 body {
@@ -2500,281 +2497,528 @@ body {
     /* display: flex; align-items: center; justify-content: center; etc. */
 }
 
-// Styles spécifiques pour la slide 73
+// États initiaux pour les animations desktop
 #slide-73 {
-    background-color: #f5f5f5;
-
-    .points-fort {
-        max-width: 50vw;
-        margin: 0 auto;
-        padding: 2rem;
-
-        .point {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            // Initialement masqué et sera animé via GSAP
-        }
-
-        .description {
-            font-size: 1rem;
-            margin-top: 2rem;
-            // Initialement masqué et sera animé via GSAP
-        }
+  .slides-container {
+    opacity: 1;
+    visibility: inherit;
+    height: 100vh;
+    width: 100vw; // Reste toujours à 100vw
+    will-change: background-position, background-size;
+  }
+  
+  .points-fort {
+    opacity: 1;
+    visibility: inherit;
+    height: 100vh;
+    width: 0vw; // Démarre à 0vw
+    transform: translateX(100vw); // Commence hors du champ à droite
+    will-change: width, transform;
+    
+    li {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(30px);
+      will-change: opacity, transform;
     }
-
-    .scribing-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        pointer-events: none;
-    }
-
-    // Configuration pour l'animation de stroke du scribing
-    .scribing-element {
-        stroke-dasharray: 1000;
-        stroke-dashoffset: 1000;
-    }
+  }
 }
 
-.slides-container {
-    background-size: cover;
-    background-repeat: no-repeat;
-}
-
-.clientrequest {
-    //background:red;
-    margin: 3em 0;
-    width: 100%;
-    max-width: 355px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    h3 {
-        margin: 1em 0;
-        font-family: Vodafone;
-        font-size: 28px;
-        font-weight: bold;
-        line-height: 1.44 !important;
-    }
-
-    p {
-        margin: 1em 0;
-        font-family: Raleway;
-        font-size: 23px;
-        font-weight: normal;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 1.44 !important;
-        letter-spacing: normal;
-        text-align: center;
-        color: #fff;
-    }
-}
-
-#dec {
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    align-content: flex-start;
-    align-items: flex-start;
-}
-
-#bawse {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin: 0 auto;
-}
-
-#casestudy {
-    width: 100%;
-
-    .case-study-content {
-        text-align: left;
-        width: 100%;
-    }
-
-    .text-element {
-        display: flex;
-        align-items: left;
-        justify-content: left;
-        flex-direction: column;
-        margin: 0 auto;
-
-        p {
-            text-align: left;
-            width: 100%;
-
-        }
-    }
-
-    h3 {
-        opacity: 0.27;
-
-        font-family: Vodafone;
-        font-size: 48px;
-        font-weight: bold;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 0.83;
-        letter-spacing: normal;
-        text-align: left;
-        color: #231f20;
-        width: 100%;
-
-        &.active {
-            color: #f00;
-
-        }
-    }
-
-    h2 {
-        text-align: left;
-        box-sizing: border-box;
-        white-space: pre-line;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        font-family: Vodafone;
-        font-weight: bold;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 1;
-        letter-spacing: normal;
-        text-align: left;
-        color: #ff0000;
-        font-size: 7em;
-        margin-bottom: 20px !important;
-        width: 100%;
-    }
-}
-
-.case-study-content {
-    width: 100%;
+#slide-21 {
+  #thoiathoing {
     opacity: 0;
     visibility: hidden;
-    display: none;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
+}
+
+#slide-20 {
+  #turtlebeach {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+  }
+  
+  .text-element {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100px);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+  }
+}
+
+#slide-22 {
+  .text-element, .content {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
+}
+
+#slide-23 {
+  .perdrix-slide-1 {
+    opacity: 0;
+    visibility: hidden;
+    will-change: opacity;
+  }
+  
+  .perdix {
+    will-change: transform;
+  }
+}
+
+#slide-59 {
+  #lass {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
 }
 
 #slide-128 {
-    background-color: #d9d9d9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    /* Ajouter ces styles */
-    #killerwu {
-        width: 100vw;
-        opacity: 0;
-        /* Initialement invisible pour l'animation */
-        visibility: hidden;
-    }
-
-    .case-study-item {
-        cursor: pointer;
-        transition: color 0.4s ease;
-        margin-bottom: 1.5rem;
-    }
-
-    .case-study-content {
-        opacity: 0;
-        visibility: hidden;
-        display: none;
-        transition: opacity 0.6s ease, visibility 0.6s ease;
-
-        p {
-            font-family: Raleway;
-            font-size: 23px;
-            margin-bottom: 0em;
-        }
-    }
+  #killerwu {
+    opacity: 0;
+    visibility: hidden;
+    will-change: opacity;
+  }
+  
+  .case-study {
+    opacity: 0;
+    visibility: hidden;
+    will-change: transform, opacity;
+  }
 }
 
-.case-study-header {
-    transition: transform 0.3s ease, font-weight 0.3s ease;
-
-    &.active {
-        opacity: 1 !important;
-    }
+.subint{
+ //degradé noir 0 transparent à 100% noir 76% 
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.76) 100%);
 
 }
 
-#case-study-content-3 {
+// Menu latéral depuis la droite
+.sidebar-menu {
+  position: fixed;
+  top: 0;
+  right: -300px; // Commence hors du champ à droite
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+  z-index: 9999;
+  transition: right 0.3s ease-in-out;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  
+  &.active {
+    right: 0; // Glisse vers la gauche pour apparaître
+  }
+  
+  .menu-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px; // Bouton fermer à gauche maintenant
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
+  
+  .menu-content {
+    padding: 2rem;
+    
     ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-
-        li {
-            list-style-type: none;
-            margin: 0 40px 0 0px;
-            font-family: Raleway;
-            font-size: 23px;
-            font-weight: normal;
-            font-stretch: normal;
-            font-style: normal;
-            line-height: 1.44;
-            letter-spacing: normal;
-            text-align: left;
-            color: #000;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            strong {
-
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                width: 94px;
-                height: 94px;
-                flex-grow: 0;
-                background-color: #f00;
-                border-radius: 100%;
-                font-family: Vodafone;
-                font-size: 50px;
-                font-weight: bold;
-                font-stretch: normal;
-                font-style: normal;
-                line-height: 0.8;
-                letter-spacing: normal;
-                text-align: center;
-                color: #fff;
-
-                span {
-                    text-transform: uppercase;
-                    font-size: 20px;
-                }
-            }
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        margin-bottom: 1rem;
+        
+        a {
+          color: white;
+          text-decoration: none;
+          font-family: 'Vodafone', sans-serif;
+          font-size: 18px;
+          font-weight: 300;
+          display: block;
+          padding: 10px 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease;
+          
+          &:hover {
+            padding-left: 10px;
+            color: rgba(255, 255, 255, 0.8);
+          }
         }
+      }
+    }
+  }
+}
+
+// Bouton d'ouverture du menu (à positionner à droite)
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px; // Bouton à droite
+  z-index: 10000;
+  background: rgba(230, 0, 0, 0.9);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Vodafone', sans-serif;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(230, 0, 0, 1);
+    transform: scale(1.05);
+  }
+  
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+// Overlay pour fermer le menu en cliquant à l'extérieur
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Custom Scrollbar Component */
+.custom-scrollbar {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    height: 300px; // Hauteur de la piste
+    width: 4px;
+    background: transparent;
+    pointer-events: none; // Évite les interactions accidentelles
+  }
+  
+  .scrollbar-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    //backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .scrollbar-cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 20px; // Hauteur du curseur
+    background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1px;
+    }
+    
+    &:hover {
+      background: linear-gradient(180deg, #ff1a1a 0%, #e60000 100%);
+      transform: scale(1.2);
+      box-shadow: 0 4px 12px rgba(230, 0, 0, 0.6);
+    }
+  }
+  
+  // Animation d'apparition/disparition
+  .custom-scrollbar {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    &.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  
+  // Responsive design
+  @media screen and (max-width: 1024px) {
+    .custom-scrollbar {
+      right: 15px;
+      height: 250px;
+      width: 3px;
+    }
+    
+    .scrollbar-cursor {
+      height: 15px;
+      
+      &::before {
+        width: 1px;
+        height: 6px;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .custom-scrollbar {
+      right: 10px;
+      height: 200px;
+      width: 3px;
+    }
+    
+    .scrollbar-cursor {
+      height: 12px;
+    }
+  }
+  
+  // État de survol pour toute la scrollbar
+  .custom-scrollbar:hover {
+    .scrollbar-track {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .scrollbar-cursor {
+      background: linear-gradient(180deg, #ff1a1a 0%, #e60000 100%);
+    }
+  }
+  
+  // Animation lors du changement de slide
+  .scrollbar-cursor.animating {
+    transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  // Variante avec indicateurs de slides
+  .custom-scrollbar.with-indicators {
+    .scrollbar-track {
+      &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1px;
+        height: 100%;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 35px,
+          rgba(255, 255, 255, 0.3) 35px,
+          rgba(255, 255, 255, 0.3) 37px
+        );
+      }
+    }
+  }
+  
+  // Style alternatif - plus large avec numérotation
+  .custom-scrollbar.numbered {
+    width: 30px;
+    right: 15px;
+    
+    .scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .scrollbar-cursor {
+      width: 28px;
+      height: 25px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      font-family: 'Vodafone', sans-serif;
+      
+      &::before {
+        display: none;
+      }
+    }
+  }
+  
+  // Animation de pulsation pour attirer l'attention
+  @keyframes scrollbar-pulse {
+    0% { 
+      box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 4px 16px rgba(230, 0, 0, 0.8);
+      transform: scale(1.1);
+    }
+    100% { 
+      box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+      transform: scale(1);
+    }
+  }
+  
+  .scrollbar-cursor.pulse {
+    animation: scrollbar-pulse 2s infinite;
+  }
+  
+  // Style pour mode sombre
+  .dark-mode .custom-scrollbar {
+    .scrollbar-track {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .scrollbar-cursor {
+      background: linear-gradient(180deg, #ff4444 0%, #e60000 100%);
+      box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    }
+  }
+  
+// États initiaux pour slide-20
+#slide-20 {
+  #turtlebeach {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+  }
+  
+  .text-element {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100px);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+  }
+}
+
+// Animation states pour #turtlebeach
+#turtlebeach {
+  transform-origin: center center;
+  
+  &.animating {
+    will-change: opacity, transform;
+  }
+  
+  &.animated {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+// Styles responsive pour #turtlebeach
+@media screen and (max-width: 768px) {
+  #slide-20 {
+    #turtlebeach {
+      transform: scale(0.9) translateY(30px) rotate(-3deg);
+    }
+  }
+}
+
+// Animation d'entrée alternative (si besoin)
+@keyframes turtlebeach-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05) translateY(-10px) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+.turtlebeach-animate {
+  animation: turtlebeach-entrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+  .slides-container{
+    background-size:cover
+  }
+
+  .clientrequest{
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding:2em 0;
+ 
+  }
+
+  // Styles spécifiques pour la slide-23 et les perdrix-slides
+#perdrix{
+    width:100vw;
+    margin:0;
+    padding:0;
+    .perdrix-slider{
+        width:100vw;
+        margin:0;
+        padding:0;
     }
 }
+
 .image-container{
+
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    //padding: 6% 5.9% 0 0;
+    position: relative;
+    margin-left: -12px;
     position:relative;
     img{
         margin: 0 165px 85px 0;
         height:504px;
     }
-   
 }
+
 #teste{
     position:relative;
     width:100%;
@@ -2792,14 +3036,16 @@ body {
         margin: auto;
         right: 0;
         height:100%;
-        max-height: 613px;
+        max-height: 623px;
         background-size: contain;
         position:absolute;
     }
 }
+
 #decodemerde{
- position:absolute   
+    position:absolute   
 }
+
 .innerphone{
     background-repeat: no-repeat;
     height: 100%;
@@ -2807,22 +3053,7 @@ body {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-position: relative;
-    .telphjoen {
-    }
-
-
-
-}
-#perdrix{
-    width:100vw;
-    margin:0;
-    padding:0;
-    .perdrix-slider{
-        width:100vw;
-        margin:0;
-        padding:0;
-    }
+    position: relative;
 }
 
 .split-container{
@@ -2834,72 +3065,57 @@ position: relative;
     }
 }
 
-/* Custom Scrollbar Styling - macOS style */
-::-webkit-scrollbar {
-  width: 8px !important;
-  height: 8px !important;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3) !important;
-  border-radius: 10px !important;
-}
-
-::-webkit-scrollbar-thumb {
-  background: $vodafone-red !important;
-  border-radius: 10px !important;
-  border: 2px solid transparent !important;
-  background-clip: content-box !important;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ff0000 !important;
-  border: 2px solid transparent !important;
-  background-clip: content-box !important;
-}
-
-/* Firefox */
-html, body {
-  scrollbar-width: thin !important;
-  scrollbar-color: $vodafone-red rgba(0, 0, 0, 0.3) !important;
-  overflow-y: auto !important;
-}
-
-// Styles pour la scrollbar personnalisée qui montre la position dans les slides
-.custom-scrollbar {
-  position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 70vh;
-  width: 9px;
-  z-index: 1000;
-  pointer-events: none; // Pour ne pas interférer avec les clics
-  
-  .scrollbar-track {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-  }
-  
-  .scrollbar-cursor {
-    position: absolute;
-    top: 0; // Cette valeur sera remplacée par la valeur calculée en JS
-    left: 0px; // Pour créer un effet de curseur plus large
-    width: 9px; // Plus large que la piste
-    height: 50px;
-    background-color: $vodafone-red;
-    border-radius: 3px;
-    transition: top 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-  }
-}
-#thoiathoing2{
-    br{
-        display:none !important;
+  #quadi{
+    height:180px;
+    overflow:hidden;
+    position:relative;
+    .perdrix-slide{
+        position:absolute;
     }
+  }
+
+  #sharon{
+    height:100%;
+    width:90vw !important;
+    margin:0 auto;
+    position:relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+
+   display: flex;
+       flex-direction: row;
+  }
+  #stone{
+    display:   flex;
+    justify-content:flex-end;
+    flex-direction: column;
+
+    height: 100vh;
+  }
+#sparta{
+    background: blue;
+    height: 585px;
+    position: relative;
+    overflow: hidden;
+    width: 427px;
+    &::before{
+        margin: auto;
+        content: "";
+        z-index: 10000;
+        position: absolute;
+        background: url(../images/Subtract.png);
+        background-position: 100% 100%;
+        background-repeat: no-repeat;
+        background-size: 100%;
+        background-size: contain;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        height: 613px;
+        right: 0;
+        z-index: 100;
+        width: 492px;
+}
 }
