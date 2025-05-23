@@ -36,7 +36,7 @@ export function useMobileAnimations() {
 
     // Fonction pour réinitialiser les éléments à l'état initial
     const resetToInitialState = () => {
-      gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50, scale: 0.9 });
+      gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50, scale: 1 });
       pointsElements.forEach(point => {
         gsap.set(point, { autoAlpha: 0, y: 30, x: -20 });
       });
@@ -65,7 +65,7 @@ export function useMobileAnimations() {
 
       const tl = gsap.timeline({
         onComplete: () => {
-          // MARQUER L'ANIMATION COMME TERMINÉE MAIS NE PAS NAVIGUER
+          // MARQUER L'ANIMATION COMME TERMINÉE MAIS NE PAS NAVIGER
           animationStates.value['slide-73-mobile'] = 'complete';
           animationStates.value['slide-73-animation-playing'] = false;
           animationStates.value['slide-73-animation-complete'] = true; // L'animation est finie
@@ -142,36 +142,131 @@ export function useMobileAnimations() {
     slide73Section._resetToInitialState = resetToInitialState;
   };
 
-  // Animation simplifiée pour la slide 21
+  // Animation spéciale pour la slide 21 sur mobile - déclenchée par swipe bas->haut avec blocage
   const registerMobileSlide21Animation = () => {
     const slide21Section = sections.value.find(s => s.id === 'slide-21');
     if (!slide21Section) return;
 
-    const thoiathoingDiv = slide21Section.querySelector('#thoiathoing');
-    if (!thoiathoingDiv) return;
+    const mshillDiv = slide21Section.querySelector('#mshill');
+    const doctornekDiv = slide21Section.querySelector('#doctornek');
+    
+    if (!mshillDiv || !doctornekDiv) {
+      console.warn('❌ Éléments #mshill ou #doctornek non trouvés dans slide-21');
+      return;
+    }
 
-    gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 30 }); // Moins de déplacement
-    animationStates.value['slide-21-playedOnce'] = false;
+    // Fonction pour réinitialiser les éléments à l'état initial
+    const resetToInitialState = () => {
+      // Cacher #doctornek
+      gsap.set(doctornekDiv, { autoAlpha: 0, y: 50, scale: 1 });
+      // Cacher #mshill avec l'état initial inspiré de useFullpageScrollTrigger
+      gsap.set(mshillDiv, { autoAlpha: 0, y: 50 }); // Même style que thoiathoing
+    
+      // Réinitialiser les états
+      animationStates.value['slide-21-mobile'] = 'hidden';
+      animationStates.value['slide-21-animation-playing'] = false;
+      animationStates.value['slide-21-animation-complete'] = false;
+      animationStates.value['slide-21-mshill-shown'] = false;
+      
+      console.log('🔄 Slide 21 reset to initial state');
+    };
 
+    // === ÉTAT INITIAL ===
+    resetToInitialState();
+
+    // Fonction pour déclencher l'animation de #doctornek (au swipe)
+    const triggerSlide21Animation = () => {
+      // Marquer l'animation comme en cours pour bloquer la navigation
+      animationStates.value['slide-21-animation-playing'] = true;
+      animationStates.value['slide-21-mobile'] = 'animating';
+
+      // Bloquer les interactions pendant l'animation
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          // MARQUER L'ANIMATION COMME TERMINÉE
+          animationStates.value['slide-21-mobile'] = 'complete';
+          animationStates.value['slide-21-animation-playing'] = false;
+          animationStates.value['slide-21-animation-complete'] = true;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log('Slide-21: Animation #doctornek terminée');
+        }
+      });
+
+      // Faire apparaître #doctornek avec animation
+      tl.to(doctornekDiv, {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: 'power2.out'
+      });
+    };
+
+    // Fonction pour faire apparaître #mshill - INSPIRÉE DE useFullpageScrollTrigger
+    const showMshill = () => {
+      if (animationStates.value['slide-21-mshill-shown']) return;
+      
+      animationStates.value['slide-21-mshill-shown'] = true;
+      
+      // Animation inspirée de slide-21 dans useFullpageScrollTrigger (thoiathoing)
+      gsap.to(mshillDiv, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.8, // Même durée que thoiathoing
+        ease: "power2.out", // Même easing que thoiathoing
+        onComplete: () => {
+          console.log('Slide-21: #mshill fade-in terminé (style useFullpageScrollTrigger)');
+        }
+      });
+    };
+
+    // ScrollTrigger pour détecter quand la slide 21 est visible et déclencher l'animation
     const st = ScrollTrigger.create({
       trigger: slide21Section,
       scroller: SCROLLER_SELECTOR,
-      start: 'top center+=10%',
+      start: 'top center+=10%', // Même timing que useFullpageScrollTrigger
+      end: 'bottom top',
       onEnter: () => {
-        if (!animationStates.value['slide-21-playedOnce']) {
-          gsap.to(thoiathoingDiv, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.6, // Animation plus rapide
-            ease: 'power2.out',
-            onComplete: () => {
-              animationStates.value['slide-21-playedOnce'] = true;
-            }
-          });
+        console.log('📍 Slide 21 is now visible');
+        
+        // Animation automatique de #mshill à l'entrée, comme dans useFullpageScrollTrigger
+        // où l'animation se déclenche automatiquement dans goToSection
+        if (!animationStates.value['slide-21-mshill-shown']) {
+          showMshill();
         }
+      },
+      onLeave: () => {
+        console.log('📍 Leaving slide 21 (going down)');
+        // TOUJOURS réinitialiser quand on quitte
+        resetToInitialState();
+      },
+      onEnterBack: () => {
+        console.log('📍 Entering back slide 21');
+        // TOUJOURS réinitialiser quand on revient
+        resetToInitialState();
+        // Petit délai pour que le reset soit effectif, puis rejouer l'animation
+        setTimeout(() => {
+          showMshill();
+        }, 50);
+      },
+      onLeaveBack: () => {
+        console.log('📍 Leaving slide 21 (going up)');
+        // TOUJOURS réinitialiser quand on quitte vers le haut
+        resetToInitialState();
       }
     });
+
     mobileScrollTriggers.push(st);
+    slide21Section._triggerAnimation = triggerSlide21Animation;
+    slide21Section._resetToInitialState = resetToInitialState;
+    slide21Section._showMshill = showMshill;
   };
 
   // Animation simplifiée pour la slide 20 (Turtle Beach)
@@ -397,7 +492,7 @@ export function useMobileAnimations() {
     });
   };
 
-  // Configuration des interactions tactiles pour mobile AVEC gestion spéciale slide-73
+  // Configuration des interactions tactiles pour mobile AVEC gestion spéciale slide-73 ET slide-21
   const setupMobileInteractions = () => {
     let touchStartY = 0;
     let touchEndY = 0;
@@ -416,8 +511,9 @@ export function useMobileAnimations() {
         if (swipeDistance > 0) {
           // Swipe vers le haut (bas->haut) = slide suivante
           
-          // GESTION SPÉCIALE POUR SLIDE-73
           const currentSection = sections.value[currentSectionIndex.value];
+          
+          // GESTION SPÉCIALE POUR SLIDE-73
           if (currentSection && currentSection.id === 'slide-73') {
             
             // Si l'animation n'a jamais été vue, la déclencher
@@ -432,9 +528,24 @@ export function useMobileAnimations() {
             if (animationStates.value['slide-73-animation-playing']) {
               return;
             }
+          }
+          
+          // GESTION SPÉCIALE POUR SLIDE-21
+          if (currentSection && currentSection.id === 'slide-21') {
             
-            // Si l'animation est terminée, permettre la navigation normale
-            // (ce sera le second swipe qui déclenchera la navigation)
+            // Si #doctornek n'a jamais été montré, déclencher son animation
+            if (animationStates.value['slide-21-mobile'] === 'hidden' && 
+                animationStates.value['slide-21-mshill-shown']) {
+              if (currentSection._triggerAnimation) {
+                currentSection._triggerAnimation();
+                return; // Bloquer la navigation normale
+              }
+            }
+            
+            // Si l'animation #doctornek est en cours, ignorer le swipe
+            if (animationStates.value['slide-21-animation-playing']) {
+              return;
+            }
           }
           
           // Navigation normale vers la slide suivante
@@ -470,7 +581,7 @@ export function useMobileAnimations() {
     if (sections.value.length > 0) {
       // Enregistrement des animations mobiles simplifiées
       registerMobileSlide73Animation();
-      registerMobileSlide21Animation();
+      registerMobileSlide21Animation(); // Nouvelle animation
       registerMobileSlide20Animation();
       registerMobileSlide23Animation();
       registerMobileSlide128Animation();
