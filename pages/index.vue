@@ -60,7 +60,7 @@ const updateScrollbarCursor = () => {
   const clampedPosition = Math.min(Math.max(currentPosition, 0), TOTAL_SLIDES - 1);
   const percentage = clampedPosition / (TOTAL_SLIDES - 1);
   
-  console.log(`Scrollbar - Current index: ${activeSlideIndex.value}, Percentage: ${percentage * 100}%`);
+ 
   
   // Déplacer le curseur en utilisant top au lieu de transform
   // Le -10px est pour centrer le curseur (moitié de sa hauteur de 20px)

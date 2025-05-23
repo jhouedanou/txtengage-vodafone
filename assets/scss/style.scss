@@ -2909,7 +2909,10 @@ html, body {
         display:none !important;
     }
 }
-
+// Dans style.scss
+#slide-73 .slides-container.animation-complete {
+    background-position: -25vw center !important;
+  }
 // Dans votre fichier style.scss
 @media screen and (max-width: 1024px) {
     .slide-section {

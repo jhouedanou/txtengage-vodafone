@@ -2,6 +2,7 @@ import { ref, onUnmounted, nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { useAndroidScrollFix } from './androidScrollFix.js';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -192,8 +193,14 @@ export function useFullpageScrollTrigger() {
                   console.log('Slide-73: Animation des points-fort terminée - début du délai de 800ms');
                   setTimeout(() => {
                     animationStates.value['slide-73'] = true;
+                    
+                    // AJOUTER LA CLASSE POUR MAINTENIR LA POSITION
+                    if (slidesContainerDiv) {
+                      slidesContainerDiv.classList.add('animation-complete');
+                    }
+                    
                     console.log('Slide-73: Animation terminée, scroll vers la slide suivante maintenant possible');
-                  }, 800); // 800ms de délai supplémentaire
+                  }, 800);
                 }
               }
             });
@@ -1443,7 +1450,7 @@ export function useFullpageScrollTrigger() {
               autoAlpha: 1,
               y: 0,
               duration: 0.8,
-              ease: 'power2.out',
+              ease: "power2.out",
               onComplete: () => {
                 animationStates.value['slide-21-playedOnce'] = true;
               }
@@ -1461,7 +1468,7 @@ export function useFullpageScrollTrigger() {
               autoAlpha: 1,
               y: 0,
               duration: 0.8,
-              ease: 'power2.out',
+              ease: "power2.out",
               onComplete: () => {
                 // Marquer comme jouée définitivement
                 animationStates.value['slide-22-played'] = true;
