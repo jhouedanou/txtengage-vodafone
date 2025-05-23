@@ -6,6 +6,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { useResponsiveAnimations } from '~/utils/useResponsiveAnimations'; // Nouveau système responsif
+import CustomScrollbar from '~/components/CustomScrollbar.vue';
 // Lenis n'a pas pu être intégré correctement, nous utilisons une approche native
 
 // Initialisation du système de fullpage personnalisé avec détection automatique mobile/desktop
@@ -285,6 +286,9 @@ onMounted(async () => {
     });
   });
 
+  // Écouter l'événement de navigation émis par la scrollbar custom
+  document.addEventListener('navigateToSection', handleNavigateToSection);
+
   // Observer les changements de activeSlideIndex pour mettre à jour le fond
   // watch(activeSlideId, (newId, oldId) => {
   //   if (newId !== oldId) {
@@ -332,8 +336,10 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  // Le cleanup de useFullpageScrollTrigger (incluant stObserve) est géré dans le composable lui-même.
   window.removeEventListener('resize', handleResize);
+  document.removeEventListener('navigateToSection', handleNavigateToSection);
+  sectionScrollTriggers.forEach(trigger => trigger.kill());
+  sectionScrollTriggers.length = 0;
 });
 
 const isMenuOpen = ref(false);
@@ -388,6 +394,19 @@ const getBackgroundImage = (slide) => {
   
   // Fallback par défaut si aucune image n'est disponible
   return isMobile.value ? 'url(/images/bgmbile.webp)' : 'url(/images/bg12.webp)';
+};
+
+const handleNavigateToSection = (event) => {
+  const sectionIndex = event.detail.index;
+  if (sectionIndex >= 0 && sectionIndex < sortedSlides.value.length) {
+    // Utiliser le système de navigation responsif
+    if (animationsInitialized.value && goToResponsiveSection) {
+      goToResponsiveSection(sectionIndex);
+    } else {
+      // Fallback à la navigation manuelle
+      scrollToSection(sectionIndex);
+    }
+  }
 };
 
 </script>
@@ -448,8 +467,8 @@ const getBackgroundImage = (slide) => {
             height: '100%', 
             display: 'flex', 
             backgroundImage: getBackgroundImage(slide),
-            backgroundSize: 'cover',
-            backgroundPosition: 'center center',
+            //backgroundSize: 'cover',
+            //backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat'
           }">
           
@@ -535,7 +554,7 @@ const getBackgroundImage = (slide) => {
                   </div>          
                   <div class="col-md-6">
                     <div id="teste">
-                      
+                      <p></p>
                     </div>
                   </div>
                 </div>
@@ -688,10 +707,11 @@ const getBackgroundImage = (slide) => {
   </div> 
 
   <!-- Custom scrollbar indicator -->
-  <div class="custom-scrollbar visible">
-  <div class="scrollbar-track"></div>
-  <div class="scrollbar-cursor" ref="scrollCursor"></div>
-</div>
+  <div class="simple-scrollbar">
+    <div class="scrollbar-track">
+      <div class="scrollbar-thumb" ref="scrollbarThumb"></div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss">

@@ -93,10 +93,16 @@ const slideDuration = 0.7;
       
       // Gestion spéciale pour slide-20 (#text-element-5)
       if (currentSection && currentSection.id === 'slide-20') {
-        if (!animationStates.value['slide-20-text-element-5'] && animationStates.value['slide-20-main-complete']) {
+        // Si l'animation principale n'est pas terminée, bloquer complètement
+        if (!animationStates.value['slide-20-main-complete']) {
+          return;
+        }
+        // Si l'animation principale est terminée mais text-element-5 pas encore affiché
+        if (!animationStates.value['slide-20-text-element-5']) {
           triggerSlide20TextElement5();
           return;
         }
+        // Si tout est terminé, permettre la navigation normale (continuer après ce if)
       }
       
       // Gestion spéciale pour slide-23 (défilement des perdrix)
@@ -242,40 +248,16 @@ const registerSlide73Animation = () => {
       // Pas d'animation automatique, attendre le scroll
     },
     onLeave: () => {
-      // Maintenir l'état final si l'animation est terminée
+      // Conserver l'état final quand on descend
     },
     onEnterBack: () => {
-      // Réinitialiser l'animation quand on revient du bas
-      // Mais seulement si on vient de slide-21
-      const currentSection = sections.value[currentSectionIndex.value];
-      if (currentSection && currentSection.id === 'slide-21') {
-        resetSlide73Animation();
-      } else {
-        // Réinitialiser seulement les points-fort, pas le background
-        const pointsFortDiv = slide73Section.querySelector('.points-fort');
-        const pointsFortLis = slide73Section.querySelectorAll('.points-fort li');
-        
-        if (pointsFortDiv) {
-          gsap.set(pointsFortDiv, {
-            width: '0vw',
-            x: '100vw'
-          });
-        }
-
-        if (pointsFortLis.length > 0) {
-          gsap.set(pointsFortLis, {
-            autoAlpha: 0,
-            y: 30
-          });
-        }
-        
-        animationStates.value['slide-73-complete'] = false;
-        animationStates.value['slide-73-animating'] = false;
-        animationStates.value['slide-73-reversing'] = false;
-      }
+      // Conserver l'état actuel et permettre le contrôle par scroll
+      // Ne pas réinitialiser automatiquement
+      console.log('Slide-73: Retour du bas, état conservé pour contrôle scroll');
     },
     onLeaveBack: () => {
-      // Maintenir l'état
+      // Réinitialiser seulement quand on quitte vers le haut
+      resetSlide73Animation();
     }
   });
 
@@ -384,13 +366,7 @@ const resetSlide73Animation = () => {
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
   
   if (slidesContainerDiv && pointsFortDiv) {
-    // Remettre le background à sa position initiale SEULEMENT si on est sur slide-21
-    const currentSection = sections.value[currentSectionIndex.value];
-    if (currentSection && currentSection.id === 'slide-21') {
-      gsap.set(slidesContainerDiv, {
-        backgroundPositionX: '0vw'
-      });
-    }
+    // Ne plus réinitialiser le background - conserver la position -20vw
     
     // Remettre points-fort hors du champ (toujours)
     gsap.set(pointsFortDiv, {
@@ -419,18 +395,8 @@ const resetSlide73Animation = () => {
     const slide21Section = sections.value.find(s => s.id === 'slide-21');
     const thoiathoing = slide21Section?.querySelector('#thoiathoing');
     
-    // Réinitialiser le background de slide-73 quand on arrive sur slide-21
-    const slide73Section = sections.value.find(s => s.id === 'slide-73');
-    if (slide73Section) {
-      const slidesContainerDiv = slide73Section.querySelector('.slides-container');
-      if (slidesContainerDiv) {
-        gsap.set(slidesContainerDiv, {
-          backgroundPositionX: '0vw'
-        });
-      }
-    }
-    
     if (thoiathoing) {
+      isNavigating.value = true;
       gsap.to(thoiathoing, {
         autoAlpha: 1,
         y: 0,
@@ -438,6 +404,7 @@ const resetSlide73Animation = () => {
         ease: "power2.out",
         onComplete: () => {
           animationStates.value['slide-21-complete'] = true;
+          isNavigating.value = false;
         }
       });
     }
@@ -480,10 +447,14 @@ const resetSlide73Animation = () => {
       scroller: SCROLLER_SELECTOR,
       start: 'top center+=10%',
       onEnter: () => {
+        // Bloquer immédiatement la navigation dès l'entrée
+        isNavigating.value = true;
         // Déclencher l'animation automatique d'entrée
         triggerSlide20Animation();
       },
       onEnterBack: () => {
+        // Bloquer immédiatement la navigation
+        isNavigating.value = true;
         // Réinitialiser complètement quand on revient du bas
         resetSlide20Animation();
         // Puis relancer l'animation après un délai
@@ -496,7 +467,8 @@ const resetSlide73Animation = () => {
         resetSlide20Animation();
       },
       onLeave: () => {
-        // Maintenir l'état final quand on descend
+        // Réinitialiser aussi quand on quitte vers le bas pour éviter les conflits
+        resetSlide20Animation();
       }
     });
 
@@ -510,8 +482,13 @@ const resetSlide73Animation = () => {
     const turtlebeach = slide20Section?.querySelector('#turtlebeach');
     const textElements = slide20Section?.querySelectorAll('.text-element:not(#text-element-5)');
     
-    if (!turtlebeach) return;
+    if (!turtlebeach) {
+      // Si pas d'élément trouvé, débloquer la navigation
+      isNavigating.value = false;
+      return;
+    }
 
+    // S'assurer que la navigation est bloquée (pourrait déjà l'être depuis ScrollTrigger)
     animationStates.value['slide-20-animating'] = true;
     isNavigating.value = true;
 
@@ -539,9 +516,9 @@ const resetSlide73Animation = () => {
       tl.to(textElements, {
         autoAlpha: 1,
         y: 0,
-        duration: tweenDuration, // ← Maintenant définie
+        duration: tweenDuration,
         stagger: 0.15, // Délai entre chaque élément
-        ease: tweenEase // ← Maintenant définie
+        ease: tweenEase
       }, "+=0.3"); // Délai de 0.3s après turtlebeach
     }
   };
@@ -604,6 +581,7 @@ const resetSlide73Animation = () => {
     const textContent = slide22Section?.querySelector('.text-element, .content');
     
     if (textContent) {
+      isNavigating.value = true;
       gsap.to(textContent, {
         autoAlpha: 1,
         y: 0,
@@ -611,18 +589,19 @@ const resetSlide73Animation = () => {
         ease: "power2.out",
         onComplete: () => {
           animationStates.value['slide-22-complete'] = true;
+          isNavigating.value = false;
         }
       });
     }
   };
 
-  // SLIDE-23 : Afficher perdrix-slide-1 et faire défiler les div .perdix
+  // SLIDE-23 : Afficher perdrix-slide-1 et faire défiler les div .perdrix-slide
   const registerSlide23Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     if (!slide23Section) return;
 
-    const perdrixSlide1 = slide23Section.querySelector('.perdrix-slide-1');
-    const perdrixElements = slide23Section.querySelectorAll('.perdix');
+    const perdrixSlide1 = slide23Section.querySelector('#perdrix-slide-1');
+    const perdrixElements = slide23Section.querySelectorAll('.perdrix-slide');
 
     // État initial
     if (perdrixSlide1) {
@@ -636,6 +615,9 @@ const resetSlide73Animation = () => {
       trigger: slide23Section,
       scroller: SCROLLER_SELECTOR,
       start: 'top center+=10%',
+      onEnter: () => {
+        triggerSlide23Animation();
+      },
       onEnterBack: () => {
         resetSlide23Animation();
       }
@@ -648,9 +630,10 @@ const resetSlide73Animation = () => {
     if (animationStates.value['slide-23-initialized']) return;
     
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
-    const perdrixSlide1 = slide23Section?.querySelector('.perdrix-slide-1');
+    const perdrixSlide1 = slide23Section?.querySelector('#perdrix-slide-1');
     
     if (perdrixSlide1) {
+      isNavigating.value = true;
       gsap.to(perdrixSlide1, {
         autoAlpha: 1,
         duration: 0.8,
@@ -658,6 +641,7 @@ const resetSlide73Animation = () => {
         onComplete: () => {
           animationStates.value['slide-23-initialized'] = true;
           animationStates.value['slide-23-scroll-index'] = 0;
+          isNavigating.value = false;
         }
       });
     }
@@ -669,15 +653,19 @@ const resetSlide73Animation = () => {
   const scrollPerdrixForward = () => {
     if (perdrixScrollIndex >= maxPerdrixScroll) return;
     
+    isNavigating.value = true;
     perdrixScrollIndex++;
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
-    const perdrixElements = slide23Section?.querySelectorAll('.perdix');
+    const perdrixElements = slide23Section?.querySelectorAll('.perdrix-slide');
     
     if (perdrixElements) {
       gsap.to(perdrixElements, {
         x: `-${perdrixScrollIndex * 100}vw`,
         duration: 0.7,
-        ease: 'power3.easeInOut'
+        ease: 'power3.easeInOut',
+        onComplete: () => {
+          isNavigating.value = false;
+        }
       });
     }
   };
@@ -685,23 +673,27 @@ const resetSlide73Animation = () => {
   const scrollPerdrixBackward = () => {
     if (perdrixScrollIndex <= 0) return;
     
+    isNavigating.value = true;
     perdrixScrollIndex--;
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
-    const perdrixElements = slide23Section?.querySelectorAll('.perdix');
+    const perdrixElements = slide23Section?.querySelectorAll('.perdrix-slide');
     
     if (perdrixElements) {
       gsap.to(perdrixElements, {
         x: `-${perdrixScrollIndex * 100}vw`,
         duration: 0.7,
-        ease: 'power3.easeInOut'
+        ease: 'power3.easeInOut',
+        onComplete: () => {
+          isNavigating.value = false;
+        }
       });
     }
   };
 
   const resetSlide23Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
-    const perdrixSlide1 = slide23Section?.querySelector('.perdrix-slide-1');
-    const perdrixElements = slide23Section?.querySelectorAll('.perdix');
+    const perdrixSlide1 = slide23Section?.querySelector('#perdrix-slide-1');
+    const perdrixElements = slide23Section?.querySelectorAll('.perdrix-slide');
     
     if (perdrixSlide1) {
       gsap.set(perdrixSlide1, { autoAlpha: 0 });
@@ -775,10 +767,13 @@ const resetSlide73Animation = () => {
     const killerwuDiv = slide128Section?.querySelector('#killerwu');
     const firstCaseStudy = slide128Section?.querySelector('.case-study:first-child');
     
+    isNavigating.value = true;
+    
     const tl = gsap.timeline({
       onComplete: () => {
         animationStates.value['slide-128-initialized'] = true;
         animationStates.value['slide-128-scroll-index'] = 0;
+        isNavigating.value = false;
       }
     });
 
@@ -805,6 +800,7 @@ const resetSlide73Animation = () => {
   const scrollSlide128Forward = () => {
     if (slide128ScrollIndex >= maxSlide128Scroll) return;
     
+    isNavigating.value = true;
     slide128ScrollIndex++;
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
     const caseStudies = slide128Section?.querySelectorAll('.case-study');
@@ -813,7 +809,10 @@ const resetSlide73Animation = () => {
       gsap.to(caseStudies, {
         x: `-${slide128ScrollIndex * 100}vw`,
         duration: 0.7,
-        ease: 'power3.easeInOut'
+        ease: 'power3.easeInOut',
+        onComplete: () => {
+          isNavigating.value = false;
+        }
       });
     }
   };
@@ -821,6 +820,7 @@ const resetSlide73Animation = () => {
   const scrollSlide128Backward = () => {
     if (slide128ScrollIndex <= 0) return;
     
+    isNavigating.value = true;
     slide128ScrollIndex--;
     const slide128Section = sections.value.find(s => s.id === 'slide-128');
     const caseStudies = slide128Section?.querySelectorAll('.case-study');
@@ -829,7 +829,10 @@ const resetSlide73Animation = () => {
       gsap.to(caseStudies, {
         x: `-${slide128ScrollIndex * 100}vw`,
         duration: 0.7,
-        ease: 'power3.easeInOut'
+        ease: 'power3.easeInOut',
+        onComplete: () => {
+          isNavigating.value = false;
+        }
       });
     }
   };
