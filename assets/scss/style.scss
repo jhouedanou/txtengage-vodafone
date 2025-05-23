@@ -2594,3 +2594,9 @@ body {
     will-change: transform, opacity;
   }
 }
+
+.subint{
+ //degradé noir 0 transparent à 100% noir 76% 
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.76) 100%);
+
+}

@@ -123,6 +123,14 @@ export function useFullpageScrollTrigger() {
     } else {
       // Scroll vers le haut
       
+      // Gestion spéciale pour slide-73 - inverser l'animation
+      if (currentSection && currentSection.id === 'slide-73') {
+        if (animationStates.value['slide-73-complete'] && !animationStates.value['slide-73-reversing']) {
+          reverseSlide73Animation();
+          return;
+        }
+      }
+      
       // Gestion spéciale pour slide-23 (défilement des perdrix)
       if (currentSection && currentSection.id === 'slide-23') {
         if (animationStates.value['slide-23-initialized']) {
@@ -286,6 +294,55 @@ const triggerSlide73Animation = () => {
   }
 };
 
+// Nouvelle fonction pour inverser l'animation slide-73
+const reverseSlide73Animation = () => {
+  if (!animationStates.value['slide-73-complete']) return;
+  
+  const slide73Section = sections.value.find(s => s.id === 'slide-73');
+  const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
+  const pointsFortDiv = slide73Section?.querySelector('.points-fort');
+  const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
+  
+  if (!slidesContainerDiv || !pointsFortDiv) return;
+
+  animationStates.value['slide-73-reversing'] = true;
+  isNavigating.value = true;
+
+  const tl = gsap.timeline({
+    onComplete: () => {
+      animationStates.value['slide-73-complete'] = false;
+      animationStates.value['slide-73-reversing'] = false;
+      isNavigating.value = false;
+      console.log('Slide-73: Animation inversée terminée');
+    }
+  });
+
+  // Phase 1: Masquer les li d'abord
+  if (pointsFortLis.length > 0) {
+    tl.to(pointsFortLis, {
+      autoAlpha: 0,
+      y: 30,
+      duration: 0.3,
+      stagger: -0.05, // Stagger inversé (dernier en premier)
+      ease: 'power2.in'
+    });
+  }
+
+  // Phase 2: Faire sortir points-fort et remettre background en place
+  tl.to(pointsFortDiv, {
+    width: '0vw',
+    x: '100vw', // Sort complètement du champ
+    duration: 0.5,
+    ease: 'power3.easeInOut'
+  }, "+=0.2")
+  .to(slidesContainerDiv, {
+    backgroundPositionX: '0vw', // Remet le background à sa position initiale
+    duration: 0.5,
+    ease: 'power3.easeInOut'
+  }, "<"); // En parallèle
+};
+
+// Mise à jour du resetSlide73Animation pour inclure le background
 const resetSlide73Animation = () => {
   const slide73Section = sections.value.find(s => s.id === 'slide-73');
   const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
@@ -293,6 +350,11 @@ const resetSlide73Animation = () => {
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
   
   if (slidesContainerDiv && pointsFortDiv) {
+    // Remettre le background à sa position initiale
+    gsap.set(slidesContainerDiv, {
+      backgroundPositionX: '0vw'
+    });
+    
     // Remettre points-fort hors du champ
     gsap.set(pointsFortDiv, {
       width: '0vw',
@@ -310,6 +372,7 @@ const resetSlide73Animation = () => {
   
   animationStates.value['slide-73-complete'] = false;
   animationStates.value['slide-73-animating'] = false;
+  animationStates.value['slide-73-reversing'] = false;
 };
 
   // SLIDE-21 : Faire apparaître le texte une fois la slide visible
@@ -754,6 +817,7 @@ const resetSlide73Animation = () => {
   window.debugDesktopAnimations = {
     states: animationStates,
     resetSlide73: resetSlide73Animation,
+    reverseSlide73: reverseSlide73Animation, // Nouvelle fonction ajoutée
     resetSlide20: resetSlide20Animation,
     resetSlide23: resetSlide23Animation,
     resetSlide128: resetSlide128Animation,
