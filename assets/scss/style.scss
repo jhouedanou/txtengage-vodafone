@@ -2435,6 +2435,80 @@ br{
     justify-content: center;
     flex-direction: column;
     .case-study-item{
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0px;
+        width: 100%;
+        max-width: 100%;
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: auto;
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        min-height: 0;
+        ul{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            li{
+display: flex;
+flex-direction:column;
+margin-right: 2em;
+font-family: Raleway;
+font-size: 23px;
+font-weight: normal;
+font-stretch: normal;
+font-style: normal;
+line-height: 1.44;
+letter-spacing: normal;
+text-align: left;
+color: #000;
+align-items: center;
+justify-content: center;
+        strong{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            background-color: #f00;
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 0.4;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;
+          margin-bottom: 10px;
+            span{
+                font-family: Vodafone;
+                font-size: 20px;
+                font-weight: normal;
+                text-transform: uppercase;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 2;
+                letter-spacing: normal;
+                text-align: center;
+                color: #fff;
+            }
+        }
+            }
+        }
         &.active{
             h3{
                 color: #f00;
@@ -2626,6 +2700,7 @@ body {
     opacity: 0;
     visibility: hidden;
     transform: translateY(50px);
+    display: none; // Masqué par défaut
     will-change: opacity, transform;
     transition: none; // Laisser GSAP gérer les transitions
     
@@ -2633,6 +2708,7 @@ body {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
+      display: block; // Premier élément affiché
     }
   }
   
@@ -2647,6 +2723,10 @@ body {
     &.active {
       // Styles pour l'élément actif - laissé vide volontairement
       // L'utilisateur s'occupera du CSS
+      
+      .case-study-content {
+        display: block; // S'assurer que le contenu actif est affiché
+      }
     }
   }
 }
