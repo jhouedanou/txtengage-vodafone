@@ -855,6 +855,9 @@ body {
 
         #llass {
             position: absolute;
+            width: 100% !important;
+            max-width: 502px;
+            height: 479px;
         }
 
         img {
@@ -3160,5 +3163,9 @@ body {
     clip-path: inset(100% 0 0 0); // Masqué initialement depuis le bas
     will-change: clip-path;
     transform-origin: center bottom;
+    width: 100% !important;
+    max-width: 502px;
+    height: 479px;
+    position: absolute;
   }
 }
