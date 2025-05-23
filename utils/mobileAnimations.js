@@ -23,6 +23,7 @@ export function useMobileAnimations() {
   // ===========================================================================
 
   // Animation spéciale pour la slide 73 sur mobile - déclenchée par swipe bas->haut avec blocage
+  // Version simplifiée : reset systématique
   const registerMobileSlide73Animation = () => {
     const slide73Section = sections.value.find(s => s.id === 'slide-73');
     if (!slide73Section) return;
@@ -33,20 +34,26 @@ export function useMobileAnimations() {
 
     if (!pointsFortDiv) return;
 
-    // === ÉTAT INITIAL ===
-    gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50, scale: 0.9 });
-    pointsElements.forEach(point => {
-      gsap.set(point, { autoAlpha: 0, y: 30, x: -20 });
-    });
-    if (slidesContainerDiv) {
-      gsap.set(slidesContainerDiv, { backgroundSize: 'cover', backgroundPositionX: '0vw' });
-    }
+    // Fonction pour réinitialiser les éléments à l'état initial
+    const resetToInitialState = () => {
+      gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50, scale: 0.9 });
+      pointsElements.forEach(point => {
+        gsap.set(point, { autoAlpha: 0, y: 30, x: -20 });
+      });
+      if (slidesContainerDiv) {
+        gsap.set(slidesContainerDiv, { backgroundSize: 'cover', backgroundPositionY: '0vw' });
+      }
+      
+      // Réinitialiser les états
+      animationStates.value['slide-73-mobile'] = 'hidden';
+      animationStates.value['slide-73-animation-playing'] = false;
+      animationStates.value['slide-73-animation-complete'] = false;
+    };
 
-    // États d'animation
-    animationStates.value['slide-73-mobile'] = 'hidden';
-    animationStates.value['slide-73-animation-playing'] = false;
+    // === TOUJOURS COMMENCER À L'ÉTAT INITIAL ===
+    resetToInitialState();
 
-    // Fonction pour déclencher l'animation
+    // Fonction pour déclencher l'animation (inchangée)
     const triggerSlide73Animation = () => {
       // Marquer l'animation comme en cours pour bloquer la navigation
       animationStates.value['slide-73-animation-playing'] = true;
@@ -58,21 +65,20 @@ export function useMobileAnimations() {
 
       const tl = gsap.timeline({
         onComplete: () => {
-          // DÉBLOQUER après l'animation
+          // MARQUER L'ANIMATION COMME TERMINÉE MAIS NE PAS NAVIGUER
           animationStates.value['slide-73-mobile'] = 'complete';
           animationStates.value['slide-73-animation-playing'] = false;
+          animationStates.value['slide-73-animation-complete'] = true; // L'animation est finie
           
-          // Réactiver les interactions
+          // Réactiver les interactions DOM
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
           
-          // Maintenant, procéder à la navigation vers la slide suivante
-          // qui était bloquée pendant l'animation
-          setTimeout(() => {
-            if (currentSectionIndex.value < sections.value.length - 1) {
-              goToMobileSection(currentSectionIndex.value + 1);
-            }
-          }, 300); // Petit délai pour que l'utilisateur voie l'animation complète
+          // SUPPRIMER LA NAVIGATION AUTOMATIQUE
+          // L'utilisateur devra faire un second swipe pour continuer
+          
+          // Optionnel : Sauvegarder dans localStorage que l'animation a été vue
+          localStorage.setItem('slide-73-animation-seen', 'true');
         }
       });
 
@@ -88,7 +94,7 @@ export function useMobileAnimations() {
       // 2. Animer le background en parallèle
       if (slidesContainerDiv) {
         tl.to(slidesContainerDiv, {
-          backgroundPositionX: '-10vw',
+          backgroundPositionY: '-10vw',
           duration: 0.5,
           ease: 'power2.out',
         }, "-=0.4");
@@ -104,12 +110,36 @@ export function useMobileAnimations() {
         ease: 'power2.out'
       }, "-=0.2");
 
-      // 4. Délai final
-      tl.to({}, { duration: 1.2 });
+      // 4. Délai final réduit
+      tl.to({}, { duration: 0.5 });
     };
 
-    // Exposer la fonction pour qu'elle soit accessible depuis setupMobileInteractions
+    // ScrollTrigger simplifié
+    const st = ScrollTrigger.create({
+      trigger: slide73Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top bottom',
+      end: 'bottom top',
+      onEnter: () => {
+        // Toujours à l'état initial quand on entre
+      },
+      onLeave: () => {
+        // TOUJOURS réinitialiser quand on quitte
+        resetToInitialState();
+      },
+      onEnterBack: () => {
+        // TOUJOURS réinitialiser quand on revient
+        resetToInitialState();
+      },
+      onLeaveBack: () => {
+        // TOUJOURS réinitialiser quand on quitte vers le haut
+        resetToInitialState();
+      }
+    });
+
+    mobileScrollTriggers.push(st);
     slide73Section._triggerAnimation = triggerSlide73Animation;
+    slide73Section._resetToInitialState = resetToInitialState;
   };
 
   // Animation simplifiée pour la slide 21
@@ -390,9 +420,8 @@ export function useMobileAnimations() {
           const currentSection = sections.value[currentSectionIndex.value];
           if (currentSection && currentSection.id === 'slide-73') {
             
-            // Vérifier si l'animation a déjà été jouée
+            // Si l'animation n'a jamais été vue, la déclencher
             if (animationStates.value['slide-73-mobile'] === 'hidden') {
-              // Déclencher l'animation au lieu de naviguer
               if (currentSection._triggerAnimation) {
                 currentSection._triggerAnimation();
                 return; // Bloquer la navigation normale
@@ -404,7 +433,8 @@ export function useMobileAnimations() {
               return;
             }
             
-            // Si l'animation est terminée, procéder normalement
+            // Si l'animation est terminée, permettre la navigation normale
+            // (ce sera le second swipe qui déclenchera la navigation)
           }
           
           // Navigation normale vers la slide suivante
@@ -479,6 +509,19 @@ export function useMobileAnimations() {
 
   // Hook de nettoyage
   onUnmounted(cleanupMobileAnimations);
+
+  // Fonction utilitaire pour reset complet (à appeler dans la console pour les tests)
+  const resetSlide73State = () => {
+    localStorage.removeItem('slide-73-animation-seen');
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (slide73Section && slide73Section._resetToInitialState) {
+      slide73Section._resetToInitialState();
+    }
+    console.log('État de la slide 73 réinitialisé');
+  };
+
+  // Exposer la fonction pour le debug
+  window.resetSlide73State = resetSlide73State;
 
   // Retour de l'API publique
   return {

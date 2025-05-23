@@ -1354,6 +1354,7 @@ body {
             justify-content: flex-end;
             display: flex;
             align-items: center;
+            height:100dvh;
         }
     }
 
@@ -2465,7 +2466,12 @@ br{
 
 
 //style pour les écrans inférieurs à 1024px
-@media screen and (max-width: 1024px) {}
+@media screen and (max-width: 1024px) {
+    .slide-section{
+        height:100% !important;
+        overflow: hidden;
+    }
+}
 
 html,
 body {
@@ -2901,5 +2907,38 @@ html, body {
 #thoiathoing2{
     br{
         display:none !important;
+    }
+}
+
+// Dans votre fichier style.scss
+@media screen and (max-width: 1024px) {
+    .slide-section {
+        // Utiliser les nouvelles unités viewport pour mobile
+        height: 100dvh !important; // Dynamic Viewport Height
+        // ou height: 100svh !important; // Small Viewport Height
+        width: 100vw !important;
+        overflow: hidden;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+    }
+    
+    .slide-section .slides-container {
+        width: 100vw !important;
+        height: 100dvh !important; // Même unité
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+    }
+    
+    #master-scroll-container {
+        height: 100dvh !important;
+        width: 100vw !important;
+    }
+    
+    html, body {
+        height: 100dvh !important;
+        width: 100vw !important;
+        overflow: hidden !important;
     }
 }
