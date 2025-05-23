@@ -2543,11 +2543,20 @@ body {
 }
 
 #slide-20 {
+  #turtlebeach {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+  }
+  
   .text-element {
     opacity: 0;
     visibility: hidden;
     transform: translateY(100px);
     will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
   }
 }
 
@@ -2599,4 +2608,382 @@ body {
  //degradé noir 0 transparent à 100% noir 76% 
     background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.76) 100%);
 
+}
+
+// Menu latéral depuis la droite
+.sidebar-menu {
+  position: fixed;
+  top: 0;
+  right: -300px; // Commence hors du champ à droite
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+  z-index: 9999;
+  transition: right 0.3s ease-in-out;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  
+  &.active {
+    right: 0; // Glisse vers la gauche pour apparaître
+  }
+  
+  .menu-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px; // Bouton fermer à gauche maintenant
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
+  
+  .menu-content {
+    padding: 2rem;
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        margin-bottom: 1rem;
+        
+        a {
+          color: white;
+          text-decoration: none;
+          font-family: 'Vodafone', sans-serif;
+          font-size: 18px;
+          font-weight: 300;
+          display: block;
+          padding: 10px 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease;
+          
+          &:hover {
+            padding-left: 10px;
+            color: rgba(255, 255, 255, 0.8);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Bouton d'ouverture du menu (à positionner à droite)
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px; // Bouton à droite
+  z-index: 10000;
+  background: rgba(230, 0, 0, 0.9);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Vodafone', sans-serif;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(230, 0, 0, 1);
+    transform: scale(1.05);
+  }
+  
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+// Overlay pour fermer le menu en cliquant à l'extérieur
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Custom Scrollbar Component */
+.custom-scrollbar {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    height: 300px; // Hauteur de la piste
+    width: 4px;
+    background: transparent;
+    pointer-events: none; // Évite les interactions accidentelles
+  }
+  
+  .scrollbar-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    //backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .scrollbar-cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 20px; // Hauteur du curseur
+    background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1px;
+    }
+    
+    &:hover {
+      background: linear-gradient(180deg, #ff1a1a 0%, #e60000 100%);
+      transform: scale(1.2);
+      box-shadow: 0 4px 12px rgba(230, 0, 0, 0.6);
+    }
+  }
+  
+  // Animation d'apparition/disparition
+  .custom-scrollbar {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    &.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  
+  // Responsive design
+  @media screen and (max-width: 1024px) {
+    .custom-scrollbar {
+      right: 15px;
+      height: 250px;
+      width: 3px;
+    }
+    
+    .scrollbar-cursor {
+      height: 15px;
+      
+      &::before {
+        width: 1px;
+        height: 6px;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .custom-scrollbar {
+      right: 10px;
+      height: 200px;
+      width: 3px;
+    }
+    
+    .scrollbar-cursor {
+      height: 12px;
+    }
+  }
+  
+  // État de survol pour toute la scrollbar
+  .custom-scrollbar:hover {
+    .scrollbar-track {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .scrollbar-cursor {
+      background: linear-gradient(180deg, #ff1a1a 0%, #e60000 100%);
+    }
+  }
+  
+  // Animation lors du changement de slide
+  .scrollbar-cursor.animating {
+    transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  // Variante avec indicateurs de slides
+  .custom-scrollbar.with-indicators {
+    .scrollbar-track {
+      &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1px;
+        height: 100%;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 35px,
+          rgba(255, 255, 255, 0.3) 35px,
+          rgba(255, 255, 255, 0.3) 37px
+        );
+      }
+    }
+  }
+  
+  // Style alternatif - plus large avec numérotation
+  .custom-scrollbar.numbered {
+    width: 30px;
+    right: 15px;
+    
+    .scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .scrollbar-cursor {
+      width: 28px;
+      height: 25px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      font-family: 'Vodafone', sans-serif;
+      
+      &::before {
+        display: none;
+      }
+    }
+  }
+  
+  // Animation de pulsation pour attirer l'attention
+  @keyframes scrollbar-pulse {
+    0% { 
+      box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 4px 16px rgba(230, 0, 0, 0.8);
+      transform: scale(1.1);
+    }
+    100% { 
+      box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+      transform: scale(1);
+    }
+  }
+  
+  .scrollbar-cursor.pulse {
+    animation: scrollbar-pulse 2s infinite;
+  }
+  
+  // Style pour mode sombre
+  .dark-mode .custom-scrollbar {
+    .scrollbar-track {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .scrollbar-cursor {
+      background: linear-gradient(180deg, #ff4444 0%, #e60000 100%);
+      box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    }
+  }
+  
+// États initiaux pour slide-20
+#slide-20 {
+  #turtlebeach {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+  }
+  
+  .text-element {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100px);
+    will-change: opacity, transform;
+    transition: none; // Laisser GSAP gérer les transitions
+  }
+}
+
+// Animation states pour #turtlebeach
+#turtlebeach {
+  transform-origin: center center;
+  
+  &.animating {
+    will-change: opacity, transform;
+  }
+  
+  &.animated {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+// Styles responsive pour #turtlebeach
+@media screen and (max-width: 768px) {
+  #slide-20 {
+    #turtlebeach {
+      transform: scale(0.9) translateY(30px) rotate(-3deg);
+    }
+  }
+}
+
+// Animation d'entrée alternative (si besoin)
+@keyframes turtlebeach-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05) translateY(-10px) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+.turtlebeach-animate {
+  animation: turtlebeach-entrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

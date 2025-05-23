@@ -51,22 +51,61 @@ const caseStudyActiveIndex = ref(0);
 const updateScrollbarCursor = () => {
   if (!scrollCursor.value) return;
   
-  // Nombre fixe de slides à prendre en compte pour la progression
-  const TOTAL_SLIDES = 8;
-  
-  // Calculer la position du curseur en fonction du slide actif
+  const TOTAL_SLIDES = sortedSlides.value.length || 8;
   const currentPosition = activeSlideIndex.value;
-  // Ajuster pour que la position soit de 0 à 7 (pour 8 slides)
   const clampedPosition = Math.min(Math.max(currentPosition, 0), TOTAL_SLIDES - 1);
-  const percentage = clampedPosition / (TOTAL_SLIDES - 1);
+  const percentage = TOTAL_SLIDES > 1 ? clampedPosition / (TOTAL_SLIDES - 1) : 0;
   
- 
-  
-  // Déplacer le curseur en utilisant top au lieu de transform
-  // Le -10px est pour centrer le curseur (moitié de sa hauteur de 20px)
-  const trackHeight = scrollCursor.value.parentElement.offsetHeight - 20; // Hauteur de la piste moins hauteur du curseur
+  // Hauteur de la piste moins hauteur du curseur
+  const trackElement = scrollCursor.value.parentElement;
+  const trackHeight = trackElement.offsetHeight - scrollCursor.value.offsetHeight;
   const topPosition = percentage * trackHeight;
+  
+  // Ajouter la classe d'animation
+  scrollCursor.value.classList.add('animating');
   scrollCursor.value.style.top = `${topPosition}px`;
+  
+  // Retirer la classe d'animation après la transition
+  setTimeout(() => {
+    if (scrollCursor.value) {
+      scrollCursor.value.classList.remove('animating');
+    }
+  }, 600);
+  
+  // Afficher/masquer la scrollbar selon le contexte
+  const scrollbarElement = trackElement.parentElement;
+  if (TOTAL_SLIDES > 1) {
+    scrollbarElement.classList.add('visible');
+    scrollbarElement.classList.remove('hidden');
+  } else {
+    scrollbarElement.classList.add('hidden');
+    scrollbarElement.classList.remove('visible');
+  }
+  
+  // Optionnel : ajouter le numéro de slide dans le curseur
+  if (scrollCursor.value.classList.contains('numbered')) {
+    scrollCursor.value.textContent = (currentPosition + 1).toString();
+  }
+};
+
+// Fonction pour activer/désactiver les effets
+const toggleScrollbarEffects = (enable = true) => {
+  if (!scrollCursor.value) return;
+  
+  if (enable) {
+    // Activer l'effet de pulsation au premier chargement
+    setTimeout(() => {
+      if (scrollCursor.value) {
+        scrollCursor.value.classList.add('pulse');
+        // Retirer après 6 secondes
+        setTimeout(() => {
+          if (scrollCursor.value) {
+            scrollCursor.value.classList.remove('pulse');
+          }
+        }, 6000);
+      }
+    }, 2000);
+  }
 };
 
 const preloadImage = (src) => {
@@ -649,10 +688,10 @@ const getBackgroundImage = (slide) => {
   </div> 
 
   <!-- Custom scrollbar indicator -->
-  <div class="custom-scrollbar">
-    <div class="scrollbar-track"></div>
-    <div class="scrollbar-cursor" ref="scrollCursor"></div>
-  </div>
+  <div class="custom-scrollbar visible">
+  <div class="scrollbar-track"></div>
+  <div class="scrollbar-cursor" ref="scrollCursor"></div>
+</div>
 </template>
 
 <style lang="scss">
@@ -803,7 +842,10 @@ header.fixed-top.scrolled {
   border: none;
   cursor: pointer;
   padding: 0;
-  z-index: 10;
+  position:fixed;
+  right: 20px;
+  top: 25px;
+  z-index: 100000;
 }
 
 .hamburger span {
@@ -832,7 +874,7 @@ header.fixed-top.scrolled {
 #menu {
   position: fixed;
   top: 0;
-  left: -100%; 
+  right: -100%; 
   width: 300px; 
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.85);
@@ -847,7 +889,7 @@ header.fixed-top.scrolled {
 }
 
 #menu.is-open {
-  left: 0;
+  right: 0;
 }
 
 #menu ul {
@@ -887,68 +929,59 @@ header.fixed-top.scrolled {
   }
 }
 
-.back-to-top {
+.custom-scrollbar {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: rgba(230, 0, 0, 0.7); 
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s, background-color 0.3s;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  background-color: transparent;
   z-index: 999;
 }
 
-.back-to-top:hover {
-  background-color: rgba(204, 0, 0, 0.9); 
+.scrollbar-track {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
-.back-to-top.show {
-  opacity: 1;
-  visibility: visible;
+.scrollbar-cursor {
+  position: absolute;
+  width: 100%;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: top 0.3s ease, height 0.3s ease;
 }
 
-.back-to-top img {
-  width: 25px;
-  height: auto;
+.scrollbar-cursor.animating {
+  transition: top 0.6s ease;
 }
 
-/* Custom Scrollbar Styling - macOS style */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.scrollbar-cursor.numbered {
+  text-align: center;
+  line-height: 20px;
+  font-size: 12px;
+  color: white;
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
+.scrollbar-track.hidden {
+  display: none;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #e60000; /* Vodafone red */
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+.scrollbar-track.visible {
+  display: block;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #ff0000;
-  border: 2px solid transparent;
-  background-clip: content-box;
+.pulse {
+  animation: pulse-animation 1.5s infinite;
 }
 
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #e60000 rgba(0, 0, 0, 0.3);
+@keyframes pulse-animation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
-
 </style>

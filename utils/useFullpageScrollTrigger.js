@@ -20,7 +20,15 @@ export function useFullpageScrollTrigger() {
   
   // Constantes
   const SCROLLER_SELECTOR = "#master-scroll-container";
+  const sectionDuration = 1.2;
+  const sectionEase = "power2.inOut";
   
+  // AJOUTER CES VARIABLES MANQUANTES
+  // NOUVELLES CONSTANTES AJOUTÉES
+const tweenDuration = 0.4;
+const tweenEase = "power3.easeInOut";
+const slideEase = "power3.easeInOut";
+const slideDuration = 0.7;
   // Variables internes de gestion
   let stObserve = null;
   const keyboardListener = ref(null);
@@ -31,7 +39,7 @@ export function useFullpageScrollTrigger() {
   // SECTION 2: FONCTIONS UTILITAIRES
   // ===========================================================================
 
-  const goToSection = (index, duration = 1.2) => {
+  const goToSection = (index, duration = sectionDuration) => {
     if (index < 0 || index >= sections.value.length || isNavigating.value) return;
 
     console.log(`🚀 Navigation vers section ${index}`);
@@ -43,17 +51,17 @@ export function useFullpageScrollTrigger() {
     gsap.to(SCROLLER_SELECTOR, {
       scrollTo: { y: targetSection, autoKill: false },
       duration: duration,
-      ease: "power2.inOut",
+      ease: sectionEase,
       onComplete: () => {
         console.log(`✅ Navigation terminée vers section ${index}`);
         isNavigating.value = false;
         hasScrolledOnce.value = true;
 
         // Déclencher les animations automatiques à l'arrivée sur certaines slides
-        if (targetSection.id === 'slide-21') {
+        if (targetSection.id === 'slide-20') {
+          // Ne pas déclencher ici car c'est géré par ScrollTrigger
+        } else if (targetSection.id === 'slide-21') {
           triggerSlide21Animation();
-        } else if (targetSection.id === 'slide-20') {
-          triggerSlide20Animation();
         } else if (targetSection.id === 'slide-22') {
           triggerSlide22Animation();
         } else if (targetSection.id === 'slide-23') {
@@ -85,7 +93,7 @@ export function useFullpageScrollTrigger() {
       
       // Gestion spéciale pour slide-20 (#text-element-5)
       if (currentSection && currentSection.id === 'slide-20') {
-        if (!animationStates.value['slide-20-text-element-5']) {
+        if (!animationStates.value['slide-20-text-element-5'] && animationStates.value['slide-20-main-complete']) {
           triggerSlide20TextElement5();
           return;
         }
@@ -205,7 +213,7 @@ const registerSlide73Animation = () => {
       height: '100vh',
       width: '100vw',
       backgroundSize:'120vw',
-      backgroundPositiony: '0vw',
+      backgroundPositionX: '0vw', // Position initiale explicite
       backgroundRepeat: 'no-repeat',
     });
     
@@ -238,7 +246,33 @@ const registerSlide73Animation = () => {
     },
     onEnterBack: () => {
       // Réinitialiser l'animation quand on revient du bas
-      resetSlide73Animation();
+      // Mais seulement si on vient de slide-21
+      const currentSection = sections.value[currentSectionIndex.value];
+      if (currentSection && currentSection.id === 'slide-21') {
+        resetSlide73Animation();
+      } else {
+        // Réinitialiser seulement les points-fort, pas le background
+        const pointsFortDiv = slide73Section.querySelector('.points-fort');
+        const pointsFortLis = slide73Section.querySelectorAll('.points-fort li');
+        
+        if (pointsFortDiv) {
+          gsap.set(pointsFortDiv, {
+            width: '0vw',
+            x: '100vw'
+          });
+        }
+
+        if (pointsFortLis.length > 0) {
+          gsap.set(pointsFortLis, {
+            autoAlpha: 0,
+            y: 30
+          });
+        }
+        
+        animationStates.value['slide-73-complete'] = false;
+        animationStates.value['slide-73-animating'] = false;
+        animationStates.value['slide-73-reversing'] = false;
+      }
     },
     onLeaveBack: () => {
       // Maintenir l'état
@@ -342,7 +376,7 @@ const reverseSlide73Animation = () => {
   }, "<"); // En parallèle
 };
 
-// Mise à jour du resetSlide73Animation pour inclure le background
+// Mise à jour du resetSlide73Animation pour réinitialiser le background seulement sur slide-21
 const resetSlide73Animation = () => {
   const slide73Section = sections.value.find(s => s.id === 'slide-73');
   const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
@@ -350,18 +384,21 @@ const resetSlide73Animation = () => {
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
   
   if (slidesContainerDiv && pointsFortDiv) {
-    // Remettre le background à sa position initiale
-    gsap.set(slidesContainerDiv, {
-      backgroundPositionX: '0vw'
-    });
+    // Remettre le background à sa position initiale SEULEMENT si on est sur slide-21
+    const currentSection = sections.value[currentSectionIndex.value];
+    if (currentSection && currentSection.id === 'slide-21') {
+      gsap.set(slidesContainerDiv, {
+        backgroundPositionX: '0vw'
+      });
+    }
     
-    // Remettre points-fort hors du champ
+    // Remettre points-fort hors du champ (toujours)
     gsap.set(pointsFortDiv, {
       width: '0vw',
       x: '100vw'
     });
 
-    // Cacher à nouveau tous les li
+    // Cacher à nouveau tous les li (toujours)
     if (pointsFortLis.length > 0) {
       gsap.set(pointsFortLis, {
         autoAlpha: 0,
@@ -382,6 +419,17 @@ const resetSlide73Animation = () => {
     const slide21Section = sections.value.find(s => s.id === 'slide-21');
     const thoiathoing = slide21Section?.querySelector('#thoiathoing');
     
+    // Réinitialiser le background de slide-73 quand on arrive sur slide-21
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (slide73Section) {
+      const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+      if (slidesContainerDiv) {
+        gsap.set(slidesContainerDiv, {
+          backgroundPositionX: '0vw'
+        });
+      }
+    }
+    
     if (thoiathoing) {
       gsap.to(thoiathoing, {
         autoAlpha: 1,
@@ -395,28 +443,60 @@ const resetSlide73Animation = () => {
     }
   };
 
-  // SLIDE-20 : Éléments apparaissent les uns après les autres
+  // SLIDE-20 : Animation de #turtlebeach puis éléments apparaissent les uns après les autres
   const registerSlide20Animation = () => {
     const slide20Section = sections.value.find(s => s.id === 'slide-20');
     if (!slide20Section) return;
 
+    const turtlebeach = slide20Section.querySelector('#turtlebeach');
     const textElements = slide20Section.querySelectorAll('.text-element:not(#text-element-5)');
     const textElement5 = slide20Section.querySelector('#text-element-5');
 
-    // État initial
+    // État initial avec les paramètres de référence
+    if (turtlebeach) {
+      gsap.set(turtlebeach, { 
+        autoAlpha: 0, 
+        scale: 0.8,
+        y: 50,
+        rotation: -5
+      });
+    }
+
     if (textElements.length > 0) {
-      gsap.set(textElements, { autoAlpha: 0, y: 100 });
+      gsap.set(textElements, { 
+        autoAlpha: 0, 
+        y: 100
+      });
     }
     if (textElement5) {
-      gsap.set(textElement5, { autoAlpha: 0, y: 100 });
+      gsap.set(textElement5, { 
+        autoAlpha: 0, 
+        y: 100
+      });
     }
 
     const st = ScrollTrigger.create({
       trigger: slide20Section,
       scroller: SCROLLER_SELECTOR,
       start: 'top center+=10%',
+      onEnter: () => {
+        // Déclencher l'animation automatique d'entrée
+        triggerSlide20Animation();
+      },
       onEnterBack: () => {
+        // Réinitialiser complètement quand on revient du bas
         resetSlide20Animation();
+        // Puis relancer l'animation après un délai
+        setTimeout(() => {
+          triggerSlide20Animation();
+        }, 100);
+      },
+      onLeaveBack: () => {
+        // Réinitialiser quand on quitte vers le haut
+        resetSlide20Animation();
+      },
+      onLeave: () => {
+        // Maintenir l'état final quand on descend
       }
     });
 
@@ -427,19 +507,42 @@ const resetSlide73Animation = () => {
     if (animationStates.value['slide-20-main-complete']) return;
     
     const slide20Section = sections.value.find(s => s.id === 'slide-20');
+    const turtlebeach = slide20Section?.querySelector('#turtlebeach');
     const textElements = slide20Section?.querySelectorAll('.text-element:not(#text-element-5)');
     
+    if (!turtlebeach) return;
+
+    animationStates.value['slide-20-animating'] = true;
+    isNavigating.value = true;
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        animationStates.value['slide-20-main-complete'] = true;
+        animationStates.value['slide-20-animating'] = false;
+        isNavigating.value = false;
+        console.log('Slide-20: Animation principale terminée');
+      }
+    });
+
+    // Phase 1: Animation de #turtlebeach en premier
+    tl.to(turtlebeach, {
+      autoAlpha: 1,
+      scale: 1,
+      y: 0,
+      rotation: 0,
+      duration: 0.8,
+      ease: 'back.out(1.7)'
+    });
+
+    // Phase 2: Animation des éléments texte après turtlebeach
     if (textElements && textElements.length > 0) {
-      gsap.to(textElements, {
+      tl.to(textElements, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.4,
-        stagger: 0.15,
-        ease: 'power2.out',
-        onComplete: () => {
-          animationStates.value['slide-20-main-complete'] = true;
-        }
-      });
+        duration: tweenDuration, // ← Maintenant définie
+        stagger: 0.15, // Délai entre chaque élément
+        ease: tweenEase // ← Maintenant définie
+      }, "+=0.3"); // Délai de 0.3s après turtlebeach
     }
   };
 
@@ -454,8 +557,8 @@ const resetSlide73Animation = () => {
       gsap.to(textElement5, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.4,
-        ease: 'power2.out',
+        duration: tweenDuration, // ← Maintenant définie
+        ease: tweenEase, // ← Maintenant définie
         onComplete: () => {
           animationStates.value['slide-20-text-element-5'] = true;
           isNavigating.value = false;
@@ -466,14 +569,31 @@ const resetSlide73Animation = () => {
 
   const resetSlide20Animation = () => {
     const slide20Section = sections.value.find(s => s.id === 'slide-20');
+    const turtlebeach = slide20Section?.querySelector('#turtlebeach');
     const textElements = slide20Section?.querySelectorAll('.text-element');
     
+    // Réinitialiser #turtlebeach
+    if (turtlebeach) {
+      gsap.set(turtlebeach, { 
+        autoAlpha: 0, 
+        scale: 0.8,
+        y: 50,
+        rotation: -5
+      });
+    }
+
+    // Réinitialiser tous les éléments texte
     if (textElements) {
-      gsap.set(textElements, { autoAlpha: 0, y: 100 });
+      gsap.set(textElements, { 
+        autoAlpha: 0, 
+        y: 100
+      });
     }
     
+    // Reset des états
     animationStates.value['slide-20-main-complete'] = false;
     animationStates.value['slide-20-text-element-5'] = false;
+    animationStates.value['slide-20-animating'] = false;
   };
 
   // SLIDE-22 : Faire apparaître le texte une fois la slide visible
