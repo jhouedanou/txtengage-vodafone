@@ -595,18 +595,34 @@ const resetSlide73Animation = () => {
     }
   };
 
-  // SLIDE-23 : Afficher perdrix-slide-1 et faire défiler les div .perdrix-slide
+  // SLIDE-23 : Afficher le conteneur perdrix et faire défiler les div .perdrix-slide
   const registerSlide23Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     if (!slide23Section) return;
 
-    const perdrixSlide1 = slide23Section.querySelector('#perdrix-slide-1');
+    // Chercher le conteneur principal et les éléments perdrix
+    const perdrixContainer = slide23Section.querySelector('#perdrix-container, #bygone-bip');
     const perdrixElements = slide23Section.querySelectorAll('.perdrix-slide');
+    const firstPerdrixSlide = slide23Section.querySelector('.perdrix-slide:first-child');
 
-    // État initial
-    if (perdrixSlide1) {
-      gsap.set(perdrixSlide1, { autoAlpha: 0 });
+    console.log('Slide-23 Register Debug:', {
+      slide23Section: !!slide23Section,
+      perdrixContainer: !!perdrixContainer,
+      perdrixElementsCount: perdrixElements.length,
+      firstPerdrixSlide: !!firstPerdrixSlide
+    });
+
+    // État initial - conteneur caché mais premier slide prêt
+    if (perdrixContainer) {
+      gsap.set(perdrixContainer, { autoAlpha: 0 });
     }
+    
+    // S'assurer que le premier perdrix-slide est prêt à être affiché
+    if (firstPerdrixSlide) {
+      gsap.set(firstPerdrixSlide, { autoAlpha: 1 });
+    }
+    
+    // Initialiser la position des éléments pour le défilement
     if (perdrixElements.length > 0) {
       gsap.set(perdrixElements, { x: 0 });
     }
@@ -630,20 +646,32 @@ const resetSlide73Animation = () => {
     if (animationStates.value['slide-23-initialized']) return;
     
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
-    const perdrixSlide1 = slide23Section?.querySelector('#perdrix-slide-1');
+    // Chercher le conteneur principal et le premier slide
+    const perdrixContainer = slide23Section?.querySelector('#perdrix-container, #bygone-bip');
+    const firstPerdrixSlide = slide23Section?.querySelector('.perdrix-slide:first-child');
     
-    if (perdrixSlide1) {
-      isNavigating.value = true;
-      gsap.to(perdrixSlide1, {
-        autoAlpha: 1,
-        duration: 0.8,
-        ease: "power2.out",
-        onComplete: () => {
-          animationStates.value['slide-23-initialized'] = true;
-          animationStates.value['slide-23-scroll-index'] = 0;
-          isNavigating.value = false;
-        }
-      });
+    console.log('Triggering slide-23 animation:', {
+      slide23Section: !!slide23Section,
+      perdrixContainer: !!perdrixContainer,
+      firstPerdrixSlide: !!firstPerdrixSlide
+    });
+    
+    if (perdrixContainer) {
+      // Afficher directement sans animation
+      gsap.set(perdrixContainer, { autoAlpha: 1 });
+      
+      // S'assurer que le premier perdrix-slide est visible
+      if (firstPerdrixSlide) {
+        gsap.set(firstPerdrixSlide, { autoAlpha: 1 });
+      }
+      
+      animationStates.value['slide-23-initialized'] = true;
+      animationStates.value['slide-23-scroll-index'] = 0;
+      console.log('Slide-23 content displayed directly');
+    } else {
+      console.error('Slide-23: Container not found');
+      // Débloquer la navigation même si l'élément n'est pas trouvé
+      animationStates.value['slide-23-initialized'] = true;
     }
   };
 
@@ -692,11 +720,11 @@ const resetSlide73Animation = () => {
 
   const resetSlide23Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
-    const perdrixSlide1 = slide23Section?.querySelector('#perdrix-slide-1');
+    const perdrixContainer = slide23Section?.querySelector('#perdrix-container, #bygone-bip');
     const perdrixElements = slide23Section?.querySelectorAll('.perdrix-slide');
     
-    if (perdrixSlide1) {
-      gsap.set(perdrixSlide1, { autoAlpha: 0 });
+    if (perdrixContainer) {
+      gsap.set(perdrixContainer, { autoAlpha: 0 });
     }
     if (perdrixElements) {
       gsap.set(perdrixElements, { x: 0 });

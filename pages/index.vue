@@ -6,7 +6,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { useResponsiveAnimations } from '~/utils/useResponsiveAnimations'; // Nouveau système responsif
-import CustomScrollbar from '~/components/CustomScrollbar.vue';
 // Lenis n'a pas pu être intégré correctement, nous utilisons une approche native
 
 // Initialisation du système de fullpage personnalisé avec détection automatique mobile/desktop
@@ -284,6 +283,24 @@ onMounted(async () => {
     nextTick(() => {
       updateScrollbarCursor();
     });
+  });
+
+  // Initialiser la scrollbar immédiatement
+  nextTick(() => {
+    // Rendre la scrollbar visible
+    const scrollbarElement = document.querySelector('.simple-scrollbar');
+    if (scrollbarElement) {
+      scrollbarElement.classList.add('visible');
+      scrollbarElement.classList.remove('hidden');
+    }
+    
+    // Mettre à jour la position initiale
+    updateScrollbarCursor();
+    
+    // Activer les effets de la scrollbar
+    toggleScrollbarEffects(true);
+    
+    console.log('Scrollbar initialisée avec succès');
   });
 
   // Écouter l'événement de navigation émis par la scrollbar custom
@@ -709,7 +726,7 @@ const handleNavigateToSection = (event) => {
   <!-- Custom scrollbar indicator -->
   <div class="simple-scrollbar">
     <div class="scrollbar-track">
-      <div class="scrollbar-thumb" ref="scrollbarThumb"></div>
+      <div class="scrollbar-cursor" ref="scrollCursor"></div>
     </div>
   </div>
 </template>
@@ -949,59 +966,129 @@ header.fixed-top.scrolled {
   }
 }
 
-.custom-scrollbar {
+.simple-scrollbar {
   position: fixed;
-  top: 0;
-  right: 0;
-  width: 8px;
-  height: 100%;
-  background-color: transparent;
-  z-index: 999;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  height: 300px; // Hauteur de la piste
+  width: 4px;
+  background: transparent;
+  pointer-events: none; // Évite les interactions accidentelles
 }
 
 .scrollbar-track {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  //backdrop-filter: blur(5px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .scrollbar-cursor {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
-  height: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: top 0.3s ease, height 0.3s ease;
+  height: 20px; // Hauteur du curseur
+  background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 1px;
+  }
+  
+  &:hover {
+    background: linear-gradient(180deg, #ff1a1a 0%, #e60000 100%);
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(230, 0, 0, 0.6);
+  }
 }
 
+// Animation d'apparition/disparition
+.simple-scrollbar {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+// Animation lors du changement de slide
 .scrollbar-cursor.animating {
-  transition: top 0.6s ease;
+  transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.scrollbar-cursor.numbered {
-  text-align: center;
-  line-height: 20px;
-  font-size: 12px;
-  color: white;
+// Animation de pulsation pour attirer l'attention
+@keyframes scrollbar-pulse {
+  0% { 
+    box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 4px 16px rgba(230, 0, 0, 0.8);
+    transform: scale(1.1);
+  }
+  100% { 
+    box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+    transform: scale(1);
+  }
 }
 
-.scrollbar-track.hidden {
-  display: none;
+.scrollbar-cursor.pulse {
+  animation: scrollbar-pulse 2s infinite;
 }
 
-.scrollbar-track.visible {
-  display: block;
+// Responsive design
+@media screen and (max-width: 1024px) {
+  .simple-scrollbar {
+    right: 15px;
+    height: 250px;
+    width: 3px;
+  }
+  
+  .scrollbar-cursor {
+    height: 15px;
+    
+    &::before {
+      width: 1px;
+      height: 6px;
+    }
+  }
 }
 
-.pulse {
-  animation: pulse-animation 1.5s infinite;
-}
-
-@keyframes pulse-animation {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+@media screen and (max-width: 768px) {
+  .simple-scrollbar {
+    right: 10px;
+    height: 200px;
+    width: 3px;
+  }
+  
+  .scrollbar-cursor {
+    height: 12px;
+  }
 }
 </style>
