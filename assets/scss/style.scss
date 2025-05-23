@@ -2513,7 +2513,6 @@ body {
     visibility: inherit;
     height: 100vh;
     width: 100vw; // Reste toujours à 100vw
-    // Suppression de will-change: width car plus animé
     will-change: background-position, background-size;
   }
   
@@ -2521,8 +2520,16 @@ body {
     opacity: 1;
     visibility: inherit;
     height: 100vh;
-    width: 0vw; // Démarre à 0vw et va à 50vw
-    will-change: width;
+    width: 0vw; // Démarre à 0vw
+    transform: translateX(100vw); // Commence hors du champ à droite
+    will-change: width, transform;
+    
+    li {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(30px);
+      will-change: opacity, transform;
+    }
   }
 }
 

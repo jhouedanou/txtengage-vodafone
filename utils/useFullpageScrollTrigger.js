@@ -180,103 +180,137 @@ export function useFullpageScrollTrigger() {
   // SECTION 4: ANIMATIONS SPÉCIFIQUES AUX SLIDES
   // ===========================================================================
 
-  // SLIDE-73 : Animation uniquement des points forts
-  const registerSlide73Animation = () => {
-    const slide73Section = sections.value.find(s => s.id === 'slide-73');
-    if (!slide73Section) return;
+// SLIDE-73 : Animation complète des points forts avec fade des li
+const registerSlide73Animation = () => {
+  const slide73Section = sections.value.find(s => s.id === 'slide-73');
+  if (!slide73Section) return;
 
-    const slidesContainerDiv = slide73Section.querySelector('.slides-container');
-    const pointsFortDiv = slide73Section.querySelector('.points-fort');
+  const slidesContainerDiv = slide73Section.querySelector('.slides-container');
+  const pointsFortDiv = slide73Section.querySelector('.points-fort');
+  const pointsFortLis = slide73Section.querySelectorAll('.points-fort li');
 
-    if (slidesContainerDiv && pointsFortDiv) {
-      // État initial
-      gsap.set(slidesContainerDiv, {
-        opacity: 1,
-        visibility: 'inherit',
-        height: '100vh',
-        width: '100vw'
-        // Suppression des propriétés background qui ne seront plus animées
-      });
-      
-      gsap.set(pointsFortDiv, {
-        opacity: 1,
-        visibility: 'inherit',
-        height: '100vh',
-        width: '0vw'
-      });
-    }
-
-    const st = ScrollTrigger.create({
-      trigger: slide73Section,
-      scroller: SCROLLER_SELECTOR,
-      start: 'top center+=10%',
-      onEnter: () => {
-        // Animation automatique lors de l'entrée sur la slide
-        if (!animationStates.value['slide-73-complete']) {
-          // Pas d'animation automatique, attendre le scroll
-        }
-      },
-      onLeave: () => {
-        // Maintenir l'état final si l'animation est terminée
-      },
-      onEnterBack: () => {
-        // Réinitialiser l'animation quand on revient du bas
-        resetSlide73Animation();
-      },
-      onLeaveBack: () => {
-        // Maintenir l'état
-      }
+  if (slidesContainerDiv && pointsFortDiv) {
+    // État initial
+    gsap.set(slidesContainerDiv, {
+      opacity: 1,
+      visibility: 'inherit',
+      height: '100vh',
+      width: '100vw',
+      backgroundSize:'120vw',
+      backgroundPositiony: '0vw',
+      backgroundRepeat: 'no-repeat',
+    });
+    
+    gsap.set(pointsFortDiv, {
+      opacity: 1,
+      visibility: 'inherit',
+      height: '100vh',
+      width: '0vw',
+      x: '100vw' // Commence complètement hors du champ à droite
     });
 
-    specificAnimationTriggers.push(st);
-  };
-
-  const triggerSlide73Animation = () => {
-    if (animationStates.value['slide-73-complete']) return;
-    
-    const slide73Section = sections.value.find(s => s.id === 'slide-73');
-    const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
-    const pointsFortDiv = slide73Section?.querySelector('.points-fort');
-    
-    if (!slidesContainerDiv || !pointsFortDiv) return;
-
-    animationStates.value['slide-73-animating'] = true;
-    isNavigating.value = true;
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        animationStates.value['slide-73-complete'] = true;
-        animationStates.value['slide-73-animating'] = false;
-        isNavigating.value = false;
-        console.log('Slide-73: Animation terminée');
-      }
-    });
-
-    // Animation uniquement des points forts
-    tl.to(pointsFortDiv, {
-      width: '50vw',
-      duration: 0.8,
-      ease: 'power3.easeInOut'
-    });
-
-    // Ne plus animer slides-container - il garde sa largeur de 100vw
-  };
-
-  const resetSlide73Animation = () => {
-    const slide73Section = sections.value.find(s => s.id === 'slide-73');
-    const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
-    const pointsFortDiv = slide73Section?.querySelector('.points-fort');
-    
-    if (slidesContainerDiv && pointsFortDiv) {
-      // slides-container garde toujours sa largeur de 100vw (pas de reset nécessaire)
-      gsap.set(pointsFortDiv, {
-        width: '0vw'
+    // Cacher initialement tous les li
+    if (pointsFortLis.length > 0) {
+      gsap.set(pointsFortLis, {
+        autoAlpha: 0,
+        y: 30
       });
     }
-    
-    animationStates.value['slide-73-complete'] = false;
-    animationStates.value['slide-73-animating'] = false;
-  };
+  }
+
+  const st = ScrollTrigger.create({
+    trigger: slide73Section,
+    scroller: SCROLLER_SELECTOR,
+    start: 'top center+=10%',
+    onEnter: () => {
+      // Pas d'animation automatique, attendre le scroll
+    },
+    onLeave: () => {
+      // Maintenir l'état final si l'animation est terminée
+    },
+    onEnterBack: () => {
+      // Réinitialiser l'animation quand on revient du bas
+      resetSlide73Animation();
+    },
+    onLeaveBack: () => {
+      // Maintenir l'état
+    }
+  });
+
+  specificAnimationTriggers.push(st);
+};
+
+const triggerSlide73Animation = () => {
+  if (animationStates.value['slide-73-complete']) return;
+  
+  const slide73Section = sections.value.find(s => s.id === 'slide-73');
+  const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
+  const pointsFortDiv = slide73Section?.querySelector('.points-fort');
+  const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
+  
+  if (!slidesContainerDiv || !pointsFortDiv) return;
+
+  animationStates.value['slide-73-animating'] = true;
+  isNavigating.value = true;
+
+  const tl = gsap.timeline({
+    onComplete: () => {
+      animationStates.value['slide-73-complete'] = true;
+      animationStates.value['slide-73-animating'] = false;
+      isNavigating.value = false;
+      console.log('Slide-73: Animation terminée');
+    }
+  });
+
+  // Phase 1: Faire entrer points-fort à moitié dans le champ
+  tl.to(pointsFortDiv, {
+    width: '50vw', // Prends la moitié de la largeur
+    x: 0, // Entre à moitié dans le champ
+    duration: 0.5,
+    ease: 'power3.easeInOut'
+  })
+  .to(slidesContainerDiv, {
+    backgroundPositionX: '-20vw', // Déplace le background de -50vw
+    duration: 0.5,
+    ease: 'power3.easeInOut'
+  }, "<"); // "<" pour démarrer en même temps
+  // Phase 2: Faire apparaître les li en cascade avec un délai
+  if (pointsFortLis.length > 0) {
+    tl.to(pointsFortLis, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.4,
+      stagger: 0.1, // Délai entre chaque li
+      ease: 'power2.out'
+    }, "+=0.3"); // Délai de 0.3s après l'entrée du container
+  }
+};
+
+const resetSlide73Animation = () => {
+  const slide73Section = sections.value.find(s => s.id === 'slide-73');
+  const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
+  const pointsFortDiv = slide73Section?.querySelector('.points-fort');
+  const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
+  
+  if (slidesContainerDiv && pointsFortDiv) {
+    // Remettre points-fort hors du champ
+    gsap.set(pointsFortDiv, {
+      width: '0vw',
+      x: '100vw'
+    });
+
+    // Cacher à nouveau tous les li
+    if (pointsFortLis.length > 0) {
+      gsap.set(pointsFortLis, {
+        autoAlpha: 0,
+        y: 30
+      });
+    }
+  }
+  
+  animationStates.value['slide-73-complete'] = false;
+  animationStates.value['slide-73-animating'] = false;
+};
 
   // SLIDE-21 : Faire apparaître le texte une fois la slide visible
   const triggerSlide21Animation = () => {
