@@ -2506,486 +2506,84 @@ body {
     /* display: flex; align-items: center; justify-content: center; etc. */
 }
 
-// Styles spécifiques pour la slide 73
+// États initiaux pour les animations desktop
 #slide-73 {
-    background-color: #f5f5f5;
-
-    .points-fort {
-        max-width: 50vw;
-        margin: 0 auto;
-        padding: 2rem;
-
-        .point {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            // Initialement masqué et sera animé via GSAP
-        }
-
-        .description {
-            font-size: 1rem;
-            margin-top: 2rem;
-            // Initialement masqué et sera animé via GSAP
-        }
-    }
-
-    .scribing-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        pointer-events: none;
-    }
-
-    // Configuration pour l'animation de stroke du scribing
-    .scribing-element {
-        stroke-dasharray: 1000;
-        stroke-dashoffset: 1000;
-    }
+  .slides-container {
+    opacity: 1;
+    visibility: inherit;
+    height: 100vh;
+    width: 100vw; // Reste toujours à 100vw
+    // Suppression de will-change: width car plus animé
+    will-change: background-position, background-size;
+  }
+  
+  .points-fort {
+    opacity: 1;
+    visibility: inherit;
+    height: 100vh;
+    width: 0vw; // Démarre à 0vw et va à 50vw
+    will-change: width;
+  }
 }
 
-.slides-container {
-    background-size: cover;
-    background-repeat: no-repeat;
-}
-
-.clientrequest {
-    //background:red;
-    margin: 3em 0;
-    width: 100%;
-    max-width: 355px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    h3 {
-        margin: 1em 0;
-        font-family: Vodafone;
-        font-size: 28px;
-        font-weight: bold;
-        line-height: 1.44 !important;
-    }
-
-    p {
-        margin: 1em 0;
-        font-family: Raleway;
-        font-size: 23px;
-        font-weight: normal;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 1.44 !important;
-        letter-spacing: normal;
-        text-align: center;
-        color: #fff;
-    }
-}
-
-#dec {
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    align-content: flex-start;
-    align-items: flex-start;
-}
-
-#bawse {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin: 0 auto;
-}
-
-#casestudy {
-    width: 100%;
-
-    .case-study-content {
-        text-align: left;
-        width: 100%;
-    }
-
-    .text-element {
-        display: flex;
-        align-items: left;
-        justify-content: left;
-        flex-direction: column;
-        margin: 0 auto;
-
-        p {
-            text-align: left;
-            width: 100%;
-
-        }
-    }
-
-    h3 {
-        opacity: 0.27;
-
-        font-family: Vodafone;
-        font-size: 48px;
-        font-weight: bold;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 0.83;
-        letter-spacing: normal;
-        text-align: left;
-        color: #231f20;
-        width: 100%;
-
-        &.active {
-            color: #f00;
-
-        }
-    }
-
-    h2 {
-        text-align: left;
-        box-sizing: border-box;
-        white-space: pre-line;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        font-family: Vodafone;
-        font-weight: bold;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 1;
-        letter-spacing: normal;
-        text-align: left;
-        color: #ff0000;
-        font-size: 7em;
-        margin-bottom: 20px !important;
-        width: 100%;
-    }
-}
-
-.case-study-content {
-    width: 100%;
+#slide-21 {
+  #thoiathoing {
     opacity: 0;
     visibility: hidden;
-    display: none;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
+}
+
+#slide-20 {
+  .text-element {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100px);
+    will-change: opacity, transform;
+  }
+}
+
+#slide-22 {
+  .text-element, .content {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
+}
+
+#slide-23 {
+  .perdrix-slide-1 {
+    opacity: 0;
+    visibility: hidden;
+    will-change: opacity;
+  }
+  
+  .perdix {
+    will-change: transform;
+  }
+}
+
+#slide-59 {
+  #lass {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
 }
 
 #slide-128 {
-    background-color: #d9d9d9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    /* Ajouter ces styles */
-    #killerwu {
-        width: 100vw;
-        opacity: 0;
-        /* Initialement invisible pour l'animation */
-        visibility: hidden;
-    }
-
-    .case-study-item {
-        cursor: pointer;
-        transition: color 0.4s ease;
-        margin-bottom: 1.5rem;
-    }
-
-    .case-study-content {
-        opacity: 0;
-        visibility: hidden;
-        display: none;
-        transition: opacity 0.6s ease, visibility 0.6s ease;
-
-        p {
-            font-family: Raleway;
-            font-size: 23px;
-            margin-bottom: 0em;
-        }
-    }
-}
-
-.case-study-header {
-    transition: transform 0.3s ease, font-weight 0.3s ease;
-
-    &.active {
-        opacity: 1 !important;
-    }
-
-}
-
-#case-study-content-3 {
-    ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-
-        li {
-            list-style-type: none;
-            margin: 0 40px 0 0px;
-            font-family: Raleway;
-            font-size: 23px;
-            font-weight: normal;
-            font-stretch: normal;
-            font-style: normal;
-            line-height: 1.44;
-            letter-spacing: normal;
-            text-align: left;
-            color: #000;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            strong {
-
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                width: 94px;
-                height: 94px;
-                flex-grow: 0;
-                background-color: #f00;
-                border-radius: 100%;
-                font-family: Vodafone;
-                font-size: 50px;
-                font-weight: bold;
-                font-stretch: normal;
-                font-style: normal;
-                line-height: 0.8;
-                letter-spacing: normal;
-                text-align: center;
-                color: #fff;
-
-                span {
-                    text-transform: uppercase;
-                    font-size: 20px;
-                }
-            }
-        }
-    }
-}
-.image-container{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    //padding: 6% 5.9% 0 0;
-    position:relative;
-    img{
-        margin: 0 165px 85px 0;
-        height:504px;
-    }
-   
-}
-#teste{
-    position:relative;
-    width:100%;
-    height:100%;
-    z-index:1;
-    &::before{    
-        background: url(../images/Subtract.png);
-        z-index: 100;
-        background-position: bottom right;
-        background-repeat: no-repeat;
-        background-size: 100%;
-        bottom: 0;
-        content: "";
-        left: 0;
-        margin: auto;
-        right: 0;
-        height:100%;
-        max-height: 613px;
-        background-size: contain;
-        position:absolute;
-    }
-}
-#decodemerde{
- position:absolute   
-}
-.innerphone{
-    background-repeat: no-repeat;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-position: relative;
-    .telphjoen {
-    }
-
-
-
-}
-#perdrix{
-    width:100vw;
-    margin:0;
-    padding:0;
-    .perdrix-slider{
-        width:100vw;
-        margin:0;
-        padding:0;
-    }
-}
-
-.split-container{
-    .text-container{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    }
-}
-
-/* Custom Scrollbar Styling - macOS style */
-::-webkit-scrollbar {
-  width: 8px !important;
-  height: 8px !important;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3) !important;
-  border-radius: 10px !important;
-}
-
-::-webkit-scrollbar-thumb {
-  background: $vodafone-red !important;
-  border-radius: 10px !important;
-  border: 2px solid transparent !important;
-  background-clip: content-box !important;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ff0000 !important;
-  border: 2px solid transparent !important;
-  background-clip: content-box !important;
-}
-
-/* Firefox */
-html, body {
-  scrollbar-width: thin !important;
-  scrollbar-color: $vodafone-red rgba(0, 0, 0, 0.3) !important;
-  overflow-y: auto !important;
-}
-
-// Styles pour la scrollbar personnalisée qui montre la position dans les slides
-.custom-scrollbar {
-  position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 70vh;
-  width: 9px;
-  z-index: 1000;
-  pointer-events: none; // Pour ne pas interférer avec les clics
-  
-  .scrollbar-track {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
+  #killerwu {
+    opacity: 0;
+    visibility: hidden;
+    will-change: opacity;
   }
   
-  .scrollbar-cursor {
-    position: absolute;
-    top: 0; // Cette valeur sera remplacée par la valeur calculée en JS
-    left: 0px; // Pour créer un effet de curseur plus large
-    width: 9px; // Plus large que la piste
-    height: 50px;
-    background-color: $vodafone-red;
-    border-radius: 3px;
-    transition: top 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-  }
-}
-#thoiathoing2{
-    br{
-        display:none !important;
-    }
-}
-// Dans style.scss
-#slide-73 .slides-container.animation-complete {
-    background-position: -25vw center !important;
-  }
-// Dans votre fichier style.scss
-@media screen and (max-width: 1024px) {
-    .slide-section {
-        // Utiliser les nouvelles unités viewport pour mobile
-        height: 100dvh !important; // Dynamic Viewport Height
-        // ou height: 100svh !important; // Small Viewport Height
-        width: 100vw !important;
-        overflow: hidden;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box;
-    }
-    
-    .slide-section .slides-container {
-        width: 100vw !important;
-        height: 100dvh !important; // Même unité
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box;
-    }
-    
-    #master-scroll-container {
-        height: 100dvh !important;
-        width: 100vw !important;
-    }
-    
-    html, body {
-        height: 100dvh !important;
-        width: 100vw !important;
-        overflow: hidden !important;
-    }
-}
-@media screen and (max-width: 1024px) {
-  
-  #slide-21 {
-    #thoiathoing{
-        max-height:45px;
-    }
-    // Styles pour #mshill - élément qui apparaît à l'entrée
-    #mshill {
-      // États initiaux pour l'animation GSAP
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(30px);
-      
-      // Animation prête pour GSAP
-      will-change: opacity, transform;
-    }
-
-    // Styles pour #doctornek - élément qui apparaît au swipe
-    #doctornek {
-      // États initiaux pour l'animation GSAP
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(50px) scale(0.9);
-      
-      // Animation prête pour GSAP
-      will-change: opacity, transform, scale;
-      
-      // S'assurer qu'il couvre toute la slide quand il apparaît
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10;
-      
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
+  .case-study {
+    opacity: 0;
+    visibility: hidden;
+    will-change: transform, opacity;
   }
 }
