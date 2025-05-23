@@ -125,6 +125,7 @@ const slideDuration = 0.7;
           triggerSlide59Animation();
           return;
         }
+        // Si l'animation est terminée, permettre la navigation normale
       }
       
       // Gestion spéciale pour slide-128
@@ -963,26 +964,96 @@ const resetSlide73Animation = () => {
     animationStates.value['slide-23-current-index'] = 0;
   };
 
-  // SLIDE-59 : Afficher la div #lass au défilement vers le bas
+  // SLIDE-59 : Afficher #llass avec effet de remplissage et gestion de navigation
+  const registerSlide59Animation = () => {
+    const slide59Section = sections.value.find(s => s.id === 'slide-59');
+    if (!slide59Section) return;
+
+    const llassDiv = slide59Section.querySelector('#llass');
+    const leleDiv = slide59Section.querySelector('#lele');
+
+    // État initial
+    if (llassDiv) {
+      gsap.set(llassDiv, { 
+        autoAlpha: 1, // Visible mais masqué par clip-path
+        clipPath: 'inset(100% 0 0 0)', // Masqué complètement (depuis le bas)
+        transformOrigin: 'center bottom'
+      });
+    }
+    if (leleDiv) {
+      gsap.set(leleDiv, { 
+        autoAlpha: 1
+      });
+    }
+
+    const st = ScrollTrigger.create({
+      trigger: slide59Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%',
+      onEnter: () => {
+        // Animation automatique à l'entrée
+        triggerSlide59Animation();
+      },
+      onEnterBack: () => {
+        // Réinitialiser et rejouer l'animation
+        resetSlide59Animation();
+        setTimeout(() => {
+          triggerSlide59Animation();
+        }, 100);
+      },
+      onLeaveBack: () => {
+        // Réinitialiser quand on quitte vers le haut
+        resetSlide59Animation();
+      },
+      onLeave: () => {
+        // Maintenir l'état quand on descend
+      }
+    });
+
+    specificAnimationTriggers.push(st);
+  };
+
   const triggerSlide59Animation = () => {
     if (animationStates.value['slide-59-lass-shown']) return;
     
     const slide59Section = sections.value.find(s => s.id === 'slide-59');
-    const lassDiv = slide59Section?.querySelector('#lass');
+    const llassDiv = slide59Section?.querySelector('#llass');
     
-    if (lassDiv) {
+    if (llassDiv) {
       isNavigating.value = true;
-      gsap.to(lassDiv, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power2.out",
+      
+      // Animation avec effet de remplissage des barres rouges
+      gsap.to(llassDiv, {
+        clipPath: 'inset(0% 0 0 0)', // Révèle complètement l'image
+        duration: 1.5, // Plus long pour voir le remplissage
+        ease: "power2.out", // Effet fluide pour le remplissage
         onComplete: () => {
           animationStates.value['slide-59-lass-shown'] = true;
           isNavigating.value = false;
+          console.log('Slide-59: Animation de remplissage #llass terminée');
         }
       });
     }
+  };
+
+  const resetSlide59Animation = () => {
+    const slide59Section = sections.value.find(s => s.id === 'slide-59');
+    const llassDiv = slide59Section?.querySelector('#llass');
+    const leleDiv = slide59Section?.querySelector('#lele');
+    
+    if (llassDiv) {
+      gsap.set(llassDiv, { 
+        autoAlpha: 1, // Visible mais masqué par clip-path
+        clipPath: 'inset(100% 0 0 0)', // Masqué complètement (depuis le bas)
+        transformOrigin: 'center bottom'
+      });
+    }
+    if (leleDiv) {
+      gsap.set(leleDiv, { autoAlpha: 1 });
+    }
+    
+    animationStates.value['slide-59-lass-shown'] = false;
+    console.log('Slide-59: Animation reset');
   };
 
   // SLIDE-128 : Afficher #killerwu et faire défiler les case studies
@@ -1144,6 +1215,7 @@ const resetSlide73Animation = () => {
       registerSlide73Animation();
       registerSlide20Animation();
       registerSlide23Animation();
+      registerSlide59Animation();
       registerSlide128Animation();
 
       // Configuration des événements de navigation
@@ -1199,6 +1271,7 @@ const resetSlide73Animation = () => {
     reverseSlide73: reverseSlide73Animation, // Nouvelle fonction ajoutée
     resetSlide20: resetSlide20Animation,
     resetSlide23: resetSlide23Animation,
+    resetSlide59: resetSlide59Animation,
     resetSlide128: resetSlide128Animation,
     triggerSlide73: triggerSlide73Animation,
     currentSection: () => sections.value[currentSectionIndex.value]?.id

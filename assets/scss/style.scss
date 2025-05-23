@@ -854,7 +854,6 @@ body {
         padding: 2em 0;
 
         #llass {
-            display: none;
             position: absolute;
         }
 
@@ -3152,4 +3151,14 @@ body {
         z-index: 100;
         width: 492px;
 }
+}
+
+#slide-59 {
+  #llass {
+    opacity: 1;
+    visibility: visible;
+    clip-path: inset(100% 0 0 0); // Masqué initialement depuis le bas
+    will-change: clip-path;
+    transform-origin: center bottom;
+  }
 }
