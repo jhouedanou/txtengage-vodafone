@@ -108,7 +108,13 @@ const slideDuration = 0.7;
       // Gestion spéciale pour slide-23 (défilement des perdrix)
       if (currentSection && currentSection.id === 'slide-23') {
         if (animationStates.value['slide-23-initialized']) {
-          scrollPerdrixForward();
+          const canScrollForward = scrollPerdrixForward();
+          if (canScrollForward === false) {
+            // Toutes les slides perdrix sont terminées, passer à la slide suivante
+            if (currentSectionIndex.value < sections.value.length - 1) {
+              goToSection(currentSectionIndex.value + 1);
+            }
+          }
           return;
         }
       }
@@ -148,6 +154,14 @@ const slideDuration = 0.7;
       // Gestion spéciale pour slide-23 (défilement des perdrix)
       if (currentSection && currentSection.id === 'slide-23') {
         if (animationStates.value['slide-23-initialized']) {
+          // Si on est au début des perdrix-slides, permettre la navigation vers la slide précédente
+          if (perdrixScrollIndex <= 0) {
+            if (currentSectionIndex.value > 0) {
+              goToSection(currentSectionIndex.value - 1);
+            }
+            return;
+          }
+          // Sinon, continuer le défilement des perdrix vers l'arrière
           scrollPerdrixBackward();
           return;
         }
@@ -595,7 +609,7 @@ const resetSlide73Animation = () => {
     }
   };
 
-  // SLIDE-23 : Afficher #perdrix-slide-1 et gérer le défilement avec effets filmstrip et fades
+  // SLIDE-23 : Afficher #perdrix-slide-1 et gérer le défilement avec synchronisation des image-containers
   const registerSlide23Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     if (!slide23Section) return;
@@ -604,12 +618,14 @@ const resetSlide73Animation = () => {
     const perdrixContainer = slide23Section.querySelector('#perdrix-container, #bygone-bip');
     const perdrixSlides = slide23Section.querySelectorAll('.perdrix-slide');
     const firstPerdrixSlide = slide23Section.querySelector('#perdrix-slide-1');
+    const imageContainers = slide23Section.querySelectorAll('.image-container');
 
     console.log('Slide-23 Register Advanced:', {
       slide23Section: !!slide23Section,
       perdrixContainer: !!perdrixContainer,
       perdrixSlidesCount: perdrixSlides.length,
-      firstPerdrixSlide: !!firstPerdrixSlide
+      firstPerdrixSlide: !!firstPerdrixSlide,
+      imageContainersCount: imageContainers.length
     });
 
     // État initial - masquer le conteneur et préparer les slides
@@ -621,19 +637,28 @@ const resetSlide73Animation = () => {
     if (perdrixSlides.length > 0) {
       perdrixSlides.forEach((slide, index) => {
         const textContainer = slide.querySelector('.text-container');
-        const imageContainer = slide.querySelector('.image-container');
-        const image = slide.querySelector('img');
         
         if (index === 0) {
           // Premier slide : visible
           gsap.set(slide, { autoAlpha: 1 });
           if (textContainer) gsap.set(textContainer, { y: 0 });
-          if (image) gsap.set(image, { autoAlpha: 1 });
         } else {
           // Autres slides : masqués et positionnés
           gsap.set(slide, { autoAlpha: 0 });
           if (textContainer) gsap.set(textContainer, { y: '100vh', autoAlpha: 0 });
-          if (image) gsap.set(image, { autoAlpha: 0 });
+        }
+      });
+    }
+
+    // Initialiser tous les image-containers - masqués sauf le premier
+    if (imageContainers.length > 0) {
+      imageContainers.forEach((container, index) => {
+        if (index === 0) {
+          // Premier container : visible
+          gsap.set(container, { autoAlpha: 1, y: 0 });
+        } else {
+          // Autres containers : positionnés hors du viewport mais visibles
+          gsap.set(container, { autoAlpha: 1, y: '504px' });
         }
       });
     }
@@ -665,6 +690,7 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const perdrixContainer = slide23Section?.querySelector('#perdrix-container, #bygone-bip');
     const firstPerdrixSlide = slide23Section?.querySelector('#perdrix-slide-1');
+    const firstImageContainer = slide23Section?.querySelector('#image-container-1');
     
     console.log('Démarrage animation slide-23 avancée');
     
@@ -675,14 +701,17 @@ const resetSlide73Animation = () => {
         duration: 0.5,
         ease: "power2.out",
         onComplete: () => {
-          // S'assurer que le premier slide est visible
+          // S'assurer que le premier slide et la première image sont visibles
           if (firstPerdrixSlide) {
             gsap.set(firstPerdrixSlide, { autoAlpha: 1 });
+          }
+          if (firstImageContainer) {
+            gsap.set(firstImageContainer, { autoAlpha: 1, y: 0 });
           }
           
           animationStates.value['slide-23-initialized'] = true;
           animationStates.value['slide-23-current-index'] = 0;
-          console.log('Slide-23 initialisée - Premier slide affiché');
+          console.log('Slide-23 initialisée - Premier slide et première image affichés');
         }
       });
     } else {
@@ -699,8 +728,12 @@ const resetSlide73Animation = () => {
   const initializePerdrixScrollLimits = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const perdrixSlides = slide23Section?.querySelectorAll('.perdrix-slide');
-    maxPerdrixScroll = perdrixSlides ? perdrixSlides.length - 1 : 0;
-    console.log(`Perdrix scroll limites: max = ${maxPerdrixScroll}`);
+    const imageContainers = slide23Section?.querySelectorAll('.image-container');
+    // Prendre le maximum entre perdrix slides et image containers
+    const perdrixCount = perdrixSlides ? perdrixSlides.length : 0;
+    const imageCount = imageContainers ? imageContainers.length : 0;
+    maxPerdrixScroll = Math.max(perdrixCount, imageCount) - 1;
+    console.log(`Perdrix scroll limites: max = ${maxPerdrixScroll} (perdrix: ${perdrixCount}, images: ${imageCount})`);
   };
 
   const scrollPerdrixForward = () => {
@@ -711,7 +744,12 @@ const resetSlide73Animation = () => {
       initializePerdrixScrollLimits();
     }
     
-    if (perdrixScrollIndex >= maxPerdrixScroll) return;
+    // Si on a atteint la fin, permettre la navigation vers la slide suivante
+    if (perdrixScrollIndex >= maxPerdrixScroll) {
+      console.log('Fin des slides perdrix atteinte, navigation vers slide suivante');
+      isNavigating.value = false; // Débloquer la navigation
+      return false; // Indiquer qu'on peut passer à la slide suivante
+    }
     
     isScrollingPerdrix = true;
     isNavigating.value = true;
@@ -719,75 +757,79 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const currentSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex + 1}`);
     const nextSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex + 2}`);
+    const currentImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex + 1}`);
+    const nextImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex + 2}`);
     
     console.log(`Défilement perdrix avant: ${perdrixScrollIndex} -> ${perdrixScrollIndex + 1}`);
     
+    const tl = gsap.timeline({
+      onComplete: () => {
+        perdrixScrollIndex++;
+        animationStates.value['slide-23-current-index'] = perdrixScrollIndex;
+        isScrollingPerdrix = false;
+        isNavigating.value = false;
+        console.log(`Défilement terminé - nouvel index: ${perdrixScrollIndex}`);
+      }
+    });
+
+    // Animation des perdrix-slides sans fade
     if (currentSlide && nextSlide) {
       const currentTextContainer = currentSlide.querySelector('.text-container');
-      const currentImage = currentSlide.querySelector('img');
       const nextTextContainer = nextSlide.querySelector('.text-container');
-      const nextImage = nextSlide.querySelector('img');
       
-      const tl = gsap.timeline({
-        onComplete: () => {
-          perdrixScrollIndex++;
-          animationStates.value['slide-23-current-index'] = perdrixScrollIndex;
-          isScrollingPerdrix = false;
-          isNavigating.value = false;
-          console.log(`Défilement terminé - nouvel index: ${perdrixScrollIndex}`);
-        }
-      });
-      
-      // Préparer le slide suivant dès le début
+      // Préparer le slide suivant
       gsap.set(nextSlide, { autoAlpha: 1 });
       if (nextTextContainer) {
         gsap.set(nextTextContainer, { y: '100vh', autoAlpha: 0 });
       }
-      if (nextImage) {
-        gsap.set(nextImage, { autoAlpha: 0 });
-      }
       
-      // Crossfade ultra-rapide des images (simultané)
-      if (currentImage && nextImage) {
-        tl.to(currentImage, {
-          autoAlpha: 0,
-          duration: 0.02,
-          ease: 'none'
-        })
-        .to(nextImage, {
-          autoAlpha: 1,
-          duration: 0.02,
-          ease: 'none'
-        }, "<"); // Démarre exactement en même temps
-      }
-      
-      // Effet filmstrip vertical rapide sur text-container sortant (glisse vers le haut)
+      // Animation simultanée des text-containers
       if (currentTextContainer) {
         tl.to(currentTextContainer, {
           y: '-100vh',
-          autoAlpha: 0,
-          duration: 0.25,
+          autoAlpha: 1,
+          duration: 0.4,
           ease: 'power3.easeInOut'
-        }, "<");
+        }, 0);
       }
       
-      // Masquer le slide actuel rapidement
-      tl.to(currentSlide, {
-        autoAlpha: 0,
-        duration: 0.1,
-        ease: 'power3.out'
-      }, "+=0.1");
-      
-      // Effet filmstrip vertical rapide sur text-container entrant (glisse depuis le bas)
       if (nextTextContainer) {
         tl.to(nextTextContainer, {
           y: 0,
           autoAlpha: 1,
-          duration: 0.25,
+          duration: 0.4,
           ease: 'power3.easeInOut'
-        }, "<");
+        }, 0);
       }
+      
+      // Masquer le slide actuel après l'animation
+      tl.to(currentSlide, {
+        autoAlpha: 1,
+        duration: 0.1,
+        ease: 'power3.out'
+      }, 0.4);
     }
+
+    // Animation synchronisée des image-containers sans fade
+    if (currentImageContainer && nextImageContainer) {
+      // Préparer le container suivant
+      gsap.set(nextImageContainer, { autoAlpha: 1, y: '504px' });
+      
+      // Animation simultanée des image-containers - l'ancienne reste visible
+      tl.to(currentImageContainer, {
+        y: '-504px',
+        duration: 0.4,
+        ease: 'power3.easeInOut'
+      }, 0);
+      
+      tl.to(nextImageContainer, {
+        y: 0,
+        duration: 0.4,
+        ease: 'power3.easeInOut'
+      }, 0);
+    }
+
+    return true; // Indiquer que l'animation a été lancée
   };
 
   const scrollPerdrixBackward = () => {
@@ -799,74 +841,76 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const currentSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex + 1}`);
     const prevSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex}`);
+    const currentImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex + 1}`);
+    const prevImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex}`);
     
     console.log(`Défilement perdrix arrière: ${perdrixScrollIndex} -> ${perdrixScrollIndex - 1}`);
     
+    const tl = gsap.timeline({
+      onComplete: () => {
+        perdrixScrollIndex--;
+        animationStates.value['slide-23-current-index'] = perdrixScrollIndex;
+        isScrollingPerdrix = false;
+        isNavigating.value = false;
+        console.log(`Défilement arrière terminé - nouvel index: ${perdrixScrollIndex}`);
+      }
+    });
+
+    // Animation des perdrix-slides sans fade
     if (currentSlide && prevSlide) {
       const currentTextContainer = currentSlide.querySelector('.text-container');
-      const currentImage = currentSlide.querySelector('img');
       const prevTextContainer = prevSlide.querySelector('.text-container');
-      const prevImage = prevSlide.querySelector('img');
       
-      const tl = gsap.timeline({
-        onComplete: () => {
-          perdrixScrollIndex--;
-          animationStates.value['slide-23-current-index'] = perdrixScrollIndex;
-          isScrollingPerdrix = false;
-          isNavigating.value = false;
-          console.log(`Défilement arrière terminé - nouvel index: ${perdrixScrollIndex}`);
-        }
-      });
-      
-      // Préparer le slide précédent dès le début
+      // Préparer le slide précédent
       gsap.set(prevSlide, { autoAlpha: 1 });
       if (prevTextContainer) {
         gsap.set(prevTextContainer, { y: '-100vh', autoAlpha: 0 });
       }
-      if (prevImage) {
-        gsap.set(prevImage, { autoAlpha: 0 });
-      }
       
-      // Crossfade ultra-rapide des images (simultané)
-      if (currentImage && prevImage) {
-        tl.to(currentImage, {
-          autoAlpha: 0,
-          duration: 0.02,
-          ease: 'none'
-        })
-        .to(prevImage, {
-          autoAlpha: 1,
-          duration: 0.02,
-          ease: 'none'
-        }, "<"); // Démarre exactement en même temps
-      }
-      
-      // Effet filmstrip vertical rapide sur text-container sortant (glisse vers le bas)
+      // Animation simultanée des text-containers
       if (currentTextContainer) {
         tl.to(currentTextContainer, {
           y: '100vh',
-          autoAlpha: 0,
-          duration: 0.25,
+          autoAlpha: 1,
+          duration: 0.4,
           ease: 'power3.easeInOut'
-        }, "<");
+        }, 0);
       }
       
-      // Masquer le slide actuel rapidement
-      tl.to(currentSlide, {
-        autoAlpha: 0,
-        duration: 0.1,
-        ease: 'power3.out'
-      }, "+=0.1");
-      
-      // Effet filmstrip vertical rapide sur text-container entrant (glisse depuis le haut)
       if (prevTextContainer) {
         tl.to(prevTextContainer, {
           y: 0,
           autoAlpha: 1,
-          duration: 0.25,
+          duration: 0.4,
           ease: 'power3.easeInOut'
-        }, "<");
+        }, 0);
       }
+      
+      // Masquer le slide actuel après l'animation
+      tl.to(currentSlide, {
+        autoAlpha: 0,
+        duration: 0.1,
+        ease: 'power3.out'
+      }, 0.4);
+    }
+
+    // Animation synchronisée des image-containers sans fade
+    if (currentImageContainer && prevImageContainer) {
+      // Préparer le container précédent
+      gsap.set(prevImageContainer, { autoAlpha: 1, y: '-504px' });
+      
+      // Animation simultanée des image-containers - l'ancienne reste visible
+      tl.to(currentImageContainer, {
+        y: '504px',
+        duration: 0.4,
+        ease: 'power3.easeInOut'
+      }, 0);
+      
+      tl.to(prevImageContainer, {
+        y: 0,
+        duration: 0.4,
+        ease: 'power3.easeInOut'
+      }, 0);
     }
   };
 
@@ -874,6 +918,7 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const perdrixContainer = slide23Section?.querySelector('#perdrix-container, #bygone-bip');
     const perdrixSlides = slide23Section?.querySelectorAll('.perdrix-slide');
+    const imageContainers = slide23Section?.querySelectorAll('.image-container');
     
     console.log('Reset slide-23 animation');
     
@@ -884,18 +929,28 @@ const resetSlide73Animation = () => {
     if (perdrixSlides) {
       perdrixSlides.forEach((slide, index) => {
         const textContainer = slide.querySelector('.text-container');
-        const image = slide.querySelector('img');
         
         if (index === 0) {
           // Premier slide : prêt pour réinitialisation
           gsap.set(slide, { autoAlpha: 1 });
           if (textContainer) gsap.set(textContainer, { y: 0 });
-          if (image) gsap.set(image, { autoAlpha: 1 });
         } else {
           // Autres slides : masqués
           gsap.set(slide, { autoAlpha: 0 });
           if (textContainer) gsap.set(textContainer, { y: '100vh', autoAlpha: 0 });
-          if (image) gsap.set(image, { autoAlpha: 0 });
+        }
+      });
+    }
+
+    // Réinitialiser les image-containers
+    if (imageContainers) {
+      imageContainers.forEach((container, index) => {
+        if (index === 0) {
+          // Premier container : prêt pour réinitialisation
+          gsap.set(container, { autoAlpha: 1, y: 0 });
+        } else {
+          // Autres containers : positionnés hors du viewport mais visibles
+          gsap.set(container, { autoAlpha: 1, y: '504px' });
         }
       });
     }
