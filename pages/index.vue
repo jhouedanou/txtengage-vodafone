@@ -739,7 +739,8 @@ const handleNavigateToSection = (event) => {
                           id="stone" class="image-column col-md-6"
                         >
                         <div id="sparta">
-                          <div
+                          <div id="rodman">
+                            <div
                             v-for="(paragraph, idx) in slide.paragraphs"
                             :id="`image-container-${idx + 1}`"
                             :key="idx"
@@ -751,6 +752,8 @@ const handleNavigateToSection = (event) => {
                               class="img-fluid m-0 p-0"
                             />
                           </div>
+                          </div>
+                         
                         </div>
                         
                         </div>
