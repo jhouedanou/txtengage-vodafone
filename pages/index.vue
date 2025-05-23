@@ -972,7 +972,7 @@ header.fixed-top.scrolled {
   top: 50%;
   transform: translateY(-50%);
   z-index: 1000;
-  height: 300px; // Hauteur de la piste
+  height: 80dvh; // Hauteur de 80% du viewport dynamique
   width: 4px;
   background: transparent;
   pointer-events: none; // Évite les interactions accidentelles
@@ -995,7 +995,7 @@ header.fixed-top.scrolled {
   left: 0;
   top: 0;
   width: 100%;
-  height: 20px; // Hauteur du curseur
+  height: 40px; // Hauteur du curseur augmentée de 20px à 40px
   background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
   border-radius: 2px;
   transition: all 0.3s ease;
@@ -1008,7 +1008,7 @@ header.fixed-top.scrolled {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 2px;
-    height: 8px;
+    height: 16px; // Augmenté de 8px à 16px pour correspondre au curseur plus long
     background: rgba(255, 255, 255, 0.6);
     border-radius: 1px;
   }
@@ -1066,16 +1066,16 @@ header.fixed-top.scrolled {
 @media screen and (max-width: 1024px) {
   .simple-scrollbar {
     right: 15px;
-    height: 250px;
+    height: 75dvh; // Légèrement plus petite sur tablette
     width: 3px;
   }
   
   .scrollbar-cursor {
-    height: 15px;
+    height: 30px; // Proportionnel à la taille desktop
     
     &::before {
       width: 1px;
-      height: 6px;
+      height: 12px; // Proportionnel
     }
   }
 }
@@ -1083,12 +1083,16 @@ header.fixed-top.scrolled {
 @media screen and (max-width: 768px) {
   .simple-scrollbar {
     right: 10px;
-    height: 200px;
+    height: 70dvh; // Plus petite sur mobile
     width: 3px;
   }
   
   .scrollbar-cursor {
-    height: 12px;
+    height: 25px; // Proportionnel
+    
+    &::before {
+      height: 10px; // Proportionnel
+    }
   }
 }
 </style>
