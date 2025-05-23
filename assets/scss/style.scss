@@ -531,12 +531,6 @@ body {
 
                 p {
                     font-size: 20px;
-                    font-weight: normal;
-                    font-stretch: normal;
-                    font-style: normal;
-                    line-height: normal;
-                    letter-spacing: normal;
-                    text-align: center;
                     color: #fff;
 
                 }
@@ -2270,9 +2264,6 @@ br{
     color: #fff;
     padding: 0; // Removed padding to use full width
     box-sizing: border-box;
-    height: 100%;
-    width: 100vw; // Full viewport width
- position: absolute !important;
  &:nth-of-type(1){
     opacity: 1;
  }
@@ -2383,7 +2374,7 @@ br{
             max-width: 240px;
 
             list-style: none;
-            background: url(images/3968142_200_1_b86905.webp) 10px center no-repeat white;
+            background: url(images/check.jpg) 10px center no-repeat white;
             background-size: 14px 14px;
             height: 28px;
             font-family: Vodafone;
@@ -3014,11 +3005,13 @@ body {
 }
 
 .image-container{
+
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    //padding: 6% 5.9% 0 0;
+    position: relative;
+    margin-left: -12px;
     position:relative;
     img{
         margin: 0 165px 85px 0;
@@ -3043,7 +3036,7 @@ body {
         margin: auto;
         right: 0;
         height:100%;
-        max-height: 613px;
+        max-height: 623px;
         background-size: contain;
         position:absolute;
     }
@@ -3072,4 +3065,57 @@ body {
     }
 }
 
-  
+  #quadi{
+    height:180px;
+    overflow:hidden;
+    position:relative;
+    .perdrix-slide{
+        position:absolute;
+    }
+  }
+
+  #sharon{
+    height:100%;
+    width:90vw !important;
+    margin:0 auto;
+    position:relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+
+   display: flex;
+       flex-direction: row;
+  }
+  #stone{
+    display:   flex;
+    justify-content:flex-end;
+    flex-direction: column;
+
+    height: 100vh;
+  }
+#sparta{
+    background: blue;
+    height: 585px;
+    position: relative;
+    overflow: hidden;
+    width: 427px;
+    &::before{
+        margin: auto;
+        content: "";
+        z-index: 10000;
+        position: absolute;
+        background: url(../images/Subtract.png);
+        background-position: 100% 100%;
+        background-repeat: no-repeat;
+        background-size: 100%;
+        background-size: contain;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        height: 613px;
+        right: 0;
+        z-index: 100;
+        width: 492px;
+}
+}
