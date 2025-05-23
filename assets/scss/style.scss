@@ -3216,11 +3216,25 @@ body {
   #rodman{
     height: 504px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+    width: 255px;
+    margin: 0 auto;
+    border-radius:39px 83px 39px 39px;
     position: relative;
+        .bdrs
+{
+        border-radius: 54px;
+        overflow: hidden;
+        height: 100%;
+        width: 251px;
+        background-color: #f00;
+        display: flex;
+        flex-direction: column;
+    
+            img{
+                height: 100%;
+                width: 100%;
+            }
+        }
     .image-container {
         width: 280px;
       position: absolute;
@@ -3309,3 +3323,39 @@ body {
         height:650px;
     }
 }
+
+  #lemof{
+    margin:0 auto;
+  }
+  #pdf{
+    width:100vw;
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    background-blend-mode: multiply;
+    background-image: linear-gradient(to bottom, #909090, #909090);
+  ul{
+    display: flex;  
+    align-content:center;
+    justify-content:center;
+    flex-direction:row;
+    justify-content: space-evenly;
+    margin:5px 0;
+    li{
+        list-style: none;
+        a{
+            font-family: Vodafone;
+            font-size: 16px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;
+            text-decoration: none;
+        }
+    }
+  }
+  }

@@ -121,15 +121,6 @@ const slideDuration = 0.7;
         }
       }
       
-      // Gestion spéciale pour slide-59
-      if (currentSection && currentSection.id === 'slide-59') {
-        if (!animationStates.value['slide-59-lass-shown']) {
-          triggerSlide59Animation();
-          return;
-        }
-        // Si l'animation est terminée, permettre la navigation normale
-      }
-      
       // Gestion spéciale pour slide-128
       if (currentSection && currentSection.id === 'slide-128') {
         if (animationStates.value['slide-128-initialized']) {
@@ -244,15 +235,6 @@ const slideDuration = 0.7;
             }
             return;
           }
-        }
-        
-        // Gestion spéciale pour slide-59
-        if (currentSection && currentSection.id === 'slide-59') {
-          if (!animationStates.value['slide-59-lass-shown']) {
-            triggerSlide59Animation();
-            return;
-          }
-          // Si l'animation est terminée, permettre la navigation normale
         }
         
         // Gestion spéciale pour slide-128
@@ -743,14 +725,16 @@ const resetSlide73Animation = () => {
     const perdrixContainer = slide23Section.querySelector('#perdrix-container, #bygone-bip');
     const perdrixSlides = slide23Section.querySelectorAll('.perdrix-slide');
     const firstPerdrixSlide = slide23Section.querySelector('#perdrix-slide-1');
-    const imageContainers = slide23Section.querySelectorAll('.image-container');
+    // Nouvelle structure : les image-containers sont maintenant dans .bdrs
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
 
     console.log('Slide-23 Register Advanced:', {
       slide23Section: !!slide23Section,
       perdrixContainer: !!perdrixContainer,
       perdrixSlidesCount: perdrixSlides.length,
       firstPerdrixSlide: !!firstPerdrixSlide,
-      imageContainersCount: imageContainers.length
+      imageContainersCount: imageContainers.length,
+      bdrsContainer: !!slide23Section.querySelector('.bdrs')
     });
 
     // État initial - masquer le conteneur et préparer les slides
@@ -815,7 +799,8 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const perdrixContainer = slide23Section?.querySelector('#perdrix-container, #bygone-bip');
     const firstPerdrixSlide = slide23Section?.querySelector('#perdrix-slide-1');
-    const firstImageContainer = slide23Section?.querySelector('#image-container-1');
+    // Nouvelle structure : premier image-container dans .bdrs
+    const firstImageContainer = slide23Section?.querySelector('.bdrs .image-container:first-child');
     
     console.log('Démarrage animation slide-23 avancée');
     
@@ -853,7 +838,8 @@ const resetSlide73Animation = () => {
   const initializePerdrixScrollLimits = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const perdrixSlides = slide23Section?.querySelectorAll('.perdrix-slide');
-    const imageContainers = slide23Section?.querySelectorAll('.image-container');
+    // Nouvelle structure : image-containers dans .bdrs
+    const imageContainers = slide23Section?.querySelectorAll('.bdrs .image-container');
     // Prendre le maximum entre perdrix slides et image containers
     const perdrixCount = perdrixSlides ? perdrixSlides.length : 0;
     const imageCount = imageContainers ? imageContainers.length : 0;
@@ -882,8 +868,9 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const currentSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex + 1}`);
     const nextSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex + 2}`);
-    const currentImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex + 1}`);
-    const nextImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex + 2}`);
+    // Nouvelle structure : image-containers dans .bdrs
+    const currentImageContainer = slide23Section?.querySelector(`.bdrs #image-container-${perdrixScrollIndex + 1}`);
+    const nextImageContainer = slide23Section?.querySelector(`.bdrs #image-container-${perdrixScrollIndex + 2}`);
     
     console.log(`Défilement perdrix avant: ${perdrixScrollIndex} -> ${perdrixScrollIndex + 1}`);
     
@@ -966,8 +953,9 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const currentSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex + 1}`);
     const prevSlide = slide23Section?.querySelector(`#perdrix-slide-${perdrixScrollIndex}`);
-    const currentImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex + 1}`);
-    const prevImageContainer = slide23Section?.querySelector(`#image-container-${perdrixScrollIndex}`);
+    // Nouvelle structure : image-containers dans .bdrs
+    const currentImageContainer = slide23Section?.querySelector(`.bdrs #image-container-${perdrixScrollIndex + 1}`);
+    const prevImageContainer = slide23Section?.querySelector(`.bdrs #image-container-${perdrixScrollIndex}`);
     
     console.log(`Défilement perdrix arrière: ${perdrixScrollIndex} -> ${perdrixScrollIndex - 1}`);
     
@@ -1043,7 +1031,8 @@ const resetSlide73Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const perdrixContainer = slide23Section?.querySelector('#perdrix-container, #bygone-bip');
     const perdrixSlides = slide23Section?.querySelectorAll('.perdrix-slide');
-    const imageContainers = slide23Section?.querySelectorAll('.image-container');
+    // Nouvelle structure : image-containers dans .bdrs
+    const imageContainers = slide23Section?.querySelectorAll('.bdrs .image-container');
     
     console.log('Reset slide-23 animation');
     
@@ -1115,7 +1104,7 @@ const resetSlide73Animation = () => {
       scroller: SCROLLER_SELECTOR,
       start: 'top center+=10%',
       onEnter: () => {
-        // Animation automatique à l'entrée
+        // Animation automatique à l'entrée - ne pas bloquer la navigation
         triggerSlide59Animation();
       },
       onEnterBack: () => {
@@ -1144,7 +1133,8 @@ const resetSlide73Animation = () => {
     const llassDiv = slide59Section?.querySelector('#llass');
     
     if (llassDiv) {
-      isNavigating.value = true;
+      // Ne pas bloquer la navigation - l'animation se joue en arrière-plan
+      // isNavigating.value = true; // SUPPRIMÉ - ne plus bloquer la navigation
       
       // Animation avec effet de remplissage des barres rouges de gauche à droite
       gsap.to(llassDiv, {
@@ -1153,7 +1143,7 @@ const resetSlide73Animation = () => {
         ease: "power2.out", // Effet fluide pour le remplissage
         onComplete: () => {
           animationStates.value['slide-59-lass-shown'] = true;
-          isNavigating.value = false;
+          // isNavigating.value = false; // SUPPRIMÉ - la navigation n'était pas bloquée
           console.log('Slide-59: Animation de remplissage #llass (gauche→droite) terminée');
         }
       });

@@ -489,6 +489,72 @@ const handleNavigateToSection = (event) => {
     }
   }
 };
+
+// Méthode pour revenir à la slide-73 avec réinitialisation des animations
+const goToFirstSlide = () => {
+  console.log('🔄 Réinitialisation et retour à slide-73');
+  
+  // Réinitialiser toutes les animations via le système desktop/responsif
+  if (window.debugDesktopAnimations) {
+    // Réinitialiser toutes les animations une par une
+    if (window.debugDesktopAnimations.resetSlide73) {
+      window.debugDesktopAnimations.resetSlide73();
+    }
+    if (window.debugDesktopAnimations.resetSlide20) {
+      window.debugDesktopAnimations.resetSlide20();
+    }
+    if (window.debugDesktopAnimations.resetSlide23) {
+      window.debugDesktopAnimations.resetSlide23();
+    }
+    if (window.debugDesktopAnimations.resetSlide59) {
+      window.debugDesktopAnimations.resetSlide59();
+    }
+    if (window.debugDesktopAnimations.resetSlide128) {
+      window.debugDesktopAnimations.resetSlide128();
+    }
+    
+    // Réinitialiser les états d'animation
+    if (window.debugDesktopAnimations.states && window.debugDesktopAnimations.states.value) {
+      const states = window.debugDesktopAnimations.states.value;
+      Object.keys(states).forEach(key => {
+        delete states[key];
+      });
+    }
+    console.log('✅ Toutes les animations réinitialisées');
+  }
+  
+  // Trouver l'index de la slide-73
+  const slide73Index = sortedSlides.value.findIndex(slide => slide.id === 73);
+  
+  if (slide73Index !== -1) {
+    console.log(`🎯 Navigation vers slide-73 (index: ${slide73Index})`);
+    
+    // Utiliser le système de navigation responsif
+    if (animationsInitialized.value && goToResponsiveSection) {
+      goToResponsiveSection(slide73Index);
+    } else {
+      // Fallback à la navigation manuelle
+      scrollToSection(slide73Index);
+    }
+    
+    // Déclencher l'animation slide-73 après un délai pour s'assurer qu'on est bien arrivé
+    setTimeout(() => {
+      if (window.debugDesktopAnimations && window.debugDesktopAnimations.triggerSlide73) {
+        console.log('🎬 Déclenchement animation slide-73');
+        window.debugDesktopAnimations.triggerSlide73();
+      }
+    }, 800); // Délai pour laisser le temps à la navigation de se terminer
+    
+  } else {
+    console.warn('⚠️  Slide-73 non trouvée');
+    // Fallback - aller à la première slide
+    if (animationsInitialized.value && goToResponsiveSection) {
+      goToResponsiveSection(0);
+    } else {
+      scrollToSection(0);
+    }
+  }
+};
 </script>
 
 <template>
@@ -740,17 +806,19 @@ const handleNavigateToSection = (event) => {
                         >
                         <div id="sparta">
                           <div id="rodman">
+                            <div class="bdrs">
                             <div
                             v-for="(paragraph, idx) in slide.paragraphs"
                             :id="`image-container-${idx + 1}`"
                             :key="idx"
                             class="image-container"
                           >
-                            <img
+                              <img
                               :src="extractImage(paragraph)"
                               alt="Image"
                               class="img-fluid m-0 p-0"
                             />
+                            </div>
                           </div>
                           </div>
                          
@@ -937,7 +1005,16 @@ const handleNavigateToSection = (event) => {
                   <img src="/images/backToTop.svg" alt="Back to Top" />
                 </a>
               </div>
+           
             </div>
+            <div id="pdf">
+                <ul>
+                  <li><a href="#">VodaMedia Privacy Statement &copy; 2024</a></li>
+                  <li><a href="#">FAQ's</a></li>
+                  <li><a href="#">Legal</a></li>
+                  <li><a href="#">T's & C's</a></li>
+                </ul>
+              </div>
           </div>
 
           <div v-else class="default-slide-content p-5 slide">
