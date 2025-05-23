@@ -3160,12 +3160,18 @@ body {
   #llass {
     opacity: 1;
     visibility: visible;
-    clip-path: inset(100% 0 0 0); // Masqué initialement depuis le bas
+    clip-path: inset(0 0 0 100%); // Masqué initialement depuis la gauche
     will-change: clip-path;
-    transform-origin: center bottom;
+    transform-origin: center left;
     width: 100% !important;
     max-width: 502px;
     height: 479px;
     position: absolute;
   }
+}
+
+.case-study-image{
+    img{
+        height:650px;
+    }
 }

@@ -186,26 +186,120 @@ const slideDuration = 0.7;
   const handleKeyboardNavigation = (e) => {
     if (isNavigating.value) return;
 
+    const currentSection = sections.value[currentSectionIndex.value];
+
     switch(e.key) {
       case 'ArrowDown':
       case 'PageDown':
       case ' ': // Espace
         e.preventDefault();
+        
+        // Gestion spéciale pour slide-73
+        if (currentSection && currentSection.id === 'slide-73') {
+          if (!animationStates.value['slide-73-complete']) {
+            triggerSlide73Animation();
+            return;
+          }
+        }
+        
+        // Gestion spéciale pour slide-20 (#text-element-5)
+        if (currentSection && currentSection.id === 'slide-20') {
+          // Si l'animation principale n'est pas terminée, bloquer complètement
+          if (!animationStates.value['slide-20-main-complete']) {
+            return;
+          }
+          // Si l'animation principale est terminée mais text-element-5 pas encore affiché
+          if (!animationStates.value['slide-20-text-element-5']) {
+            triggerSlide20TextElement5();
+            return;
+          }
+          // Si tout est terminé, permettre la navigation normale (continuer après ce if)
+        }
+        
+        // Gestion spéciale pour slide-23 (défilement des perdrix)
+        if (currentSection && currentSection.id === 'slide-23') {
+          if (animationStates.value['slide-23-initialized']) {
+            const canScrollForward = scrollPerdrixForward();
+            if (canScrollForward === false) {
+              // Toutes les slides perdrix sont terminées, passer à la slide suivante
+              if (currentSectionIndex.value < sections.value.length - 1) {
+                goToSection(currentSectionIndex.value + 1);
+              }
+            }
+            return;
+          }
+        }
+        
+        // Gestion spéciale pour slide-59
+        if (currentSection && currentSection.id === 'slide-59') {
+          if (!animationStates.value['slide-59-lass-shown']) {
+            triggerSlide59Animation();
+            return;
+          }
+          // Si l'animation est terminée, permettre la navigation normale
+        }
+        
+        // Gestion spéciale pour slide-128
+        if (currentSection && currentSection.id === 'slide-128') {
+          if (animationStates.value['slide-128-initialized']) {
+            scrollSlide128Forward();
+            return;
+          }
+        }
+        
+        // Navigation normale vers la slide suivante
         if (currentSectionIndex.value < sections.value.length - 1) {
           goToSection(currentSectionIndex.value + 1);
         }
         break;
+        
       case 'ArrowUp':
       case 'PageUp':
         e.preventDefault();
+        
+        // Gestion spéciale pour slide-73 - inverser l'animation
+        if (currentSection && currentSection.id === 'slide-73') {
+          if (animationStates.value['slide-73-complete'] && !animationStates.value['slide-73-reversing']) {
+            reverseSlide73Animation();
+            return;
+          }
+        }
+        
+        // Gestion spéciale pour slide-23 (défilement des perdrix)
+        if (currentSection && currentSection.id === 'slide-23') {
+          if (animationStates.value['slide-23-initialized']) {
+            // Si on est au début des perdrix-slides, permettre la navigation vers la slide précédente
+            if (perdrixScrollIndex <= 0) {
+              if (currentSectionIndex.value > 0) {
+                goToSection(currentSectionIndex.value - 1);
+              }
+              return;
+            }
+            // Sinon, continuer le défilement des perdrix vers l'arrière
+            scrollPerdrixBackward();
+            return;
+          }
+        }
+        
+        // Gestion spéciale pour slide-128
+        if (currentSection && currentSection.id === 'slide-128') {
+          if (animationStates.value['slide-128-initialized']) {
+            scrollSlide128Backward();
+            return;
+          }
+        }
+        
+        // Navigation normale vers la slide précédente
         if (currentSectionIndex.value > 0) {
           goToSection(currentSectionIndex.value - 1);
         }
         break;
+        
       case 'Home':
         e.preventDefault();
         goToSection(0);
         break;
+        
       case 'End':
         e.preventDefault();
         goToSection(sections.value.length - 1);
@@ -976,8 +1070,8 @@ const resetSlide73Animation = () => {
     if (llassDiv) {
       gsap.set(llassDiv, { 
         autoAlpha: 1, // Visible mais masqué par clip-path
-        clipPath: 'inset(100% 0 0 0)', // Masqué complètement (depuis le bas)
-        transformOrigin: 'center bottom'
+        clipPath: 'inset(0 0 0 100%)', // Masqué complètement depuis la gauche
+        transformOrigin: 'center left'
       });
     }
     if (leleDiv) {
@@ -1022,15 +1116,15 @@ const resetSlide73Animation = () => {
     if (llassDiv) {
       isNavigating.value = true;
       
-      // Animation avec effet de remplissage des barres rouges
+      // Animation avec effet de remplissage des barres rouges de gauche à droite
       gsap.to(llassDiv, {
-        clipPath: 'inset(0% 0 0 0)', // Révèle complètement l'image
+        clipPath: 'inset(0 0 0 0%)', // Révèle complètement l'image de gauche à droite
         duration: 1.5, // Plus long pour voir le remplissage
         ease: "power2.out", // Effet fluide pour le remplissage
         onComplete: () => {
           animationStates.value['slide-59-lass-shown'] = true;
           isNavigating.value = false;
-          console.log('Slide-59: Animation de remplissage #llass terminée');
+          console.log('Slide-59: Animation de remplissage #llass (gauche→droite) terminée');
         }
       });
     }
@@ -1044,8 +1138,8 @@ const resetSlide73Animation = () => {
     if (llassDiv) {
       gsap.set(llassDiv, { 
         autoAlpha: 1, // Visible mais masqué par clip-path
-        clipPath: 'inset(100% 0 0 0)', // Masqué complètement (depuis le bas)
-        transformOrigin: 'center bottom'
+        clipPath: 'inset(0 0 0 100%)', // Masqué complètement depuis la gauche
+        transformOrigin: 'center left'
       });
     }
     if (leleDiv) {
@@ -1268,7 +1362,7 @@ const resetSlide73Animation = () => {
   window.debugDesktopAnimations = {
     states: animationStates,
     resetSlide73: resetSlide73Animation,
-    reverseSlide73: reverseSlide73Animation, // Nouvelle fonction ajoutée
+    reverseSlide73: reverseSlide73Animation,
     resetSlide20: resetSlide20Animation,
     resetSlide23: resetSlide23Animation,
     resetSlide59: resetSlide59Animation,
