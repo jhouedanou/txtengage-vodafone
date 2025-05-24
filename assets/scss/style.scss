@@ -1341,6 +1341,9 @@ body {
 }
 
 @media screen and (max-width: 1024px) {
+    .subint{
+        background: none !important
+    }
     #guysamuel {
         max-width: 65vw !important;
     }
