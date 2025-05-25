@@ -3326,13 +3326,15 @@ body {
             justify-content: center;
             align-items: center;
             display: flex;
+            width:163px !important;
+            height:332px !important;
             flex-direction: column;
             background: rebeccapurple;
         }
         #sparta {
             margin: 0 !important;
             padding: 0 !important;
-            width: 100% !important;
+            width: 335px;
             height: 393px !important;
             display: flex !important;
             align-items: flex-start !important;
@@ -3348,8 +3350,7 @@ body {
                 z-index: 100 !important;
                 /* width: max-content; */
                 height: 415px !important;
-                /* max-width: 300px !important; */
-                /* max-height: 300px !important; */
+                width:335px !important;
                 bottom: 0 !important;
                 left: 0 !important;
                 margin: 0 !important;
@@ -3360,7 +3361,7 @@ body {
             #rodman {    
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 100% !important;
+                width: 163px !important;
                 height: 332px !important;
                 display: flex !important;
                 align-items: center !important;
@@ -3370,13 +3371,13 @@ body {
                 
                 .image-container {
                     margin: 0 !important;
-                    padding: 1rem !important;
+                    padding: 0rem !important;
                     width: 100% !important;
 
                     height: 332px !important;                    display: flex !important;
                     align-items: center !important;
                     justify-content: center !important;
-                    position: relative !important;
+                    position: absolute !important;
                     z-index: 10 !important; // En dessous du ::before
                     
                     img {

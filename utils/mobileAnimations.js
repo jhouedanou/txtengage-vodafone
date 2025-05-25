@@ -978,6 +978,23 @@ export function useMobileAnimations() {
         });
         console.log('📱 Div .bdrs configurée pour défilement vertical mobile');
       }
+      
+      // Supprimer toutes les marges des image-containers pour qu'ils soient parfaitement collés
+      if (imageContainers.length > 0) {
+        imageContainers.forEach((container, index) => {
+          gsap.set(container, {
+            margin: 0,
+            padding: 0,
+            border: 'none',
+            outline: 'none',
+            boxSizing: 'border-box',
+            display: 'block',
+            lineHeight: 0, // Supprimer l'espacement de ligne
+            fontSize: 0 // Supprimer l'espacement des caractères
+          });
+        });
+        console.log('📱 Marges des image-containers supprimées');
+      }
     };
 
     // Fonction pour réinitialiser les éléments à l'état initial
@@ -1027,9 +1044,18 @@ export function useMobileAnimations() {
               position: 'absolute',
               top: 0,
               left: 0,
-              width: '100%'
+              width: '100%',
+              // Supprimer toutes les marges pour éviter les espaces
+              margin: 0,
+              padding: 0,
+              border: 'none',
+              outline: 'none',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: 0,
+              fontSize: 0
             });
-            console.log(`📱 Image-container ${index + 1} positionné à y: ${yPosition}px`);
+            console.log(`📱 Image-container ${index + 1} positionné à y: ${yPosition}px (sans marges)`);
           } else {
             // Desktop : logique originale
             if (index === 0) {
@@ -1321,9 +1347,18 @@ export function useMobileAnimations() {
               position: 'absolute',
               top: 0,
               left: 0,
-              width: '100%'
+              width: '100%',
+              // Supprimer toutes les marges pour éviter les espaces
+              margin: 0,
+              padding: 0,
+              border: 'none',
+              outline: 'none',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: 0,
+              fontSize: 0
             });
-            console.log(`📱 Image-container ${index + 1} position finale: y: ${finalYPosition}px`);
+            console.log(`📱 Image-container ${index + 1} position finale: y: ${finalYPosition}px (sans marges)`);
           } else {
             // Desktop : logique originale
             if (index === maxPerdrixScroll) {
@@ -2321,6 +2356,64 @@ export function useMobileAnimations() {
     }, 2000);
   };
 
+  // Fonction de debug pour vérifier les marges des image-containers
+  const debugSlide23Margins = () => {
+    const slide23Section = sections.value.find(s => s.id === 'slide-23');
+    if (!slide23Section) {
+      console.log('❌ Section slide-23 non trouvée');
+      return;
+    }
+    
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    
+    console.log('🔍 DEBUG Marges Slide-23:');
+    console.log('- Image containers count:', imageContainers.length);
+    
+    if (imageContainers.length > 0) {
+      console.log('📱 Styles actuels des image-containers:');
+      imageContainers.forEach((container, index) => {
+        const computedStyle = window.getComputedStyle(container);
+        console.log(`  - Container ${index + 1}:`);
+        console.log(`    margin: ${computedStyle.margin}`);
+        console.log(`    padding: ${computedStyle.padding}`);
+        console.log(`    border: ${computedStyle.border}`);
+        console.log(`    line-height: ${computedStyle.lineHeight}`);
+        console.log(`    font-size: ${computedStyle.fontSize}`);
+        console.log(`    display: ${computedStyle.display}`);
+        console.log(`    box-sizing: ${computedStyle.boxSizing}`);
+        console.log(`    transform: ${computedStyle.transform}`);
+      });
+    }
+  };
+
+  // Fonction pour forcer la suppression des marges
+  const forceRemoveSlide23Margins = () => {
+    const slide23Section = sections.value.find(s => s.id === 'slide-23');
+    if (!slide23Section) {
+      console.log('❌ Section slide-23 non trouvée');
+      return;
+    }
+    
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    
+    if (imageContainers.length > 0) {
+      console.log('🔧 Suppression forcée des marges...');
+      imageContainers.forEach((container, index) => {
+        gsap.set(container, {
+          margin: '0 !important',
+          padding: '0 !important',
+          border: 'none !important',
+          outline: 'none !important',
+          boxSizing: 'border-box !important',
+          display: 'block !important',
+          lineHeight: '0 !important',
+          fontSize: '0 !important'
+        });
+        console.log(`✅ Container ${index + 1} : marges supprimées`);
+      });
+    }
+  };
+
   // Exposer les fonctions pour le debug
   window.resetSlide73State = resetSlide73State;
   window.setSlide73ToFinalState = setSlide73ToFinalState;
@@ -2328,6 +2421,8 @@ export function useMobileAnimations() {
   window.debugSlide21Animation = debugSlide21Animation;
   window.debugSlide20Animation = debugSlide20Animation;
   window.debugSlide23Animation = debugSlide23Animation;
+  window.debugSlide23Margins = debugSlide23Margins; // Nouvelle fonction
+  window.forceRemoveSlide23Margins = forceRemoveSlide23Margins; // Nouvelle fonction
   window.debugSlide128Animation = debugSlide128Animation;
 
   // Retour de l'API publique
