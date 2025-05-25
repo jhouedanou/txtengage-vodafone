@@ -3313,25 +3313,32 @@ body {
     #stone {
         margin: 0 !important;
         padding: 0 !important;
-        height: 63vh !important; // Exactement 50% de la hauteur viewport
+        height:413px !important; // Exactement 50% de la hauteur viewport
         width: 100vw !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         flex-direction: column !important;
         box-sizing: border-box !important;
-        
+        .bdrs{
+            position: relative;
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            background: rebeccapurple;
+        }
         #sparta {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: 100% !important;
+            height: 393px !important;
             display: flex !important;
-            align-items: center !important;
+            align-items: flex-start !important;
             justify-content: center !important;
             position: relative !important;
             
-            // ✅ CONSERVER le ::before mais l'ajuster pour mobile
             &::before {
                 content: "" !important;
                 position: absolute !important;
@@ -3365,8 +3372,8 @@ body {
                     margin: 0 !important;
                     padding: 1rem !important;
                     width: 100% !important;
-                    height: 100% !important;
-                    display: flex !important;
+
+                    height: 332px !important;                    display: flex !important;
                     align-items: center !important;
                     justify-content: center !important;
                     position: relative !important;
