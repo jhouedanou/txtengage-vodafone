@@ -88,10 +88,9 @@ export function useMobileAnimations() {
         // ÉTAPE 2: Appliquer les styles mobiles de base
         applyMobileStylesIfNeeded();
         
-        // ÉTAPE 3: Attendre un frame, puis définir la position initiale
-        gsap.delayedCall(0.01, () => {
+                 // ÉTAPE 3: Attendre un frame, puis définir la position initiale
+         gsap.delayedCall(0.01, () => {
           gsap.set(pointsFortDiv, { 
-            autoAlpha: 0, 
             y: '100vh',
             x: 0,
             scale: 1
@@ -131,7 +130,7 @@ export function useMobileAnimations() {
       // Appliquer les styles mobiles SEULEMENT si on est sur mobile
       applyMobileStylesIfNeeded();
       
-      gsap.set(pointsFortDiv, { autoAlpha: 1, y: 0 });
+      gsap.set(pointsFortDiv, { y: 0 });
       pointsElements.forEach(point => {
         gsap.set(point, { autoAlpha: 1, y: 0 });
       });
@@ -189,7 +188,6 @@ export function useMobileAnimations() {
 
       // 1. Glissement de la div points-fort depuis le bas de l'écran
       const forwardAnimProps = {
-        autoAlpha: 1,
         y: 0, // Glisser vers la position finale
         duration: 0.8, // Durée un peu plus longue pour l'effet de glissement
         ease: 'power2.out'
@@ -258,7 +256,6 @@ export function useMobileAnimations() {
 
       // 2. Glissement de la div points-fort vers le bas de l'écran (reverse)
       const reverseAnimProps = {
-        autoAlpha: 0,
         y: '100vh', // Glisser complètement vers le bas
         duration: 0.6, // Durée adaptée pour l'effet de glissement
         ease: 'power2.in' // Easing différent pour la sortie
@@ -327,30 +324,105 @@ export function useMobileAnimations() {
       return;
     }
 
+    // Fonction pour vérifier si on est sur mobile
+    const isMobile = () => {
+      return window.innerWidth <= 1024;
+    };
+
+    // Fonction pour appliquer les styles mobiles spécifiques SEULEMENT sur mobile
+    const applyMobileStylesIfNeeded = () => {
+      if (!isMobile()) return; // Ne rien faire sur desktop
+      
+      console.log('🔧 Application des styles mobiles pour slide-21');
+      
+      // Configurer #doctornek pour le recouvrement (comme .points-fort sur slide-73)
+      gsap.set(doctornekDiv, {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        backgroundSize: 'cover',
+        clearProps: 'transform'
+      });
+
+      // S'assurer que #thoiathoing est visible et bien positionné
+      gsap.set(mshillDiv, {
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        zIndex: 1
+      });
+    };
+
     // Fonction pour réinitialiser les éléments à l'état initial
     const resetToInitialState = () => {
-      // Cacher #doctornek
-      gsap.set(doctornekDiv, { autoAlpha: 0, y: 50, scale: 1 });
-      // Cacher #mshill avec l'état initial inspiré de useFullpageScrollTrigger
-      gsap.set(mshillDiv, { autoAlpha: 0, y: 50 }); // Même style que thoiathoing
+      console.log('🔄 Reset slide-21 to initial state, isMobile:', isMobile());
+      
+      if (isMobile()) {
+        // Nettoyer les animations GSAP précédentes
+        gsap.killTweensOf([mshillDiv, doctornekDiv]);
+        
+        // Appliquer les styles mobiles
+        applyMobileStylesIfNeeded();
+        
+        // État initial mobile : #doctornek caché, glissé vers le bas
+        gsap.set(doctornekDiv, { 
+          y: '100vh', // Commence hors écran en bas, comme .points-fort
+          x: 0,
+          scale: 1
+        });
+        
+        // #thoiathoing (mshill) caché initialement
+        gsap.set(mshillDiv, { autoAlpha: 0, y: 50 });
+      } else {
+        // Desktop - états par défaut
+        gsap.set(doctornekDiv, { autoAlpha: 0, y: 50, scale: 1 });
+        gsap.set(mshillDiv, { autoAlpha: 0, y: 50 });
+      }
     
       // Réinitialiser les états
       animationStates.value['slide-21-mobile'] = 'hidden';
       animationStates.value['slide-21-animation-playing'] = false;
       animationStates.value['slide-21-animation-complete'] = false;
       animationStates.value['slide-21-mshill-shown'] = false;
+      animationStates.value['slide-21-thoiathoing-shown'] = false;
       
-      console.log('🔄 Slide 21 reset to initial state');
+      console.log('🔄 Reset slide-21 terminé, état:', animationStates.value['slide-21-mobile']);
     };
 
     // === ÉTAT INITIAL ===
-    resetToInitialState();
+    console.log('🚀 Initialisation slide-21, écran mobile:', isMobile());
+    
+    if (isMobile()) {
+      // Appliquer les styles de base immédiatement
+      applyMobileStylesIfNeeded();
+      
+      // Petit délai pour que les styles CSS soient bien appliqués
+      gsap.delayedCall(0.05, () => {
+        resetToInitialState();
+      });
+    } else {
+      resetToInitialState();
+    }
 
-    // Fonction pour déclencher l'animation de #doctornek (au swipe)
-    const triggerSlide21Animation = () => {
-      // Marquer l'animation comme en cours pour bloquer la navigation
+    // Animation FORWARD (swipe bas->haut) : Recouvrement #doctornek depuis le bas
+    const triggerSlide21ForwardAnimation = () => {
+      if (animationStates.value['slide-21-animation-playing']) return;
+      
       animationStates.value['slide-21-animation-playing'] = true;
-      animationStates.value['slide-21-mobile'] = 'animating';
+      animationStates.value['slide-21-mobile'] = 'animating-forward';
 
       // Bloquer les interactions pendant l'animation
       document.body.style.overflow = 'hidden';
@@ -358,7 +430,6 @@ export function useMobileAnimations() {
 
       const tl = gsap.timeline({
         onComplete: () => {
-          // MARQUER L'ANIMATION COMME TERMINÉE
           animationStates.value['slide-21-mobile'] = 'complete';
           animationStates.value['slide-21-animation-playing'] = false;
           animationStates.value['slide-21-animation-complete'] = true;
@@ -367,51 +438,98 @@ export function useMobileAnimations() {
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
           
-          console.log('Slide-21: Animation #doctornek terminée');
+          console.log('Slide-21: Animation forward #doctornek terminée');
         }
       });
 
-      // Faire apparaître #doctornek avec animation
+      // Glissement de #doctornek depuis le bas de l'écran pour recouvrir #thoiathoing
       tl.to(doctornekDiv, {
-        autoAlpha: 1,
-        y: 0,
-        scale: 1,
+        y: 0, // Glisser vers la position finale
         duration: 0.8,
         ease: 'power2.out'
       });
     };
 
-    // Fonction pour faire apparaître #mshill - INSPIRÉE DE useFullpageScrollTrigger
-    const showMshill = () => {
-      if (animationStates.value['slide-21-mshill-shown']) return;
+    // Animation REVERSE (swipe haut->bas) : Retour #doctornek vers le bas
+    const triggerSlide21ReverseAnimation = () => {
+      if (animationStates.value['slide-21-animation-playing']) return;
       
-      animationStates.value['slide-21-mshill-shown'] = true;
+      animationStates.value['slide-21-animation-playing'] = true;
+      animationStates.value['slide-21-mobile'] = 'animating-reverse';
+
+      // Bloquer les interactions pendant l'animation
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          animationStates.value['slide-21-mobile'] = 'thoiathoing-visible';
+          animationStates.value['slide-21-animation-playing'] = false;
+          animationStates.value['slide-21-animation-complete'] = false;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log('Slide-21: Animation reverse #doctornek terminée');
+        }
+      });
+
+      // Glissement de #doctornek vers le bas de l'écran
+      tl.to(doctornekDiv, {
+        y: '100vh', // Glisser complètement vers le bas
+        duration: 0.6,
+        ease: 'power2.in'
+      });
+    };
+
+    // Fonction pour faire apparaître #thoiathoing (#mshill) automatiquement
+    const showThoiathoing = () => {
+      if (animationStates.value['slide-21-thoiathoing-shown']) return;
       
-      // Animation inspirée de slide-21 dans useFullpageScrollTrigger (thoiathoing)
+      animationStates.value['slide-21-thoiathoing-shown'] = true;
+      animationStates.value['slide-21-mobile'] = 'thoiathoing-visible';
+      
+      // Animation d'apparition de #thoiathoing
       gsap.to(mshillDiv, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.8, // Même durée que thoiathoing
-        ease: "power2.out", // Même easing que thoiathoing
+        duration: 0.8,
+        ease: "power2.out",
         onComplete: () => {
-          console.log('Slide-21: #mshill fade-in terminé (style useFullpageScrollTrigger)');
+          console.log('Slide-21: #thoiathoing fade-in terminé');
         }
       });
+    };
+
+    // Fonction pour mettre les éléments à l'état final (visible)
+    const setToFinalState = () => {
+      // Appliquer les styles mobiles SEULEMENT si on est sur mobile
+      if (isMobile()) {
+        applyMobileStylesIfNeeded();
+      }
+      
+      gsap.set(mshillDiv, { autoAlpha: 1, y: 0 });
+      gsap.set(doctornekDiv, { y: 0 });
+      
+      // Marquer comme complet
+      animationStates.value['slide-21-mobile'] = 'complete';
+      animationStates.value['slide-21-animation-complete'] = true;
+      animationStates.value['slide-21-thoiathoing-shown'] = true;
     };
 
     // ScrollTrigger pour détecter quand la slide 21 est visible et déclencher l'animation
     const st = ScrollTrigger.create({
       trigger: slide21Section,
       scroller: SCROLLER_SELECTOR,
-      start: 'top center+=10%', // Même timing que useFullpageScrollTrigger
+      start: 'top center+=10%',
       end: 'bottom top',
       onEnter: () => {
         console.log('📍 Slide 21 is now visible');
         
-        // Animation automatique de #mshill à l'entrée, comme dans useFullpageScrollTrigger
-        // où l'animation se déclenche automatiquement dans goToSection
-        if (!animationStates.value['slide-21-mshill-shown']) {
-          showMshill();
+        // Animation automatique de #thoiathoing à l'entrée
+        if (!animationStates.value['slide-21-thoiathoing-shown']) {
+          showThoiathoing();
         }
       },
       onLeave: () => {
@@ -425,7 +543,7 @@ export function useMobileAnimations() {
         resetToInitialState();
         // Petit délai pour que le reset soit effectif, puis rejouer l'animation
         setTimeout(() => {
-          showMshill();
+          showThoiathoing();
         }, 50);
       },
       onLeaveBack: () => {
@@ -436,9 +554,12 @@ export function useMobileAnimations() {
     });
 
     mobileScrollTriggers.push(st);
-    slide21Section._triggerAnimation = triggerSlide21Animation;
+    slide21Section._triggerForwardAnimation = triggerSlide21ForwardAnimation;
+    slide21Section._triggerReverseAnimation = triggerSlide21ReverseAnimation;
     slide21Section._resetToInitialState = resetToInitialState;
-    slide21Section._showMshill = showMshill;
+    slide21Section._showThoiathoing = showThoiathoing;
+    slide21Section._setToFinalState = setToFinalState;
+    slide21Section._applyMobileStylesIfNeeded = applyMobileStylesIfNeeded;
   };
 
   // Animation simplifiée pour la slide 20 (Turtle Beach)
@@ -702,19 +823,18 @@ export function useMobileAnimations() {
             }
           }
           
-          // GESTION SPÉCIALE POUR SLIDE-21
+          // GESTION SPÉCIALE POUR SLIDE-21 - ANIMATION BIDIRECTIONNELLE
           if (currentSection && currentSection.id === 'slide-21') {
             
-            // Si #doctornek n'a jamais été montré, déclencher son animation
-            if (animationStates.value['slide-21-mobile'] === 'hidden' && 
-                animationStates.value['slide-21-mshill-shown']) {
-              if (currentSection._triggerAnimation) {
-                currentSection._triggerAnimation();
+            // Si #thoiathoing est visible mais #doctornek n'a jamais été montré, déclencher l'animation forward
+            if (animationStates.value['slide-21-mobile'] === 'thoiathoing-visible') {
+              if (currentSection._triggerForwardAnimation) {
+                currentSection._triggerForwardAnimation();
                 return; // Bloquer la navigation normale
               }
             }
             
-            // Si l'animation #doctornek est en cours, ignorer le swipe
+            // Si l'animation est en cours, ignorer le swipe
             if (animationStates.value['slide-21-animation-playing']) {
               return;
             }
@@ -743,6 +863,23 @@ export function useMobileAnimations() {
             
             // Si l'animation est en cours, ignorer le swipe
             if (animationStates.value['slide-73-animation-playing']) {
+              return;
+            }
+          }
+
+          // GESTION SPÉCIALE POUR SLIDE-21 - ANIMATION REVERSE
+          if (currentSection && currentSection.id === 'slide-21') {
+            
+            // Si l'animation est complète, déclencher l'animation reverse
+            if (animationStates.value['slide-21-mobile'] === 'complete') {
+              if (currentSection._triggerReverseAnimation) {
+                currentSection._triggerReverseAnimation();
+                return; // Bloquer la navigation normale
+              }
+            }
+            
+            // Si l'animation est en cours, ignorer le swipe
+            if (animationStates.value['slide-21-animation-playing']) {
               return;
             }
           }
@@ -832,7 +969,7 @@ export function useMobileAnimations() {
     console.log('Slide 73 mise à l\'état final');
   };
 
-  // Fonction de debug pour tester les animations
+  // Fonction de debug pour tester les animations slide-73
   const debugSlide73Animation = () => {
     const slide73Section = sections.value.find(s => s.id === 'slide-73');
     if (!slide73Section) {
@@ -864,10 +1001,49 @@ export function useMobileAnimations() {
     }, 2000);
   };
 
+  // Fonction de debug pour tester les animations slide-21
+  const debugSlide21Animation = () => {
+    const slide21Section = sections.value.find(s => s.id === 'slide-21');
+    if (!slide21Section) {
+      console.log('❌ Section slide-21 non trouvée');
+      return;
+    }
+    
+    console.log('🔍 DEBUG Slide-21:');
+    console.log('- Section trouvée:', !!slide21Section);
+    console.log('- isMobile:', window.innerWidth <= 1024);
+    console.log('- État actuel:', animationStates.value['slide-21-mobile']);
+    console.log('- Animation en cours:', animationStates.value['slide-21-animation-playing']);
+    console.log('- #thoiathoing montré:', animationStates.value['slide-21-thoiathoing-shown']);
+    console.log('- Animation complète:', animationStates.value['slide-21-animation-complete']);
+    
+    const doctornekDiv = slide21Section.querySelector('#doctornek');
+    const mshillDiv = slide21Section.querySelector('#mshill');
+    if (doctornekDiv) {
+      const computedStyle = window.getComputedStyle(doctornekDiv);
+      console.log('- #doctornek Position CSS:', computedStyle.position);
+      console.log('- #doctornek Transform CSS:', computedStyle.transform);
+      console.log('- #doctornek Opacity CSS:', computedStyle.opacity);
+    }
+    if (mshillDiv) {
+      const computedStyle = window.getComputedStyle(mshillDiv);
+      console.log('- #mshill Opacity CSS:', computedStyle.opacity);
+    }
+    
+    // Tester l'animation forward
+    console.log('🎬 Test animation forward dans 2 secondes...');
+    setTimeout(() => {
+      if (slide21Section._triggerForwardAnimation) {
+        slide21Section._triggerForwardAnimation();
+      }
+    }, 2000);
+  };
+
   // Exposer les fonctions pour le debug
   window.resetSlide73State = resetSlide73State;
   window.setSlide73ToFinalState = setSlide73ToFinalState;
   window.debugSlide73Animation = debugSlide73Animation;
+  window.debugSlide21Animation = debugSlide21Animation;
 
   // Retour de l'API publique
   return {

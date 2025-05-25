@@ -4080,7 +4080,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "0950ffd2-22b8-4635-b7c4-8c5accdd9c72",
+    "buildId": "77911a2e-e4a5-42d7-954e-158c6f473267",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -4881,7 +4881,7 @@ const storage = createStorage({});
 
 storage.mount('/assets', assets);
 
-storage.mount('data', unstorage_47drivers_47fs_45lite({"driver":"fsLite","base":"/home/bigfiver/Documents/GitHub/txtengage-vodafone/.data/kv"}));
+storage.mount('data', unstorage_47drivers_47fs_45lite({"driver":"fsLite","base":"/Users/m1dev/Documents/txtengage-vodafone/.data/kv"}));
 
 function useStorage(base = "") {
   return base ? prefixStorage(storage, base) : storage;
@@ -5432,7 +5432,7 @@ function publicAssetsURL(...path) {
   return path.length ? joinRelativeURL(publicBase, ...path) : publicBase;
 }
 
-const _0f1YMp = lazyEventHandler(() => {
+const _TzcdHf = lazyEventHandler(() => {
   const opts = useRuntimeConfig().ipx || {};
   const fsDir = opts?.fs?.dir ? (Array.isArray(opts.fs.dir) ? opts.fs.dir : [opts.fs.dir]).map((dir) => isAbsolute(dir) ? dir : fileURLToPath(new URL(dir, globalThis._importMeta_.url))) : void 0;
   const fsStorage = opts.fs?.dir ? ipxFSStorage({ ...opts.fs, dir: fsDir }) : void 0;
@@ -5450,12 +5450,12 @@ const _0f1YMp = lazyEventHandler(() => {
   return useBase(opts.baseURL, ipxHandler);
 });
 
-const _lazy_SnN7hE = () => import('../routes/renderer.mjs');
+const _lazy_Z6xJGE = () => import('../routes/renderer.mjs');
 
 const handlers = [
-  { route: '/__nuxt_error', handler: _lazy_SnN7hE, lazy: true, middleware: false, method: undefined },
-  { route: '/_ipx/**', handler: _0f1YMp, lazy: false, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_SnN7hE, lazy: true, middleware: false, method: undefined }
+  { route: '/__nuxt_error', handler: _lazy_Z6xJGE, lazy: true, middleware: false, method: undefined },
+  { route: '/_ipx/**', handler: _TzcdHf, lazy: false, middleware: false, method: undefined },
+  { route: '/**', handler: _lazy_Z6xJGE, lazy: true, middleware: false, method: undefined }
 ];
 
 function createNitroApp() {

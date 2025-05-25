@@ -858,9 +858,12 @@ body {
         justify-content: center;
         padding: 2em 0;
 
-        #llass {
-            display: none;
-            position: absolute;
+        // Desktop styles - seulement actifs sur écrans > 1024px
+        @media screen and (min-width: 1025px) {
+            #llass {
+                display: none;
+                position: absolute;
+            }
         }
 
         img {
@@ -1690,13 +1693,18 @@ body {
         }
     }
     #doctornek{
-        position: absolute;
+        // Desktop styles - seulement actifs sur écrans > 1024px
+        @media screen and (min-width: 1025px) {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+        
+        // Styles communs desktop et mobile
         background:url('images/bottom1z2.webp');
         display: flex !important;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
         align-items: center;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2546,73 +2554,91 @@ body {
 }
 
 #slide-21 {
-  #thoiathoing {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(50px);
-    will-change: opacity, transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #thoiathoing {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(50px);
+      will-change: opacity, transform;
+    }
   }
 }
 
 #slide-20 {
-  #turtlebeach {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.8) translateY(50px) rotate(-5deg);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
-  }
-  
-  .text-element {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(100px);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #turtlebeach {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8) translateY(50px) rotate(-5deg);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
+    
+    .text-element {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(100px);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
   }
 }
 
 #slide-22 {
-  .text-element, .content {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(50px);
-    will-change: opacity, transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    .text-element, .content {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(50px);
+      will-change: opacity, transform;
+    }
   }
 }
 
 #slide-23 {
-  .perdrix-slide-1 {
-    opacity: 0;
-    visibility: hidden;
-    will-change: opacity;
-  }
-  
-  .perdix {
-    will-change: transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    .perdrix-slide-1 {
+      opacity: 0;
+      visibility: hidden;
+      will-change: opacity;
+    }
+    
+    .perdix {
+      will-change: transform;
+    }
   }
 }
 
 #slide-59 {
-  #lass {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(50px);
-    will-change: opacity, transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #lass {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(50px);
+      will-change: opacity, transform;
+    }
   }
 }
 
 #slide-128 {
-  #killerwu {
-    opacity: 0;
-    visibility: hidden;
-    will-change: opacity;
-  }
-  
-  .case-study {
-    opacity: 0;
-    visibility: hidden;
-    will-change: transform, opacity;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #killerwu {
+      opacity: 0;
+      visibility: hidden;
+      will-change: opacity;
+    }
+    
+    .case-study {
+      opacity: 0;
+      visibility: hidden;
+      will-change: transform, opacity;
+    }
   }
 }
 
@@ -2937,22 +2963,25 @@ body {
     }
   }
   
-// États initiaux pour slide-20
+// États initiaux pour slide-20 - Desktop seulement
 #slide-20 {
-  #turtlebeach {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.8) translateY(50px) rotate(-5deg);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
-  }
-  
-  .text-element {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(100px);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #turtlebeach {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8) translateY(50px) rotate(-5deg);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
+    
+    .text-element {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(100px);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
   }
 }
 

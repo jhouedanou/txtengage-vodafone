@@ -1,10 +1,10 @@
 const client_manifest = {
-  "_Cn1BEP3W.js": {
+  "_BQnZ53_-.js": {
     "resourceType": "script",
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "Cn1BEP3W.js",
+    "file": "BQnZ53_-.js",
     "name": "vue.8fc199ce",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
@@ -15,13 +15,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "BIM33vcG.js",
+    "file": "Cb1mTW_9.js",
     "name": "error-404",
     "src": "node_modules/nuxt/dist/app/components/error-404.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_Cn1BEP3W.js"
+      "_BQnZ53_-.js"
     ],
     "css": [
       "error-404.CoZKRZXM.css"
@@ -38,13 +38,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "BE33P6RM.js",
+    "file": "DaM3BfV9.js",
     "name": "error-500",
     "src": "node_modules/nuxt/dist/app/components/error-500.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_Cn1BEP3W.js"
+      "_BQnZ53_-.js"
     ],
     "css": [
       "error-500.D6506J9O.css"
@@ -61,7 +61,7 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "BROAUuWc.js",
+    "file": "DuiezWB3.js",
     "name": "entry",
     "src": "node_modules/nuxt/dist/app/entry.js",
     "isEntry": true,
@@ -70,11 +70,11 @@ const client_manifest = {
       "node_modules/nuxt/dist/app/components/error-500.vue"
     ],
     "css": [
-      "entry.e6LjhP8R.css"
+      "entry.DtZVZALQ.css"
     ]
   },
-  "entry.e6LjhP8R.css": {
-    "file": "entry.e6LjhP8R.css",
+  "entry.DtZVZALQ.css": {
+    "file": "entry.DtZVZALQ.css",
     "resourceType": "style",
     "prefetch": true,
     "preload": true
@@ -84,20 +84,20 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "DhQxuX_S.js",
+    "file": "BqussxwK.js",
     "name": "index",
     "src": "pages/index.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_Cn1BEP3W.js"
+      "_BQnZ53_-.js"
     ],
     "css": [
-      "index.u8Xy3XFi.css"
+      "index.C1F-n3Ev.css"
     ]
   },
-  "index.u8Xy3XFi.css": {
-    "file": "index.u8Xy3XFi.css",
+  "index.C1F-n3Ev.css": {
+    "file": "index.C1F-n3Ev.css",
     "resourceType": "style",
     "prefetch": true,
     "preload": true
