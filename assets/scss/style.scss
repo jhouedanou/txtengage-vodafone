@@ -2094,7 +2094,16 @@ width:100% !important;
         }
     }
     #lemof{
-        margin:0 auto;
+        margin:0 ;
+
+        width: 100%;
+        .text-element{
+
+            white-space: pre-line;
+            margin: 0;
+            display: block;
+            width: 100%;
+            }
     }
     #killerjunior {
         h2 {
@@ -2192,17 +2201,45 @@ width:100% !important;
         align-content: flex-start;
         align-items: flex-start;
     }
+    #case-study-content-3 ul {
+        display: flex
+        ;
+                align-items: center;
+                justify-content: center;
+                gap: 1em;
+                margin: 0;
+                padding: 0;
+                flex-direction: column;
+    }
     #case-study-content-3 ul li {
         font-size: 14px !important;
-        margin:2px 0 !important;
+        margin: 2px 0 !important;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
         strong{
-        width: 68px !important;
-        height: 68px !important;
-        background-color: #FF0000;
-        color:white;
-        font-size: 27px !important;
+            width: 68px !important;
+            height: 68px !important;
+            background-color: #FF0000;
+            color: white;
+            font-size: 27px !important;
+            display: flex;
+            border-radius: 100%;
+            justify-content: center;
+            align-items: center;
+        flex-direction: column;
+        line-height: 1;
+    
         span{
             font-size: 13px !important;
+            text-transform: uppercase;
+    
         }
     }
 }
@@ -3448,5 +3485,46 @@ body {
      #lass,img#llass{
         position: absolute;
     }
+    }
+}
+#pdf{
+    background-blend-mode: multiply;
+    background-image: linear-gradient(to bottom, #909090, #909090);
+    
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+
+    ul{
+     
+    list-style: none;
+    display: flex
+;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    flex-direction: row;
+    justify-content: space-evenly;
+        li{
+            list-style: none;
+
+            margin: 0;
+            padding: 0;
+            a{
+                text-decoration: none;
+            list-style: none;
+            font-family: Vodafone;
+            font-size: 14px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;
+            }
+        }
     }
 }
