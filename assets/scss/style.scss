@@ -137,7 +137,13 @@ body {
     }
 
     .points-fort {
-        position: absolute;
+        // Desktop styles - seulement actifs sur écrans > 1024px
+        @media screen and (min-width: 1025px) {
+            position: absolute;
+            padding-left: 2.1em;
+        }
+        
+        // Styles communs desktop et mobile
         height: 100vh;
         display: flex;
         align-items: flex-start;
@@ -152,7 +158,6 @@ body {
         background: -ms-linear-gradient(top, #D50002, #ED1311);
         background: linear-gradient(90deg, #b70104, #ED1311);
         /* For Internet Explorer 10+ */
-        padding-left: 2.1em;
 
         .text-element {
             align-items: flex-start;
@@ -853,11 +858,12 @@ body {
         justify-content: center;
         padding: 2em 0;
 
-        #llass {
-            position: absolute;
-            width: 100% !important;
-            max-width: 502px;
-            height: 479px;
+        // Desktop styles - seulement actifs sur écrans > 1024px
+        @media screen and (min-width: 1025px) {
+            #llass {
+                display: none;
+                position: absolute;
+            }
         }
 
         img {
@@ -1341,6 +1347,12 @@ body {
 }
 
 @media screen and (max-width: 1024px) {
+    .slide-section{
+        height: 100dvh !important;
+    }
+    #subint{
+        background: none !important;
+    }
     #guysamuel {
         max-width: 65vw !important;
     }
@@ -1355,9 +1367,11 @@ body {
     }
 
     #slide-73 {
-
+        .slide-container{
+            position: relative !important;
+            background-size: cover !important;
+        }
         .subint {
-           // min-width: 100vw !important;
             max-width:100% !important;
             width: 100% !important;
             justify-content: flex-end;
@@ -1372,21 +1386,29 @@ body {
         }
 
         .points-fort {
-            width: 100vw;
-            max-width:100vw !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
             padding: 0rem;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             max-height: 630px;
+            position: absolute !important;
+            left: 0;
+            right: 0;
+            /* top: 0; */
+            bottom: 0;
+            margin: 0 auto;
+            height: 100%;
+            width: 100%;
             .text-element {
                 margin: 0 auto 2em;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-direction: column;
-        
+                
                 text-align:center !important;
             }
 
@@ -1671,13 +1693,18 @@ body {
         }
     }
     #doctornek{
-        position: absolute;
+        // Desktop styles - seulement actifs sur écrans > 1024px
+        @media screen and (min-width: 1025px) {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+        
+        // Styles communs desktop et mobile
         background:url('images/bottom1z2.webp');
         display: flex !important;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
         align-items: center;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2434,112 +2461,6 @@ br{
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    .case-study-item{
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        flex-direction: column;
-        gap: 0px;
-        width: 100%;
-        max-width: 100%;
-        flex-grow: 0;
-        flex-shrink: 0;
-        flex-basis: auto;
-        width: auto;
-        max-width: 100%;
-        height: auto;
-        min-height: 0;
-        ul{
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            li{
-display: flex;
-flex-direction:column;
-margin-right: 2em;
-font-family: Raleway;
-font-size: 23px;
-font-weight: normal;
-font-stretch: normal;
-font-style: normal;
-line-height: 1.44;
-letter-spacing: normal;
-text-align: left;
-color: #000;
-align-items: center;
-justify-content: center;
-        strong{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-
-            background-color: #f00;
-            width: 94px;
-            height: 94px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            font-weight: bold;
-            font-stretch: normal;
-            font-style: normal;
-            line-height: 0.4;
-            letter-spacing: normal;
-            text-align: center;
-            color: #fff;
-          margin-bottom: 10px;
-            span{
-                font-family: Vodafone;
-                font-size: 20px;
-                font-weight: normal;
-                text-transform: uppercase;
-                font-stretch: normal;
-                font-style: normal;
-                line-height: 2;
-                letter-spacing: normal;
-                text-align: center;
-                color: #fff;
-            }
-        }
-            }
-        }
-        &.active{
-            h3{
-                color: #f00;
-                opacity: 1;
-
-            }
-        }
-    }
-    .aya{
-        font-family: Vodafone;
-        font-size: 102px;
-        font-weight: bold;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 1;
-        letter-spacing: normal;
-        text-align: left;
-        color: #f00;
-    }
-    .case-study-header{
-        opacity: 0.27;
-        font-family: Vodafone;
-        font-size: 48px;
-        font-weight: bold;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 0.83;
-        letter-spacing: normal;
-        text-align: left;
-        color: #231f20;
-    }
 }
 
 .case-study-container {
@@ -2567,7 +2488,7 @@ justify-content: center;
 //style pour les écrans inférieurs à 1024px
 @media screen and (max-width: 1024px) {
     .slide-section{
-        height:100% !important;
+        height:100dvh !important;
         overflow: hidden;
     }
 }
@@ -2633,100 +2554,90 @@ body {
 }
 
 #slide-21 {
-  #thoiathoing {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(50px);
-    will-change: opacity, transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #thoiathoing {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(50px);
+      will-change: opacity, transform;
+    }
   }
 }
 
 #slide-20 {
-  #turtlebeach {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.8) translateY(50px) rotate(-5deg);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
-  }
-  
-  .text-element {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(100px);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #turtlebeach {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8) translateY(50px) rotate(-5deg);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
+    
+    .text-element {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(100px);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
   }
 }
 
 #slide-22 {
-  .text-element, .content {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(50px);
-    will-change: opacity, transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    .text-element, .content {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(50px);
+      will-change: opacity, transform;
+    }
   }
 }
 
 #slide-23 {
-  .perdrix-slide-1 {
-    opacity: 0;
-    visibility: hidden;
-    will-change: opacity;
-  }
-  
-  .perdix {
-    will-change: transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    .perdrix-slide-1 {
+      opacity: 0;
+      visibility: hidden;
+      will-change: opacity;
+    }
+    
+    .perdix {
+      will-change: transform;
+    }
   }
 }
 
 #slide-59 {
-  #lass {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(50px);
-    will-change: opacity, transform;
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #lass {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(50px);
+      will-change: opacity, transform;
+    }
   }
 }
 
 #slide-128 {
-  #killerwu {
-    opacity: 0;
-    visibility: hidden;
-    will-change: opacity;
-  }
-  
-  .case-study-content {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(50px);
-    display: none; // Masqué par défaut
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
-    
-    &:first-child {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-      display: block; // Premier élément affiché
-    }
-  }
-  
-  .case-study-item {
-    will-change: auto;
-    transition: none; // Laisser GSAP gérer les transitions
-    
-    &:first-child {
-      // Sera géré par JavaScript avec la classe active
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #killerwu {
+      opacity: 0;
+      visibility: hidden;
+      will-change: opacity;
     }
     
-    &.active {
-      // Styles pour l'élément actif - laissé vide volontairement
-      // L'utilisateur s'occupera du CSS
-      
-      .case-study-content {
-        display: block; // S'assurer que le contenu actif est affiché
-      }
+    .case-study {
+      opacity: 0;
+      visibility: hidden;
+      will-change: transform, opacity;
     }
   }
 }
@@ -3052,22 +2963,25 @@ body {
     }
   }
   
-// États initiaux pour slide-20
+// États initiaux pour slide-20 - Desktop seulement
 #slide-20 {
-  #turtlebeach {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.8) translateY(50px) rotate(-5deg);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
-  }
-  
-  .text-element {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(100px);
-    will-change: opacity, transform;
-    transition: none; // Laisser GSAP gérer les transitions
+  // Desktop styles - seulement actifs sur écrans > 1024px
+  @media screen and (min-width: 1025px) {
+    #turtlebeach {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8) translateY(50px) rotate(-5deg);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
+    
+    .text-element {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(100px);
+      will-change: opacity, transform;
+      transition: none; // Laisser GSAP gérer les transitions
+    }
   }
 }
 
@@ -3216,25 +3130,11 @@ body {
   #rodman{
     height: 504px;
     overflow: hidden;
-    width: 255px;
-    margin: 0 auto;
-    border-radius:39px 83px 39px 39px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
     position: relative;
-        .bdrs
-{
-        border-radius: 54px;
-        overflow: hidden;
-        height: 100%;
-        width: 251px;
-        background-color: #f00;
-        display: flex;
-        flex-direction: column;
-    
-            img{
-                height: 100%;
-                width: 100%;
-            }
-        }
     .image-container {
         width: 280px;
       position: absolute;
@@ -3303,59 +3203,6 @@ body {
         width: 492px;
 }
 }
-
-#slide-59 {
-  #llass {
-    opacity: 1;
-    visibility: visible;
-    clip-path: inset(0 0 0 100%); // Masqué initialement depuis la gauche
-    will-change: clip-path;
-    transform-origin: center left;
-    width: 100% !important;
-    max-width: 502px;
-    height: 479px;
-    position: absolute;
-  }
+.test{
+    display:none;
 }
-
-.case-study-image{
-    img{
-        height:650px;
-    }
-}
-
-  #lemof{
-    margin:0 auto;
-  }
-  #pdf{
-    width:100vw;
-    position:absolute;
-    bottom:0;
-    left:0;
-    right:0;
-    background-blend-mode: multiply;
-    background-image: linear-gradient(to bottom, #909090, #909090);
-  ul{
-    display: flex;  
-    align-content:center;
-    justify-content:center;
-    flex-direction:row;
-    justify-content: space-evenly;
-    margin:5px 0;
-    li{
-        list-style: none;
-        a{
-            font-family: Vodafone;
-            font-size: 16px;
-            font-weight: normal;
-            font-stretch: normal;
-            font-style: normal;
-            line-height: normal;
-            letter-spacing: normal;
-            text-align: center;
-            color: #fff;
-            text-decoration: none;
-        }
-    }
-  }
-  }
