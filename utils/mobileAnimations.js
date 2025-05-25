@@ -22,8 +22,9 @@ export function useMobileAnimations() {
   // ANIMATIONS MOBILES SIMPLIFIÉES
   // ===========================================================================
 
-  // Animation spéciale pour la slide 73 sur mobile - déclenchée par swipe bas->haut avec blocage
-  // Version simplifiée : reset systématique
+  // Animation spéciale pour la slide 73 sur mobile - BIDIRECTIONNELLE
+  // Swipe haut->bas : animation forward (translation div + fade li)
+  // Swipe bas->haut : animation reverse (fade out li + translation div)
   const registerMobileSlide73Animation = () => {
     const slide73Section = sections.value.find(s => s.id === 'slide-73');
     if (!slide73Section) return;
@@ -34,30 +35,139 @@ export function useMobileAnimations() {
 
     if (!pointsFortDiv) return;
 
-    // Fonction pour réinitialiser les éléments à l'état initial
-    const resetToInitialState = () => {
-      gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50, scale: 1 });
-      pointsElements.forEach(point => {
-        gsap.set(point, { autoAlpha: 0, y: 30, x: -20 });
+    // Fonction pour vérifier si on est sur mobile
+    const isMobile = () => {
+      return window.innerWidth <= 1024;
+    };
+
+        // Fonction pour appliquer les styles mobiles spécifiques SEULEMENT sur mobile
+    const applyMobileStylesIfNeeded = () => {
+      if (!isMobile()) return; // Ne rien faire sur desktop
+      
+      console.log('🔧 Application des styles mobiles pour slide-73');
+      
+      // Neutraliser complètement tous les styles desktop
+      gsap.set(pointsFortDiv, {
+        position: 'relative',
+        transform: 'none',
+        width: '100vw',
+        maxWidth: '100vw',
+        padding: '0rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        left: 'auto',
+        right: 'auto',
+        top: 'auto',
+        bottom: 'auto',
+        margin: '0 auto',
+        // Forcer la réinitialisation complète
+        clearProps: 'x,y,width,height,transform,left,right,top,bottom,translateX,translateY'
       });
+      
+      // S'assurer que le background du slides-container est bien configuré
       if (slidesContainerDiv) {
-        gsap.set(slidesContainerDiv, { backgroundSize: 'cover', backgroundPositionY: '0vw' });
+        gsap.set(slidesContainerDiv, {
+          backgroundSize: 'cover',
+          backgroundPositionY: '0vh', // Position initiale du background
+          backgroundRepeat: 'no-repeat'
+        });
+      }
+    };
+
+    // Fonction pour réinitialiser les éléments à l'état initial (caché)
+    const resetToInitialState = () => {
+      console.log('🔄 Reset slide-73 to initial state, isMobile:', isMobile());
+      
+      if (isMobile()) {
+        // ÉTAPE 1: Nettoyer complètement tous les styles GSAP précédents
+        gsap.killTweensOf(pointsFortDiv);
+        gsap.killTweensOf(pointsElements);
+        
+        // ÉTAPE 2: Appliquer les styles mobiles de base
+        applyMobileStylesIfNeeded();
+        
+        // ÉTAPE 3: Attendre un frame, puis définir la position initiale
+        gsap.delayedCall(0.01, () => {
+          gsap.set(pointsFortDiv, { 
+            autoAlpha: 0, 
+            y: '100vh',
+            x: 0,
+            scale: 1
+          });
+          console.log('✅ Slide-73 position initiale définie: y=100vh');
+        });
+      } else {
+        // Sur desktop, laisser les styles par défaut
+        gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50 });
+      }
+      
+      // Réinitialiser tous les points
+      pointsElements.forEach((point, index) => {
+        gsap.set(point, { 
+          autoAlpha: 0, 
+          y: 30 + (index * 5) // Décalage progressif pour l'effet stagger
+        });
+      });
+      
+      if (slidesContainerDiv && isMobile()) {
+        gsap.set(slidesContainerDiv, { 
+          backgroundSize: 'cover', 
+          backgroundPositionY: '0vh' // Position initiale du background
+        });
       }
       
       // Réinitialiser les états
       animationStates.value['slide-73-mobile'] = 'hidden';
       animationStates.value['slide-73-animation-playing'] = false;
       animationStates.value['slide-73-animation-complete'] = false;
+      
+      console.log('🔄 Reset terminé, état:', animationStates.value['slide-73-mobile']);
     };
 
-    // === TOUJOURS COMMENCER À L'ÉTAT INITIAL ===
-    resetToInitialState();
+    // Fonction pour mettre les éléments à l'état final (visible)
+    const setToFinalState = () => {
+      // Appliquer les styles mobiles SEULEMENT si on est sur mobile
+      applyMobileStylesIfNeeded();
+      
+      gsap.set(pointsFortDiv, { autoAlpha: 1, y: 0 });
+      pointsElements.forEach(point => {
+        gsap.set(point, { autoAlpha: 1, y: 0 });
+      });
+      
+      // Position finale du background (seulement sur mobile)
+      if (slidesContainerDiv && isMobile()) {
+        gsap.set(slidesContainerDiv, { backgroundPositionY: '-10vh' });
+      }
+      
+      // Marquer comme complet
+      animationStates.value['slide-73-mobile'] = 'complete';
+      animationStates.value['slide-73-animation-complete'] = true;
+    };
 
-    // Fonction pour déclencher l'animation (inchangée)
-    const triggerSlide73Animation = () => {
-      // Marquer l'animation comme en cours pour bloquer la navigation
+    // === ÉTAT INITIAL ===
+    console.log('🚀 Initialisation slide-73, écran mobile:', isMobile());
+    
+    // Forcer immédiatement les styles mobiles pour éviter le glissement depuis la droite
+    if (isMobile()) {
+      // Appliquer les styles de base immédiatement
+      applyMobileStylesIfNeeded();
+      
+      // Petit délai pour que les styles CSS soient bien appliqués
+      gsap.delayedCall(0.05, () => {
+        resetToInitialState();
+      });
+    } else {
+      resetToInitialState();
+    }
+
+    // Animation FORWARD (swipe bas->haut) : Translation div puis fade li
+    const triggerSlide73ForwardAnimation = () => {
+      if (animationStates.value['slide-73-animation-playing']) return;
+      
       animationStates.value['slide-73-animation-playing'] = true;
-      animationStates.value['slide-73-mobile'] = 'animating';
+      animationStates.value['slide-73-mobile'] = 'animating-forward';
 
       // Bloquer les interactions pendant l'animation
       document.body.style.overflow = 'hidden';
@@ -65,53 +175,111 @@ export function useMobileAnimations() {
 
       const tl = gsap.timeline({
         onComplete: () => {
-          // MARQUER L'ANIMATION COMME TERMINÉE MAIS NE PAS NAVIGER
           animationStates.value['slide-73-mobile'] = 'complete';
           animationStates.value['slide-73-animation-playing'] = false;
-          animationStates.value['slide-73-animation-complete'] = true; // L'animation est finie
+          animationStates.value['slide-73-animation-complete'] = true;
           
           // Réactiver les interactions DOM
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
           
-          // SUPPRIMER LA NAVIGATION AUTOMATIQUE
-          // L'utilisateur devra faire un second swipe pour continuer
-          
-          // Optionnel : Sauvegarder dans localStorage que l'animation a été vue
-          localStorage.setItem('slide-73-animation-seen', 'true');
+          console.log('Slide-73: Animation forward terminée');
         }
       });
 
-      // 1. Faire apparaître la div points-fort
-      tl.to(pointsFortDiv, {
+      // 1. Glissement de la div points-fort depuis le bas de l'écran
+      const forwardAnimProps = {
         autoAlpha: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.6,
+        y: 0, // Glisser vers la position finale
+        duration: 0.8, // Durée un peu plus longue pour l'effet de glissement
         ease: 'power2.out'
-      });
+      };
+      
+      // Ajouter les propriétés mobiles SEULEMENT sur mobile
+      if (isMobile()) {
+        forwardAnimProps.position = 'relative';
+        forwardAnimProps.transform = 'translateY(0px)';
+      }
+      
+      tl.to(pointsFortDiv, forwardAnimProps);
 
-      // 2. Animer le background en parallèle
-      if (slidesContainerDiv) {
+      // 1b. Animer le background slides-container en parallèle (seulement sur mobile)
+      if (slidesContainerDiv && isMobile()) {
         tl.to(slidesContainerDiv, {
-          backgroundPositionY: '-10vw',
-          duration: 0.5,
-          ease: 'power2.out',
-        }, "-=0.4");
+          backgroundPositionY: '-10vh', // Décaler SEULEMENT le background vers le haut
+          duration: 0.8,
+          ease: 'power2.out'
+        }, 0); // En parallèle avec l'animation points-fort (démarrage à 0)
       }
 
-      // 3. Faire apparaître les points un par un
+      // 2. Fade des éléments li un par un avec stagger
       tl.to(pointsElements, {
         autoAlpha: 1,
         y: 0,
-        x: 0,
         duration: 0.4,
         stagger: 0.15,
         ease: 'power2.out'
       }, "-=0.2");
+    };
 
-      // 4. Délai final réduit
-      tl.to({}, { duration: 0.5 });
+    // Animation REVERSE (swipe haut->bas) : Fade out li puis translation div
+    const triggerSlide73ReverseAnimation = () => {
+      if (animationStates.value['slide-73-animation-playing']) return;
+      
+      animationStates.value['slide-73-animation-playing'] = true;
+      animationStates.value['slide-73-mobile'] = 'animating-reverse';
+
+      // Bloquer les interactions pendant l'animation
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          animationStates.value['slide-73-mobile'] = 'hidden';
+          animationStates.value['slide-73-animation-playing'] = false;
+          animationStates.value['slide-73-animation-complete'] = false;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log('Slide-73: Animation reverse terminée');
+        }
+      });
+
+      // 1. Fade out des éléments li (dans l'ordre inverse)
+      tl.to([...pointsElements].reverse(), {
+        autoAlpha: 0,
+        y: 20,
+        duration: 0.3,
+        stagger: 0.1,
+        ease: 'power2.out'
+      });
+
+      // 2. Glissement de la div points-fort vers le bas de l'écran (reverse)
+      const reverseAnimProps = {
+        autoAlpha: 0,
+        y: '100vh', // Glisser complètement vers le bas
+        duration: 0.6, // Durée adaptée pour l'effet de glissement
+        ease: 'power2.in' // Easing différent pour la sortie
+      };
+      
+      // Ajouter les propriétés mobiles SEULEMENT sur mobile
+      if (isMobile()) {
+        reverseAnimProps.position = 'relative';
+        reverseAnimProps.transform = 'translateY(100vh)';
+      }
+      
+      tl.to(pointsFortDiv, reverseAnimProps, "-=0.1");
+
+      // 2b. Remettre le background slides-container à sa position initiale (seulement sur mobile)
+      if (slidesContainerDiv && isMobile()) {
+        tl.to(slidesContainerDiv, {
+          backgroundPositionY: '0vh', // Remettre SEULEMENT le background à sa position initiale
+          duration: 0.6,
+          ease: 'power2.in'
+        }, "-=0.5"); // Commencer un peu avant la fin de l'animation points-fort
+      }
     };
 
     // ScrollTrigger simplifié
@@ -121,6 +289,8 @@ export function useMobileAnimations() {
       start: 'top bottom',
       end: 'bottom top',
       onEnter: () => {
+        // Appliquer les styles mobiles SEULEMENT si on est sur mobile
+        applyMobileStylesIfNeeded();
         // Toujours à l'état initial quand on entre
       },
       onLeave: () => {
@@ -138,8 +308,10 @@ export function useMobileAnimations() {
     });
 
     mobileScrollTriggers.push(st);
-    slide73Section._triggerAnimation = triggerSlide73Animation;
+    slide73Section._triggerForwardAnimation = triggerSlide73ForwardAnimation;
+    slide73Section._triggerReverseAnimation = triggerSlide73ReverseAnimation;
     slide73Section._resetToInitialState = resetToInitialState;
+    slide73Section._setToFinalState = setToFinalState;
   };
 
   // Animation spéciale pour la slide 21 sur mobile - déclenchée par swipe bas->haut avec blocage
@@ -513,13 +685,13 @@ export function useMobileAnimations() {
           
           const currentSection = sections.value[currentSectionIndex.value];
           
-          // GESTION SPÉCIALE POUR SLIDE-73
+          // GESTION SPÉCIALE POUR SLIDE-73 - ANIMATION BIDIRECTIONNELLE
           if (currentSection && currentSection.id === 'slide-73') {
             
-            // Si l'animation n'a jamais été vue, la déclencher
+            // Si l'animation n'a jamais été vue, déclencher l'animation forward
             if (animationStates.value['slide-73-mobile'] === 'hidden') {
-              if (currentSection._triggerAnimation) {
-                currentSection._triggerAnimation();
+              if (currentSection._triggerForwardAnimation) {
+                currentSection._triggerForwardAnimation();
                 return; // Bloquer la navigation normale
               }
             }
@@ -555,6 +727,27 @@ export function useMobileAnimations() {
           
         } else {
           // Swipe vers le bas (haut->bas) = slide précédente
+          
+          const currentSection = sections.value[currentSectionIndex.value];
+          
+          // GESTION SPÉCIALE POUR SLIDE-73 - ANIMATION REVERSE
+          if (currentSection && currentSection.id === 'slide-73') {
+            
+            // Si l'animation est complète, déclencher l'animation reverse
+            if (animationStates.value['slide-73-mobile'] === 'complete') {
+              if (currentSection._triggerReverseAnimation) {
+                currentSection._triggerReverseAnimation();
+                return; // Bloquer la navigation normale
+              }
+            }
+            
+            // Si l'animation est en cours, ignorer le swipe
+            if (animationStates.value['slide-73-animation-playing']) {
+              return;
+            }
+          }
+          
+          // Navigation normale vers la slide précédente
           if (currentSectionIndex.value > 0) {
             goToMobileSection(currentSectionIndex.value - 1);
           }
@@ -623,16 +816,58 @@ export function useMobileAnimations() {
 
   // Fonction utilitaire pour reset complet (à appeler dans la console pour les tests)
   const resetSlide73State = () => {
-    localStorage.removeItem('slide-73-animation-seen');
     const slide73Section = sections.value.find(s => s.id === 'slide-73');
     if (slide73Section && slide73Section._resetToInitialState) {
       slide73Section._resetToInitialState();
     }
-    console.log('État de la slide 73 réinitialisé');
+    console.log('État de la slide 73 réinitialisé - Animation bidirectionnelle');
   };
 
-  // Exposer la fonction pour le debug
+  // Fonction utilitaire pour mettre la slide 73 à l'état final
+  const setSlide73ToFinalState = () => {
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (slide73Section && slide73Section._setToFinalState) {
+      slide73Section._setToFinalState();
+    }
+    console.log('Slide 73 mise à l\'état final');
+  };
+
+  // Fonction de debug pour tester les animations
+  const debugSlide73Animation = () => {
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (!slide73Section) {
+      console.log('❌ Section slide-73 non trouvée');
+      return;
+    }
+    
+    console.log('🔍 DEBUG Slide-73:');
+    console.log('- Section trouvée:', !!slide73Section);
+    console.log('- isMobile:', window.innerWidth <= 1024);
+    console.log('- État actuel:', animationStates.value['slide-73-mobile']);
+    console.log('- Animation en cours:', animationStates.value['slide-73-animation-playing']);
+    console.log('- Animation complète:', animationStates.value['slide-73-animation-complete']);
+    
+    const pointsFortDiv = slide73Section.querySelector('.points-fort');
+    if (pointsFortDiv) {
+      const computedStyle = window.getComputedStyle(pointsFortDiv);
+      console.log('- Position CSS:', computedStyle.position);
+      console.log('- Transform CSS:', computedStyle.transform);
+      console.log('- Opacity CSS:', computedStyle.opacity);
+    }
+    
+    // Tester l'animation forward
+    console.log('🎬 Test animation forward dans 2 secondes...');
+    setTimeout(() => {
+      if (slide73Section._triggerForwardAnimation) {
+        slide73Section._triggerForwardAnimation();
+      }
+    }, 2000);
+  };
+
+  // Exposer les fonctions pour le debug
   window.resetSlide73State = resetSlide73State;
+  window.setSlide73ToFinalState = setSlide73ToFinalState;
+  window.debugSlide73Animation = debugSlide73Animation;
 
   // Retour de l'API publique
   return {
