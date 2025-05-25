@@ -965,6 +965,19 @@ export function useMobileAnimations() {
           flexDirection: 'column'
         });
       }
+      
+      // Configurer la div .bdrs pour le défilement vertical des image-containers
+      const bdrsDiv = slide23Section.querySelector('.bdrs');
+      if (bdrsDiv) {
+        gsap.set(bdrsDiv, {
+          position: 'relative',
+          width: '100%',
+          height: '100vh',
+          overflow: 'hidden', // Masquer les containers qui dépassent
+          display: 'block'
+        });
+        console.log('📱 Div .bdrs configurée pour défilement vertical mobile');
+      }
     };
 
     // Fonction pour réinitialiser les éléments à l'état initial
@@ -1001,15 +1014,29 @@ export function useMobileAnimations() {
         });
       }
 
-      // Initialiser tous les image-containers - masqués sauf le premier
+      // Initialiser tous les image-containers avec positionnement vertical mobile
       if (imageContainers.length > 0) {
         imageContainers.forEach((container, index) => {
-          if (index === 0) {
-            // Premier container : visible
-            gsap.set(container, { autoAlpha: 1, y: 0 });
+          if (isMobile()) {
+            // Sur mobile : empilage vertical avec espacement de 332px
+            // Premier container à y: 0, deuxième à y: 332px, troisième à y: 664px, etc.
+            const yPosition = index * 332;
+            gsap.set(container, { 
+              autoAlpha: 1, 
+              y: yPosition,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%'
+            });
+            console.log(`📱 Image-container ${index + 1} positionné à y: ${yPosition}px`);
           } else {
-            // Autres containers : positionnés hors du viewport mais visibles
-            gsap.set(container, { autoAlpha: 1, y: isMobile() ? '100vh' : '504px' });
+            // Desktop : logique originale
+            if (index === 0) {
+              gsap.set(container, { autoAlpha: 1, y: 0 });
+            } else {
+              gsap.set(container, { autoAlpha: 1, y: '504px' });
+            }
           }
         });
       }
@@ -1120,23 +1147,36 @@ export function useMobileAnimations() {
         }, 0.6);
       }
 
-      // Animation synchronisée des image-containers (adaptée pour mobile)
+      // Animation synchronisée des image-containers (défilement vertical mobile)
       if (currentImageContainer && nextImageContainer) {
-        // Préparer le container suivant
-        gsap.set(nextImageContainer, { autoAlpha: 1, y: isMobile() ? '100vh' : '504px' });
-        
-        // Animation simultanée des image-containers
-        tl.to(currentImageContainer, {
-          y: isMobile() ? '-100vh' : '-504px',
-          duration: 0.6,
-          ease: 'power3.easeInOut'
-        }, 0);
-        
-        tl.to(nextImageContainer, {
-          y: 0,
-          duration: 0.6,
-          ease: 'power3.easeInOut'
-        }, 0);
+        if (isMobile()) {
+          // Sur mobile : défilement vertical de 332px vers le haut
+          // Tous les containers remontent de 332px
+          imageContainers.forEach((container) => {
+            tl.to(container, {
+              y: `-=332`, // Remonter de 332px
+              duration: 0.6,
+              ease: 'power3.easeInOut'
+            }, 0);
+          });
+        } else {
+          // Desktop : logique originale
+          // Préparer le container suivant
+          gsap.set(nextImageContainer, { autoAlpha: 1, y: '504px' });
+          
+          // Animation simultanée des image-containers
+          tl.to(currentImageContainer, {
+            y: '-504px',
+            duration: 0.6,
+            ease: 'power3.easeInOut'
+          }, 0);
+          
+          tl.to(nextImageContainer, {
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.easeInOut'
+          }, 0);
+        }
       }
 
       return true; // Indiquer que l'animation a été lancée
@@ -1217,21 +1257,34 @@ export function useMobileAnimations() {
 
       // Animation synchronisée des image-containers (adaptée pour mobile)
       if (currentImageContainer && prevImageContainer) {
-        // Préparer le container précédent
-        gsap.set(prevImageContainer, { autoAlpha: 1, y: isMobile() ? '-100vh' : '-504px' });
-        
-        // Animation simultanée des image-containers
-        tl.to(currentImageContainer, {
-          y: isMobile() ? '100vh' : '504px',
-          duration: 0.6,
-          ease: 'power3.easeInOut'
-        }, 0);
-        
-        tl.to(prevImageContainer, {
-          y: 0,
-          duration: 0.6,
-          ease: 'power3.easeInOut'
-        }, 0);
+        if (isMobile()) {
+          // Sur mobile : défilement vertical de 332px vers le bas
+          // Tous les containers descendent de 332px
+          imageContainers.forEach((container) => {
+            tl.to(container, {
+              y: `+=332`, // Descendre de 332px
+              duration: 0.6,
+              ease: 'power3.easeInOut'
+            }, 0);
+          });
+        } else {
+          // Desktop : logique originale
+          // Préparer le container précédent
+          gsap.set(prevImageContainer, { autoAlpha: 1, y: '-504px' });
+          
+          // Animation simultanée des image-containers
+          tl.to(currentImageContainer, {
+            y: '504px',
+            duration: 0.6,
+            ease: 'power3.easeInOut'
+          }, 0);
+          
+          tl.to(prevImageContainer, {
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.easeInOut'
+          }, 0);
+        }
       }
 
       return true; // Indiquer que l'animation a été lancée
@@ -1255,13 +1308,29 @@ export function useMobileAnimations() {
         }
       });
 
-      // Afficher le dernier image-container
+      // Positionner les image-containers à l'état final
       if (imageContainers.length > 0) {
         imageContainers.forEach((container, index) => {
-          if (index === maxPerdrixScroll) {
-            gsap.set(container, { autoAlpha: 1, y: 0 });
+          if (isMobile()) {
+            // Sur mobile : position finale après défilement
+            // Le dernier container doit être à y: 0, les autres décalés vers le haut
+            const finalYPosition = (index - maxPerdrixScroll) * 332;
+            gsap.set(container, { 
+              autoAlpha: 1, 
+              y: finalYPosition,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%'
+            });
+            console.log(`📱 Image-container ${index + 1} position finale: y: ${finalYPosition}px`);
           } else {
-            gsap.set(container, { autoAlpha: 1, y: isMobile() ? '100vh' : '504px' });
+            // Desktop : logique originale
+            if (index === maxPerdrixScroll) {
+              gsap.set(container, { autoAlpha: 1, y: 0 });
+            } else {
+              gsap.set(container, { autoAlpha: 1, y: '504px' });
+            }
           }
         });
       }
@@ -2182,14 +2251,26 @@ export function useMobileAnimations() {
     const perdrixContainer = slide23Section.querySelector('#perdrix-container, #bygone-bip');
     const perdrixSlides = slide23Section.querySelectorAll('.perdrix-slide');
     const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    const bdrsDiv = slide23Section.querySelector('.bdrs');
     
     console.log('- Perdrix container:', !!perdrixContainer);
     console.log('- Perdrix slides count:', perdrixSlides.length);
     console.log('- Image containers count:', imageContainers.length);
+    console.log('- Div .bdrs:', !!bdrsDiv);
     
     if (perdrixContainer) {
       const computedStyle = window.getComputedStyle(perdrixContainer);
       console.log('- Container Opacity CSS:', computedStyle.opacity);
+    }
+    
+    // Debug des positions des image-containers
+    if (imageContainers.length > 0) {
+      console.log('📱 Positions actuelles des image-containers:');
+      imageContainers.forEach((container, index) => {
+        const computedStyle = window.getComputedStyle(container);
+        const transform = computedStyle.transform;
+        console.log(`  - Container ${index + 1}: transform = ${transform}`);
+      });
     }
     
     // Tester l'animation forward
