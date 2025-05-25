@@ -1357,8 +1357,7 @@ body {
         display: flex;
         justify-content: flex-end;
         flex-direction: column;
-        height: 380px;
-        /* position: absolute; */
+        height: 380px !important;
         bottom: 0;   
     }
     #joce{
@@ -1370,22 +1369,18 @@ body {
     #quadi{
         margin:100px 0 0 0 !important;}
     #sparta{
-        &::before{    margin: auto !important;
-            content: "" !important;
-            z-index: 10000 !important;
+        &::before{       content: "" !important;
             position: absolute !important;
             background: url(../images/Subtract.png) !important;
-            background-position: 100% 100% !important;
             background-repeat: no-repeat !important;
-            background-size: 100% !important;
             background-size: contain !important;
-            top: -12px !important;
-            left: 0 !important;
-            margin: 0 !important;
-            height: 394px !important;
-            right: 0 !important;
             z-index: 100 !important;
-            width: 361px !important;
+            margin: 0 !important;
+            background-position: center center !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            /* position: absolute; */
         }
     }
     
@@ -1927,7 +1922,7 @@ width:100% !important;
             position: absolute;
             left: 0;
             right: 56px;
-            top: 7px;
+            top: -13px !important;
         }
     }
     .case-study-container.container{
@@ -3248,4 +3243,146 @@ body {
 }
 .test{
     display:none;
+}
+
+// CSS mobile pour supprimer les espaces dans #sharon en conservant les ::before
+@media screen and (max-width: 1024px) {
+    
+    #joce {
+        height: 100dvh !important;
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        
+        #sharon {
+            height: 100dvh !important;
+            width: 100vw !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            justify-content: stretch !important;
+            gap: 0 !important; // Pas d'espace entre les éléments
+        }
+    }
+    
+    // SUPPRIMER LA MARGE QUI CAUSE L'ESPACE
+    #quadi {
+        margin: 0 !important; // ❌ Supprimer margin:100px 0 0 0 !important;
+        padding: 0 !important;
+        height: 50vh !important; // Exactement 50% de la hauteur viewport
+        width: 100vw !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+        
+        .perdrix-slide {
+            margin: 0 !important;
+            padding: 1rem !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            
+            .text-container {
+                margin: 0 !important;
+                padding: 0 !important;
+                text-align: center !important;
+                
+                h3 {
+                    color: white !important;
+                    font-size: 24px !important;
+                    margin-bottom: 1rem !important;
+                }
+                
+                .text-content {
+                    color: white !important;
+                    font-size: 18px !important;
+                    line-height: 1.4 !important;
+                }
+            }
+        }
+    }
+    
+    #stone {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 50vh !important; // Exactement 50% de la hauteur viewport
+        width: 100vw !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+        
+        #sparta {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+            
+            // ✅ CONSERVER le ::before mais l'ajuster pour mobile
+            &::before {
+                content: "" !important;
+                position: absolute !important;
+                background: url(../images/Subtract.png) !important;
+                background-repeat: no-repeat !important;
+                background-size: contain !important;
+                z-index: 100 !important;
+                /* width: max-content; */
+                height: 415px !important;
+                /* max-width: 300px !important; */
+                /* max-height: 300px !important; */
+                bottom: 0 !important;
+                left: 0 !important;
+                margin: 0 !important;
+                background-position: center center !important;
+                right: 0 !important;
+            }
+            
+            #rodman {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                position: relative !important;
+                z-index: 50 !important; // En dessous du ::before
+                
+                .image-container {
+                    margin: 0 !important;
+                    padding: 1rem !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    position: relative !important;
+                    z-index: 10 !important; // En dessous du ::before
+                    
+                    img {
+                        max-width: 60% !important; // Réduire pour laisser place au ::before
+                        max-height: 60% !important;
+                        object-fit: contain !important;
+                        width: auto !important;
+                        height: auto !important;
+                        position: relative !important;
+                        z-index: 1 !important;
+                    }
+                }
+            }
+        }
+    }
 }
