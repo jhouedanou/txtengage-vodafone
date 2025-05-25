@@ -339,7 +339,7 @@ const registerSlide73Animation = () => {
       visibility: 'inherit',
       height: '100vh',
       width: '100vw',
-      backgroundSize:'120vw',
+      backgroundSize:'cover',
       backgroundPositionX: '0vw', // Position initiale explicite
       backgroundRepeat: 'no-repeat',
     });

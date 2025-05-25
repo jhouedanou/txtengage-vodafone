@@ -861,7 +861,6 @@ body {
         // Desktop styles - seulement actifs sur écrans > 1024px
         @media screen and (min-width: 1025px) {
             #llass {
-                display: none;
                 position: absolute;
             }
         }
@@ -1211,7 +1210,7 @@ body {
 }
 
 #lemof {
-    width: 80vw;
+    width: 100vw;
     height: 100vh;
     display: flex;
     align-items: center;
@@ -1347,6 +1346,31 @@ body {
 }
 
 @media screen and (max-width: 1024px) {
+    #rodman{
+        border-radius: 25px 29px 39px 39px;
+
+    }
+    #case-study-content-3{
+        div{line-height:0;
+        display:flex}
+        ul{
+        flex-direction: column;
+    }}
+    #slide-128 .case-study-item {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #case-study-content-3 ul li {
+        font-size: 14px !important;
+        margin:2px 0 !important;
+        strong{
+        width: 68px !important;
+        height: 68px !important;
+        font-size: 27px !important;
+        span{
+            font-size: 13px !important;
+        }
+    }}
   #slide-21{ 
      #thoiathoing{
     /* margin-top: 100px !important; */
@@ -2306,7 +2330,9 @@ br{
     background-color: rgba(0, 0, 0, 0.59);
 
 }
-
+#slide-73 .slides-container{
+    background-size: cover !important;
+}
 #tchoffo {
     width: 90%;
     max-width: 1200px;
@@ -2632,6 +2658,7 @@ body {
 // États initiaux pour les animations desktop
 #slide-73 {
   .slides-container {
+    background-size: cover !important;
     opacity: 1;
     visibility: inherit;
     height: 100vh;
@@ -3233,11 +3260,25 @@ body {
   #rodman{
     height: 504px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+    width: 255px;
+    margin: 0 auto;
+    border-radius:39px 83px 39px 39px;
     position: relative;
+        .bdrs
+{
+        border-radius: 54px;
+        overflow: hidden;
+        height: 100%;
+        width: 251px;
+        background-color: #f00;
+        display: flex;
+        flex-direction: column;
+    
+            img{
+                height: 100%;
+                width: 100%;
+            }
+        }
     .image-container {
         width: 280px;
       position: absolute;
@@ -3442,6 +3483,7 @@ body {
                 position: relative !important;
                 z-index: 50 !important;
                 
+        border-radius: 26px !important;
                 .image-container {
                     margin: 0 !important;
                     padding: 0rem !important;
@@ -3490,7 +3532,7 @@ body {
 #pdf{
     background-blend-mode: multiply;
     background-image: linear-gradient(to bottom, #909090, #909090);
-    
+    padding: 1em 0;
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -3507,6 +3549,8 @@ body {
     padding: 0;
     flex-direction: row;
     justify-content: space-evenly;
+    max-width: 70vw;
+    margin: 0 auto;
         li{
             list-style: none;
 
@@ -3516,7 +3560,10 @@ body {
                 text-decoration: none;
             list-style: none;
             font-family: Vodafone;
-            font-size: 14px;
+            font-size: 24px;
+            @media screen and (max-width: 1024px) {
+                font-size: 14px;
+            }
             font-weight: normal;
             font-stretch: normal;
             font-style: normal;
@@ -3526,5 +3573,124 @@ body {
             color: #fff;
             }
         }
+    }
+}
+
+
+
+#slide-128 {
+    background-color: #d9d9d9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    img{
+        height:650px
+    }
+    .case-study-item{
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0px;
+        width: 100%;
+        max-width: 100%;
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: auto;
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        min-height: 0;
+        ul{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            li{
+display: flex;
+flex-direction:column;
+margin-right: 2em;
+font-family: Raleway;
+font-size: 23px;
+font-weight: normal;
+font-stretch: normal;
+font-style: normal;
+line-height: 1.44;
+letter-spacing: normal;
+text-align: left;
+color: #000;
+align-items: center;
+justify-content: center;
+        strong{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            background-color: #f00;
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 0.4;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;
+          margin-bottom: 10px;
+            span{
+                font-family: Vodafone;
+                font-size: 20px;
+                font-weight: normal;
+                text-transform: uppercase;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 2;
+                letter-spacing: normal;
+                text-align: center;
+                color: #fff;
+            }
+        }
+            }
+        }
+        &.active{
+            h3{
+                color: #f00;
+                opacity: 1;
+
+            }
+        }
+    }
+    .aya{
+        font-family: Vodafone;
+        font-size: 102px;
+        font-weight: bold;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: normal;
+        text-align: left;
+        color: #f00;
+    }
+    .case-study-header{
+        opacity: 0.27;
+        font-family: Vodafone;
+        font-size: 48px;
+        font-weight: bold;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 0.83;
+        letter-spacing: normal;
+        text-align: left;
+        color: #231f20;
     }
 }
