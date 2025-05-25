@@ -562,6 +562,65 @@ export function useMobileAnimations() {
     slide21Section._applyMobileStylesIfNeeded = applyMobileStylesIfNeeded;
   };
 
+  // Animation simplifiée pour la slide 22 - fade-in de #thoiathoing2
+  const registerMobileSlide22Animation = () => {
+    const slide22Section = sections.value.find(s => s.id === 'slide-22');
+    if (!slide22Section) return;
+
+    const thoiathoing2Div = slide22Section.querySelector('#thoiathoing2');
+    
+    if (!thoiathoing2Div) {
+      console.warn('❌ Élément #thoiathoing2 non trouvé dans slide-22');
+      return;
+    }
+
+    // État initial
+    gsap.set(thoiathoing2Div, { autoAlpha: 0, y: 50 });
+
+    // Fonction pour faire apparaître #thoiathoing2 automatiquement
+    const showThoiathoing2 = () => {
+      // Animation d'apparition de #thoiathoing2
+      gsap.to(thoiathoing2Div, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        onComplete: () => {
+          console.log('Slide-22: #thoiathoing2 fade-in terminé');
+        }
+      });
+    };
+
+    // ScrollTrigger pour détecter quand la slide 22 est visible
+    const st = ScrollTrigger.create({
+      trigger: slide22Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%',
+      end: 'bottom top',
+      onEnter: () => {
+        console.log('📍 Slide 22 is now visible');
+        showThoiathoing2();
+      },
+      onLeave: () => {
+        console.log('📍 Leaving slide 22 (going down)');
+        // Réinitialiser quand on quitte
+        gsap.set(thoiathoing2Div, { autoAlpha: 0, y: 50 });
+      },
+      onEnterBack: () => {
+        console.log('📍 Entering back slide 22');
+        // Rejouer l'animation quand on revient
+        showThoiathoing2();
+      },
+      onLeaveBack: () => {
+        console.log('📍 Leaving slide 22 (going up)');
+        // Réinitialiser quand on quitte vers le haut
+        gsap.set(thoiathoing2Div, { autoAlpha: 0, y: 50 });
+      }
+    });
+
+    mobileScrollTriggers.push(st);
+  };
+
   // Animation bidirectionnelle pour la slide 20 - #text-element-5 comme overlay
   const registerMobileSlide20Animation = () => {
     const slide20Section = sections.value.find(s => s.id === 'slide-20');
@@ -1154,6 +1213,7 @@ export function useMobileAnimations() {
       registerMobileSlide23Animation();
       registerMobileSlide128Animation();
       registerMobileSlide59Animation();
+      registerMobileSlide22Animation();
       
       // Configuration des interactions tactiles
       setupMobileInteractions();

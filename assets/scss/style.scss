@@ -1347,6 +1347,43 @@ body {
 }
 
 @media screen and (max-width: 1024px) {
+
+    #joce{
+        height:100dvh !important;
+        #sharon{
+            height:100dvh !important;
+            background:red !important;
+            margin:0 !important;
+            padding:0 !important;
+            width:100% !important;
+            height:100% !important;
+            display:flex !important;
+            align-items:center !important;
+            justify-content:center !important;
+            flex-direction:column !important;
+        }
+    }
+
+#sparta{
+    &::before{    margin: auto !important;
+        content: "" !important;
+        z-index: 10000 !important;
+        position: absolute !important;
+        background: url(../images/Subtract.png) !important;
+        background-position: 100% 100% !important;
+        background-repeat: no-repeat !important;
+        background-size: 100% !important;
+        background-size: contain !important;
+        top: -12px !important;
+        left: 0 !important;
+        margin: 0 !important;
+        height: 394px !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        width: 361px !important;
+    }
+}
+    
     .slide-section{
         height: 100dvh !important;
     }
@@ -1703,7 +1740,7 @@ body {
         }
         
         // Styles communs desktop et mobile
-        background:url('images/bottom1z2.webp');
+        background:url('images/drnek.webp');
         display: flex !important;
         align-items: center;
         flex-direction: column !important;

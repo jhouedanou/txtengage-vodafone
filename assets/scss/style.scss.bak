@@ -1675,7 +1675,7 @@ body {
     }
     #doctornek{
         position: absolute;
-        background:url('images/bottom1z2.webp');
+        background:url('images/drnek.webp');
         display: flex !important;
         left: 0;
         right: 0;
