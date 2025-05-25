@@ -893,45 +893,405 @@ export function useMobileAnimations() {
     slide20Section._applyMobileStylesIfNeeded = applyMobileStylesIfNeeded;
   };
 
-  // Animation simplifiée pour la slide 23 (Perdrix) - Pas de slider complexe sur mobile
+  // Animation complète pour la slide 23 (Perdrix) - Transposition de l'animation desktop
   const registerMobileSlide23Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     if (!slide23Section) return;
 
-    const joceDiv = slide23Section.querySelector('#joce');
-    const perdrixSlides = Array.from(slide23Section.querySelectorAll('.perdrix-slide'));
+    // Chercher les éléments essentiels (même structure que desktop)
+    const perdrixContainer = slide23Section.querySelector('#perdrix-container, #bygone-bip');
+    const perdrixSlides = slide23Section.querySelectorAll('.perdrix-slide');
+    const firstPerdrixSlide = slide23Section.querySelector('#perdrix-slide-1');
+    // Structure : les image-containers sont dans .bdrs
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
 
-    if (!joceDiv || perdrixSlides.length === 0) return;
+    if (!perdrixContainer || perdrixSlides.length === 0) {
+      console.warn('❌ Éléments perdrix non trouvés dans slide-23');
+      return;
+    }
 
-    // Sur mobile, afficher toutes les slides perdrix en séquence simple
-    gsap.set(joceDiv, { autoAlpha: 0 });
-    perdrixSlides.forEach(slide => {
-      gsap.set(slide, { autoAlpha: 0, y: 20 });
+    console.log('🚀 Slide-23 Mobile Register:', {
+      perdrixContainer: !!perdrixContainer,
+      perdrixSlidesCount: perdrixSlides.length,
+      imageContainersCount: imageContainers.length
     });
 
+    // Variables pour le défilement perdrix mobile
+    let perdrixScrollIndex = 0;
+    let maxPerdrixScroll = 0;
+    let isScrollingPerdrix = false;
+
+    // Fonction pour vérifier si on est sur mobile
+    const isMobile = () => {
+      return window.innerWidth <= 1024;
+    };
+
+    // Fonction pour initialiser les limites de défilement
+    const initializePerdrixScrollLimits = () => {
+      const perdrixCount = perdrixSlides ? perdrixSlides.length : 0;
+      const imageCount = imageContainers ? imageContainers.length : 0;
+      maxPerdrixScroll = Math.max(perdrixCount, imageCount) - 1;
+      console.log(`📊 Perdrix mobile limites: max = ${maxPerdrixScroll} (perdrix: ${perdrixCount}, images: ${imageCount})`);
+    };
+
+    // Fonction pour appliquer les styles mobiles spécifiques SEULEMENT sur mobile
+    const applyMobileStylesIfNeeded = () => {
+      if (!isMobile()) return; // Ne rien faire sur desktop
+      
+      console.log('🔧 Application des styles mobiles pour slide-23');
+      
+      // S'assurer que le conteneur perdrix est bien configuré
+      if (perdrixContainer) {
+        gsap.set(perdrixContainer, {
+          position: 'relative',
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column'
+        });
+      }
+    };
+
+    // Fonction pour réinitialiser les éléments à l'état initial
+    const resetToInitialState = () => {
+      console.log('🔄 Reset slide-23 mobile to initial state');
+      
+      // Nettoyer les animations GSAP précédentes
+      gsap.killTweensOf([perdrixContainer, perdrixSlides, imageContainers]);
+      
+      if (isMobile()) {
+        // Appliquer les styles mobiles
+        applyMobileStylesIfNeeded();
+      }
+      
+      // État initial du conteneur
+      if (perdrixContainer) {
+        gsap.set(perdrixContainer, { autoAlpha: 1 });
+      }
+      
+      // Initialiser tous les perdrix-slides - masqués sauf le premier
+      if (perdrixSlides.length > 0) {
+        perdrixSlides.forEach((slide, index) => {
+          const textContainer = slide.querySelector('.text-container');
+          
+          if (index === 0) {
+            // Premier slide : visible
+            gsap.set(slide, { autoAlpha: 1 });
+            if (textContainer) gsap.set(textContainer, { y: 0, autoAlpha: 1 });
+          } else {
+            // Autres slides : masqués et positionnés
+            gsap.set(slide, { autoAlpha: 0 });
+            if (textContainer) gsap.set(textContainer, { y: '100vh', autoAlpha: 0 });
+          }
+        });
+      }
+
+      // Initialiser tous les image-containers - masqués sauf le premier
+      if (imageContainers.length > 0) {
+        imageContainers.forEach((container, index) => {
+          if (index === 0) {
+            // Premier container : visible
+            gsap.set(container, { autoAlpha: 1, y: 0 });
+          } else {
+            // Autres containers : positionnés hors du viewport mais visibles
+            gsap.set(container, { autoAlpha: 1, y: isMobile() ? '100vh' : '504px' });
+          }
+        });
+      }
+      
+      // Réinitialiser les variables
+      perdrixScrollIndex = 0;
+      isScrollingPerdrix = false;
+      animationStates.value['slide-23-mobile'] = 'initialized';
+      animationStates.value['slide-23-animation-playing'] = false;
+      animationStates.value['slide-23-current-index'] = 0;
+      
+      console.log('🔄 Reset slide-23 mobile terminé');
+    };
+
+    // === ÉTAT INITIAL ===
+    console.log('🚀 Initialisation slide-23 mobile');
+    
+    if (isMobile()) {
+      // Appliquer les styles de base immédiatement
+      applyMobileStylesIfNeeded();
+      
+      // Petit délai pour que les styles CSS soient bien appliqués
+      gsap.delayedCall(0.05, () => {
+        resetToInitialState();
+        initializePerdrixScrollLimits();
+      });
+    } else {
+      resetToInitialState();
+      initializePerdrixScrollLimits();
+    }
+
+    // Animation FORWARD (swipe bas->haut) : Défilement vers le slide perdrix suivant
+    const triggerSlide23ForwardAnimation = () => {
+      if (isScrollingPerdrix) return false;
+      
+      // Si on a atteint la fin, permettre la navigation vers la slide suivante
+      if (perdrixScrollIndex >= maxPerdrixScroll) {
+        console.log('🏁 Fin des slides perdrix atteinte');
+        return false; // Indiquer qu'on peut passer à la slide suivante
+      }
+      
+      isScrollingPerdrix = true;
+      animationStates.value['slide-23-animation-playing'] = true;
+      animationStates.value['slide-23-mobile'] = 'animating-forward';
+
+      // Bloquer les interactions pendant l'animation
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+
+      const currentSlide = slide23Section.querySelector(`#perdrix-slide-${perdrixScrollIndex + 1}`);
+      const nextSlide = slide23Section.querySelector(`#perdrix-slide-${perdrixScrollIndex + 2}`);
+      const currentImageContainer = slide23Section.querySelector(`.bdrs #image-container-${perdrixScrollIndex + 1}`);
+      const nextImageContainer = slide23Section.querySelector(`.bdrs #image-container-${perdrixScrollIndex + 2}`);
+      
+      console.log(`📱 Défilement perdrix mobile avant: ${perdrixScrollIndex} -> ${perdrixScrollIndex + 1}`);
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          perdrixScrollIndex++;
+          animationStates.value['slide-23-current-index'] = perdrixScrollIndex;
+          animationStates.value['slide-23-mobile'] = 'slide-visible';
+          animationStates.value['slide-23-animation-playing'] = false;
+          isScrollingPerdrix = false;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log(`✅ Défilement mobile terminé - nouvel index: ${perdrixScrollIndex}`);
+        }
+      });
+
+      // Animation des perdrix-slides (même logique que desktop)
+      if (currentSlide && nextSlide) {
+        const currentTextContainer = currentSlide.querySelector('.text-container');
+        const nextTextContainer = nextSlide.querySelector('.text-container');
+        
+        // Préparer le slide suivant
+        gsap.set(nextSlide, { autoAlpha: 1 });
+        if (nextTextContainer) {
+          gsap.set(nextTextContainer, { y: '100vh', autoAlpha: 0 });
+        }
+        
+        // Animation simultanée des text-containers
+        if (currentTextContainer) {
+          tl.to(currentTextContainer, {
+            y: '-100vh',
+            autoAlpha: 1,
+            duration: 0.6, // Un peu plus lent sur mobile
+            ease: 'power3.easeInOut'
+          }, 0);
+        }
+        
+        if (nextTextContainer) {
+          tl.to(nextTextContainer, {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: 'power3.easeInOut'
+          }, 0);
+        }
+        
+        // Masquer le slide actuel après l'animation
+        tl.to(currentSlide, {
+          autoAlpha: 1,
+          duration: 0.1,
+          ease: 'power3.out'
+        }, 0.6);
+      }
+
+      // Animation synchronisée des image-containers (adaptée pour mobile)
+      if (currentImageContainer && nextImageContainer) {
+        // Préparer le container suivant
+        gsap.set(nextImageContainer, { autoAlpha: 1, y: isMobile() ? '100vh' : '504px' });
+        
+        // Animation simultanée des image-containers
+        tl.to(currentImageContainer, {
+          y: isMobile() ? '-100vh' : '-504px',
+          duration: 0.6,
+          ease: 'power3.easeInOut'
+        }, 0);
+        
+        tl.to(nextImageContainer, {
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.easeInOut'
+        }, 0);
+      }
+
+      return true; // Indiquer que l'animation a été lancée
+    };
+
+    // Animation REVERSE (swipe haut->bas) : Défilement vers le slide perdrix précédent
+    const triggerSlide23ReverseAnimation = () => {
+      if (isScrollingPerdrix || perdrixScrollIndex <= 0) return false;
+      
+      isScrollingPerdrix = true;
+      animationStates.value['slide-23-animation-playing'] = true;
+      animationStates.value['slide-23-mobile'] = 'animating-reverse';
+
+      // Bloquer les interactions pendant l'animation
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+
+      const currentSlide = slide23Section.querySelector(`#perdrix-slide-${perdrixScrollIndex + 1}`);
+      const prevSlide = slide23Section.querySelector(`#perdrix-slide-${perdrixScrollIndex}`);
+      const currentImageContainer = slide23Section.querySelector(`.bdrs #image-container-${perdrixScrollIndex + 1}`);
+      const prevImageContainer = slide23Section.querySelector(`.bdrs #image-container-${perdrixScrollIndex}`);
+      
+      console.log(`📱 Défilement perdrix mobile arrière: ${perdrixScrollIndex} -> ${perdrixScrollIndex - 1}`);
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          perdrixScrollIndex--;
+          animationStates.value['slide-23-current-index'] = perdrixScrollIndex;
+          animationStates.value['slide-23-mobile'] = 'slide-visible';
+          animationStates.value['slide-23-animation-playing'] = false;
+          isScrollingPerdrix = false;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log(`✅ Défilement mobile arrière terminé - nouvel index: ${perdrixScrollIndex}`);
+        }
+      });
+
+      // Animation des perdrix-slides (même logique que desktop)
+      if (currentSlide && prevSlide) {
+        const currentTextContainer = currentSlide.querySelector('.text-container');
+        const prevTextContainer = prevSlide.querySelector('.text-container');
+        
+        // Préparer le slide précédent
+        gsap.set(prevSlide, { autoAlpha: 1 });
+        if (prevTextContainer) {
+          gsap.set(prevTextContainer, { y: '-100vh', autoAlpha: 0 });
+        }
+        
+        // Animation simultanée des text-containers
+        if (currentTextContainer) {
+          tl.to(currentTextContainer, {
+            y: '100vh',
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: 'power3.easeInOut'
+          }, 0);
+        }
+        
+        if (prevTextContainer) {
+          tl.to(prevTextContainer, {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: 'power3.easeInOut'
+          }, 0);
+        }
+        
+        // Masquer le slide actuel après l'animation
+        tl.to(currentSlide, {
+          autoAlpha: 0,
+          duration: 0.1,
+          ease: 'power3.out'
+        }, 0.6);
+      }
+
+      // Animation synchronisée des image-containers (adaptée pour mobile)
+      if (currentImageContainer && prevImageContainer) {
+        // Préparer le container précédent
+        gsap.set(prevImageContainer, { autoAlpha: 1, y: isMobile() ? '-100vh' : '-504px' });
+        
+        // Animation simultanée des image-containers
+        tl.to(currentImageContainer, {
+          y: isMobile() ? '100vh' : '504px',
+          duration: 0.6,
+          ease: 'power3.easeInOut'
+        }, 0);
+        
+        tl.to(prevImageContainer, {
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.easeInOut'
+        }, 0);
+      }
+
+      return true; // Indiquer que l'animation a été lancée
+    };
+
+    // Fonction pour mettre les éléments à l'état final
+    const setToFinalState = () => {
+      // Aller au dernier slide
+      perdrixScrollIndex = maxPerdrixScroll;
+      
+      // Afficher le dernier slide et masquer les autres
+      perdrixSlides.forEach((slide, index) => {
+        const textContainer = slide.querySelector('.text-container');
+        
+        if (index === maxPerdrixScroll) {
+          gsap.set(slide, { autoAlpha: 1 });
+          if (textContainer) gsap.set(textContainer, { y: 0, autoAlpha: 1 });
+        } else {
+          gsap.set(slide, { autoAlpha: 0 });
+          if (textContainer) gsap.set(textContainer, { y: '100vh', autoAlpha: 0 });
+        }
+      });
+
+      // Afficher le dernier image-container
+      if (imageContainers.length > 0) {
+        imageContainers.forEach((container, index) => {
+          if (index === maxPerdrixScroll) {
+            gsap.set(container, { autoAlpha: 1, y: 0 });
+          } else {
+            gsap.set(container, { autoAlpha: 1, y: isMobile() ? '100vh' : '504px' });
+          }
+        });
+      }
+      
+      animationStates.value['slide-23-mobile'] = 'complete';
+      animationStates.value['slide-23-current-index'] = maxPerdrixScroll;
+    };
+
+    // ScrollTrigger pour détecter quand la slide 23 est visible
     const st = ScrollTrigger.create({
       trigger: slide23Section,
       scroller: SCROLLER_SELECTOR,
       start: 'top center+=10%',
+      end: 'bottom top',
       onEnter: () => {
-        // Animation séquentielle simple pour mobile
-        const tl = gsap.timeline();
-        
-        tl.to(joceDiv, {
-          autoAlpha: 1,
-          duration: 0.5,
-          ease: 'power2.out'
-        })
-        .to(perdrixSlides, {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.4,
-          stagger: 0.1, // Affichage rapide en séquence
-          ease: 'power2.out'
-        }, "-=0.2");
+        console.log('📍 Slide 23 mobile is now visible');
+        // Réinitialiser à l'état initial à l'entrée
+        resetToInitialState();
+        initializePerdrixScrollLimits();
+      },
+      onLeave: () => {
+        console.log('📍 Leaving slide 23 mobile (going down)');
+        // Maintenir l'état en quittant
+      },
+      onEnterBack: () => {
+        console.log('📍 Entering back slide 23 mobile');
+        // Réinitialiser à l'état initial au retour
+        resetToInitialState();
+        initializePerdrixScrollLimits();
+      },
+      onLeaveBack: () => {
+        console.log('📍 Leaving slide 23 mobile (going up)');
+        // Réinitialiser quand on quitte vers le haut
+        resetToInitialState();
       }
     });
+
     mobileScrollTriggers.push(st);
+    slide23Section._triggerForwardAnimation = triggerSlide23ForwardAnimation;
+    slide23Section._triggerReverseAnimation = triggerSlide23ReverseAnimation;
+    slide23Section._resetToInitialState = resetToInitialState;
+    slide23Section._setToFinalState = setToFinalState;
+    slide23Section._initializePerdrixScrollLimits = initializePerdrixScrollLimits;
   };
 
   // Animation simplifiée pour la slide 128 (Case Study)
@@ -1120,6 +1480,29 @@ export function useMobileAnimations() {
             }
           }
           
+          // GESTION SPÉCIALE POUR SLIDE-23 - ANIMATION BIDIRECTIONNELLE PERDRIX
+          if (currentSection && currentSection.id === 'slide-23') {
+            
+            // Si on est dans les slides perdrix, gérer le défilement interne
+            if (animationStates.value['slide-23-mobile'] === 'initialized' || 
+                animationStates.value['slide-23-mobile'] === 'slide-visible') {
+              
+              // Swipe vers le haut : slide perdrix suivant
+              if (currentSection._triggerForwardAnimation) {
+                const animationLaunched = currentSection._triggerForwardAnimation();
+                if (animationLaunched) {
+                  return; // Bloquer la navigation normale
+                }
+                // Si l'animation n'a pas été lancée (fin des slides), continuer la navigation normale
+              }
+            }
+            
+            // Si l'animation est en cours, ignorer le swipe
+            if (animationStates.value['slide-23-animation-playing']) {
+              return;
+            }
+          }
+          
           // Navigation normale vers la slide suivante
           if (currentSectionIndex.value < sections.value.length - 1) {
             goToMobileSection(currentSectionIndex.value + 1);
@@ -1177,6 +1560,29 @@ export function useMobileAnimations() {
             
             // Si l'animation est en cours, ignorer le swipe
             if (animationStates.value['slide-20-animation-playing']) {
+              return;
+            }
+          }
+          
+          // GESTION SPÉCIALE POUR SLIDE-23 - ANIMATION REVERSE PERDRIX
+          if (currentSection && currentSection.id === 'slide-23') {
+            
+            // Si on est dans les slides perdrix, gérer le défilement interne
+            if (animationStates.value['slide-23-mobile'] === 'initialized' || 
+                animationStates.value['slide-23-mobile'] === 'slide-visible') {
+              
+              // Swipe vers le bas : slide perdrix précédent
+              if (currentSection._triggerReverseAnimation) {
+                const animationLaunched = currentSection._triggerReverseAnimation();
+                if (animationLaunched) {
+                  return; // Bloquer la navigation normale
+                }
+                // Si l'animation n'a pas été lancée (début des slides), continuer la navigation normale
+              }
+            }
+            
+            // Si l'animation est en cours, ignorer le swipe
+            if (animationStates.value['slide-23-animation-playing']) {
               return;
             }
           }
@@ -1375,12 +1781,51 @@ export function useMobileAnimations() {
     }, 2000);
   };
 
+  // Fonction de debug pour tester les animations slide-23
+  const debugSlide23Animation = () => {
+    const slide23Section = sections.value.find(s => s.id === 'slide-23');
+    if (!slide23Section) {
+      console.log('❌ Section slide-23 non trouvée');
+      return;
+    }
+    
+    console.log('🔍 DEBUG Slide-23:');
+    console.log('- Section trouvée:', !!slide23Section);
+    console.log('- isMobile:', window.innerWidth <= 1024);
+    console.log('- État actuel:', animationStates.value['slide-23-mobile']);
+    console.log('- Animation en cours:', animationStates.value['slide-23-animation-playing']);
+    console.log('- Index actuel:', animationStates.value['slide-23-current-index']);
+    
+    const perdrixContainer = slide23Section.querySelector('#perdrix-container, #bygone-bip');
+    const perdrixSlides = slide23Section.querySelectorAll('.perdrix-slide');
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    
+    console.log('- Perdrix container:', !!perdrixContainer);
+    console.log('- Perdrix slides count:', perdrixSlides.length);
+    console.log('- Image containers count:', imageContainers.length);
+    
+    if (perdrixContainer) {
+      const computedStyle = window.getComputedStyle(perdrixContainer);
+      console.log('- Container Opacity CSS:', computedStyle.opacity);
+    }
+    
+    // Tester l'animation forward
+    console.log('🎬 Test animation forward dans 2 secondes...');
+    setTimeout(() => {
+      if (slide23Section._triggerForwardAnimation) {
+        const result = slide23Section._triggerForwardAnimation();
+        console.log('Animation forward result:', result);
+      }
+    }, 2000);
+  };
+
   // Exposer les fonctions pour le debug
   window.resetSlide73State = resetSlide73State;
   window.setSlide73ToFinalState = setSlide73ToFinalState;
   window.debugSlide73Animation = debugSlide73Animation;
   window.debugSlide21Animation = debugSlide21Animation;
   window.debugSlide20Animation = debugSlide20Animation;
+  window.debugSlide23Animation = debugSlide23Animation;
 
   // Retour de l'API publique
   return {

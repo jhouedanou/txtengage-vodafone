@@ -3350,16 +3350,16 @@ body {
                 right: 0 !important;
             }
             
-            #rodman {
+            #rodman {    
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 100% !important;
-                height: 100% !important;
+                height: 332px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
                 position: relative !important;
-                z-index: 50 !important; // En dessous du ::before
+                z-index: 50 !important;
                 
                 .image-container {
                     margin: 0 !important;
@@ -3373,16 +3373,36 @@ body {
                     z-index: 10 !important; // En dessous du ::before
                     
                     img {
-                        max-width: 60% !important; // Réduire pour laisser place au ::before
-                        max-height: 60% !important;
+                        height: 332px !important;
+                        -o-object-fit: contain !important;
                         object-fit: contain !important;
                         width: auto !important;
-                        height: auto !important;
+                        /* height: auto !important; */
                         position: relative !important;
                         z-index: 1 !important;
                     }
                 }
             }
         }
+    }
+
+    #gorr{
+        display:flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        
+        width: 100vw;
+        margin: 0 !important;
+     #gor{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+     
+     }
+     #lass,img#llass{
+        position: absolute;
+    }
     }
 }
