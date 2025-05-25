@@ -1794,7 +1794,7 @@ height:auto !important;
     #slide-21,
     #slide-22 {
         #mshill {
-            font-size:56px !important;
+            font-size:39px !important
         }
 
         .text-element {
@@ -1922,7 +1922,7 @@ width:100% !important;
             position: absolute;
             left: 0;
             right: 56px;
-            top: -13px !important;
+            top: -23px !important;
         }
     }
     .case-study-container.container{
@@ -1947,13 +1947,25 @@ width:100% !important;
         color:#FF0000;
     }
     #casestudy{
+        .case-study-active{
+            h3{ 
+                color:#FF0000;
+                opacity: 1;
+            }
+        }
+
         h3{
+            color: #231F20;
             font-family: Vodafone;
             font-size: 28px !important;
             font-weight: bold !important;
             line-height: 1.44 !important;
             margin-bottom: 0em !important;
             padding-bottom: 0em !important;
+            opacity: 0.27;
+            justify-content: flex-end;
+            text-align: left;
+
         }
         p{
             font-family: Vodafone;
@@ -1964,6 +1976,7 @@ width:100% !important;
             line-height: 1 !important;
             letter-spacing: normal !important;
             text-align:left!important;
+            margin-bottom: 0 !important;
             br{
                 display:none;
             }
@@ -1982,6 +1995,11 @@ width:100% !important;
         max-width: 100% !important;
         max-height: 100% !important;
     }
+    .case-study-content{
+        div{
+            line-height:0;
+        }
+    }
    
 }
 
@@ -1994,7 +2012,7 @@ width:100% !important;
 
         h2 {
             font-family: Vodafone;
-            font-size: 73px;
+            font-size:70px;
             font-weight: bold;
             font-stretch: normal;
             font-style: normal;
@@ -2156,6 +2174,10 @@ width:100% !important;
     #slide-22 .cont {
         justify-content: center;
     }
+    .accordion-content{
+        line-height: 1.2;
+        justify-content: flex-start;
+    }
     #case-study-content-3{
         div{line-height:0;
         display:flex}
@@ -2165,6 +2187,10 @@ width:100% !important;
     #slide-128 .case-study-item {
         margin: 0 !important;
         padding: 0 !important;
+        text-align: left;
+        display: flex;
+        align-content: flex-start;
+        align-items: flex-start;
     }
     #case-study-content-3 ul li {
         font-size: 14px !important;
@@ -2172,6 +2198,8 @@ width:100% !important;
         strong{
         width: 68px !important;
         height: 68px !important;
+        background-color: #FF0000;
+        color:white;
         font-size: 27px !important;
         span{
             font-size: 13px !important;
@@ -3255,16 +3283,19 @@ body {
         padding: 0 !important;
         display: flex !important;
         flex-direction: column !important;
-        
+        justify-content: flex-end;
+        display: flex;
         #sharon {
+
+        flex-basis: 0;
             height: 100dvh !important;
             width: 100vw !important;
             margin: 0 !important;
             padding: 0 !important;
             display: flex !important;
             flex-direction: column !important;
-            align-items: stretch !important;
-            justify-content: stretch !important;
+            align-items:center !important;
+            justify-content: flex-end !important;
             gap: 0 !important; // Pas d'espace entre les éléments
         }
     }
@@ -3311,15 +3342,20 @@ body {
     }
     
     #stone {
+
+        flex-basis: 0;
+        flex-basis: 0;
         margin: 0 !important;
         padding: 0 !important;
-        height:413px !important; // Exactement 50% de la hauteur viewport
+        height: 413px !important;
         width: 100vw !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         flex-direction: column !important;
         box-sizing: border-box !important;
+        flex-grow: 0;
+        flex-basis: 0 !important;
         .bdrs{
             position: relative;
             overflow: hidden;
@@ -3329,12 +3365,12 @@ body {
             width:163px !important;
             height:332px !important;
             flex-direction: column;
-            background: rebeccapurple;
+            border-radius: 10px;
         }
         #sparta {
-            margin: 0 !important;
+            margin: 0 auto !important;
             padding: 0 !important;
-            width: 335px;
+            width: 389px;
             height: 393px !important;
             display: flex !important;
             align-items: flex-start !important;
@@ -3351,15 +3387,15 @@ body {
                 /* width: max-content; */
                 height: 415px !important;
                 width:335px !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                margin: 0 !important;
+                bottom: -6px !important;
+                left: 54px !important;
+                margin: 0 0 0 0!important;
                 background-position: center center !important;
                 right: 0 !important;
             }
             
             #rodman {    
-                margin: 0 !important;
+                margin:8px 0 0 0 !important;
                 padding: 0 !important;
                 width: 163px !important;
                 height: 332px !important;
