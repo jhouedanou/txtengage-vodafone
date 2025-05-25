@@ -1395,7 +1395,7 @@ body {
     #sparta{
         &::before{       content: "" !important;
             position: absolute !important;
-            background: url(../images/Subtract.png) !important;
+            background: url(/images/Subtract.png) !important;
             background-repeat: no-repeat !important;
             background-size: contain !important;
             z-index: 100 !important;
