@@ -1353,14 +1353,6 @@ body {
         #sharon{
             height:100dvh !important;
             background:red !important;
-            margin:0 !important;
-            padding:0 !important;
-            width:100% !important;
-            height:100% !important;
-            display:flex !important;
-            align-items:center !important;
-            justify-content:center !important;
-            flex-direction:column !important;
         }
     }
 
@@ -1901,8 +1893,8 @@ width:100% !important;
     }
 
     .split-container{
-        align-content: space-evenly;
-        max-height:660px;
+        // align-content: space-evenly;
+        // max-height:660px;
     }
     .text-container{
         height: 213px;
