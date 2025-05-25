@@ -562,72 +562,276 @@ export function useMobileAnimations() {
     slide21Section._applyMobileStylesIfNeeded = applyMobileStylesIfNeeded;
   };
 
-  // Animation simplifiée pour la slide 20 (Turtle Beach)
+  // Animation bidirectionnelle pour la slide 20 - #text-element-5 comme overlay
   const registerMobileSlide20Animation = () => {
     const slide20Section = sections.value.find(s => s.id === 'slide-20');
     if (!slide20Section) return;
-    
+
     const turtleBeach = slide20Section.querySelector('#turtlebeach');
     const mzuH2Elements = slide20Section.querySelectorAll('#mzu h2');
-    const textElements = [
-      slide20Section.querySelector('#text-element-3'),
+    const textElement5 = slide20Section.querySelector('#text-element-5');
+    const otherTextElements = [
       slide20Section.querySelector('#text-element-0'),
-      slide20Section.querySelector('#text-element-4'),
-      slide20Section.querySelector('#text-element-2'),
       slide20Section.querySelector('#text-element-1'),
-      slide20Section.querySelector('#text-element-5')
+      slide20Section.querySelector('#text-element-2'),
+      slide20Section.querySelector('#text-element-3'),
+      slide20Section.querySelector('#text-element-4')
     ].filter(el => el);
-    
-    // États initiaux simplifiés pour mobile
-    if (turtleBeach) gsap.set(turtleBeach, { scale: 0.8, autoAlpha: 1 });
-    if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 0, y: 15 });
-    textElements.forEach(el => gsap.set(el, { autoAlpha: 0, y: 15 }));
-    
-    animationStates.value['slide-20-mobile-animated'] = false;
 
-    const st = ScrollTrigger.create({
-      trigger: slide20Section,
-      scroller: SCROLLER_SELECTOR,
-      start: 'top center+=10%',
-      onEnter: () => {
-        if (animationStates.value['slide-20-mobile-animated']) return;
+    if (!textElement5) {
+      console.warn('❌ Élément #text-element-5 non trouvé dans slide-20');
+      return;
+    }
 
-        // Animation séquentielle simplifiée pour mobile
-        const tl = gsap.timeline({
-          onComplete: () => {
-            animationStates.value['slide-20-mobile-animated'] = true;
-          }
+    // Fonction pour vérifier si on est sur mobile
+    const isMobile = () => {
+      return window.innerWidth <= 1024;
+    };
+
+    // Fonction pour appliquer les styles mobiles spécifiques SEULEMENT sur mobile
+    const applyMobileStylesIfNeeded = () => {
+      if (!isMobile()) return; // Ne rien faire sur desktop
+      
+      console.log('🔧 Application des styles mobiles pour slide-20');
+      
+      // Configurer #text-element-5 pour le recouvrement (comme #doctornek sur slide-21)
+      gsap.set(textElement5, {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        clearProps: 'transform'
+      });
+    };
+
+    // Fonction pour réinitialiser les éléments à l'état initial
+    const resetToInitialState = () => {
+      console.log('🔄 Reset slide-20 to initial state, isMobile:', isMobile());
+      
+      if (isMobile()) {
+        // Nettoyer les animations GSAP précédentes
+        gsap.killTweensOf([turtleBeach, mzuH2Elements, textElement5, ...otherTextElements]);
+        
+        // Appliquer les styles mobiles
+        applyMobileStylesIfNeeded();
+        
+        // État initial mobile : #text-element-5 caché, glissé vers le bas
+        gsap.set(textElement5, { 
+          y: '100vh', // Commence hors écran en bas
+          x: 0,
+          scale: 1
         });
         
-        if (turtleBeach) {
-          tl.to(turtleBeach, {
-            scale: 1,
-            duration: 0.5,
-            ease: "power2.out"
-          });
-        }
-        
-        if (mzuH2Elements && mzuH2Elements.length) {
-          tl.to(mzuH2Elements, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.4,
-            stagger: 0.05, // Stagger réduit sur mobile
-            ease: "power2.out"
-          }, "-=0.2");
-        }
-        
-        // Tous les éléments texte en une fois sur mobile
-        tl.to(textElements, {
+        // Autres éléments à l'état visible normal
+        if (turtleBeach) gsap.set(turtleBeach, { scale: 1, autoAlpha: 1 });
+        if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 1, y: 0 });
+        otherTextElements.forEach(el => gsap.set(el, { autoAlpha: 1, y: 0 }));
+      } else {
+        // Desktop - états par défaut
+        if (turtleBeach) gsap.set(turtleBeach, { scale: 0.8, autoAlpha: 1 });
+        if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 0, y: 15 });
+        gsap.set(textElement5, { autoAlpha: 0, y: 15 });
+        otherTextElements.forEach(el => gsap.set(el, { autoAlpha: 0, y: 15 }));
+      }
+    
+      // Réinitialiser les états
+      animationStates.value['slide-20-mobile'] = 'elements-visible';
+      animationStates.value['slide-20-animation-playing'] = false;
+      animationStates.value['slide-20-animation-complete'] = false;
+      animationStates.value['slide-20-overlay-shown'] = false;
+      
+      console.log('🔄 Reset slide-20 terminé, état:', animationStates.value['slide-20-mobile']);
+    };
+
+    // === ÉTAT INITIAL ===
+    console.log('🚀 Initialisation slide-20, écran mobile:', isMobile());
+    
+    if (isMobile()) {
+      // Appliquer les styles de base immédiatement
+      applyMobileStylesIfNeeded();
+      
+      // Petit délai pour que les styles CSS soient bien appliqués
+      gsap.delayedCall(0.05, () => {
+        resetToInitialState();
+      });
+    } else {
+      resetToInitialState();
+    }
+
+    // Fonction pour afficher les éléments principaux automatiquement
+    const showMainElements = () => {
+      if (animationStates.value['slide-20-elements-shown']) return;
+      
+      animationStates.value['slide-20-elements-shown'] = true;
+      animationStates.value['slide-20-mobile'] = 'elements-visible';
+      
+      // Animation d'apparition des éléments principaux (mode desktop adapté au mobile)
+      const tl = gsap.timeline();
+      
+      if (turtleBeach) {
+        tl.to(turtleBeach, {
+          scale: 1,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+      }
+      
+      if (mzuH2Elements && mzuH2Elements.length) {
+        tl.to(mzuH2Elements, {
           autoAlpha: 1,
           y: 0,
-          duration: 0.5,
+          duration: 0.4,
           stagger: 0.05,
           ease: "power2.out"
         }, "-=0.2");
       }
+      
+      // Afficher les autres éléments texte (mais pas #text-element-5)
+      tl.to(otherTextElements, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.05,
+        ease: "power2.out"
+      }, "-=0.2");
+    };
+
+    // Animation FORWARD (swipe bas->haut) : Recouvrement #text-element-5 depuis le bas
+    const triggerSlide20ForwardAnimation = () => {
+      if (animationStates.value['slide-20-animation-playing']) return;
+      
+      animationStates.value['slide-20-animation-playing'] = true;
+      animationStates.value['slide-20-mobile'] = 'animating-forward';
+
+      // Bloquer les interactions pendant l'animation
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          animationStates.value['slide-20-mobile'] = 'complete';
+          animationStates.value['slide-20-animation-playing'] = false;
+          animationStates.value['slide-20-animation-complete'] = true;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log('Slide-20: Animation forward #text-element-5 terminée');
+        }
+      });
+
+      // Glissement de #text-element-5 depuis le bas de l'écran pour recouvrir les autres éléments
+      tl.to(textElement5, {
+        y: 0, // Glisser vers la position finale
+        duration: 0.8,
+        ease: 'power2.out'
+      });
+    };
+
+    // Animation REVERSE (swipe haut->bas) : Retour #text-element-5 vers le bas
+    const triggerSlide20ReverseAnimation = () => {
+      if (animationStates.value['slide-20-animation-playing']) return;
+      
+      animationStates.value['slide-20-animation-playing'] = true;
+      animationStates.value['slide-20-mobile'] = 'animating-reverse';
+
+      // Bloquer les interactions pendant l'animation
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          animationStates.value['slide-20-mobile'] = 'elements-visible';
+          animationStates.value['slide-20-animation-playing'] = false;
+          animationStates.value['slide-20-animation-complete'] = false;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log('Slide-20: Animation reverse #text-element-5 terminée');
+        }
+      });
+
+      // Glissement de #text-element-5 vers le bas de l'écran
+      tl.to(textElement5, {
+        y: '100vh', // Glisser complètement vers le bas
+        duration: 0.6,
+        ease: 'power2.in'
+      });
+    };
+
+    // Fonction pour mettre les éléments à l'état final (visible)
+    const setToFinalState = () => {
+      // Appliquer les styles mobiles SEULEMENT si on est sur mobile
+      if (isMobile()) {
+        applyMobileStylesIfNeeded();
+      }
+      
+      if (turtleBeach) gsap.set(turtleBeach, { scale: 1, autoAlpha: 1 });
+      if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 1, y: 0 });
+      otherTextElements.forEach(el => gsap.set(el, { autoAlpha: 1, y: 0 }));
+      gsap.set(textElement5, { y: 0 });
+      
+      // Marquer comme complet
+      animationStates.value['slide-20-mobile'] = 'complete';
+      animationStates.value['slide-20-animation-complete'] = true;
+      animationStates.value['slide-20-elements-shown'] = true;
+    };
+
+    // ScrollTrigger pour détecter quand la slide 20 est visible
+    const st = ScrollTrigger.create({
+      trigger: slide20Section,
+      scroller: SCROLLER_SELECTOR,
+      start: 'top center+=10%',
+      end: 'bottom top',
+      onEnter: () => {
+        console.log('📍 Slide 20 is now visible');
+        
+        // Animation automatique des éléments principaux à l'entrée (sauf sur mobile où ils sont déjà visibles)
+        if (!isMobile() && !animationStates.value['slide-20-elements-shown']) {
+          showMainElements();
+        }
+      },
+      onLeave: () => {
+        console.log('📍 Leaving slide 20 (going down)');
+        // TOUJOURS réinitialiser quand on quitte
+        resetToInitialState();
+      },
+      onEnterBack: () => {
+        console.log('📍 Entering back slide 20');
+        // TOUJOURS réinitialiser quand on revient
+        resetToInitialState();
+        // Petit délai pour que le reset soit effectif, puis rejouer l'animation
+        if (!isMobile()) {
+          setTimeout(() => {
+            showMainElements();
+          }, 50);
+        }
+      },
+      onLeaveBack: () => {
+        console.log('📍 Leaving slide 20 (going up)');
+        // TOUJOURS réinitialiser quand on quitte vers le haut
+        resetToInitialState();
+      }
     });
+
     mobileScrollTriggers.push(st);
+    slide20Section._triggerForwardAnimation = triggerSlide20ForwardAnimation;
+    slide20Section._triggerReverseAnimation = triggerSlide20ReverseAnimation;
+    slide20Section._resetToInitialState = resetToInitialState;
+    slide20Section._showMainElements = showMainElements;
+    slide20Section._setToFinalState = setToFinalState;
+    slide20Section._applyMobileStylesIfNeeded = applyMobileStylesIfNeeded;
   };
 
   // Animation simplifiée pour la slide 23 (Perdrix) - Pas de slider complexe sur mobile
@@ -840,6 +1044,23 @@ export function useMobileAnimations() {
             }
           }
           
+          // GESTION SPÉCIALE POUR SLIDE-20 - ANIMATION BIDIRECTIONNELLE
+          if (currentSection && currentSection.id === 'slide-20') {
+            
+            // Si les éléments principaux sont visibles mais #text-element-5 n'a jamais été montré, déclencher l'animation forward
+            if (animationStates.value['slide-20-mobile'] === 'elements-visible') {
+              if (currentSection._triggerForwardAnimation) {
+                currentSection._triggerForwardAnimation();
+                return; // Bloquer la navigation normale
+              }
+            }
+            
+            // Si l'animation est en cours, ignorer le swipe
+            if (animationStates.value['slide-20-animation-playing']) {
+              return;
+            }
+          }
+          
           // Navigation normale vers la slide suivante
           if (currentSectionIndex.value < sections.value.length - 1) {
             goToMobileSection(currentSectionIndex.value + 1);
@@ -880,6 +1101,23 @@ export function useMobileAnimations() {
             
             // Si l'animation est en cours, ignorer le swipe
             if (animationStates.value['slide-21-animation-playing']) {
+              return;
+            }
+          }
+
+          // GESTION SPÉCIALE POUR SLIDE-20 - ANIMATION REVERSE
+          if (currentSection && currentSection.id === 'slide-20') {
+            
+            // Si l'animation est complète, déclencher l'animation reverse
+            if (animationStates.value['slide-20-mobile'] === 'complete') {
+              if (currentSection._triggerReverseAnimation) {
+                currentSection._triggerReverseAnimation();
+                return; // Bloquer la navigation normale
+              }
+            }
+            
+            // Si l'animation est en cours, ignorer le swipe
+            if (animationStates.value['slide-20-animation-playing']) {
               return;
             }
           }
@@ -1039,11 +1277,50 @@ export function useMobileAnimations() {
     }, 2000);
   };
 
+  // Fonction de debug pour tester les animations slide-20
+  const debugSlide20Animation = () => {
+    const slide20Section = sections.value.find(s => s.id === 'slide-20');
+    if (!slide20Section) {
+      console.log('❌ Section slide-20 non trouvée');
+      return;
+    }
+    
+    console.log('🔍 DEBUG Slide-20:');
+    console.log('- Section trouvée:', !!slide20Section);
+    console.log('- isMobile:', window.innerWidth <= 1024);
+    console.log('- État actuel:', animationStates.value['slide-20-mobile']);
+    console.log('- Animation en cours:', animationStates.value['slide-20-animation-playing']);
+    console.log('- Éléments montrés:', animationStates.value['slide-20-elements-shown']);
+    console.log('- Animation complète:', animationStates.value['slide-20-animation-complete']);
+    
+    const textElement5 = slide20Section.querySelector('#text-element-5');
+    const turtleBeach = slide20Section.querySelector('#turtlebeach');
+    if (textElement5) {
+      const computedStyle = window.getComputedStyle(textElement5);
+      console.log('- #text-element-5 Position CSS:', computedStyle.position);
+      console.log('- #text-element-5 Transform CSS:', computedStyle.transform);
+      console.log('- #text-element-5 Opacity CSS:', computedStyle.opacity);
+    }
+    if (turtleBeach) {
+      const computedStyle = window.getComputedStyle(turtleBeach);
+      console.log('- #turtlebeach Opacity CSS:', computedStyle.opacity);
+    }
+    
+    // Tester l'animation forward
+    console.log('🎬 Test animation forward dans 2 secondes...');
+    setTimeout(() => {
+      if (slide20Section._triggerForwardAnimation) {
+        slide20Section._triggerForwardAnimation();
+      }
+    }, 2000);
+  };
+
   // Exposer les fonctions pour le debug
   window.resetSlide73State = resetSlide73State;
   window.setSlide73ToFinalState = setSlide73ToFinalState;
   window.debugSlide73Animation = debugSlide73Animation;
   window.debugSlide21Animation = debugSlide21Animation;
+  window.debugSlide20Animation = debugSlide20Animation;
 
   // Retour de l'API publique
   return {
