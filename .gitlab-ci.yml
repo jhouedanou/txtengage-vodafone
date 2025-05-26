@@ -1,0 +1,118 @@
+# Configuration GitLab CI pour déploiement FTP automatique
+
+stages:
+  - build
+  - deploy
+
+# Variables globales
+variables:
+  NODE_VERSION: "18"
+  CACHE_KEY: "$CI_COMMIT_REF_SLUG"
+
+# Cache pour les node_modules
+cache:
+  key: ${CACHE_KEY}
+  paths:
+    - node_modules/
+    - .npm/
+
+# Build du projet
+build:
+  stage: build
+  image: node:${NODE_VERSION}-alpine
+  
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    
+  script:
+    - echo "🔄 Build de production en cours..."
+    - npm run generate:production
+    
+  artifacts:
+    paths:
+      - .output/public/
+    expire_in: 1 hour
+    
+  only:
+    - main
+    - master
+    - develop
+
+# Déploiement FTP en production
+deploy_production:
+  stage: deploy
+  image: alpine:latest
+  
+  before_script:
+    # Installation des outils FTP
+    - apk add --no-cache lftp curl
+    
+  script:
+    - echo "🚀 Déploiement FTP vers production..."
+    
+    # Script de déploiement FTP avec lftp
+    - |
+      lftp -c "
+        set ftp:ssl-allow no;
+        set ftp:passive-mode on;
+        open -u $FTP_USER,$FTP_PASSWORD $FTP_HOST;
+        lcd .output/public;
+        cd $FTP_REMOTE_PATH;
+        mirror --reverse --delete --verbose --exclude-glob .DS_Store --exclude-glob *.map;
+        quit
+      "
+    
+    - echo "✅ Déploiement terminé avec succès!"
+    
+  dependencies:
+    - build
+    
+  only:
+    - main
+    - master
+    
+  when: manual  # Déploiement manuel pour plus de sécurité
+
+# Déploiement staging (automatique sur develop)
+deploy_staging:
+  stage: deploy
+  image: alpine:latest
+  
+  before_script:
+    - apk add --no-cache lftp curl
+    
+  script:
+    - echo "🔄 Déploiement FTP vers staging..."
+    
+    # Modifier le chemin pour staging si nécessaire
+    - STAGING_PATH="${FTP_REMOTE_PATH}/staging"
+    
+    - |
+      lftp -c "
+        set ftp:ssl-allow no;
+        set ftp:passive-mode on;
+        open -u $FTP_USER,$FTP_PASSWORD $FTP_HOST;
+        lcd .output/public;
+        cd $STAGING_PATH;
+        mirror --reverse --delete --verbose --exclude-glob .DS_Store --exclude-glob *.map;
+        quit
+      "
+    
+    - echo "✅ Déploiement staging terminé!"
+    
+  dependencies:
+    - build
+    
+  only:
+    - develop
+    
+  environment:
+    name: staging
+    url: https://your-domain.com/txtengage/staging
+
+# Job pour nettoyer les artifacts anciens
+cleanup:
+  stage: .post
+  script:
+    - echo "🧹 Nettoyage des artifacts..."
+  when: always 

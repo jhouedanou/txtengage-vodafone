@@ -1,0 +1,74 @@
+name: Deploy to FTP
+
+# Déclencher le workflow
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:  # Permet de déclencher manuellement
+
+jobs:
+  deploy:
+    name: Deploy to FTP Server
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout du code
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Configuration Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    # Installation des dépendances
+    - name: Install dependencies
+      run: npm ci
+
+    # Build de production
+    - name: Build for production
+      run: npm run generate:production
+      env:
+        NUXT_APP_BASE_URL: /txtengage/
+
+    # Déploiement FTP avec action spécialisée
+    - name: Deploy to FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: ${{ secrets.FTP_PORT || 21 }}
+        protocol: ${{ secrets.FTP_SECURE == 'true' && 'ftps' || 'ftp' }}
+        local-dir: ./.output/public/
+        server-dir: ${{ secrets.FTP_REMOTE_PATH || '/public_html/txtengage/' }}
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.DS_Store
+          **/*.map
+
+    # Alternative: Déploiement FTP avec script custom
+    - name: Deploy with custom FTP script
+      if: false  # Désactivé par défaut, activez si nécessaire
+      run: npm run deploy:ftp
+      env:
+        FTP_HOST: ${{ secrets.FTP_HOST }}
+        FTP_USER: ${{ secrets.FTP_USER }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        FTP_PORT: ${{ secrets.FTP_PORT }}
+        FTP_SECURE: ${{ secrets.FTP_SECURE }}
+        FTP_REMOTE_PATH: ${{ secrets.FTP_REMOTE_PATH }}
+
+    # Notification de succès
+    - name: Notify success
+      if: success()
+      run: echo "🚀 Déploiement réussi vers le dossier txtengage!"
+
+    # Notification d'échec
+    - name: Notify failure
+      if: failure()
+      run: echo "❌ Échec du déploiement. Vérifiez les logs." 

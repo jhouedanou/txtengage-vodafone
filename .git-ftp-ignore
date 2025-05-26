@@ -1,0 +1,33 @@
+# Fichiers à exclure du déploiement git-ftp
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Fichiers de développement
+node_modules/
+.nuxt/
+.output/
+dist/
+*.map
+.env*
+
+# Fichiers Git
+.git/
+.gitignore
+
+# Fichiers de configuration
+package.json
+package-lock.json
+yarn.lock
+nuxt.config.js
+*.config.js
+
+# Documentation
+README.md
+*.md
+
+# Scripts de développement
+scripts/ 

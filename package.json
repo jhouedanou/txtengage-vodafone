@@ -27,7 +27,12 @@
     "build:subfolder": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt build",
     "generate:subfolder": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt generate",
     "generate:production": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt generate",
-    "dev:root": "cross-env NUXT_APP_BASE_URL=/ nuxt dev"
+    "dev:root": "cross-env NUXT_APP_BASE_URL=/ nuxt dev",
+    "deploy:ftp": "node scripts/deploy-ftp.js",
+    "deploy:git-ftp": "git ftp push --syncroot .output/public/",
+    "deploy:production": "npm run generate:production && npm run deploy:ftp",
+    "deploy:staging": "npm run generate:subfolder && npm run deploy:ftp",
+    "test:deploy": "node scripts/test-deploy.js"
   },
   "dependencies": {
     "@nuxt/image": "1.8.1",
@@ -47,6 +52,7 @@
   "devDependencies": {
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
+    "basic-ftp": "^5.0.5",
     "browser-sync": "^3.0.4",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",

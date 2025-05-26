@@ -1,0 +1,18 @@
+[git-ftp]
+
+# Configuration par défaut pour git-ftp
+url = ftp://your-server.com/public_html/txtengage
+user = your-username
+password = your-password
+
+# Dossier local à déployer (dossier de build Nuxt)
+local-dir = .output/public/
+
+# Dossier distant sur le serveur
+remote-root = txtengage
+
+# Fichiers à ignorer lors du déploiement
+exclude-file = .git-ftp-ignore
+
+# Options
+auto-init = true 
