@@ -1492,7 +1492,7 @@ body {
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            max-height: 630px;
+            max-height: 60vh;
             position: absolute !important;
             left: 0;
             right: 0;
@@ -1502,7 +1502,7 @@ body {
             height: 100%;
             width: 100%;
             .text-element {
-                margin: 0 auto 2em;
+                margin: 0 auto 0.4rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -1615,12 +1615,25 @@ body {
             }
         }
     }
-
+    #slide-22{
+        .text-element-p{
+            min-height:0;
+            padding-top:1em !important
+        }
+        #thoiathoing2{
+            padding:1em 1em 5em 1em !important;
+        }
+    }
     #slide-20 {
         #kiff, #ozaru {
             width: 100%;}
         #text-element-5{
             width:100% !important;
+            padding:1em;
+            background:url('/images/Group205.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
             h5{
                 font-size: 28px !important;
             }
@@ -2231,7 +2244,7 @@ width:100% !important;
     }
 
     #vodacomwrapper {
-        background: url(/images/bgmbile.jpg) !important;
+        background: url('/images/bgmbile.jpg') !important;
         background-size: cover !important;
         background-position: 50% 50% !important;
     }
@@ -2575,7 +2588,7 @@ br{
             max-width: 240px;
 
             list-style: none;
-            background: url(/images/check.jpg) 10px center no-repeat white;
+            background: url('/images/check.jpg') 10px center no-repeat white;
             background-size: 14px 14px;
             height: 28px;
             font-family: Vodafone;
@@ -3438,7 +3451,9 @@ body.slide-73-active,
 
 // CSS mobile pour supprimer les espaces dans #sharon en conservant les ::before
 @media screen and (max-width: 1024px) {
-    #quadi{
+    #slide-73 .slides-container{
+
+    background-position-x: -69vw !important;
         
     }
     #joce {

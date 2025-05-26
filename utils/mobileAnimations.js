@@ -682,11 +682,12 @@ export function useMobileAnimations() {
         // Appliquer les styles mobiles
         applyMobileStylesIfNeeded();
         
-        // État initial mobile : #text-element-5 caché, glissé vers le bas
+        // État initial mobile : #text-element-5 caché, invisible mais en position
         gsap.set(textElement5, { 
-          y: '100vh', // Commence hors écran en bas
+          autoAlpha: 0, // Commence invisible
+          y: 0,         // À sa position finale (pas hors écran)
           x: 0,
-          scale: 1
+          scale: 0.95   // Légèrement réduit pour l'effet de fadeIn
         });
         
         // Autres éléments à l'état initial caché pour l'animation
@@ -777,7 +778,7 @@ export function useMobileAnimations() {
       }
     };
 
-    // Animation FORWARD (swipe bas->haut) : Recouvrement #text-element-5 depuis le bas
+    // Animation FORWARD (swipe bas->haut) : FadeIn rapide de #text-element-5
     const triggerSlide20ForwardAnimation = () => {
       if (animationStates.value['slide-20-animation-playing']) return;
       
@@ -798,19 +799,25 @@ export function useMobileAnimations() {
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
           
-          console.log('Slide-20: Animation forward #text-element-5 terminée');
+          console.log('Slide-20: Animation forward #text-element-5 terminée (fadeIn rapide)');
         }
       });
 
-      // Glissement de #text-element-5 depuis le bas de l'écran pour recouvrir les autres éléments
-      tl.to(textElement5, {
-        y: 0, // Glisser vers la position finale
-        duration: 0.8,
+      // FadeIn rapide de #text-element-5 au lieu du slide
+      tl.fromTo(textElement5, {
+        autoAlpha: 0, // Démarrer complètement invisible
+        scale: 0.95,  // Légère échelle réduite pour un effet subtil
+        y: 0         // Pas de décalage vertical
+      }, {
+        autoAlpha: 1, // Apparition complète
+        scale: 1,     // Retour à l'échelle normale
+        y: 0,         // Position finale normale
+        duration: 0.4, // Animation rapide (au lieu de 0.8)
         ease: 'power2.out'
       });
     };
 
-    // Animation REVERSE (swipe haut->bas) : Retour #text-element-5 vers le bas
+    // Animation REVERSE (swipe haut->bas) : FadeOut rapide de #text-element-5
     const triggerSlide20ReverseAnimation = () => {
       if (animationStates.value['slide-20-animation-playing']) return;
       
@@ -831,14 +838,16 @@ export function useMobileAnimations() {
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
           
-          console.log('Slide-20: Animation reverse #text-element-5 terminée');
+          console.log('Slide-20: Animation reverse #text-element-5 terminée (fadeOut rapide)');
         }
       });
 
-      // Glissement de #text-element-5 vers le bas de l'écran
+      // FadeOut rapide de #text-element-5 au lieu du slide vers le bas
       tl.to(textElement5, {
-        y: '100vh', // Glisser complètement vers le bas
-        duration: 0.6,
+        autoAlpha: 0, // Disparition complète
+        scale: 0.95,  // Légère réduction d'échelle
+        y: 0,         // Reste à sa position
+        duration: 0.3, // Animation très rapide
         ease: 'power2.in'
       });
     };
@@ -853,7 +862,7 @@ export function useMobileAnimations() {
       if (turtleBeach) gsap.set(turtleBeach, { scale: 1, autoAlpha: 1 });
       if (mzuH2Elements) gsap.set(mzuH2Elements, { autoAlpha: 1, y: 0 });
       otherTextElements.forEach(el => gsap.set(el, { autoAlpha: 1, y: 0 }));
-      gsap.set(textElement5, { y: 0 });
+      gsap.set(textElement5, { autoAlpha: 1, y: 0, scale: 1 }); // Visible, position normale, échelle normale
       
       // Marquer comme complet
       animationStates.value['slide-20-mobile'] = 'complete';

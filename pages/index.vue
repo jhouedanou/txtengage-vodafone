@@ -765,9 +765,7 @@ const goToFirstSlide = () => {
             class="p-0 m-0 slide"
           >
             <div class="cont p-2">
-              <div class="row">
-                <h3 id="mshill" v-html="slide.wp_content"></h3>
-              </div>
+              
               <div
                 class="row flex-row align-content-center align-items-center juustify-content-center"
               >

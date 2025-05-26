@@ -12,12 +12,20 @@ module.exports = {
         "port": 3001
     },
     "files": [
-        "**/*.html",
-        "**/*.php",
-        "**/*.js",
-        "**/*.vue",
-        "**/*.css",
-        "**/*.scss"
+        "pages/**/*.vue",
+        "components/**/*.vue", 
+        "assets/**/*.scss",
+        "assets/**/*.css",
+        "plugins/**/*.js",
+        "composables/**/*.js",
+        "utils/**/*.js"
+    ],
+    "ignore": [
+        "dist/**/*",
+        ".output/**/*",
+        ".nuxt/**/*",
+        "txtengage/**/*",
+        "node_modules/**/*"
     ],
     "watchEvents": [
         "change"
@@ -32,7 +40,9 @@ module.exports = {
         "scroll": true
     },
     "logLevel": "info",
-    "logPrefix": "Vodafone",
+    "logPrefix": "Vodafone Dev",
     "logConnections": false,
-    "reloadDelay": 0
+    "reloadDelay": 0,
+    "injectChanges": true, // Hot injection des CSS
+    "reloadOnRestart": true
 };
