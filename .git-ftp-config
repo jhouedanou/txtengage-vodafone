@@ -1,9 +1,9 @@
 [git-ftp]
 
 # Configuration par défaut pour git-ftp
-url = 129.232.249.221
-user = blackfhppu_9
-password = f8wKF5H4qLc4P594APu8
+url = "129.232.249.221"
+user = "blackfhppu_9"
+password = "f8wKF5H4qLc4P594APu8"
 
 # Dossier local à déployer (dossier de build Nuxt)
 local-dir = .vercel/output/static/txtengage/
