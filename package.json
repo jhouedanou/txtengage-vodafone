@@ -29,7 +29,7 @@
     "generate:production": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt generate",
     "dev:root": "cross-env NUXT_APP_BASE_URL=/ nuxt dev",
     "deploy:ftp": "node scripts/deploy-ftp.js",
-    "deploy:git-ftp": "git ftp push --syncroot .output/public/",
+    "deploy:git-ftp": "git ftp push --syncroot .vercel/output/static/txtengage/",
     "deploy:production": "npm run generate:production && npm run deploy:ftp",
     "deploy:staging": "npm run generate:subfolder && npm run deploy:ftp",
     "test:deploy": "node scripts/test-deploy.js"

@@ -20,7 +20,7 @@ const FTP_CONFIG = {
 // Configuration des chemins
 const PATHS = {
   // Dossier local où Nuxt génère les fichiers statiques
-  local: path.resolve(__dirname, '..', '.output', 'public'),
+  local: path.resolve(__dirname, '..', '.vercel', 'output', 'static', 'txtengage'),
   // Dossier distant sur le serveur FTP
   remote: process.env.FTP_REMOTE_PATH || '/public_html/txtengage',
   // Fichiers à exclure du déploiement

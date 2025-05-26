@@ -6,7 +6,7 @@ user = your-username
 password = your-password
 
 # Dossier local à déployer (dossier de build Nuxt)
-local-dir = .output/public/
+local-dir = .vercel/output/static/txtengage/
 
 # Dossier distant sur le serveur
 remote-root = txtengage

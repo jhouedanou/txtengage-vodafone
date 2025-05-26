@@ -26,7 +26,7 @@ const log = {
 class DeploymentTester {
   constructor() {
     this.projectRoot = path.resolve(__dirname, '..');
-    this.buildDir = path.join(this.projectRoot, '.output', 'public');
+    this.buildDir = path.join(this.projectRoot, '.vercel', 'output', 'static', 'txtengage');
     this.envFile = path.join(this.projectRoot, '.env');
     this.packageJson = path.join(this.projectRoot, 'package.json');
   }
