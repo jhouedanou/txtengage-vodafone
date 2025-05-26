@@ -1385,26 +1385,64 @@ body {
         bottom: 0;   
     }
     #joce{
-        height:100dvh !important;
-        #sharon{
-            height:100dvh !important;
+
+        height: 100vh !important;
+        align-items: flex-end;
+        gap: 0;
+        line-height: 0;
+        display: flex
+;
+        flex-basis: fit-content;
+                #sharon{
+          
+        height: 100vh !important;
+        align-items: flex-end;
+        gap: 0;
+        line-height: 0;
+        display: flex;
+        flex-basis: fit-content;
         }
     }
     #quadi{
         margin:100px 0 0 0 !important;}
     #sparta{
-        &::before{       content: "" !important;
-            position: absolute !important;
-            background: url(/images/Subtract.png) !important;
-            background-repeat: no-repeat !important;
-            background-size: contain !important;
-            z-index: 100 !important;
-            margin: 0 !important;
-            background-position: center center !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            /* position: absolute; */
+        height: 585px;
+        position: relative;
+        overflow: hidden;
+        width: 427px;
+        // Fix pour iOS : s'assurer que l'élément est visible
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        
+        #rodman{
+            height:504px;
+            overflow:hidden;
+            position: relative;
+            z-index: 2; // S'assurer qu'il est au-dessus du ::before
+        }
+        
+        &::before{
+            content: "";
+            position: absolute;
+            // Fix iOS : éviter les conflits margin/left/right
+            top: auto;
+            bottom: 0;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            // Background optimisé pour iOS
+            background: url(/images/Subtract.png) no-repeat center center;
+            background-size: contain;
+            // Dimensions fixes
+            height: 613px;
+            width: 492px;
+            // Z-index cohérent
+            z-index: 1;
+            // Fix iOS pour pseudo-éléments
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            // S'assurer que l'élément est rendu
+            will-change: transform;
         }
     }
     
@@ -2876,6 +2914,44 @@ body {
     opacity: 0;
     pointer-events: none;
   }
+
+  // Styles pour les spans du hamburger (lignes)
+  span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: white;
+    margin: 3px 0;
+    transition: all 0.3s ease;
+    border-radius: 1px;
+  }
+}
+
+// Couleur spécifique du hamburger sur #slide-73
+#slide-73 {
+  .menu-toggle {
+    span {
+      background: #ff0000 !important;
+      
+      &:hover {
+        background: #ff3333 !important;
+      }
+    }
+  }
+}
+
+// Alternative si le hamburger est à l'extérieur de #slide-73
+body.slide-73-active,
+.slide-73-active {
+  .menu-toggle {
+    span {
+      background: #ff0000 !important;
+      
+      &:hover {
+        background: #ff3333 !important;
+      }
+    }
+  }
 }
 
 // Overlay pour fermer le menu en cliquant à l'extérieur
@@ -3275,7 +3351,7 @@ body {
         overflow: hidden;
         height: 100%;
         width: 251px;
-        background-color: #f00;
+        background-color: rgb(0, 0, 0);
         display: flex;
         flex-direction: column;
     
@@ -3329,28 +3405,32 @@ body {
     position: relative;
     overflow: hidden;
     width: 427px;
+    // Fix pour iOS : s'assurer que l'élément est visible
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    
     #rodman{
         height:504px;
         overflow:hidden;
+        position: relative;
+        z-index: 2; // S'assurer qu'il est au-dessus du ::before
     }
+    
     &::before{
-        margin: auto;
         content: "";
-        z-index: 10000;
         position: absolute;
-        background: url(/images/Subtract.png);
-        background-position: 100% 100%;
-        background-repeat: no-repeat;
-        background-size: 100%;
-        background-size: contain;
+        top: auto;
         bottom: 0;
         left: 0;
-        margin: auto;
+        right: auto;
+        background: url(/images/Subtract.png) no-repeat center center;
+        background-size: contain;
         height: 613px;
-        right: 0;
-        z-index: 100;
         width: 492px;
-}
+        z-index: 1;
+        will-change: transform;
+        z-index: 10;
+    }
 }
 .test{
     display:none;
@@ -3358,7 +3438,9 @@ body {
 
 // CSS mobile pour supprimer les espaces dans #sharon en conservant les ::before
 @media screen and (max-width: 1024px) {
-    
+    #quadi{
+        
+    }
     #joce {
         height: 100dvh !important;
         width: 100vw !important;
@@ -3370,16 +3452,6 @@ body {
         display: flex;
         #sharon {
 
-        flex-basis: 0;
-            height: 100dvh !important;
-            width: 100vw !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items:center !important;
-            justify-content: flex-end !important;
-            gap: 0 !important; // Pas d'espace entre les éléments
         }
     }
     
@@ -3425,20 +3497,10 @@ body {
     }
     
     #stone {
-
-        flex-basis: 0;
-        flex-basis: 0;
         margin: 0 !important;
         padding: 0 !important;
-        height: 413px !important;
-        width: 100vw !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex-direction: column !important;
-        box-sizing: border-box !important;
-        flex-grow: 0;
-        flex-basis: 0 !important;
+                width: 100vw !important;
+        display: block !important;
         .bdrs{
             position: relative;
             overflow: hidden;
@@ -3454,60 +3516,75 @@ body {
             margin: 0 auto !important;
             padding: 0 !important;
             width: 389px;
-            height: 393px !important;
-            display: flex !important;
-            align-items: flex-start !important;
-            justify-content: center !important;
+            height: 447px !important;
+            display: block !important;
             position: relative !important;
+            line-height: 0;
+            text-align: center !important;
+            // Fix iOS mobile
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
             
             &::before {
                 content: "" !important;
                 position: absolute !important;
-                background: url(/images/Subtract.png) !important;
-                background-repeat: no-repeat !important;
-                background-size: contain !important;
-                z-index: 100 !important;
-                /* width: max-content; */
-                height: 415px !important;
-                width:335px !important;
-                bottom: -6px !important;
-                left: 54px !important;
-                margin: 0 0 0 0!important;
-                background-position: center center !important;
+                bottom: 63px !important;
+                left: -7% !important;
                 right: 0 !important;
+                margin: 0 auto !important;
+                background: url(/images/Subtract.png) no-repeat center center !important;
+                background-size: contain !important;
+                height: 400px !important;
+                z-index: 7 !important;
+                will-change: transform !important;
             }
             
             #rodman {    
-                margin:8px 0 0 0 !important;
+                margin: 1% auto !important;
                 padding: 0 !important;
                 width: 163px !important;
                 height: 332px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                position: relative !important;
-                z-index: 50 !important;
+                position: absolute !important;
+                z-index: 2 !important;
+                border-radius: 26px !important;
+                transform: translateZ(0);
+                left: 0;
+                right: 0;
+                // Fix iOS
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
                 
-        border-radius: 26px !important;
                 .image-container {
                     margin: 0 !important;
-                    padding: 0rem !important;
+                    padding: 0 !important;
                     width: 100% !important;
-
-                    height: 332px !important;                    display: flex !important;
+                    height: 332px !important;
+                    display: flex !important;
                     align-items: center !important;
                     justify-content: center !important;
                     position: absolute !important;
-                    z-index: 10 !important; // En dessous du ::before
+                    z-index: 3 !important;
+                    &::after{
+                        content: "nique ta lere";
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        
+                    }
                     
                     img {
                         height: 332px !important;
-                        -o-object-fit: contain !important;
                         object-fit: contain !important;
                         width: auto !important;
-                        /* height: auto !important; */
                         position: relative !important;
-                        z-index: 1 !important;
+                        z-index: 4 !important;
+                        // Fix iOS pour les images
+                        -webkit-transform: translateZ(0);
+                        transform: translateZ(0);
                     }
                 }
             }
@@ -3699,3 +3776,188 @@ justify-content: center;
         color: #231f20;
     }
 }
+
+/* ==============================================
+   DARK MODE PREVENTION SYSTEM FOR ANDROID SAMSUNG
+   ============================================== */
+
+/* Global dark mode prevention */
+html {
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
+    -moz-color-scheme: light !important;
+    forced-color-adjust: none !important;
+    -webkit-forced-color-adjust: none !important;
+    -moz-forced-color-adjust: none !important;
+}
+
+body {
+    color-scheme: light !important;
+    forced-color-adjust: none !important;
+    -webkit-forced-color-adjust: none !important;
+}
+
+/* Specific protection for .split-container ul li elements */
+.split-container ul li {
+    /* Primary color protection */
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+    -moz-text-fill-color: #e60000 !important;
+    
+    /* Dark mode prevention */
+    color-scheme: light !important;
+    forced-color-adjust: none !important;
+    -webkit-forced-color-adjust: none !important;
+    -moz-forced-color-adjust: none !important;
+    
+    /* Samsung Internet specific */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    
+    /* Text decoration protection */
+    text-decoration-color: #e60000 !important;
+    caret-color: #e60000 !important;
+    
+    /* Background protection */
+    background-color: white !important;
+    -webkit-text-stroke: 0 !important;
+}
+
+/* Global text color protection for all white text elements */
+.split-container .text-content,
+.split-container h3,
+.text-element h3,
+.text-element p,
+.points-fort h3,
+.points-fort p {
+    color-scheme: light !important;
+    forced-color-adjust: none !important;
+    -webkit-forced-color-adjust: none !important;
+    -webkit-text-fill-color: inherit !important;
+}
+
+/* Protection against dark mode color forcing */
+@media (prefers-color-scheme: dark) {
+    html, body {
+        color-scheme: light !important;
+        forced-color-adjust: none !important;
+        -webkit-forced-color-adjust: none !important;
+    }
+    
+    .split-container ul li {
+        color: #e60000 !important;
+        -webkit-text-fill-color: #e60000 !important;
+        background-color: white !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+    }
+    
+    /* Vodafone red text protection */
+    h3, p, span, div {
+        &[style*="color: #e60000"],
+        &[style*="color: #ff0000"],
+        &[style*="color: red"] {
+            color: #e60000 !important;
+            -webkit-text-fill-color: #e60000 !important;
+        }
+    }
+    
+    /* White text protection */
+    .text-element,
+    .points-fort,
+    .subint {
+        h3, p {
+            &[style*="color: #fff"],
+            &[style*="color: white"] {
+                color: white !important;
+                -webkit-text-fill-color: white !important;
+            }
+        }
+    }
+}
+
+/* Samsung Internet Browser specific detection and override */
+@supports (-webkit-appearance: none) {
+    .split-container ul li {
+        color: #e60000 !important;
+        -webkit-text-fill-color: #e60000 !important;
+        background-color: white !important;
+    }
+}
+
+/* Protection against Dark Reader and similar extensions */
+html[data-darkreader-scheme="dark"] {
+    .split-container ul li {
+        color: #e60000 !important;
+        -webkit-text-fill-color: #e60000 !important;
+        background-color: white !important;
+        filter: none !important;
+    }
+}
+
+/* High contrast mode prevention */
+@media (prefers-contrast: high) {
+    .split-container ul li {
+        color: #e60000 !important;
+        -webkit-text-fill-color: #e60000 !important;
+        forced-color-adjust: none !important;
+    }
+}
+
+/* Reduced motion respect but color preservation */
+@media (prefers-reduced-motion: reduce) {
+    .split-container ul li {
+        color: #e60000 !important;
+        -webkit-text-fill-color: #e60000 !important;
+    }
+}
+
+/* Android Chrome dark mode specific */
+@media screen and (-webkit-min-device-pixel-ratio: 1) {
+    .split-container ul li {
+        color: #e60000 !important;
+        -webkit-text-fill-color: #e60000 !important;
+        -webkit-appearance: none !important;
+    }
+}
+
+/* Override any system-level dark mode forcing */
+* {
+    &[data-theme="dark"] {
+        .split-container ul li {
+            color: #e60000 !important;
+            -webkit-text-fill-color: #e60000 !important;
+        }
+    }
+}
+
+/* Fallback for older Android versions */
+@media screen and (max-device-width: 1024px) {
+    .split-container ul li {
+        color: #e60000 !important;
+        -webkit-text-fill-color: #e60000 !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+    }
+}
+
+/* Additional protection for Vodafone brand colors */
+.vodafone-red,
+[class*="vodafone"],
+[class*="red"] {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+    forced-color-adjust: none !important;
+    -webkit-forced-color-adjust: none !important;
+}
+
+/* Debug mode - uncomment to test color forcing */
+/*
+.split-container ul li {
+    border: 2px solid lime !important;
+    background: yellow !important;
+    padding: 5px !important;
+}
+*/

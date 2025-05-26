@@ -1,0 +1,199 @@
+@charset "UTF-8";
+/* Custom Scrollbar Indicator - visible sur desktop et mobile */
+.custom-scrollbar {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  width: 4px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  backdrop-filter: blur(5px);
+}
+
+.scrollbar-track {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.scrollbar-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: #e60000; /* Vodafone red */
+  border-radius: 2px;
+  transition: top 0.3s ease;
+}
+
+/* Optimisations mobiles pour les animations */
+@media (max-width: 1024px) {
+  /* Réduire les transformations coûteuses sur mobile */
+  .points-fort {
+    transform: translateZ(0); /* Force hardware acceleration */
+    will-change: transform;
+  }
+  .perdrix-slide {
+    transform: translateZ(0);
+    will-change: opacity, transform;
+  }
+  .text-element {
+    transform: translateZ(0);
+    will-change: opacity, transform;
+  }
+  /* Simplifier les animations de fond sur mobile */
+  .slides-container {
+    background-attachment: scroll !important; /* Éviter fixed sur mobile */
+  }
+  /* Optimiser les interactions tactiles */
+  .slide-section {
+    touch-action: pan-y; /* Permettre seulement le scroll vertical */
+  }
+  /* Réduire la taille des éléments sur mobile */
+  .txtintro .points-fort {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+  .case-study-container {
+    padding: 15px;
+  }
+  .case-study-item {
+    margin-bottom: 10px;
+  }
+  /* Améliorer la lisibilité sur mobile */
+  .slide-73-title,
+  .slide-21-title,
+  .aya {
+    font-size: 1.5rem !important;
+    line-height: 1.3;
+  }
+  .slide-73-content,
+  .slide-73-point {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  /* Navigation tactile améliorée */
+  .custom-scrollbar {
+    width: 6px; /* Plus large sur mobile pour faciliter l'interaction */
+    right: 10px;
+  }
+  .scrollbar-cursor {
+    height: 25px; /* Plus grand sur mobile */
+  }
+}
+/* Animations spécifiques mobile */
+@media (max-width: 1024px) {
+  /* Animation d'entrée plus rapide sur mobile */
+  .slide-section {
+    animation-duration: 0.6s !important;
+  }
+  /* Réduire les effets de parallaxe sur mobile */
+  .slides-container {
+    transform: none !important;
+  }
+  /* Optimiser les images sur mobile */
+  #turtlebeach,
+  #llass,
+  #lele,
+  .perdrix-slide img {
+    max-width: 100%;
+    height: auto;
+    transform: translateZ(0);
+  }
+  /* Améliorer l'affichage du formulaire sur mobile */
+  .contact-form .row {
+    margin-bottom: 10px;
+  }
+  .form-control {
+    font-size: 16px; /* Éviter le zoom automatique sur iOS */
+  }
+  /* Navigation menu optimisée pour mobile */
+  #menu {
+    width: 85% !important;
+  }
+  #menu ul li {
+    margin: 10px 0;
+    font-size: 1.1rem;
+  }
+}
+/* Optimisations spécifiques pour la slide 73 sur mobile */
+@media (max-width: 1024px) {
+  /* État initial de la div points-fort sur mobile - cachée */
+  #slide-73 .points-fort {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px) scale(0.9);
+    transition: none; /* Désactiver les transitions CSS pour laisser GSAP gérer */
+  }
+  /* État initial des points individuels */
+  #slide-73 .slide-73-point {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(30px) translateX(-20px);
+    transition: none;
+  }
+  /* Indicateur visuel pendant l'animation */
+  #slide-73.animating {
+    pointer-events: none; /* Empêcher les interactions pendant l'animation */
+  }
+  /* Message de blocage du scroll (optionnel) */
+  .scroll-blocked-indicator {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(230, 0, 0, 0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .scroll-blocked-indicator.show {
+    opacity: 1;
+  }
+  /* Améliorer l'affichage des points-fort sur mobile une fois visibles */
+  #slide-73 .points-fort {
+    padding: 15px;
+    margin-top: 20px;
+  }
+  #slide-73 .slide-73-point {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+  }
+}
+/* Performance optimizations pour tous les écrans */
+.slide-section,
+.slides-container,
+.text-element {
+  /* Forcer l'accélération matérielle */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  perspective: 1000;
+}
+
+/* Préchargement des états d'animation */
+.points-fort,
+.perdrix-slide,
+.case-study-item {
+  will-change: transform, opacity;
+}
+
+/* Nettoyage après animations */
+.animation-complete {
+  will-change: auto;
+}
+
+/*# sourceMappingURL=mobile-optimizations.css.map */

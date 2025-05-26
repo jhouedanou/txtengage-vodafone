@@ -54,15 +54,63 @@ export default defineNuxtConfig({
     baseURL: process.env.NUXT_APP_BASE_URL || "/txtengage/",
     cdnURL: process.env.NUXT_APP_CDN_URL || "",
     head: {
+      meta: [
+        // Dark mode prevention meta tags for Android Samsung
+        { name: 'color-scheme', content: 'light' },
+        { name: 'supported-color-schemes', content: 'light' },
+        { name: 'theme-color', content: '#e60000' },
+        { name: 'msapplication-navbutton-color', content: '#e60000' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'light-content' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        // Additional Samsung Internet specific
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'format-detection', content: 'telephone=no' },
+        // Viewport meta for proper rendering
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover' }
+      ],
       link: [
         {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap'
-        }
+        },
+        // Additional theme color link for browsers
+        { rel: 'mask-icon', href: '/favicon.svg', color: '#e60000' }
       ],
       script: [
         {
           src: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'
+        },
+        // Inline script to prevent dark mode forcing
+        {
+          innerHTML: `
+            // Prevent dark mode forcing on Android Samsung
+            (function() {
+              if (typeof document !== 'undefined') {
+                // Force light color scheme
+                document.documentElement.style.setProperty('color-scheme', 'light', 'important');
+                document.documentElement.style.setProperty('forced-color-adjust', 'none', 'important');
+                
+                // Samsung Internet specific detection and prevention
+                if (navigator.userAgent.includes('SamsungBrowser')) {
+                  document.documentElement.setAttribute('data-samsung-browser', 'true');
+                  const style = document.createElement('style');
+                  style.textContent = \`
+                    * {
+                      color-scheme: light !important;
+                      forced-color-adjust: none !important;
+                      -webkit-forced-color-adjust: none !important;
+                    }
+                    .split-container ul li {
+                      color: #e60000 !important;
+                      -webkit-text-fill-color: #e60000 !important;
+                    }
+                  \`;
+                  document.head.appendChild(style);
+                }
+              }
+            })();
+          `,
+          type: 'text/javascript'
         }
       ]
     }
@@ -72,6 +120,7 @@ export default defineNuxtConfig({
 
   // Enregistrer nos plugins
   plugins: [
+    '~/plugins/dark-mode-prevention.client.ts'
   ],
 
   image: {

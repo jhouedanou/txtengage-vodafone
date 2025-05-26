@@ -346,15 +346,40 @@ onMounted(async () => {
     console.log("Scrollbar initialisée avec succès");
   });
 
+  // Initialiser la couleur du hamburger
+  nextTick(() => {
+    const hamburger = document.querySelector('.hamburger');
+    if (hamburger && activeSlideId.value === 73) {
+      hamburger.classList.add('hamburger-red');
+      console.log('🍔 Hamburger initialisé en rouge sur slide-73');
+    } else if (hamburger) {
+      hamburger.classList.add('hamburger-white');
+      console.log('🍔 Hamburger initialisé en blanc');
+    }
+  });
+
   // Écouter l'événement de navigation émis par la scrollbar custom
   document.addEventListener("navigateToSection", handleNavigateToSection);
 
-  // Observer les changements de activeSlideIndex pour mettre à jour le fond
-  // watch(activeSlideId, (newId, oldId) => {
-  //   if (newId !== oldId) {
-  //     updateBackground();
-  //   }
-  // });
+  // Watcher pour changer la couleur du hamburger selon la slide active
+  watch(activeSlideId, (newSlideId) => {
+    nextTick(() => {
+      const hamburger = document.querySelector('.hamburger');
+      if (hamburger) {
+        // Supprimer toutes les classes de couleur existantes
+        hamburger.classList.remove('hamburger-red', 'hamburger-white');
+        
+        // Ajouter la classe appropriée selon la slide
+        if (newSlideId === 73) {
+          hamburger.classList.add('hamburger-red');
+          console.log('🍔 Hamburger rouge sur slide-73');
+        } else {
+          hamburger.classList.add('hamburger-white');
+          console.log('🍔 Hamburger blanc sur slide-', newSlideId);
+        }
+      }
+    });
+  });
 
   // Initialiser le scroll fullpage après que le DOM soit prêt et les slides chargées
   await nextTick();
@@ -800,7 +825,6 @@ const goToFirstSlide = () => {
                           </div>
                         </div>
 
-                        <!-- Colonne de droite : toutes les images -->
                         <div
                           id="stone" class="image-column col-md-6"
                         >
@@ -900,7 +924,7 @@ const goToFirstSlide = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> 
                   <div class="col-md-5 col-sm-5 col-5">
                     <div class="case-study-image">
                       <img
@@ -1206,11 +1230,30 @@ header.fixed-top.scrolled {
 .hamburger span {
   width: 30px;
   height: 3px;
-  background: white;
+  background: #ff0000; /* Rouge vif par défaut */
   border-radius: 5px;
   transition: all 0.3s linear;
   position: relative;
   transform-origin: 1px;
+}
+
+/* Classes dynamiques pour la couleur du hamburger */
+.hamburger.hamburger-red span {
+  background: #ff0000 !important;
+}
+
+.hamburger.hamburger-red.is-active span:nth-child(1),
+.hamburger.hamburger-red.is-active span:nth-child(3) {
+  background: #ff0000 !important;
+}
+
+.hamburger.hamburger-white span {
+  background: white !important;
+}
+
+.hamburger.hamburger-white.is-active span:nth-child(1),
+.hamburger.hamburger-white.is-active span:nth-child(3) {
+  background: white !important;
 }
 
 .hamburger.is-active span:nth-child(1) {
@@ -1229,22 +1272,27 @@ header.fixed-top.scrolled {
 #menu {
   position: fixed;
   top: 0;
-  right: -100%;
+  right: 0;
   width: 300px;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: left 0.5s ease;
   padding-top: 60px;
-  z-index: 9;
+  z-index: 9999;
   display: flex;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  
+  /* Animation de glissement : fermé = complètement à droite */
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 #menu.is-open {
-  right: 0;
+  /* Animation de glissement : ouvert = position normale */
+  transform: translateX(0);
 }
 
 #menu ul {
@@ -1255,13 +1303,39 @@ header.fixed-top.scrolled {
   flex-direction: column;
   text-align: center;
   width: 100%;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
+}
+
+#menu.is-open ul {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 #menu ul li {
   margin: 15px 0;
   cursor: pointer;
   padding: 10px 20px;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: all 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
 }
+
+#menu.is-open ul li {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Animation en cascade pour les éléments de liste */
+#menu.is-open ul li:nth-child(1) { transition-delay: 0.1s; }
+#menu.is-open ul li:nth-child(2) { transition-delay: 0.15s; }
+#menu.is-open ul li:nth-child(3) { transition-delay: 0.2s; }
+#menu.is-open ul li:nth-child(4) { transition-delay: 0.25s; }
+#menu.is-open ul li:nth-child(5) { transition-delay: 0.3s; }
+#menu.is-open ul li:nth-child(6) { transition-delay: 0.35s; }
+#menu.is-open ul li:nth-child(7) { transition-delay: 0.4s; }
+#menu.is-open ul li:nth-child(8) { transition-delay: 0.45s; }
 
 #menu ul li .slide-label {
   color: white;

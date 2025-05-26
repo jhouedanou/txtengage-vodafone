@@ -12,12 +12,22 @@ module.exports = {
         "port": 3001
     },
     "files": [
-        "**/*.html",
-        "**/*.php",
-        "**/*.js",
-        "**/*.vue",
-        "**/*.css",
-        "**/*.scss"
+        {
+            match: ["**/*.css", "**/*.scss"],
+            fn: function (event, file) {
+                if (event === "change") {
+                    this.reload("*.css");
+                }
+            }
+        },
+        {
+            match: ["**/*.html", "**/*.php", "**/*.js", "**/*.vue"],
+            fn: function (event, file) {
+                if (event === "change") {
+                    this.reload();
+                }
+            }
+        }
     ],
     "watchEvents": [
         "change"
@@ -34,5 +44,15 @@ module.exports = {
     "logLevel": "info",
     "logPrefix": "Vodafone",
     "logConnections": false,
-    "reloadDelay": 0
+    "reloadDelay": 0,
+    "injectChanges": true, // Active l'injection CSS à chaud
+    "reloadOnRestart": true,
+    "snippetOptions": {
+        rule: {
+            match: /<\/head>/i,
+            fn: function (snippet, match) {
+                return snippet + match;
+            }
+        }
+    }
 };
