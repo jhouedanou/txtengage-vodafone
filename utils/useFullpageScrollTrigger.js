@@ -29,6 +29,266 @@ const tweenDuration = 0.4;
 const tweenEase = "power3.easeInOut";
 const slideEase = "power3.easeInOut";
 const slideDuration = 0.7;
+
+  // ===========================================================================
+  // SECTION DETECTION MACOS ET GESTION TRACKPAD/MAGIC MOUSE
+  // ===========================================================================
+  
+  // Détection des appareils macOS desktop (excluant mobile)
+  const isMacOSDesktop = () => {
+    const userAgent = navigator.userAgent;
+    const platform = navigator.platform;
+    
+    // Vérifier si c'est macOS
+    const isMac = /Mac|Macintosh|MacIntel|MacPPC|Mac68K/.test(platform) || 
+                  /macOS/.test(userAgent);
+    
+    // Exclure les appareils mobiles iOS
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    
+    // Vérifier si c'est un ordinateur (pas mobile)
+    const isDesktop = !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent));
+    
+    return isMac && !isIOS && isDesktop;
+  };
+  
+  // Variables pour la gestion du debouncing sur macOS
+  let lastScrollTime = 0;
+  let scrollTimeoutId = null;
+  let pendingScrollDirection = null;
+  let isProcessingScroll = false;
+  
+  // Configuration du debouncing pour macOS
+  const MACOS_SCROLL_DEBOUNCE_DELAY = 100; // ms
+  const MACOS_SCROLL_THRESHOLD = 50; // ms entre les scrolls pour les considérer comme séparés
+  
+  // Fonction de debouncing spéciale pour macOS
+  const debouncedMacOSScroll = (deltaY) => {
+    const currentTime = Date.now();
+    const timeSinceLastScroll = currentTime - lastScrollTime;
+    
+    // Si un scroll est déjà en cours de traitement, ignorer
+    if (isProcessingScroll) {
+      console.log('🚫 Scroll ignoré - traitement en cours');
+      return;
+    }
+    
+    // Déterminer la direction du scroll
+    const direction = deltaY > 0 ? 'down' : 'up';
+    
+    // Vérifier si on doit appliquer le debouncing selon le contexte
+    const shouldDebounce = shouldApplyDebouncing(deltaY);
+    
+    if (shouldDebounce) {
+      // Si le scroll est dans la même direction et trop rapide, l'ignorer
+      if (pendingScrollDirection === direction && timeSinceLastScroll < MACOS_SCROLL_THRESHOLD) {
+        console.log('🚫 Scroll double détecté et ignoré (animation)', { direction, timeSinceLastScroll });
+        return;
+      }
+      
+      // Mettre à jour les variables de suivi
+      lastScrollTime = currentTime;
+      pendingScrollDirection = direction;
+      
+      // Effacer le timeout précédent
+      if (scrollTimeoutId) {
+        clearTimeout(scrollTimeoutId);
+      }
+      
+      // Programmer l'exécution du scroll avec un délai
+      scrollTimeoutId = setTimeout(() => {
+        if (!isProcessingScroll) {
+          isProcessingScroll = true;
+          console.log('✅ Exécution du scroll macOS avec debouncing', { direction, deltaY });
+          
+          // Exécuter le scroll avec la direction originale
+          executeScrollAction(deltaY);
+          
+          // Réinitialiser après un délai
+          setTimeout(() => {
+            isProcessingScroll = false;
+            pendingScrollDirection = null;
+          }, 100);
+        }
+      }, MACOS_SCROLL_DEBOUNCE_DELAY);
+    } else {
+      // Navigation normale sans debouncing
+      console.log('✅ Navigation normale macOS (sans debouncing)', { direction, deltaY });
+      executeScrollAction(deltaY);
+    }
+  };
+  
+  // Fonction pour déterminer si on doit appliquer le debouncing
+  const shouldApplyDebouncing = (deltaY) => {
+    const currentSection = sections.value[currentSectionIndex.value];
+    if (!currentSection) return false;
+    
+    const direction = deltaY > 0 ? 'down' : 'up';
+    
+    // Cas où on doit appliquer le debouncing (animations internes)
+    if (direction === 'down') {
+      // Slide-73 : animation points-fort pas encore déclenchée
+      if (currentSection.id === 'slide-73' && !animationStates.value['slide-73-complete']) {
+        return true;
+      }
+      
+      // Slide-20 : animation text-element-5 pas encore déclenchée
+      if (currentSection.id === 'slide-20') {
+        if (!animationStates.value['slide-20-main-complete'] || 
+            !animationStates.value['slide-20-text-element-5']) {
+          return true;
+        }
+      }
+      
+      // Slide-23 : défilement interne des perdrix
+      if (currentSection.id === 'slide-23' && animationStates.value['slide-23-initialized']) {
+        return true;
+      }
+      
+      // Slide-128 : défilement interne des case-study
+      if (currentSection.id === 'slide-128' && animationStates.value['slide-128-initialized']) {
+        return true;
+      }
+    } else {
+      // Direction up
+      // Slide-73 : animation reverse
+      if (currentSection.id === 'slide-73' && 
+          animationStates.value['slide-73-complete'] && 
+          !animationStates.value['slide-73-reversing']) {
+        return true;
+      }
+      
+      // Slide-23 : défilement interne des perdrix vers l'arrière
+      if (currentSection.id === 'slide-23' && animationStates.value['slide-23-initialized']) {
+        return true;
+      }
+      
+      // Slide-128 : défilement interne des case-study vers l'arrière
+      if (currentSection.id === 'slide-128' && animationStates.value['slide-128-initialized']) {
+        return true;
+      }
+    }
+    
+    // Dans tous les autres cas : navigation normale sans debouncing
+    return false;
+  };
+  
+  // Fonction pour exécuter l'action de scroll
+  const executeScrollAction = (deltaY) => {
+    if (isNavigating.value) return;
+
+    const currentSection = sections.value[currentSectionIndex.value];
+    
+    if (deltaY > 0) {
+      // Scroll vers le bas
+      console.log('📱 Scroll vers le bas');
+      
+      // Gestion spéciale pour slide-73
+      if (currentSection && currentSection.id === 'slide-73') {
+        if (!animationStates.value['slide-73-complete']) {
+          triggerSlide73Animation();
+          return;
+        }
+      }
+      
+      // Gestion spéciale pour slide-20 (#text-element-5)
+      if (currentSection && currentSection.id === 'slide-20') {
+        // Si l'animation principale n'est pas terminée, bloquer complètement
+        if (!animationStates.value['slide-20-main-complete']) {
+          return;
+        }
+        // Si l'animation principale est terminée mais text-element-5 pas encore affiché
+        if (!animationStates.value['slide-20-text-element-5']) {
+          triggerSlide20TextElement5();
+          return;
+        }
+        // Si tout est terminé, permettre la navigation normale (continuer après ce if)
+      }
+      
+      // Gestion spéciale pour slide-23 (défilement des perdrix)
+      if (currentSection && currentSection.id === 'slide-23') {
+        if (animationStates.value['slide-23-initialized']) {
+          const canScrollForward = scrollPerdrixForward();
+          if (canScrollForward === false) {
+            // Toutes les slides perdrix sont terminées, passer à la slide suivante
+            if (currentSectionIndex.value < sections.value.length - 1) {
+              goToSection(currentSectionIndex.value + 1);
+            }
+          }
+          return;
+        }
+      }
+      
+      // Gestion spéciale pour slide-128
+      if (currentSection && currentSection.id === 'slide-128') {
+        if (animationStates.value['slide-128-initialized']) {
+          const canScrollForward = scrollSlide128Forward();
+          if (canScrollForward === false) {
+            // Tous les case-study-content sont terminés, passer à la slide suivante
+            if (currentSectionIndex.value < sections.value.length - 1) {
+              goToSection(currentSectionIndex.value + 1);
+            }
+          }
+          return;
+        }
+      }
+      
+      // Navigation normale vers la slide suivante
+      if (currentSectionIndex.value < sections.value.length - 1) {
+        goToSection(currentSectionIndex.value + 1);
+      }
+      
+    } else {
+      // Scroll vers le haut
+      console.log('📱 Scroll vers le haut');
+      
+      // Gestion spéciale pour slide-73 - inverser l'animation
+      if (currentSection && currentSection.id === 'slide-73') {
+        if (animationStates.value['slide-73-complete'] && !animationStates.value['slide-73-reversing']) {
+          reverseSlide73Animation();
+          return;
+        }
+      }
+      
+      // Gestion spéciale pour slide-23 (défilement des perdrix)
+      if (currentSection && currentSection.id === 'slide-23') {
+        if (animationStates.value['slide-23-initialized']) {
+          // Si on est au début des perdrix-slides, permettre la navigation vers la slide précédente
+          if (perdrixScrollIndex <= 0) {
+            if (currentSectionIndex.value > 0) {
+              goToSection(currentSectionIndex.value - 1);
+            }
+            return;
+          }
+          // Sinon, continuer le défilement des perdrix vers l'arrière
+          scrollPerdrixBackward();
+          return;
+        }
+      }
+      
+      // Gestion spéciale pour slide-128
+      if (currentSection && currentSection.id === 'slide-128') {
+        if (animationStates.value['slide-128-initialized']) {
+          // Si on est au début des case-study-content, permettre la navigation vers la slide précédente
+          if (slide128ScrollIndex <= 0) {
+            if (currentSectionIndex.value > 0) {
+              goToSection(currentSectionIndex.value - 1);
+            }
+            return;
+          }
+          // Sinon, continuer le défilement des case-study-content vers l'arrière
+          scrollSlide128Backward();
+          return;
+        }
+      }
+      
+      // Navigation normale vers la slide précédente
+      if (currentSectionIndex.value > 0) {
+        goToSection(currentSectionIndex.value - 1);
+      }
+    }
+  };
+
   // Variables internes de gestion
   let stObserve = null;
   const keyboardListener = ref(null);
@@ -78,6 +338,15 @@ const slideDuration = 0.7;
   // ===========================================================================
 
   const handleWheelEvent = (e) => {
+    // Détecter si on est sur macOS desktop
+    if (isMacOSDesktop()) {
+      console.log('🍎 Détection macOS - utilisation du debouncing');
+      e.preventDefault();
+      debouncedMacOSScroll(e.deltaY);
+      return;
+    }
+    
+    // Comportement normal pour les autres systèmes
     if (isNavigating.value) return;
 
     const currentSection = sections.value[currentSectionIndex.value];
@@ -805,13 +1074,13 @@ const resetSlide73Animation = () => {
     console.log('Démarrage animation slide-23 avancée');
     
     if (perdrixContainer) {
-      // Afficher le conteneur et le premier slide
+      // Afficher le conteneur et le premier case-study-content
       gsap.to(perdrixContainer, {
         autoAlpha: 1,
         duration: 0.5,
         ease: "power2.out",
         onComplete: () => {
-          // S'assurer que le premier slide et la première image sont visibles
+          // S'assurer que le premier case-study-content est visible
           if (firstPerdrixSlide) {
             gsap.set(firstPerdrixSlide, { autoAlpha: 1 });
           }
@@ -1488,6 +1757,17 @@ const resetSlide73Animation = () => {
   };
 
   const cleanup = () => {
+    // Nettoyage des timeouts macOS
+    if (scrollTimeoutId) {
+      clearTimeout(scrollTimeoutId);
+      scrollTimeoutId = null;
+    }
+    
+    // Reset des variables de debouncing macOS
+    lastScrollTime = 0;
+    pendingScrollDirection = null;
+    isProcessingScroll = false;
+    
     if (stObserve) {
       stObserve.kill();
       stObserve = null;
@@ -1537,7 +1817,39 @@ const resetSlide73Animation = () => {
     scrollSlide128Forward: scrollSlide128Forward,
     scrollSlide128Backward: scrollSlide128Backward,
     currentSection: () => sections.value[currentSectionIndex.value]?.id,
-    slide128Index: () => slide128ScrollIndex
+    slide128Index: () => slide128ScrollIndex,
+    // Debug macOS
+    isMacOSDesktop: isMacOSDesktop,
+    macOSScrollInfo: () => ({
+      lastScrollTime,
+      pendingScrollDirection,
+      isProcessingScroll,
+      scrollTimeoutActive: scrollTimeoutId !== null
+    }),
+    resetMacOSScroll: () => {
+      if (scrollTimeoutId) {
+        clearTimeout(scrollTimeoutId);
+        scrollTimeoutId = null;
+      }
+      lastScrollTime = 0;
+      pendingScrollDirection = null;
+      isProcessingScroll = false;
+      console.log('🍎 Reset du système de scroll macOS');
+    },
+    // Debug nouveau système de debouncing sélectif
+    testDebouncing: (deltaY) => {
+      const shouldDebounce = shouldApplyDebouncing(deltaY);
+      const currentSection = sections.value[currentSectionIndex.value];
+      console.log('🧪 Test debouncing:', {
+        currentSlide: currentSection?.id,
+        deltaY,
+        direction: deltaY > 0 ? 'down' : 'up',
+        shouldDebounce,
+        animationStates: animationStates.value
+      });
+      return shouldDebounce;
+    },
+    shouldApplyDebouncing: shouldApplyDebouncing
   };
 
   return {

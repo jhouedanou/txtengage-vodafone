@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Détection macOS - Vodafone</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .status-box {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .info-box {
+            background: rgba(0,150,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Monaco', monospace;
+            font-size: 14px;
+        }
+        .scroll-test {
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            overflow-y: auto;
+            border: 2px dashed rgba(255,255,255,0.3);
+        }
+        .scroll-content {
+            height: 800px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1));
+            border-radius: 8px;
+            padding: 20px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .log {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Monaco', monospace;
+            font-size: 12px;
+            margin: 20px 0;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .log-macos { background: rgba(255,193,7,0.2); }
+        .log-other { background: rgba(108,117,125,0.2); }
+        .log-ignored { background: rgba(220,53,69,0.2); }
+        .log-executed { background: rgba(40,167,69,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍎 Test Détection macOS & Debouncing</h1>
+        
+        <div class="status-box">
+            <h3>Statut de Détection</h3>
+            <div id="detection-results"></div>
+        </div>
+
+        <div class="info-box">
+            <h4>Informations Système</h4>
+            <div id="system-info"></div>
+        </div>
+
+        <div class="scroll-test">
+            <h4>Zone de Test Scroll (scrollez ici)</h4>
+            <div class="scroll-content">
+                <p>Scrollez dans cette zone pour tester le système de debouncing...</p>
+                <p>Sur macOS (MacBook/MacBook Pro), les événements devraient être filtrés.</p>
+                <p>Sur d'autres systèmes, tous les événements sont traités normalement.</p>
+            </div>
+        </div>
+
+        <div>
+            <button onclick="resetLogs()">🗑️ Clear Logs</button>
+            <button onclick="testScrolling()">🧪 Test Programmatique</button>
+            <button onclick="showDebugInfo()">🔍 Debug Info</button>
+        </div>
+
+        <div class="log" id="log-container">
+            <div><strong>📝 Log des événements de scroll :</strong></div>
+        </div>
+    </div>
+
+    <script>
+        // Reproduction du système de détection du fichier principal
+        const isMacOSDesktop = () => {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform;
+            
+            const isMac = /Mac|Macintosh|MacIntel|MacPPC|Mac68K/.test(platform) || 
+                          /macOS/.test(userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+            const isDesktop = !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent));
+            
+            return isMac && !isIOS && isDesktop;
+        };
+
+        // Variables de debouncing
+        let lastScrollTime = 0;
+        let scrollTimeoutId = null;
+        let pendingScrollDirection = null;
+        let isProcessingScroll = false;
+        let scrollEventCount = 0;
+        let processedEventCount = 0;
+
+        const MACOS_SCROLL_DEBOUNCE_DELAY = 150;
+        const MACOS_SCROLL_THRESHOLD = 50;
+
+        // Fonction de log
+        function addLog(message, type = 'other') {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Debouncing pour macOS
+        const debouncedMacOSScroll = (deltaY) => {
+            const currentTime = Date.now();
+            const timeSinceLastScroll = currentTime - lastScrollTime;
+            const direction = deltaY > 0 ? 'down' : 'up';
+
+            scrollEventCount++;
+            addLog(`📥 Événement reçu #${scrollEventCount} - Direction: ${direction}, Delta: ${timeSinceLastScroll}ms`, 'macos');
+
+            if (isProcessingScroll) {
+                addLog(`🚫 Scroll ignoré - traitement en cours`, 'ignored');
+                return;
+            }
+
+            if (pendingScrollDirection === direction && timeSinceLastScroll < MACOS_SCROLL_THRESHOLD) {
+                addLog(`🚫 Double-scroll détecté et ignoré (${timeSinceLastScroll}ms < ${MACOS_SCROLL_THRESHOLD}ms)`, 'ignored');
+                return;
+            }
+
+            lastScrollTime = currentTime;
+            pendingScrollDirection = direction;
+
+            if (scrollTimeoutId) {
+                clearTimeout(scrollTimeoutId);
+                addLog(`⏰ Timeout précédent annulé`, 'macos');
+            }
+
+            scrollTimeoutId = setTimeout(() => {
+                if (!isProcessingScroll) {
+                    isProcessingScroll = true;
+                    processedEventCount++;
+                    addLog(`✅ Exécution scroll #${processedEventCount} - Direction: ${direction}`, 'executed');
+                    
+                    // Simuler le traitement
+                    setTimeout(() => {
+                        isProcessingScroll = false;
+                        pendingScrollDirection = null;
+                        addLog(`🏁 Traitement terminé`, 'executed');
+                    }, 100);
+                }
+            }, MACOS_SCROLL_DEBOUNCE_DELAY);
+
+            addLog(`⏰ Scroll programmé dans ${MACOS_SCROLL_DEBOUNCE_DELAY}ms`, 'macos');
+        };
+
+        // Gestionnaire d'événements
+        function handleScroll(e) {
+            if (isMacOSDesktop()) {
+                e.preventDefault();
+                debouncedMacOSScroll(e.deltaY);
+            } else {
+                scrollEventCount++;
+                processedEventCount++;
+                const direction = e.deltaY > 0 ? 'down' : 'up';
+                addLog(`📱 Scroll normal #${scrollEventCount} - Direction: ${direction}`, 'other');
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            const testArea = document.querySelector('.scroll-test');
+            testArea.addEventListener('wheel', handleScroll, { passive: false });
+
+            // Affichage des résultats de détection
+            const detectionResults = document.getElementById('detection-results');
+            const systemInfo = document.getElementById('system-info');
+
+            const isMacOS = isMacOSDesktop();
+            
+            detectionResults.innerHTML = `
+                <p><strong>Détection macOS Desktop:</strong> <span style="color: ${isMacOS ? '#4CAF50' : '#FFA726'}">${isMacOS ? '✅ OUI' : '❌ NON'}</span></p>
+                <p><strong>Système de debouncing:</strong> <span style="color: ${isMacOS ? '#4CAF50' : '#9E9E9E'}">${isMacOS ? '🍎 ACTIF' : '🖥️ INACTIF'}</span></p>
+            `;
+
+            systemInfo.innerHTML = `
+                <div><strong>User Agent:</strong> ${navigator.userAgent}</div>
+                <div><strong>Platform:</strong> ${navigator.platform}</div>
+                <div><strong>Délai debouncing:</strong> ${MACOS_SCROLL_DEBOUNCE_DELAY}ms</div>
+                <div><strong>Seuil:</strong> ${MACOS_SCROLL_THRESHOLD}ms</div>
+            `;
+
+            addLog(`🔍 Système initialisé - macOS: ${isMacOS}`, isMacOS ? 'macos' : 'other');
+        });
+
+        function resetLogs() {
+            const logContainer = document.getElementById('log-container');
+            logContainer.innerHTML = '<div><strong>📝 Log des événements de scroll :</strong></div>';
+            scrollEventCount = 0;
+            processedEventCount = 0;
+            addLog('🔄 Logs réinitialisés', 'other');
+        }
+
+        function testScrolling() {
+            addLog('🧪 Test programmatique démarré...', 'other');
+            
+            // Simuler plusieurs événements rapides
+            const testEvents = [
+                { deltaY: 100, delay: 0 },
+                { deltaY: 120, delay: 10 },
+                { deltaY: 90, delay: 30 },
+                { deltaY: -100, delay: 200 },
+                { deltaY: -110, delay: 210 },
+                { deltaY: 150, delay: 400 }
+            ];
+
+            testEvents.forEach(({ deltaY, delay }) => {
+                setTimeout(() => {
+                    const fakeEvent = { deltaY, preventDefault: () => {} };
+                    handleScroll(fakeEvent);
+                }, delay);
+            });
+        }
+
+        function showDebugInfo() {
+            addLog(`📊 Stats - Reçus: ${scrollEventCount}, Traités: ${processedEventCount}`, 'other');
+            addLog(`🔍 État - Processing: ${isProcessingScroll}, Direction: ${pendingScrollDirection}`, 'other');
+            addLog(`⏰ Timeout actif: ${scrollTimeoutId !== null}`, 'other');
+        }
+    </script>
+</body>
+</html> 
