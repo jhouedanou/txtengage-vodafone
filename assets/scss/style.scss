@@ -1955,7 +1955,7 @@ width:100% !important;
             order:1;
             img{
                 width:180px;
-                height: auto;  
+                height: auto !important;  
             }
         }
         .col-md-7{
@@ -1963,12 +1963,17 @@ width:100% !important;
            
         }}
     }
-
+#pdf{
+    ul{
+        width:100% !important;
+        max-width:100% !important;
+    }
+}
     .hightower{
-        font-weight:bold;
-        text-align:center;
-        font-size:56px;
-        color:#FF0000;
+        font-weight:bold !important;
+        text-align:center !important;
+        font-size:56px !important;
+        color:#FF0000 !important;
     }
     #casestudy{
         .case-study-active{
