@@ -15,7 +15,11 @@
     "sass-watch": "npx sass --watch --source-map assets/scss:assets/scss",
     "sass-optimize": "node scripts/optimize-sourcemaps.js",
     "bs": "browser-sync start --config bs-config.cjs",
-    "dev:mobile": "concurrently \"npm run dev\" \"npm run bs\""
+    "dev:mobile": "concurrently \"npm run dev\" \"npm run bs\"",
+    "build:subfolder": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt build",
+    "generate:subfolder": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt generate",
+    "generate:production": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt generate",
+    "dev:root": "cross-env NUXT_APP_BASE_URL=/ nuxt dev"
   },
   "dependencies": {
     "@nuxt/image": "1.8.1",

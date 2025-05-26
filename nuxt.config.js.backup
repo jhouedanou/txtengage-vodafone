@@ -50,9 +50,6 @@ export default defineNuxtConfig({
   ssr: false,
   target: 'static',  
   app: {
-    // Configuration pour sous-dossier txtengage
-    baseURL: process.env.NUXT_APP_BASE_URL || "/txtengage/",
-    cdnURL: process.env.NUXT_APP_CDN_URL || "",
     head: {
       link: [
         {
