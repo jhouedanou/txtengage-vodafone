@@ -690,13 +690,16 @@ body {
 }
 
 #slide-22 {
+
+    #thoiathoing2{
+    }
     #thoiathoing {
         width: 100%;
         margin: 0;
         height: 100vh;
         display: flex;
         align-items: flex-end;
-        justify-content: center;
+        justify-content: flex-end;
     }
 
     .cont {
@@ -1393,7 +1396,7 @@ body {
         display: flex
 ;
         flex-basis: fit-content;
-                #sharon{
+        #sharon{
           
         height: 100vh !important;
         align-items: flex-end;
@@ -3444,7 +3447,7 @@ body.slide-73-active,
         z-index: 1;
         will-change: transform;
         z-index: 10;
-    }
+}
 }
 .test{
     display:none;
@@ -3453,7 +3456,7 @@ body.slide-73-active,
 // CSS mobile pour supprimer les espaces dans #sharon en conservant les ::before
 @media screen and (max-width: 1024px) {
     #slide-73 .slides-container{
-
+    
     background-position-x: -69vw !important;
         
     }
@@ -3515,7 +3518,7 @@ body.slide-73-active,
     #stone {
         margin: 0 !important;
         padding: 0 !important;
-                width: 100vw !important;
+        width: 100vw !important;
         display: block !important;
         .bdrs{
             position: relative;
@@ -3565,7 +3568,7 @@ body.slide-73-active,
                 justify-content: center !important;
                 position: absolute !important;
                 z-index: 2 !important;
-                border-radius: 26px !important;
+        border-radius: 26px !important;
                 transform: translateZ(0);
                 left: 0;
                 right: 0;
