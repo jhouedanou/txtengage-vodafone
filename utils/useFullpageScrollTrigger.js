@@ -59,8 +59,9 @@ const slideDuration = 0.7;
   let isProcessingScroll = false;
   
   // Configuration du debouncing pour macOS
-  const MACOS_SCROLL_DEBOUNCE_DELAY = 100; // ms
-  const MACOS_SCROLL_THRESHOLD = 50; // ms entre les scrolls pour les considérer comme séparés
+  const MACOS_SCROLL_DEBOUNCE_DELAY = 120; // Optimisé : 120ms pour animations (était 150ms)
+  const MACOS_SCROLL_DEBOUNCE_DELAY_INTERNAL = 80; // Augmenté : 80ms pour défilement interne slides 23/128 (était 60ms)
+  const MACOS_SCROLL_THRESHOLD = 30;       // Optimisé : 30ms pour détection double (était 50ms)
   
   // Fonction de debouncing spéciale pour macOS
   const debouncedMacOSScroll = (deltaY) => {
@@ -77,12 +78,12 @@ const slideDuration = 0.7;
     const direction = deltaY > 0 ? 'down' : 'up';
     
     // Vérifier si on doit appliquer le debouncing selon le contexte
-    const shouldDebounce = shouldApplyDebouncing(deltaY);
+    const debounceType = shouldApplyDebouncing(deltaY);
     
-    if (shouldDebounce) {
+    if (debounceType !== false) {
       // Si le scroll est dans la même direction et trop rapide, l'ignorer
       if (pendingScrollDirection === direction && timeSinceLastScroll < MACOS_SCROLL_THRESHOLD) {
-        console.log('🚫 Scroll double détecté et ignoré (animation)', { direction, timeSinceLastScroll });
+        console.log('🚫 Scroll double détecté et ignoré', { direction, timeSinceLastScroll, debounceType });
         return;
       }
       
@@ -95,11 +96,19 @@ const slideDuration = 0.7;
         clearTimeout(scrollTimeoutId);
       }
       
-      // Programmer l'exécution du scroll avec un délai
+      // Choisir le délai selon le type de debouncing
+      const delay = debounceType === 'internal' ? MACOS_SCROLL_DEBOUNCE_DELAY_INTERNAL : MACOS_SCROLL_DEBOUNCE_DELAY;
+      
+      // Programmer l'exécution du scroll avec le délai approprié
       scrollTimeoutId = setTimeout(() => {
         if (!isProcessingScroll) {
           isProcessingScroll = true;
-          console.log('✅ Exécution du scroll macOS avec debouncing', { direction, deltaY });
+          console.log('✅ Exécution du scroll macOS avec debouncing', { 
+            direction, 
+            deltaY, 
+            debounceType, 
+            delay: delay + 'ms' 
+          });
           
           // Exécuter le scroll avec la direction originale
           executeScrollAction(deltaY);
@@ -110,7 +119,7 @@ const slideDuration = 0.7;
             pendingScrollDirection = null;
           }, 100);
         }
-      }, MACOS_SCROLL_DEBOUNCE_DELAY);
+      }, delay);
     } else {
       // Navigation normale sans debouncing
       console.log('✅ Navigation normale macOS (sans debouncing)', { direction, deltaY });
@@ -127,45 +136,45 @@ const slideDuration = 0.7;
     
     // Cas où on doit appliquer le debouncing (animations internes)
     if (direction === 'down') {
-      // Slide-73 : animation points-fort pas encore déclenchée
+      // Slide-73 : animation points-fort pas encore déclenchée (DEBOUNCING RÉDUIT)
       if (currentSection.id === 'slide-73' && !animationStates.value['slide-73-complete']) {
-        return true;
+        return 'internal';
       }
       
       // Slide-20 : animation text-element-5 pas encore déclenchée
       if (currentSection.id === 'slide-20') {
         if (!animationStates.value['slide-20-main-complete'] || 
             !animationStates.value['slide-20-text-element-5']) {
-          return true;
+          return 'normal';
         }
       }
       
-      // Slide-23 : défilement interne des perdrix
+      // Slide-23 : défilement interne des perdrix (DEBOUNCING RÉDUIT)
       if (currentSection.id === 'slide-23' && animationStates.value['slide-23-initialized']) {
-        return true;
+        return 'internal';
       }
       
-      // Slide-128 : défilement interne des case-study
+      // Slide-128 : défilement interne des case-study (DEBOUNCING RÉDUIT)
       if (currentSection.id === 'slide-128' && animationStates.value['slide-128-initialized']) {
-        return true;
+        return 'internal';
       }
     } else {
       // Direction up
-      // Slide-73 : animation reverse
+      // Slide-73 : animation reverse (DEBOUNCING RÉDUIT)
       if (currentSection.id === 'slide-73' && 
           animationStates.value['slide-73-complete'] && 
           !animationStates.value['slide-73-reversing']) {
-        return true;
+        return 'internal';
       }
       
-      // Slide-23 : défilement interne des perdrix vers l'arrière
+      // Slide-23 : défilement interne des perdrix vers l'arrière (DEBOUNCING RÉDUIT)
       if (currentSection.id === 'slide-23' && animationStates.value['slide-23-initialized']) {
-        return true;
+        return 'internal';
       }
       
-      // Slide-128 : défilement interne des case-study vers l'arrière
+      // Slide-128 : défilement interne des case-study vers l'arrière (DEBOUNCING RÉDUIT)
       if (currentSection.id === 'slide-128' && animationStates.value['slide-128-initialized']) {
-        return true;
+        return 'internal';
       }
     }
     
@@ -1838,18 +1847,28 @@ const resetSlide73Animation = () => {
     },
     // Debug nouveau système de debouncing sélectif
     testDebouncing: (deltaY) => {
-      const shouldDebounce = shouldApplyDebouncing(deltaY);
+      const debounceType = shouldApplyDebouncing(deltaY);
       const currentSection = sections.value[currentSectionIndex.value];
+      const delay = debounceType === 'internal' ? MACOS_SCROLL_DEBOUNCE_DELAY_INTERNAL : 
+                   debounceType === 'normal' ? MACOS_SCROLL_DEBOUNCE_DELAY : 0;
+      
       console.log('🧪 Test debouncing:', {
         currentSlide: currentSection?.id,
         deltaY,
         direction: deltaY > 0 ? 'down' : 'up',
-        shouldDebounce,
+        debounceType,
+        delay: delay + 'ms',
         animationStates: animationStates.value
       });
-      return shouldDebounce;
+      return { debounceType, delay };
     },
-    shouldApplyDebouncing: shouldApplyDebouncing
+    shouldApplyDebouncing: shouldApplyDebouncing,
+    // Debug des constantes de debouncing
+    debounceDelays: () => ({
+      normal: MACOS_SCROLL_DEBOUNCE_DELAY + 'ms',
+      internal: MACOS_SCROLL_DEBOUNCE_DELAY_INTERNAL + 'ms',
+      threshold: MACOS_SCROLL_THRESHOLD + 'ms'
+    })
   };
 
   return {
