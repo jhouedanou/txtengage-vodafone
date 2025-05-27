@@ -5148,3 +5148,9 @@ a.back-to-top{
         }
     }
 }
+.case-study-item.active{
+    h3, p{
+        margin-bottom: 0em !important;
+        padding-bottom: 0em !important;
+    }
+}
