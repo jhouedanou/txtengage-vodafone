@@ -87,9 +87,9 @@ export function useFullpageScrollTrigger() {
   let isProcessingScroll = false;
   
   // Configuration du debouncing pour macOS
-  const MACOS_SCROLL_DEBOUNCE_DELAY = 120; // Optimisé : 120ms pour animations (était 150ms)
-  const MACOS_SCROLL_DEBOUNCE_DELAY_INTERNAL = 80; // Augmenté : 80ms pour défilement interne slides 23/128 (était 60ms)
-  const MACOS_SCROLL_THRESHOLD = 30;       // Optimisé : 30ms pour détection double (était 50ms)
+  const MACOS_SCROLL_DEBOUNCE_DELAY = 150; // Optimisé : 120ms pour animations (était 150ms)
+  const MACOS_SCROLL_DEBOUNCE_DELAY_INTERNAL = 60; // Augmenté : 80ms pour défilement interne slides 23/128 (était 60ms)
+  const MACOS_SCROLL_THRESHOLD = 50;       // Optimisé : 30ms pour détection double (était 50ms)
   
   // Fonction de debouncing spéciale pour macOS
   const debouncedMacOSScroll = (deltaY) => {
@@ -158,13 +158,13 @@ export function useFullpageScrollTrigger() {
   // Fonction pour déterminer si on doit appliquer le debouncing
   const shouldApplyDebouncing = (deltaY) => {
     const currentSection = sections.value[currentSectionIndex.value];
-    if (!currentSection) return false;
+    if (!currentSection) return 'normal'; // Par défaut, appliquer le debouncing normal
     
     const direction = deltaY > 0 ? 'down' : 'up';
     
-    // Cas où on doit appliquer le debouncing (animations internes)
+    // Cas spéciaux où on doit appliquer le debouncing interne (réduit)
     if (direction === 'down') {
-      // Slide-73 : animation points-fort pas encore déclenchée (DEBOUNCING RÉDUIT)
+      // Slide-73 : animation points-fort pas encore déclenchée
       if (currentSection.id === 'slide-73' && !animationStates.value['slide-73-complete']) {
         return 'internal';
       }
@@ -173,41 +173,49 @@ export function useFullpageScrollTrigger() {
       if (currentSection.id === 'slide-20') {
         if (!animationStates.value['slide-20-main-complete'] || 
             !animationStates.value['slide-20-text-element-5']) {
-          return 'normal';
+          return 'internal';
         }
       }
       
-      // Slide-23 : défilement interne des perdrix (DEBOUNCING RÉDUIT)
+      // Slide-23 : défilement interne des perdrix
       if (currentSection.id === 'slide-23' && animationStates.value['slide-23-initialized']) {
         return 'internal';
       }
       
-      // Slide-128 : défilement interne des case-study (DEBOUNCING RÉDUIT)
+      // Slide-128 : défilement interne des case-study
       if (currentSection.id === 'slide-128' && animationStates.value['slide-128-initialized']) {
         return 'internal';
       }
     } else {
       // Direction up
-      // Slide-73 : animation reverse (DEBOUNCING RÉDUIT)
+      // Slide-73 : animation reverse
       if (currentSection.id === 'slide-73' && 
           animationStates.value['slide-73-complete'] && 
           !animationStates.value['slide-73-reversing']) {
         return 'internal';
       }
       
-      // Slide-23 : défilement interne des perdrix vers l'arrière (DEBOUNCING RÉDUIT)
+      // Slide-20 : animation text-element-5 reverse
+      if (currentSection.id === 'slide-20') {
+        if (animationStates.value['slide-20-text-element-5'] && 
+            !animationStates.value['slide-20-text-element-5-reversing']) {
+          return 'internal';
+        }
+      }
+      
+      // Slide-23 : défilement interne des perdrix vers l'arrière
       if (currentSection.id === 'slide-23' && animationStates.value['slide-23-initialized']) {
         return 'internal';
       }
       
-      // Slide-128 : défilement interne des case-study vers l'arrière (DEBOUNCING RÉDUIT)
+      // Slide-128 : défilement interne des case-study vers l'arrière
       if (currentSection.id === 'slide-128' && animationStates.value['slide-128-initialized']) {
         return 'internal';
       }
     }
     
-    // Dans tous les autres cas : navigation normale sans debouncing
-    return false;
+    // Dans tous les autres cas : debouncing normal pour macOS
+    return 'normal';
   };
   
   // Fonction pour exécuter l'action de scroll
@@ -1994,10 +2002,6 @@ const resetSlide73Animation = () => {
     sections.value = [];
   };
 
-  onUnmounted(() => {
-    cleanup();
-  });
-
   // Fonctions de debug
   window.debugDesktopAnimations = {
     states: animationStates,
@@ -2063,7 +2067,13 @@ const resetSlide73Animation = () => {
     animationStates,
     init,
     goToSection,
-    cleanup
+    cleanup,
+    // Retourner onUnmounted pour que le composant parent puisse l'utiliser
+    setupCleanup: () => {
+      onUnmounted(() => {
+        cleanup();
+      });
+    }
   };
 }
 
