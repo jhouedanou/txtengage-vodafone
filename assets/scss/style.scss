@@ -1457,7 +1457,10 @@ body {
         }
     }
     
-    .slide-section{
+    #slide-60,#slide-59{
+        height: 100vh !important;
+    }
+    #slide-128,#slide-73,#slide-21,#slide-20,#slide-22,#doctornek,#slide-59{
         height: 100dvh !important;
     }
     #subint{
@@ -1663,10 +1666,10 @@ body {
             right: 0 !important;
             bottom: 0 !important;
             left: 0 !important;
-            width: 100vw !important;
+            width: 82vw !important;
             /* background-color: red !important; */
-            max-width: 378px !important;
-            max-height: 81vh !important;
+            max-width: 369px !important;
+            max-height: 600px !important;
             height: 100vh !important;
             background-size: contain !important;
         }
@@ -1869,7 +1872,7 @@ height:auto !important;
             margin: 0 !important;
             padding: 0 !important;
             height: auto;
-            padding: 1em !important;
+            //padding: 1em !important;
             width: 100% !important;
         }
         h3{
@@ -1964,7 +1967,7 @@ width:100% !important;
 
         input,
         button {
-            font-size: 20px;
+            font-size: 14px;
         }
     }
     div#vodacomwrapper {
@@ -2019,9 +2022,10 @@ width:100% !important;
         .row{
         .col-md-5{
             order:1;
+            padding:0 !important;
             img{
-                width:180px;
-                height: auto !important;  
+                width:auto;
+                height: 422px !important;  
             }
         }
         .col-md-7{
@@ -2066,6 +2070,11 @@ width:100% !important;
             opacity: 0.27;
             justify-content: flex-end;
             text-align: left;
+
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateX(0px) !important;
+            -webkit-transform: translateX(0px) !important;
 
         }
         p{
@@ -2194,9 +2203,12 @@ width:100% !important;
             font-size: 22px !important;
         }
     }
+    #pdf{
+        position: relative !important;
+    }
     #lemof{
         margin:0 ;
-
+        height:80vh !important;
         width: 100%;
         .text-element{
 
@@ -2883,7 +2895,14 @@ br{
 
 
 @media screen and (max-width: 1024px) {
-
+    #doctornek{
+        height:100dvh !important;
+    }
+    #slide-22{
+        height:100vh !important;
+        
+    }
+    
     #slide-73 .subint {
         padding: 0 1em !important;
 
@@ -2972,7 +2991,7 @@ br{
     }
     #lemof{
         margin:0 ;
-
+justify-content: space-between;
         width: 100%;
         .text-element{
 
@@ -3023,7 +3042,23 @@ br{
         min-height: 52px !important;
         height: 52px !important
     }
-
+    #lafill button.btn.btn-primary{
+        padding:10px !important;
+        font-size: 16px !important;
+        line-height: 1.2 !important;
+        margin: 10px 0 0 0 !important;
+    }
+    .back-to-top{
+        svg{
+        width:72px !important;
+        }
+    }
+    #slide-60{
+        position: relative;
+        .slides-container{
+            aling-items: center !important;
+            }
+        }
     .ditocard {
         &:nth-of-type(1) {
             p {
@@ -3031,11 +3066,13 @@ br{
 
             }
         }
-
         &:nth-of-type(2) {
             p {
-                font-size: 23px !important;
-                line-height: 1.2 !important;
+              
+        font-size: 16px !important;
+        line-height: 1.2 !important;
+        padding: 0 4em !important;
+        margin: 0 !important;
             }
         }
     }
@@ -3119,6 +3156,8 @@ br{
     
         }
     }
+
+
 }
 br{
     display:none !important;
@@ -4282,7 +4321,8 @@ body.slide-73-active,
         justify-content: center !important;
         flex-direction: column !important;
         box-sizing: border-box !important;
-        max-height: 390px;
+        max-height: 290px;
+
         
         .perdrix-slide {
             margin: 0 !important;
@@ -4301,7 +4341,6 @@ body.slide-73-active,
                 h3 {
                     color: white !important;
                     font-size: 24px !important;
-                    margin-bottom: 1rem !important;
                 }
                 
                 .text-content {
@@ -4319,7 +4358,7 @@ body.slide-73-active,
         height: 72vh !important;
         width: 100vw !important;
         display: flex !important;
-        max-height: 510px;
+        max-height: 428px;
         justify-content: flex-end;
         .bdrs{
             position: relative;
@@ -4442,7 +4481,7 @@ body.slide-73-active,
     background-image: linear-gradient(to bottom, #909090, #909090);
     padding: 1em 0;
     position: absolute;
-    bottom: 0;
+    bottom: 1vh;
     width: 100%;
 
     ul{
@@ -5184,3 +5223,45 @@ a.back-to-top{
         padding-bottom: 0em !important;
     }
 }
+
+/* Cibler tous les appareils iOS */
+[data-ios="true"] {
+    #slide-59{
+        //display: none !important;
+        h2{
+            font-size: 30px !important;
+        }
+      }
+      #slide-60{
+        p{
+            font-size: 20px !important;
+        }
+      }
+    * {
+      -webkit-overflow-scrolling: touch;
+      -webkit-appearance: none;
+      
+    }
+
+  }
+  
+  /* Cibler spécifiquement iPhone */
+  [data-iphone="true"] {
+    .header {
+      padding-top: env(safe-area-inset-top);
+    }
+  }
+  
+  /* Cibler spécifiquement iPad */
+  [data-ipad="true"] {
+    .sidebar {
+      width: 300px;
+    }
+  }
+  
+  /* Cibler Safari sur iOS */
+  [data-ios-safari="true"] {
+    .video-container {
+      -webkit-playsinline: true;
+    }
+  }

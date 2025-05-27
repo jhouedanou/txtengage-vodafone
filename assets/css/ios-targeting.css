@@ -1,0 +1,197 @@
+/* ===============================================
+   iOS Targeting CSS Examples
+   =============================================== */
+
+/* Basic iOS Detection */
+html[data-ios="true"] {
+  /* Styles for ALL iOS devices */
+}
+
+html.is-ios {
+  /* Alternative class-based targeting for iOS */
+}
+
+html.is-not-ios {
+  /* Styles for NON-iOS devices */
+}
+
+/* Device-Specific Targeting */
+html[data-ios-device="iphone"] {
+  /* Styles specifically for iPhones */
+}
+
+html.is-iphone {
+  /* Alternative class-based iPhone targeting */
+}
+
+html[data-ios-device="ipad"] {
+  /* Styles specifically for iPads */
+}
+
+html.is-ipad {
+  /* Alternative class-based iPad targeting */
+}
+
+/* iOS Safari Specific */
+html[data-ios-safari="true"] {
+  /* Styles for iOS Safari browser */
+}
+
+html.is-ios-safari {
+  /* Alternative class-based Safari targeting */
+}
+
+/* iOS Version Targeting */
+html[data-ios-major="17"] {
+  /* Styles for iOS 17.x */
+}
+
+html[data-ios-major="16"] {
+  /* Styles for iOS 16.x */
+}
+
+html[data-ios-version="17.2.1"] {
+  /* Styles for specific iOS version */
+}
+
+/* Orientation Targeting */
+html[data-orientation="portrait"] {
+  /* Styles for portrait orientation */
+}
+
+html.is-portrait {
+  /* Alternative class-based portrait targeting */
+}
+
+html[data-orientation="landscape"] {
+  /* Styles for landscape orientation */
+}
+
+html.is-landscape {
+  /* Alternative class-based landscape targeting */
+}
+
+/* Mobile vs Desktop */
+html[data-mobile="true"] {
+  /* Styles for mobile devices (includes iOS) */
+}
+
+html.is-mobile {
+  /* Alternative class-based mobile targeting */
+}
+
+html.is-desktop {
+  /* Styles for desktop devices */
+}
+
+/* Combined Targeting Examples */
+html.is-ios.is-iphone.is-portrait {
+  /* iPhone in portrait mode */
+}
+
+html.is-ios.is-ipad.is-landscape {
+  /* iPad in landscape mode */
+}
+
+/* Screen Size Based Targeting */
+html[data-screen-width="375"] {
+  /* iPhone 12/13/14 standard width */
+}
+
+html[data-screen-width="414"] {
+  /* iPhone Pro Max models */
+}
+
+html[data-screen-width="1024"] {
+  /* iPad standard width */
+}
+
+/* Pixel Ratio Targeting */
+html[data-pixel-ratio="2"] {
+  /* Retina displays with 2x pixel ratio */
+}
+
+html[data-pixel-ratio="3"] {
+  /* iPhone with 3x pixel ratio */
+}
+
+/* ===============================================
+   Practical Examples for Common iOS Issues
+   =============================================== */
+
+/* Fix iOS Safari viewport bounce */
+html.is-ios-safari body {
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS Safe Area Handling */
+html.is-ios {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* iPhone specific adjustments */
+html.is-iphone .header {
+  /* Adjust header for iPhone notch */
+  padding-top: max(20px, env(safe-area-inset-top));
+}
+
+/* iPad specific adjustments */
+html.is-ipad .sidebar {
+  /* iPad-specific sidebar styling */
+  width: 300px;
+}
+
+/* iOS landscape mode adjustments */
+html.is-ios.is-landscape .navigation {
+  /* Adjust navigation for iOS landscape */
+  height: 60px;
+}
+
+/* iOS Safari address bar compensation */
+html.is-ios-safari .full-height {
+  height: 100vh;
+  height: -webkit-fill-available;
+}
+
+/* Disable hover effects on iOS */
+html.is-ios .button:hover {
+  /* Remove hover effects on touch devices */
+  background-color: initial;
+}
+
+/* iOS smooth scrolling */
+html.is-ios .scrollable-content {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ===============================================
+   Animation & Transition Adjustments for iOS
+   =============================================== */
+
+/* Reduce motion for iOS accessibility */
+@media (prefers-reduced-motion: reduce) {
+  html.is-ios * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* iOS performance optimizations */
+html.is-ios .animated-element {
+  transform: translateZ(0); /* Enable hardware acceleration */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* iOS text rendering optimization */
+html.is-ios {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+} 

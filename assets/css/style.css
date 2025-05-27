@@ -1,4 +1,9 @@
 @charset "UTF-8";
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   margin: 0 !important;
   padding: 0 !important;
@@ -750,6 +755,17 @@ body * {
   /* background: red; */
 }
 
+#slide-60 {
+  min-height: 100vh !important;
+  height: auto !important;
+}
+@media screen and (max-width: 768px) {
+  #slide-60 {
+    min-height: 100vh !important;
+    height: 100vh !important;
+  }
+}
+
 .gsap-marker-scroller-start,
 .gsap-marker-scroller-end,
 .gsap-marker-start,
@@ -1172,7 +1188,13 @@ body * {
     will-change: transform;
   }
   .slide-section {
-    height: 100dvh !important;
+    min-height: 100vh !important;
+    height: auto !important;
+  }
+  @supports (-webkit-touch-callout: none) {
+    .slide-section {
+      height: 100vh !important;
+    }
   }
   #subint {
     background: none !important;
@@ -1184,7 +1206,7 @@ body * {
     justify-content: flex-end;
     display: flex;
     align-items: center;
-    height: 100dvh;
+    height: 100vh;
   }
   #slide-73 .slide-container {
     position: relative !important;
@@ -1323,7 +1345,13 @@ body * {
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-    height: 103dvh;
+    min-height: 100vh;
+    height: auto;
+  }
+  @supports (-webkit-touch-callout: none) {
+    #slide-20 #text-element-5 {
+      height: 100vh;
+    }
   }
   #slide-20 #text-element-5 h5 {
     font-size: 28px !important;
@@ -1530,6 +1558,7 @@ body * {
   #slide-21 .text-element h3,
   #slide-22 .text-element h3 {
     font-size: 2.2em;
+    text-align: center;
   }
   #slide-21 .text-element p,
   #slide-22 .text-element p {
@@ -1631,10 +1660,11 @@ body * {
   }
   .case-study-container.container .row .col-md-5 {
     order: 1;
+    padding: 0 !important;
   }
   .case-study-container.container .row .col-md-5 img {
-    width: 180px;
-    height: auto !important;
+    width: auto;
+    height: 422px !important;
   }
   .case-study-container.container .row .col-md-7 {
     order: 2;
@@ -1650,8 +1680,12 @@ body * {
     color: #FF0000 !important;
   }
   #casestudy .case-study-active h3 {
-    color: #FF0000;
+    color: #FF0000 !important;
     opacity: 1;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateX(0px) !important;
+    -webkit-transform: translateX(0px) !important;
   }
   #casestudy h3 {
     color: #231F20;
@@ -1664,6 +1698,10 @@ body * {
     opacity: 0.27;
     justify-content: flex-end;
     text-align: left;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateX(0px) !important;
+    -webkit-transform: translateX(0px) !important;
   }
   #casestudy p {
     font-family: Vodafone;
@@ -3429,18 +3467,21 @@ body.slide-73-active .menu-toggle span:hover,
 }
 
 #rodman {
-  height: 504px;
+  height: 761px;
   overflow: hidden;
-  width: 255px;
-  margin: 0 auto;
-  border-radius: 39px 83px 39px 39px;
-  position: relative;
+  position: absolute;
+  z-index: 2;
+  width: 527px;
+  bottom: 0;
 }
 #rodman .bdrs {
+  position: absolute;
+  left: 11.1vh;
+  top: 4.8vh;
   border-radius: 54px;
   overflow: hidden;
-  height: 100%;
-  width: 251px;
+  height: 580px;
+  width: 313px;
   background-color: rgb(0, 0, 0);
   display: flex;
   flex-direction: column;
@@ -3450,19 +3491,20 @@ body.slide-73-active .menu-toggle span:hover,
   width: 100%;
 }
 #rodman .image-container {
-  width: 280px;
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 304px;
+  height: 580px;
   top: 0;
   left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  right: 0;
+  margin: auto;
 }
 #rodman .image-container img {
-  height: 504px;
+  height: 580px;
   width: auto;
   -o-object-fit: contain;
   object-fit: contain;
@@ -3489,17 +3531,12 @@ body.slide-73-active .menu-toggle span:hover,
 }
 
 #sparta {
-  height: 585px;
+  height: 100vh;
   position: relative;
   overflow: hidden;
-  width: 427px;
+  width: 100vw;
   transform: translateZ(0);
-}
-#sparta #rodman {
-  height: 504px;
-  overflow: hidden;
-  position: relative;
-  z-index: 2;
+  transform: translateZ(0);
 }
 #sparta::before {
   content: "";
@@ -3510,8 +3547,8 @@ body.slide-73-active .menu-toggle span:hover,
   right: auto;
   background: url(/images/Subtract.png) no-repeat center center;
   background-size: contain;
-  height: 613px;
-  width: 492px;
+  height: 761px;
+  width: 613px;
   z-index: 1;
   will-change: transform;
   z-index: 10;
@@ -3522,6 +3559,9 @@ body.slide-73-active .menu-toggle span:hover,
 }
 
 @media screen and (max-width: 1024px) {
+  #slide-128 {
+    overflow: hidden;
+  }
   #slide-73 .slides-container {
     background-position-x: -69vw !important;
   }
@@ -3538,13 +3578,14 @@ body.slide-73-active .menu-toggle span:hover,
   #quadi {
     margin: 0 !important;
     padding: 0 !important;
-    height: 37vh !important;
+    height: 24vh !important;
     width: 100vw !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-direction: column !important;
     box-sizing: border-box !important;
+    max-height: 390px;
   }
   #quadi .perdrix-slide {
     margin: 0 !important;
@@ -3573,8 +3614,11 @@ body.slide-73-active .menu-toggle span:hover,
   #stone {
     margin: 0 !important;
     padding: 0 !important;
+    height: 72vh !important;
     width: 100vw !important;
-    display: block !important;
+    display: flex !important;
+    max-height: 510px;
+    justify-content: flex-end;
   }
   #stone .bdrs {
     position: relative;
@@ -3582,42 +3626,45 @@ body.slide-73-active .menu-toggle span:hover,
     justify-content: center;
     align-items: center;
     display: flex;
-    width: 163px !important;
-    height: 332px !important;
+    left: 0;
+    top: 0;
+    width: 181px !important;
+    height: 370px !important;
     flex-direction: column;
     border-radius: 10px;
   }
   #stone #sparta {
     margin: 0 auto !important;
     padding: 0 !important;
-    width: 389px;
-    height: 447px !important;
+    width: 360px;
     display: block !important;
     position: relative !important;
     line-height: 0;
     text-align: center !important;
     transform: translateZ(0);
+    height: 100% !important;
   }
   #stone #sparta::before {
+    width: 360px;
     content: "" !important;
     position: absolute !important;
-    bottom: 63px !important;
-    left: -7% !important;
+    bottom: 0;
+    left: 8% !important;
     right: 0 !important;
     margin: 0 auto !important;
     background: url(/images/Subtract.png) no-repeat center center !important;
     background-size: contain !important;
-    height: 400px !important;
+    height: 448px !important;
     z-index: 7 !important;
     will-change: transform !important;
   }
   #stone #sparta #rodman {
-    margin: 1% auto !important;
+    margin: 0 auto !important;
     padding: 0 !important;
-    width: 163px !important;
-    height: 332px !important;
+    width: 181px !important;
+    height: 426px !important;
     display: flex !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     justify-content: center !important;
     position: absolute !important;
     z-index: 2 !important;
@@ -3625,6 +3672,7 @@ body.slide-73-active .menu-toggle span:hover,
     transform: translateZ(0);
     left: 0;
     right: 0;
+    transform: translateZ(0);
     transform: translateZ(0);
   }
   #stone #sparta #rodman .image-container {
@@ -4241,5 +4289,31 @@ a.back-to-top:hover {
   will-change: auto;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+#lafill {
+  max-width: 738px;
+  padding: 0;
+  margin: 0;
+}
+#lafill button.btn.btn-primary {
+  margin-top: 0.5em;
+}
+
+#pdf ul {
+  position: relative;
+}
+#pdf ul li:nth-child(2),
+#pdf ul li:nth-child(3) {
+  position: relative;
+}
+#pdf ul .pdf-separator {
+  font-size: 12px;
+  color: white;
+}
+
+.case-study-item.active h3, .case-study-item.active p {
+  margin-bottom: 0em !important;
+  padding-bottom: 0em !important;
 }
 /*# sourceMappingURL=style.css.map */

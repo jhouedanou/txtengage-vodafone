@@ -1115,7 +1115,6 @@ const goToFirstSlide = () => {
                   </div>
                 </form>
               </div>
-
               <div
                 id="yenamarre"
                 class="d-flex align-items-center justify-content-center m-4"
@@ -1128,7 +1127,6 @@ const goToFirstSlide = () => {
                   <img src="/images/backToTop.svg" alt="Back to Top" />
                 </a>
               </div>
-           
             </div>
             <div id="pdf">
                 <ul>

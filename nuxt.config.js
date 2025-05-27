@@ -150,7 +150,7 @@ export default defineNuxtConfig({
 
   // Enregistrer nos plugins
   plugins: [
-    '~/plugins/dark-mode-prevention.client.ts'
+    // '~/plugins/dark-mode-prevention.client.ts'
   ],
 
   image: {
