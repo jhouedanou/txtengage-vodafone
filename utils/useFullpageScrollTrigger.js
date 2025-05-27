@@ -803,7 +803,8 @@ const reverseSlide73Animation = () => {
       autoAlpha: 1,
       y: 0, // Remise en position normale
       duration: getSlideDuration(),
-      ease: getSlideEase()
+    //duration:0.01,
+      ease: getTweenEase()
     }, "+=0.2"); // En même temps que la sortie de points-fort
   }
 };
