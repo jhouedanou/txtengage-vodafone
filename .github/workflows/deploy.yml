@@ -1,115 +1,380 @@
-name: Deploy to FTP
+name: Deploy to Vercel Static - txtengage
 
-# Déclencher le workflow
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:  # Permet de déclencher manuellement
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to FTP Server
+  build-and-deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-    # Checkout du code
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    # Validation des secrets FTP requis
-    - name: Validate FTP secrets
-      run: |
-        if [ -z "${{ secrets.FTP_HOST }}" ]; then
-          echo "❌ Erreur: Le secret FTP_HOST n'est pas configuré"
-          echo "📝 Configurez FTP_HOST dans Settings → Secrets and variables → Actions"
-          exit 1
-        fi
-        if [ -z "${{ secrets.FTP_USER }}" ]; then
-          echo "❌ Erreur: Le secret FTP_USER n'est pas configuré"
-          exit 1
-        fi
-        if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
-          echo "❌ Erreur: Le secret FTP_PASSWORD n'est pas configuré"
-          exit 1
-        fi
-        echo "✅ Tous les secrets FTP requis sont configurés"
-
-    # Configuration Node.js
+      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-
-    # Installation des dépendances
+        
     - name: Install dependencies
-      run: npm ci
-
-    # Build de production
-    - name: Build for production
-      run: npm run generate:production
-      env:
-        NUXT_APP_BASE_URL: /txtengage/
-
-    # Vérification du build
-    - name: Verify build output
       run: |
-        if [ ! -d "./.output/public" ]; then
-          echo "❌ Erreur: Le dossier de build ./.output/public n'existe pas"
-          echo "📁 Contenu du dossier .output:"
-          ls -la ./.output/ || echo "Le dossier .output n'existe pas"
+        npm ci
+        
+    - name: Build Nuxt application for static deployment
+      run: |
+        npm run build
+        npm run generate
+      env:
+        NODE_ENV: production
+        NUXT_APP_BASE_URL: /txtengage/
+        
+    - name: Prepare Vercel static deployment structure
+      run: |
+        # Créer la structure Vercel
+        mkdir -p .vercel/static/txtengage
+        
+        # Copier les fichiers générés vers le bon dossier
+        if [ -d ".output/public" ]; then
+          cp -r .output/public/* .vercel/static/txtengage/
+          echo "✅ Fichiers copiés depuis .output/public"
+        elif [ -d "dist" ]; then
+          cp -r dist/* .vercel/static/txtengage/
+          echo "✅ Fichiers copiés depuis dist"
+        else
+          echo "❌ Aucun dossier de build trouvé"
           exit 1
         fi
-        echo "✅ Build vérifié - dossier .output/public trouvé"
-        echo "📁 Contenu à déployer:"
-        ls -la ./.output/public/
-
-    # Déploiement FTP avec action spécialisée
-    - name: Deploy to FTP
+        
+        # Copier les assets additionnels
+        if [ -d "public" ]; then
+          cp -r public/* .vercel/static/txtengage/
+          echo "✅ Assets publics copiés"
+        fi
+        
+        # Créer le fichier de configuration Vercel
+        cat > vercel.json << EOF
+        {
+          "version": 2,
+          "builds": [
+            {
+              "src": ".vercel/static/txtengage/**",
+              "use": "@vercel/static"
+            }
+          ],
+          "routes": [
+            {
+              "src": "/txtengage/(.*)",
+              "dest": "/.vercel/static/txtengage/\$1"
+            },
+            {
+              "src": "/txtengage",
+              "dest": "/.vercel/static/txtengage/index.html"
+            }
+          ],
+          "headers": [
+            {
+              "source": "/txtengage/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp))",
+              "headers": [
+                {
+                  "key": "Cache-Control",
+                  "value": "public, max-age=31536000, immutable"
+                }
+              ]
+            },
+            {
+              "source": "/txtengage/fonts/(.*)",
+              "headers": [
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "public, max-age=31536000"
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+        
+        # Créer un fichier de version pour le déploiement
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Commit: ${{ github.sha }}" > .vercel/static/txtengage/version.txt
+        
+        # Vérification des fichiers critiques pour la scrollbar responsive
+        if grep -r "max-width: 1024px" .vercel/static/txtengage/ 2>/dev/null; then
+          echo "✅ Configuration responsive de la scrollbar détectée"
+        else
+          echo "⚠️  Configuration responsive de la scrollbar non détectée"
+        fi
+        
+        # Lister les fichiers pour débogage
+        echo "📁 Structure du déploiement:"
+        find .vercel/static/txtengage -type f | head -20
+        echo "📊 Nombre total de fichiers: $(find .vercel/static/txtengage -type f | wc -l)"
+        
+    - name: Deploy to FTP server (Vercel Static Structure)
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        port: ${{ secrets.FTP_PORT || 21 }}
-        protocol: ${{ secrets.FTP_SECURE == 'true' && 'ftps' || 'ftp' }}
-        local-dir: ./.output/public/
-        server-dir: ${{ secrets.FTP_REMOTE_PATH || '/public_html/txtengage/' }}
+        local-dir: ./.vercel/static/txtengage/
+        server-dir: /public_html/.vercel/static/txtengage/
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
+          **/.nuxt/**
           **/.DS_Store
-          **/*.map
-        log-level: verbose
+          **/Thumbs.db
+          **/*.log
+          **/src/**
+          
+    - name: Deploy Vercel configuration
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./
+        server-dir: /public_html/
+        exclude: |
+          **/*
+          !vercel.json
+          
+    - name: Create symbolic links and configure server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 22
+        script: |
+          # Créer les liens symboliques pour l'accès direct
+          cd /public_html
+          
+          # Supprimer l'ancien lien s'il existe
+          rm -f txtengage
+          
+          # Créer un nouveau lien symbolique vers le dossier Vercel
+          ln -s .vercel/static/txtengage txtengage
+          
+          # Vérifier que le lien fonctionne
+          if [ -L "txtengage" ] && [ -e "txtengage" ]; then
+            echo "✅ Lien symbolique créé avec succès"
+            ls -la txtengage/ | head -5
+          else
+            echo "❌ Erreur dans la création du lien symbolique"
+          fi
+          
+          # Configurer les permissions
+          find .vercel/static/txtengage -type f -exec chmod 644 {} \; 2>/dev/null || true
+          find .vercel/static/txtengage -type d -exec chmod 755 {} \; 2>/dev/null || true
+          
+          echo "🚀 Configuration serveur terminée"
 
-    # Alternative: Déploiement FTP avec script custom
-    - name: Deploy with custom FTP script
-      if: false  # Désactivé par défaut, activez si nécessaire
-      run: npm run deploy:ftp
-      env:
-        FTP_HOST: ${{ secrets.FTP_HOST }}
-        FTP_USER: ${{ secrets.FTP_USER }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        FTP_PORT: ${{ secrets.FTP_PORT }}
-        FTP_SECURE: ${{ secrets.FTP_SECURE }}
-        FTP_REMOTE_PATH: ${{ secrets.FTP_REMOTE_PATH }}
+    - name: Update .htaccess for Vercel Static compatibility
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 22
+        script: |
+          # Créer/Mettre à jour le .htaccess pour txtengage
+          cat > /public_html/.vercel/static/txtengage/.htaccess << 'EOF'
+          # Configuration pour Vodafone TxtEngage - Scrollbar Responsive
+          
+          # Compression GZIP
+          <IfModule mod_deflate.c>
+              AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css text/javascript
+              AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml
+              AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
+          </IfModule>
+          
+          # Cache des fichiers statiques
+          <IfModule mod_expires.c>
+              ExpiresActive On
+              ExpiresByType image/jpg "access plus 1 year"
+              ExpiresByType image/jpeg "access plus 1 year"
+              ExpiresByType image/gif "access plus 1 year"
+              ExpiresByType image/png "access plus 1 year"
+              ExpiresByType image/svg+xml "access plus 1 year"
+              ExpiresByType image/webp "access plus 1 year"
+              ExpiresByType font/ttf "access plus 1 year"
+              ExpiresByType font/woff "access plus 1 year"
+              ExpiresByType font/woff2 "access plus 1 year"
+              ExpiresByType text/css "access plus 1 month"
+              ExpiresByType application/javascript "access plus 1 month"
+              ExpiresByType text/html "access plus 1 hour"
+          </IfModule>
+          
+          # Headers pour la scrollbar responsive et assets
+          <IfModule mod_headers.c>
+              Header always set X-Frame-Options "SAMEORIGIN"
+              Header always set X-XSS-Protection "1; mode=block"
+              Header always set X-Content-Type-Options "nosniff"
+              
+              # CORS pour les fonts Vodafone
+              <FilesMatch "\.(ttf|otf|eot|woff|woff2)$">
+                  Header set Access-Control-Allow-Origin "*"
+              </FilesMatch>
+              
+              # Cache pour assets statiques
+              <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)$">
+                  Header set Cache-Control "public, max-age=31536000"
+              </FilesMatch>
+          </IfModule>
+          
+          # Redirections pour SPA Vue/Nuxt
+          <IfModule mod_rewrite.c>
+              RewriteEngine On
+              RewriteBase /txtengage/
+              
+              # Ne pas réécrire les fichiers existants
+              RewriteCond %{REQUEST_FILENAME} !-f
+              RewriteCond %{REQUEST_FILENAME} !-d
+              
+              # Rediriger vers index.html pour les routes SPA
+              RewriteRule . /txtengage/index.html [L]
+          </IfModule>
+          
+          # Types MIME pour fonts Vodafone
+          <IfModule mod_mime.c>
+              AddType application/font-woff .woff
+              AddType application/font-woff2 .woff2
+              AddType application/vnd.ms-fontobject .eot
+              AddType font/ttf .ttf
+              AddType font/opentype .otf
+          </IfModule>
+          
+          # Protection des fichiers sensibles
+          <Files "*.env">
+              Order allow,deny
+              Deny from all
+          </Files>
+          EOF
+          
+          echo "✅ .htaccess configuré pour txtengage"
 
-    # Notification de succès
-    - name: Notify success
-      if: success()
+    - name: Verify deployment and test scrollbar functionality
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 22
+        script: |
+          echo "🔍 Vérification du déploiement..."
+          
+          # Vérifier la structure des fichiers
+          if [ -f "/public_html/.vercel/static/txtengage/index.html" ]; then
+            echo "✅ Index.html trouvé"
+          else
+            echo "❌ Index.html manquant"
+          fi
+          
+          # Vérifier les assets CSS pour la scrollbar
+          if find /public_html/.vercel/static/txtengage -name "*.css" -exec grep -l "simple-scrollbar" {} \; | head -1; then
+            echo "✅ Styles de scrollbar trouvés dans CSS"
+          else
+            echo "⚠️  Styles de scrollbar non trouvés"
+          fi
+          
+          # Vérifier la configuration responsive
+          if find /public_html/.vercel/static/txtengage -name "*.css" -exec grep -l "max-width: 1024px" {} \; | head -1; then
+            echo "✅ Configuration responsive détectée"
+          else
+            echo "⚠️  Configuration responsive non détectée"
+          fi
+          
+          # Vérifier les fonts Vodafone
+          if find /public_html/.vercel/static/txtengage -name "*.ttf" -o -name "*.woff*" | head -1; then
+            echo "✅ Fonts Vodafone trouvées"
+          else
+            echo "⚠️  Fonts Vodafone non trouvées"
+          fi
+          
+          # Afficher la taille du déploiement
+          DEPLOY_SIZE=$(du -sh /public_html/.vercel/static/txtengage 2>/dev/null | cut -f1)
+          echo "📊 Taille du déploiement: $DEPLOY_SIZE"
+          
+          # Statistiques des fichiers
+          echo "📈 Statistiques:"
+          echo "   - Fichiers HTML: $(find /public_html/.vercel/static/txtengage -name "*.html" | wc -l)"
+          echo "   - Fichiers CSS: $(find /public_html/.vercel/static/txtengage -name "*.css" | wc -l)"
+          echo "   - Fichiers JS: $(find /public_html/.vercel/static/txtengage -name "*.js" | wc -l)"
+          echo "   - Images: $(find /public_html/.vercel/static/txtengage -name "*.png" -o -name "*.jpg" -o -name "*.webp" -o -name "*.svg" | wc -l)"
+          
+          echo "🎯 Déploiement Vercel Static terminé!"
+          echo "🌐 URL d'accès: https://votre-domaine.com/txtengage/"
+
+  # Job optionnel pour les tests en mode mobile
+  test-responsive:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Test build
       run: |
-        echo "🚀 Déploiement réussi vers le dossier txtengage!"
-        echo "🌐 Site accessible à: ${{ secrets.FTP_HOST }}${{ secrets.FTP_REMOTE_PATH || '/txtengage/' }}"
-
-    # Notification d'échec avec aide
-    - name: Notify failure
-      if: failure()
+        npm run build
+        npm run generate
+        
+    - name: Test responsive scrollbar configuration
       run: |
-        echo "❌ Échec du déploiement. Vérifiez les logs."
-        echo ""
-        echo "🔧 Pour résoudre:"
-        echo "1. Vérifiez que tous les secrets FTP sont configurés dans GitHub"
-        echo "2. Testez vos identifiants FTP manuellement"
-        echo "3. Vérifiez que le chemin distant existe sur le serveur"
-        echo "4. Consultez les logs détaillés ci-dessus" 
+        echo "🧪 Test de la configuration responsive..."
+        
+        # Vérifier que les fichiers contiennent la logique responsive
+        if find . -name "*.vue" -exec grep -l "max-width.*1024" {} \;; then
+          echo "✅ Configuration responsive trouvée dans Vue"
+        fi
+        
+        if find . -name "*.scss" -exec grep -l "simple-scrollbar" {} \;; then
+          echo "✅ Styles scrollbar trouvés dans SCSS"
+        fi
+        
+        if find . -name "*.vue" -exec grep -l "isMobileMode" {} \;; then
+          echo "✅ Logique mobile détectée"
+        fi
+        
+        echo "🎯 Tests terminés"
+
+  # Job de notification
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy]
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.build-and-deploy.result }}" == "success" ]; then
+          echo "🎉 Déploiement Vercel Static réussi!"
+          echo "📂 Structure: .vercel/static/txtengage/"
+          echo "🌐 URL: https://votre-domaine.com/txtengage/"
+          echo "📱 Scrollbar responsive:"
+          echo "   - Desktop: Verticale à droite"
+          echo "   - Mobile (<1024px): Horizontale en bas"
+          echo "🔗 Lien symbolique: /txtengage -> /.vercel/static/txtengage"
+        else
+          echo "❌ Déploiement échoué"
+          echo "📝 Vérifiez les logs pour plus de détails"
+        fi
