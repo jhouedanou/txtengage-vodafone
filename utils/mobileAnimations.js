@@ -1501,11 +1501,11 @@ export function useMobileAnimations() {
           if (content) {
             if (index === 0) {
               // Premier item : visible avec classe active
-              gsap.set(content, { autoAlpha: 1, display: 'block' });
+              gsap.set(content, { display: 'block', opacity: 1 });
               item.classList.add('active');
             } else {
               // Autres items : masqués
-              gsap.set(content, { autoAlpha: 0, display: 'none' });
+              gsap.set(content, { display: 'none', opacity: 1 });
               item.classList.remove('active');
             }
           }
@@ -1559,7 +1559,7 @@ export function useMobileAnimations() {
           onComplete: () => {
             // S'assurer que le premier case-study-content est visible
             if (firstCaseStudyContent && firstCaseStudyItem) {
-              gsap.set(firstCaseStudyContent, { autoAlpha: 1, display: 'block' });
+              gsap.set(firstCaseStudyContent, { display: 'block', opacity: 1 });
               firstCaseStudyItem.classList.add('active');
             }
             
@@ -1601,42 +1601,32 @@ export function useMobileAnimations() {
         const nextContent = nextItem?.querySelector('.case-study-content');
         
         if (currentContent && nextContent) {
-          const tl = gsap.timeline({
-            onComplete: () => {
-              slide128ScrollIndex++;
-              animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
-              animationStates.value['slide-128-mobile'] = 'initialized';
-              animationStates.value['slide-128-animation-playing'] = false;
-              isScrollingSlide128 = false;
-              
-              // Réactiver les interactions DOM
-              document.body.style.overflow = '';
-              document.body.style.touchAction = '';
-              
-              console.log(`✅ Défilement case-study mobile terminé - nouvel index: ${slide128ScrollIndex}`);
-            }
+          // Switch instantané sans animation sur mobile
+          // Masquer le contenu actuel
+          gsap.set(currentContent, { display: 'none' });
+          
+          // Afficher le contenu suivant
+          gsap.set(nextContent, { 
+            display: 'block', 
+            opacity: 1
           });
-          
-          // Préparer le content suivant : l'afficher avant l'animation
-          gsap.set(nextContent, { autoAlpha: 0, display: 'block' });
-          
-          // Animation simultanée des case-study-content (même logique que desktop)
-          tl.to(currentContent, {
-            autoAlpha: 0,
-            duration: 0.6, // Un peu plus lent sur mobile
-            ease: 'power3.easeInOut'
-          }, 0)
-          .to(nextContent, {
-          autoAlpha: 1,
-          duration: 0.6,
-            ease: 'power3.easeInOut'
-          }, 0)
-          // Masquer le currentContent après l'animation
-          .set(currentContent, { display: 'none' }, 0.6);
           
           // Gérer les classes active sur les case-study-item
           currentItem.classList.remove('active');
           nextItem.classList.add('active');
+          
+          // Mise à jour immédiate des indices et états
+          slide128ScrollIndex++;
+          animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
+          animationStates.value['slide-128-mobile'] = 'initialized';
+          animationStates.value['slide-128-animation-playing'] = false;
+          isScrollingSlide128 = false;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log(`✅ Défilement case-study mobile terminé - nouvel index: ${slide128ScrollIndex}`);
         }
       }
 
@@ -1666,42 +1656,32 @@ export function useMobileAnimations() {
         const prevContent = prevItem?.querySelector('.case-study-content');
         
         if (currentContent && prevContent) {
-          const tl = gsap.timeline({
-            onComplete: () => {
-              slide128ScrollIndex--;
-              animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
-              animationStates.value['slide-128-mobile'] = 'initialized';
-              animationStates.value['slide-128-animation-playing'] = false;
-              isScrollingSlide128 = false;
-              
-              // Réactiver les interactions DOM
-              document.body.style.overflow = '';
-              document.body.style.touchAction = '';
-              
-              console.log(`✅ Défilement case-study mobile arrière terminé - nouvel index: ${slide128ScrollIndex}`);
-            }
+          // Switch instantané sans animation sur mobile (reverse)
+          // Masquer le contenu actuel
+          gsap.set(currentContent, { display: 'none' });
+          
+          // Afficher le contenu précédent
+          gsap.set(prevContent, { 
+            display: 'block', 
+            opacity: 1
           });
-          
-          // Préparer le content précédent : l'afficher avant l'animation
-          gsap.set(prevContent, { autoAlpha: 0, display: 'block' });
-          
-          // Animation simultanée des case-study-content (même logique que desktop)
-          tl.to(currentContent, {
-            autoAlpha: 0,
-            duration: 0.6,
-            ease: 'power3.easeInOut'
-          }, 0)
-          .to(prevContent, {
-          autoAlpha: 1,
-            duration: 0.6,
-            ease: 'power3.easeInOut'
-          }, 0)
-          // Masquer le currentContent après l'animation
-          .set(currentContent, { display: 'none' }, 0.6);
           
           // Gérer les classes active sur les case-study-item
           currentItem.classList.remove('active');
           prevItem.classList.add('active');
+          
+          // Mise à jour immédiate des indices et états
+          slide128ScrollIndex--;
+          animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
+          animationStates.value['slide-128-mobile'] = 'initialized';
+          animationStates.value['slide-128-animation-playing'] = false;
+          isScrollingSlide128 = false;
+          
+          // Réactiver les interactions DOM
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          
+          console.log(`✅ Défilement case-study mobile arrière terminé - nouvel index: ${slide128ScrollIndex}`);
         }
       }
 
@@ -1719,10 +1699,10 @@ export function useMobileAnimations() {
           const content = item.querySelector('.case-study-content');
           if (content) {
             if (index === maxSlide128Scroll) {
-              gsap.set(content, { autoAlpha: 1, display: 'block' });
+              gsap.set(content, { display: 'block', opacity: 1 });
               item.classList.add('active');
             } else {
-              gsap.set(content, { autoAlpha: 0, display: 'none' });
+              gsap.set(content, { display: 'none', opacity: 1 });
               item.classList.remove('active');
             }
           }

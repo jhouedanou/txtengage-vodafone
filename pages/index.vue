@@ -1134,7 +1134,9 @@ const goToFirstSlide = () => {
                 <ul>
                   <li><a href="#">VodaMedia Privacy Statement &copy; 2024</a></li>
                   <li><a href="#">FAQ's</a></li>
+                  <li class="pdf-separator">|</li>
                   <li><a href="#">Legal</a></li>
+                  <li class="pdf-separator">|</li>
                   <li><a href="#">T's & C's</a></li>
                 </ul>
               </div>

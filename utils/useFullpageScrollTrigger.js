@@ -1652,23 +1652,17 @@ const resetSlide73Animation = () => {
         const content = item.querySelector('.case-study-content');
         if (content) {
           if (index === 0) {
-            // Premier item : visible et ouvert pour l'accordéon avec classe active
+            // Premier item : visible avec classe active
             gsap.set(content, { 
               display: 'block', 
-              opacity: 1,
-              scaleY: 1,
-              transformOrigin: 'top',
-              height: 'auto'
+              opacity: 1
             });
             item.classList.add('active');
           } else {
-            // Autres items : fermés pour l'accordéon
+            // Autres items : masqués
             gsap.set(content, { 
               display: 'none', 
-              opacity: 1,
-              scaleY: 0,
-              transformOrigin: 'top',
-              height: 'auto'
+              opacity: 1
             });
             item.classList.remove('active');
           }
@@ -1779,43 +1773,26 @@ const resetSlide73Animation = () => {
       console.log('Next content:', nextContent);
       
       if (currentContent && nextContent) {
-        const tl = gsap.timeline({
-          onComplete: () => {
-            slide128ScrollIndex++;
-            animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
-            isScrollingSlide128 = false;
-            isNavigating.value = false;
-            console.log(`Défilement case-study terminé - nouvel index: ${slide128ScrollIndex}`);
-          }
-        });
+        // Switch instantané sans animation de scale
+        // Masquer le contenu actuel
+        gsap.set(currentContent, { display: 'none' });
         
-        // Préparer le content suivant : l'afficher et l'initialiser pour l'accordéon
+        // Afficher le contenu suivant
         gsap.set(nextContent, { 
           display: 'block', 
-          opacity: 1,
-          scaleY: 0, 
-          transformOrigin: 'top',
-          height: 'auto'
+          opacity: 1
         });
-        
-        // Animation d'accordéon rapide - fermeture du contenu actuel
-        tl.to(currentContent, {
-          scaleY: 0,
-          duration: 0.15, // Animation rapide
-          ease: 'power2.inOut'
-        }, 0)
-        // Animation d'accordéon rapide - ouverture du contenu suivant
-        .to(nextContent, {
-          scaleY: 1,
-          duration: 0.15, // Animation rapide
-          ease: 'power2.inOut'
-        }, 0.1) // Léger décalage pour l'effet accordéon
-        // Masquer le currentContent après l'animation
-        .set(currentContent, { display: 'none' }, 0.25);
         
         // Gérer les classes active sur les case-study-item
         currentItem.classList.remove('active');
         nextItem.classList.add('active');
+        
+        // Mise à jour des indices et états
+        slide128ScrollIndex++;
+        animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
+        isScrollingSlide128 = false;
+        isNavigating.value = false;
+        console.log(`Défilement case-study terminé - nouvel index: ${slide128ScrollIndex}`);
       }
     }
 
@@ -1840,43 +1817,26 @@ const resetSlide73Animation = () => {
       const prevContent = prevItem?.querySelector('.case-study-content');
       
       if (currentContent && prevContent) {
-        const tl = gsap.timeline({
-          onComplete: () => {
-            slide128ScrollIndex--;
-            animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
-            isScrollingSlide128 = false;
-            isNavigating.value = false;
-            console.log(`Défilement case-study arrière terminé - nouvel index: ${slide128ScrollIndex}`);
-          }
-        });
+        // Switch instantané sans animation de scale
+        // Masquer le contenu actuel
+        gsap.set(currentContent, { display: 'none' });
         
-        // Préparer le content précédent : l'afficher et l'initialiser pour l'accordéon
+        // Afficher le contenu précédent
         gsap.set(prevContent, { 
           display: 'block', 
-          opacity: 1,
-          scaleY: 0, 
-          transformOrigin: 'top',
-          height: 'auto'
+          opacity: 1
         });
-        
-        // Animation d'accordéon rapide - fermeture du contenu actuel
-        tl.to(currentContent, {
-          scaleY: 0,
-          duration: 0.15, // Animation rapide
-          ease: 'power2.inOut'
-        }, 0)
-        // Animation d'accordéon rapide - ouverture du contenu précédent
-        .to(prevContent, {
-          scaleY: 1,
-          duration: 0.15, // Animation rapide
-          ease: 'power2.inOut'
-        }, 0.1) // Léger décalage pour l'effet accordéon
-        // Masquer le currentContent après l'animation
-        .set(currentContent, { display: 'none' }, 0.25);
         
         // Gérer les classes active sur les case-study-item
         currentItem.classList.remove('active');
         prevItem.classList.add('active');
+        
+        // Mise à jour des indices et états
+        slide128ScrollIndex--;
+        animationStates.value['slide-128-current-index'] = slide128ScrollIndex;
+        isScrollingSlide128 = false;
+        isNavigating.value = false;
+        console.log(`Défilement case-study arrière terminé - nouvel index: ${slide128ScrollIndex}`);
       }
     }
   };
@@ -1897,23 +1857,17 @@ const resetSlide73Animation = () => {
         const content = item.querySelector('.case-study-content');
         if (content) {
           if (index === 0) {
-            // Premier item : visible et ouvert pour l'accordéon
+            // Premier item : visible avec classe active
             gsap.set(content, { 
               display: 'block', 
-              opacity: 1,
-              scaleY: 1,
-              transformOrigin: 'top',
-              height: 'auto'
+              opacity: 1
             });
             item.classList.add('active');
           } else {
-            // Autres items : fermés pour l'accordéon
+            // Autres items : masqués
             gsap.set(content, { 
               display: 'none', 
-              opacity: 1,
-              scaleY: 0,
-              transformOrigin: 'top',
-              height: 'auto'
+              opacity: 1
             });
             item.classList.remove('active');
           }
