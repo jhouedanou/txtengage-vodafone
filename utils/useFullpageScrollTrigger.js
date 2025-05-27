@@ -1652,12 +1652,24 @@ const resetSlide73Animation = () => {
         const content = item.querySelector('.case-study-content');
         if (content) {
           if (index === 0) {
-            // Premier item : visible avec classe active
-            gsap.set(content, { autoAlpha: 1, y: 0, display: 'block' });
+            // Premier item : visible et ouvert pour l'accordéon avec classe active
+            gsap.set(content, { 
+              display: 'block', 
+              opacity: 1,
+              scaleY: 1,
+              transformOrigin: 'top',
+              height: 'auto'
+            });
             item.classList.add('active');
           } else {
-            // Autres items : masqués et positionnés
-            gsap.set(content, { autoAlpha: 0, y: '50px', display: 'none' });
+            // Autres items : fermés pour l'accordéon
+            gsap.set(content, { 
+              display: 'none', 
+              opacity: 1,
+              scaleY: 0,
+              transformOrigin: 'top',
+              height: 'auto'
+            });
             item.classList.remove('active');
           }
         }
@@ -1704,7 +1716,7 @@ const resetSlide73Animation = () => {
         onComplete: () => {
           // S'assurer que le premier case-study-content est visible
           if (firstCaseStudyContent && firstCaseStudyItem) {
-            gsap.set(firstCaseStudyContent, { autoAlpha: 1, y: 0, display: 'block' });
+            gsap.set(firstCaseStudyContent, { display: 'block' });
             firstCaseStudyItem.classList.add('active');
           }
           
@@ -1777,24 +1789,29 @@ const resetSlide73Animation = () => {
           }
         });
         
-        // Préparer le content suivant : l'afficher avant l'animation
-        gsap.set(nextContent, { autoAlpha: 0, y: '50px', display: 'block' });
+        // Préparer le content suivant : l'afficher et l'initialiser pour l'accordéon
+        gsap.set(nextContent, { 
+          display: 'block', 
+          opacity: 1,
+          scaleY: 0, 
+          transformOrigin: 'top',
+          height: 'auto'
+        });
         
-        // Animation simultanée des case-study-content
+        // Animation d'accordéon rapide - fermeture du contenu actuel
         tl.to(currentContent, {
-          autoAlpha: 0,
-          y: '-50px',
-          duration: getTweenDuration(),
-          ease: getTweenEase()
+          scaleY: 0,
+          duration: 0.15, // Animation rapide
+          ease: 'power2.inOut'
         }, 0)
+        // Animation d'accordéon rapide - ouverture du contenu suivant
         .to(nextContent, {
-          autoAlpha: 1,
-          y: 0,
-          duration: getTweenDuration(),
-          ease: getTweenEase()
-        }, 0)
+          scaleY: 1,
+          duration: 0.15, // Animation rapide
+          ease: 'power2.inOut'
+        }, 0.1) // Léger décalage pour l'effet accordéon
         // Masquer le currentContent après l'animation
-        .set(currentContent, { display: 'none' }, getTweenDuration());
+        .set(currentContent, { display: 'none' }, 0.25);
         
         // Gérer les classes active sur les case-study-item
         currentItem.classList.remove('active');
@@ -1833,24 +1850,29 @@ const resetSlide73Animation = () => {
           }
         });
         
-        // Préparer le content précédent : l'afficher avant l'animation
-        gsap.set(prevContent, { autoAlpha: 0, y: '-50px', display: 'block' });
+        // Préparer le content précédent : l'afficher et l'initialiser pour l'accordéon
+        gsap.set(prevContent, { 
+          display: 'block', 
+          opacity: 1,
+          scaleY: 0, 
+          transformOrigin: 'top',
+          height: 'auto'
+        });
         
-        // Animation simultanée des case-study-content
+        // Animation d'accordéon rapide - fermeture du contenu actuel
         tl.to(currentContent, {
-          autoAlpha: 0,
-          y: '50px',
-          duration: getTweenDuration(),
-          ease: getTweenEase()
+          scaleY: 0,
+          duration: 0.15, // Animation rapide
+          ease: 'power2.inOut'
         }, 0)
+        // Animation d'accordéon rapide - ouverture du contenu précédent
         .to(prevContent, {
-          autoAlpha: 1,
-          y: 0,
-          duration: getTweenDuration(),
-          ease: getTweenEase()
-        }, 0)
+          scaleY: 1,
+          duration: 0.15, // Animation rapide
+          ease: 'power2.inOut'
+        }, 0.1) // Léger décalage pour l'effet accordéon
         // Masquer le currentContent après l'animation
-        .set(currentContent, { display: 'none' }, getTweenDuration());
+        .set(currentContent, { display: 'none' }, 0.25);
         
         // Gérer les classes active sur les case-study-item
         currentItem.classList.remove('active');
@@ -1875,12 +1897,24 @@ const resetSlide73Animation = () => {
         const content = item.querySelector('.case-study-content');
         if (content) {
           if (index === 0) {
-            // Premier item : prêt pour réinitialisation
-            gsap.set(content, { autoAlpha: 1, y: 0, display: 'block' });
+            // Premier item : visible et ouvert pour l'accordéon
+            gsap.set(content, { 
+              display: 'block', 
+              opacity: 1,
+              scaleY: 1,
+              transformOrigin: 'top',
+              height: 'auto'
+            });
             item.classList.add('active');
           } else {
-            // Autres items : masqués
-            gsap.set(content, { autoAlpha: 0, y: '50px', display: 'none' });
+            // Autres items : fermés pour l'accordéon
+            gsap.set(content, { 
+              display: 'none', 
+              opacity: 1,
+              scaleY: 0,
+              transformOrigin: 'top',
+              height: 'auto'
+            });
             item.classList.remove('active');
           }
         }

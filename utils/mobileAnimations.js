@@ -1501,11 +1501,11 @@ export function useMobileAnimations() {
           if (content) {
             if (index === 0) {
               // Premier item : visible avec classe active
-              gsap.set(content, { autoAlpha: 1, y: 0, display: 'block' });
+              gsap.set(content, { autoAlpha: 1, display: 'block' });
               item.classList.add('active');
             } else {
-              // Autres items : masqués et positionnés
-              gsap.set(content, { autoAlpha: 0, y: '50px', display: 'none' });
+              // Autres items : masqués
+              gsap.set(content, { autoAlpha: 0, display: 'none' });
               item.classList.remove('active');
             }
           }
@@ -1559,7 +1559,7 @@ export function useMobileAnimations() {
           onComplete: () => {
             // S'assurer que le premier case-study-content est visible
             if (firstCaseStudyContent && firstCaseStudyItem) {
-              gsap.set(firstCaseStudyContent, { autoAlpha: 1, y: 0, display: 'block' });
+              gsap.set(firstCaseStudyContent, { autoAlpha: 1, display: 'block' });
               firstCaseStudyItem.classList.add('active');
             }
             
@@ -1618,18 +1618,16 @@ export function useMobileAnimations() {
           });
           
           // Préparer le content suivant : l'afficher avant l'animation
-          gsap.set(nextContent, { autoAlpha: 0, y: '50px', display: 'block' });
+          gsap.set(nextContent, { autoAlpha: 0, display: 'block' });
           
           // Animation simultanée des case-study-content (même logique que desktop)
           tl.to(currentContent, {
             autoAlpha: 0,
-            y: '-50px',
             duration: 0.6, // Un peu plus lent sur mobile
             ease: 'power3.easeInOut'
           }, 0)
           .to(nextContent, {
           autoAlpha: 1,
-          y: 0,
           duration: 0.6,
             ease: 'power3.easeInOut'
           }, 0)
@@ -1685,18 +1683,16 @@ export function useMobileAnimations() {
           });
           
           // Préparer le content précédent : l'afficher avant l'animation
-          gsap.set(prevContent, { autoAlpha: 0, y: '-50px', display: 'block' });
+          gsap.set(prevContent, { autoAlpha: 0, display: 'block' });
           
           // Animation simultanée des case-study-content (même logique que desktop)
           tl.to(currentContent, {
             autoAlpha: 0,
-            y: '50px',
             duration: 0.6,
             ease: 'power3.easeInOut'
           }, 0)
           .to(prevContent, {
           autoAlpha: 1,
-          y: 0,
             duration: 0.6,
             ease: 'power3.easeInOut'
           }, 0)
@@ -1723,10 +1719,10 @@ export function useMobileAnimations() {
           const content = item.querySelector('.case-study-content');
           if (content) {
             if (index === maxSlide128Scroll) {
-              gsap.set(content, { autoAlpha: 1, y: 0, display: 'block' });
+              gsap.set(content, { autoAlpha: 1, display: 'block' });
               item.classList.add('active');
             } else {
-              gsap.set(content, { autoAlpha: 0, y: '50px', display: 'none' });
+              gsap.set(content, { autoAlpha: 0, display: 'none' });
               item.classList.remove('active');
             }
           }
