@@ -16,6 +16,24 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # Validation des secrets FTP requis
+    - name: Validate FTP secrets
+      run: |
+        if [ -z "${{ secrets.FTP_HOST }}" ]; then
+          echo "❌ Erreur: Le secret FTP_HOST n'est pas configuré"
+          echo "📝 Configurez FTP_HOST dans Settings → Secrets and variables → Actions"
+          exit 1
+        fi
+        if [ -z "${{ secrets.FTP_USER }}" ]; then
+          echo "❌ Erreur: Le secret FTP_USER n'est pas configuré"
+          exit 1
+        fi
+        if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+          echo "❌ Erreur: Le secret FTP_PASSWORD n'est pas configuré"
+          exit 1
+        fi
+        echo "✅ Tous les secrets FTP requis sont configurés"
+
     # Configuration Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -32,6 +50,19 @@ jobs:
       run: npm run generate:production
       env:
         NUXT_APP_BASE_URL: /txtengage/
+
+    # Vérification du build
+    - name: Verify build output
+      run: |
+        if [ ! -d "./.output/public" ]; then
+          echo "❌ Erreur: Le dossier de build ./.output/public n'existe pas"
+          echo "📁 Contenu du dossier .output:"
+          ls -la ./.output/ || echo "Le dossier .output n'existe pas"
+          exit 1
+        fi
+        echo "✅ Build vérifié - dossier .output/public trouvé"
+        echo "📁 Contenu à déployer:"
+        ls -la ./.output/public/
 
     # Déploiement FTP avec action spécialisée
     - name: Deploy to FTP
@@ -50,6 +81,7 @@ jobs:
           **/node_modules/**
           **/.DS_Store
           **/*.map
+        log-level: verbose
 
     # Alternative: Déploiement FTP avec script custom
     - name: Deploy with custom FTP script
@@ -66,9 +98,18 @@ jobs:
     # Notification de succès
     - name: Notify success
       if: success()
-      run: echo "🚀 Déploiement réussi vers le dossier txtengage!"
+      run: |
+        echo "🚀 Déploiement réussi vers le dossier txtengage!"
+        echo "🌐 Site accessible à: ${{ secrets.FTP_HOST }}${{ secrets.FTP_REMOTE_PATH || '/txtengage/' }}"
 
-    # Notification d'échec
+    # Notification d'échec avec aide
     - name: Notify failure
       if: failure()
-      run: echo "❌ Échec du déploiement. Vérifiez les logs." 
+      run: |
+        echo "❌ Échec du déploiement. Vérifiez les logs."
+        echo ""
+        echo "🔧 Pour résoudre:"
+        echo "1. Vérifiez que tous les secrets FTP sont configurés dans GitHub"
+        echo "2. Testez vos identifiants FTP manuellement"
+        echo "3. Vérifiez que le chemin distant existe sur le serveur"
+        echo "4. Consultez les logs détaillés ci-dessus" 

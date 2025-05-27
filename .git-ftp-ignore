@@ -1,33 +1,78 @@
-# Fichiers à exclure du déploiement git-ftp
+# Fichiers à exclure du déploiement git-ftp pour Vodafone TxtEngage
+# Note: git-ftp déploie depuis .output/public/ donc ces exclusions s'appliquent au contenu de ce dossier
 
 # Fichiers système
 .DS_Store
 Thumbs.db
 *.log
 *.tmp
+*.temp
 
-# Fichiers de développement
+# Fichiers de développement (ne devraient pas être dans .output/public/ mais au cas où)
 node_modules/
 .nuxt/
 .output/
 dist/
-*.map
-.env*
+.vercel/
+.next/
 
-# Fichiers Git
+# Source maps (optionnel - à garder pour debug ou exclure pour optimiser)
+*.map
+
+# Fichiers d'environnement sensibles
+.env*
+*.env
+
+# Fichiers Git (ne devraient pas être dans le build)
 .git/
 .gitignore
+.gitattributes
 
-# Fichiers de configuration
+# Fichiers de configuration de développement
 package.json
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 nuxt.config.js
+nuxt.config.ts
 *.config.js
+*.config.ts
+tsconfig.json
 
 # Documentation
 README.md
 *.md
+docs/
 
-# Scripts de développement
-scripts/ 
+# Scripts et fichiers de build
+scripts/
+build/
+webpack.config.js
+vite.config.js
+
+# Fichiers de tests
+test/
+tests/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+coverage/
+
+# Fichiers de déploiement
+.git-ftp-*
+.github/
+Dockerfile
+docker-compose.yml
+
+# Fichiers temporaires d'éditeurs
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Fichiers de cache
+.cache/
+.parcel-cache/
+.eslintcache 

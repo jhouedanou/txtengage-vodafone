@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scrollbar Responsive</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .viewport-info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+        
+        /* Simulation de la scrollbar personnalisée */
+        .simple-scrollbar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            height: 80vh;
+            width: 4px;
+            background: transparent;
+            pointer-events: none;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .scrollbar-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .scrollbar-cursor {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+        }
+
+        .scrollbar-cursor::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 1px;
+        }
+
+        /* Mode responsive - horizontal pour écrans < 1024px */
+        @media screen and (max-width: 1024px) {
+            .simple-scrollbar {
+                right: auto;
+                top: auto;
+                left: 50%;
+                bottom: 20px;
+                transform: translateX(-50%);
+                height: 4px;
+                width: 80vw;
+            }
+
+            .scrollbar-cursor {
+                width: 40px;
+                height: 100%;
+            }
+
+            .scrollbar-cursor::before {
+                width: 16px;
+                height: 2px;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .simple-scrollbar {
+                bottom: 15px;
+                width: 85vw;
+                height: 3px;
+            }
+
+            .scrollbar-cursor {
+                width: 35px;
+            }
+
+            .scrollbar-cursor::before {
+                width: 14px;
+                height: 1px;
+            }
+        }
+        
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .slide-demo {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e60000;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-align: center;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1500;
+        }
+        
+        button {
+            background: #e60000;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="viewport-info">
+        <div>Largeur écran: <span id="width">0</span>px</div>
+        <div>Mode: <span id="mode">Desktop</span></div>
+        <div>Orientation scrollbar: <span id="orientation">Verticale</span></div>
+    </div>
+    
+    <div class="content">
+        <h1>Test Scrollbar Responsive</h1>
+        <p>Cette page teste la scrollbar personnalisée avec changement d'orientation selon la taille d'écran.</p>
+        
+        <div class="slide-demo">Slide 1 - Accueil</div>
+        <div class="slide-demo">Slide 2 - Présentation</div>
+        <div class="slide-demo">Slide 3 - Services</div>
+        <div class="slide-demo">Slide 4 - Portfolio</div>
+        <div class="slide-demo">Slide 5 - Contact</div>
+        
+        <h2>Instructions de test</h2>
+        <ul>
+            <li><strong>Desktop (≥1024px):</strong> Scrollbar verticale à droite</li>
+            <li><strong>Tablette (<1024px):</strong> Scrollbar horizontale en bas</li>
+            <li><strong>Mobile (<768px):</strong> Scrollbar horizontale plus fine</li>
+        </ul>
+        
+        <p>Redimensionnez votre fenêtre ou utilisez les outils développeur pour tester les différents modes.</p>
+    </div>
+    
+    <div class="controls">
+        <h4>Simulation navigation</h4>
+        <button onclick="moveToSlide(0)">Slide 1</button>
+        <button onclick="moveToSlide(1)">Slide 2</button>
+        <button onclick="moveToSlide(2)">Slide 3</button>
+        <button onclick="moveToSlide(3)">Slide 4</button>
+        <button onclick="moveToSlide(4)">Slide 5</button>
+    </div>
+
+    <!-- Scrollbar personnalisée -->
+    <div class="simple-scrollbar">
+        <div class="scrollbar-track">
+            <div class="scrollbar-cursor" id="scrollCursor"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 5;
+        
+        function updateViewportInfo() {
+            const width = window.innerWidth;
+            document.getElementById('width').textContent = width;
+            
+            if (width >= 1024) {
+                document.getElementById('mode').textContent = 'Desktop';
+                document.getElementById('orientation').textContent = 'Verticale';
+            } else if (width >= 768) {
+                document.getElementById('mode').textContent = 'Tablette';
+                document.getElementById('orientation').textContent = 'Horizontale';
+            } else {
+                document.getElementById('mode').textContent = 'Mobile';
+                document.getElementById('orientation').textContent = 'Horizontale';
+            }
+        }
+        
+        function updateScrollbarPosition() {
+            const cursor = document.getElementById('scrollCursor');
+            const track = cursor.parentElement;
+            const isMobile = window.innerWidth < 1024;
+            
+            const percentage = totalSlides > 1 ? currentSlide / (totalSlides - 1) : 0;
+            
+            if (isMobile) {
+                // Mode horizontal
+                const trackWidth = track.offsetWidth - cursor.offsetWidth;
+                const leftPosition = percentage * trackWidth;
+                cursor.style.left = `${leftPosition}px`;
+                cursor.style.top = '0px';
+            } else {
+                // Mode vertical
+                const trackHeight = track.offsetHeight - cursor.offsetHeight;
+                const topPosition = percentage * trackHeight;
+                cursor.style.top = `${topPosition}px`;
+                cursor.style.left = '0px';
+            }
+        }
+        
+        function moveToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            updateScrollbarPosition();
+            
+            // Simulation du scroll vers la slide
+            const slides = document.querySelectorAll('.slide-demo');
+            if (slides[slideIndex]) {
+                slides[slideIndex].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Event listeners
+        window.addEventListener('resize', () => {
+            updateViewportInfo();
+            updateScrollbarPosition();
+        });
+        
+        // Navigation avec les flèches du clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' && currentSlide > 0) {
+                moveToSlide(currentSlide - 1);
+            } else if (e.key === 'ArrowDown' && currentSlide < totalSlides - 1) {
+                moveToSlide(currentSlide + 1);
+            }
+        });
+        
+        // Initialisation
+        updateViewportInfo();
+        updateScrollbarPosition();
+        
+        console.log('Test scrollbar responsive initialisé');
+        console.log('Utilisez les boutons ou les flèches du clavier pour tester');
+    </script>
+</body>
+</html> 

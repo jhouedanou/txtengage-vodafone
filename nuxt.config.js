@@ -2,57 +2,11 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
-  css: [
-    'bootstrap/dist/css/bootstrap.min.css',
-    '@/assets/scss/style.scss'
-  ],
   
-  vite: {
-    define: {
-      'process.env.DEBUG': false,
-    },
-    css: {
-      devSourcemap: true,
-      preprocessorOptions: {
-        scss: {
-          sourceMap: true,
-          outputStyle: 'expanded',
-          charset: false
-        }
-      },
-      // Améliorer la précision des sourcemaps pour l'édition dans Chrome
-      build: {
-        sourcemap: true,
-        cssCodeSplit: true
-      }
-    }
-  },
-
-  build: {
-    transpile: ['gsap'],
-    cssSourceMap: true,
-    extractCSS: true
-  },
-  
-  // Ajouter la configuration pour les sourcemaps quand l'environnement le demande
-  postcss: {
-    sourceMap: process.env.NUXT_PUBLIC_SOURCEMAP === 'true'
-  },
-  
-  nitro: {
-    preset: 'vercel',
-    prerender: {
-      failOnError: false,
-      crawlLinks: true,
-      routes: ['/'],
-    }
-  },
-  ssr: false,
-  target: 'static',  
+  // Configuration pour le déploiement sous /txtengage/
   app: {
-    // Configuration pour sous-dossier txtengage
-    baseURL: process.env.NUXT_APP_BASE_URL || "/txtengage/",
-    cdnURL: process.env.NUXT_APP_CDN_URL || "",
+    baseURL: process.env.NODE_ENV === 'production' ? '/txtengage/' : '/',
+    buildAssetsDir: '/txtengage/_nuxt/',
     head: {
       meta: [
         // Dark mode prevention meta tags for Android Samsung
@@ -116,6 +70,82 @@ export default defineNuxtConfig({
     }
   },
 
+  // Configuration pour la génération statique Vercel
+  nitro: {
+    output: {
+      dir: '.vercel/static/txtengage',
+      publicDir: '.vercel/static/txtengage'
+    },
+    prerender: {
+      failOnError: false,
+      crawlLinks: true,
+      routes: ['/'],
+    }
+  },
+
+  // Assets et ressources
+  css: [
+    '~/assets/scss/style.scss',
+    'bootstrap/dist/css/bootstrap.min.css'
+  ],
+
+  // Configuration des routes pour SPA
+  ssr: false, // Mode SPA pour compatibilité Vercel Static
+  target: 'static',
+
+  // Configuration des assets publics
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.API_URL || 'https://dev-txtengagevodafone.pantheonsite.io/wp-json/wp/v2',
+      baseURL: process.env.NODE_ENV === 'production' ? '/txtengage/' : '/'
+    }
+  },
+
+  // Configuration des assets
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `
+            $asset-base: "${process.env.NODE_ENV === 'production' ? '/txtengage' : ''}";
+          `
+        }
+      }
+    },
+    build: {
+      assetsDir: '_nuxt'
+    },
+    define: {
+      'process.env.DEBUG': false,
+    },
+    css: {
+      devSourcemap: true,
+      preprocessorOptions: {
+        scss: {
+          sourceMap: true,
+          outputStyle: 'expanded',
+          charset: false
+        }
+      },
+      // Améliorer la précision des sourcemaps pour l'édition dans Chrome
+      build: {
+        sourcemap: true,
+        cssCodeSplit: true
+      }
+    }
+  },
+
+  build: {
+    transpile: ['gsap'],
+    cssSourceMap: true,
+    extractCSS: true
+  },
+  
+  // Ajouter la configuration pour les sourcemaps quand l'environnement le demande
+  postcss: {
+    sourceMap: process.env.NUXT_PUBLIC_SOURCEMAP === 'true'
+  },
+  
   modules: ['@pinia/nuxt', '@nuxt/image'],
 
   // Enregistrer nos plugins

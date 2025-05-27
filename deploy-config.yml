@@ -1,0 +1,168 @@
+# Configuration de déploiement FTP pour Vodafone TxtEngage
+# Ce fichier remplace .git-ftp-config avec une structure YAML plus moderne
+
+# Configuration du serveur FTP
+ftp:
+  # Informations de connexion
+  host: "129.232.249.221"
+  username: "blackfhppu_9"
+  password: "f8wKF5H4qLc4P594APu8"
+  port: 21
+  protocol: "ftp"  # ftp, ftps, sftp
+  
+  # Options de connexion
+  passive: true
+  secure: false
+  timeout: 30000
+  
+  # Chemins de déploiement
+  paths:
+    local: ".output/public/"
+    remote: "/public_html/txtengage/"
+  
+  # Options de synchronisation
+  sync:
+    auto_init: true
+    dry_run: false
+    verbose: true
+    delete_remote: false  # Ne pas supprimer les fichiers distants non présents localement
+    ignore_time: false
+    connections: 1
+
+# Fichiers et dossiers à exclure du déploiement
+exclude:
+  # Fichiers système
+  - "**/.DS_Store"
+  - "**/Thumbs.db"
+  - "**/*.log"
+  - "**/*.tmp"
+  - "**/*.temp"
+  
+  # Fichiers de développement
+  - "**/node_modules/**"
+  - "**/.nuxt/**"
+  - "**/.output/**"
+  - "**/dist/**"
+  - "**/.vercel/**"
+  - "**/.next/**"
+  
+  # Source maps (optionnel)
+  - "**/*.map"
+  
+  # Fichiers d'environnement
+  - "**/.env*"
+  - "**/*.env"
+  
+  # Fichiers Git
+  - "**/.git/**"
+  - "**/.gitignore"
+  - "**/.gitattributes"
+  
+  # Configuration de développement
+  - "**/package.json"
+  - "**/package-lock.json"
+  - "**/yarn.lock"
+  - "**/pnpm-lock.yaml"
+  - "**/nuxt.config.*"
+  - "**/*.config.js"
+  - "**/*.config.ts"
+  - "**/tsconfig.json"
+  
+  # Documentation
+  - "**/README.md"
+  - "**/*.md"
+  - "**/docs/**"
+  
+  # Scripts et build
+  - "**/scripts/**"
+  - "**/build/**"
+  - "**/webpack.config.js"
+  - "**/vite.config.js"
+  
+  # Tests
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/coverage/**"
+  
+  # Déploiement et CI/CD
+  - "**/.github/**"
+  - "**/Dockerfile"
+  - "**/docker-compose.yml"
+  - "**/deploy-config.yml"
+  
+  # Éditeurs
+  - "**/.vscode/**"
+  - "**/.idea/**"
+  - "**/*.swp"
+  - "**/*.swo"
+  - "**/*~"
+  
+  # Cache
+  - "**/.cache/**"
+  - "**/.parcel-cache/**"
+  - "**/.eslintcache"
+
+# Scripts de déploiement
+scripts:
+  # Commande pour construire le projet
+  build: "npm run generate:production"
+  
+  # Commande pour nettoyer avant build
+  clean: "rm -rf .output .nuxt"
+  
+  # Commande de pré-déploiement
+  pre_deploy: "npm run build"
+  
+  # Commande de post-déploiement
+  post_deploy: "echo 'Déploiement terminé avec succès!'"
+
+# Environnements de déploiement
+environments:
+  production:
+    host: "129.232.249.221"
+    remote_path: "/public_html/txtengage/"
+    
+  staging:
+    host: "129.232.249.221"
+    remote_path: "/public_html/txtengage-staging/"
+    
+  dev:
+    host: "129.232.249.221"
+    remote_path: "/public_html/txtengage-dev/"
+
+# Métadonnées
+project:
+  name: "Vodafone TxtEngage"
+  version: "1.0.0"
+  description: "Site Vodafone avec animations GSAP et Nuxt.js"
+  
+# Notifications (optionnel)
+notifications:
+  slack:
+    enabled: false
+    webhook_url: ""
+    
+  email:
+    enabled: false
+    recipients: []
+    
+# Sécurité
+security:
+  # Avertissement sur les données sensibles
+  warning: |
+    ATTENTION: Ce fichier contient des informations de connexion sensibles.
+    
+    Mesures de sécurité recommandées:
+    1. Ajouter ce fichier au .gitignore si nécessaire
+    2. Utiliser des variables d'environnement pour la production
+    3. Changer régulièrement les mots de passe FTP
+    4. Utiliser FTPS ou SFTP quand possible
+    5. Restreindre les accès FTP par IP si possible
+    
+  # Checksum pour vérifier l'intégrité
+  checksum_verify: false
+  
+  # Backup avant déploiement
+  backup_before_deploy: true 

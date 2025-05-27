@@ -71,15 +71,32 @@ const updateScrollbarCursor = () => {
   const percentage =
     TOTAL_SLIDES > 1 ? clampedPosition / (TOTAL_SLIDES - 1) : 0;
 
-  // Hauteur de la piste moins hauteur du curseur
+  // Détecter si on est en mode mobile (écran < 1024px)
+  const isMobileMode = window.innerWidth < 1024;
+  
   const trackElement = scrollCursor.value.parentElement;
-  const trackHeight =
-    trackElement.offsetHeight - scrollCursor.value.offsetHeight;
-  const topPosition = percentage * trackHeight;
-
-  // Ajouter la classe d'animation
-  scrollCursor.value.classList.add("animating");
-  scrollCursor.value.style.top = `${topPosition}px`;
+  
+  if (isMobileMode) {
+    // Mode horizontal sur mobile
+    // Largeur de la piste moins largeur du curseur
+    const trackWidth = trackElement.offsetWidth - scrollCursor.value.offsetWidth;
+    const leftPosition = percentage * trackWidth;
+    
+    // Ajouter la classe d'animation
+    scrollCursor.value.classList.add("animating");
+    scrollCursor.value.style.left = `${leftPosition}px`;
+    scrollCursor.value.style.top = '0px'; // Reset top position
+  } else {
+    // Mode vertical sur desktop
+    // Hauteur de la piste moins hauteur du curseur
+    const trackHeight = trackElement.offsetHeight - scrollCursor.value.offsetHeight;
+    const topPosition = percentage * trackHeight;
+    
+    // Ajouter la classe d'animation
+    scrollCursor.value.classList.add("animating");
+    scrollCursor.value.style.top = `${topPosition}px`;
+    scrollCursor.value.style.left = '0px'; // Reset left position
+  }
 
   // Retirer la classe d'animation après la transition
   setTimeout(() => {
@@ -304,7 +321,11 @@ const scrollToSection = (target) => {
 
 const handleResize = () => {
   isMobile.value = window.innerWidth <= 768;
-  // Potentiellement re-calculer des éléments si nécessaire
+  // Mettre à jour la position de la scrollbar lors du redimensionnement
+  // pour gérer le changement d'orientation horizontal/vertical
+  nextTick(() => {
+    updateScrollbarCursor();
+  });
 };
 
 onMounted(async () => {
@@ -1429,7 +1450,7 @@ header.fixed-top.scrolled {
 
 // Animation lors du changement de slide
 .scrollbar-cursor.animating {
-  transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 // Animation de pulsation pour attirer l'attention
@@ -1455,33 +1476,50 @@ header.fixed-top.scrolled {
 // Responsive design
 @media screen and (max-width: 1024px) {
   .simple-scrollbar {
-    right: 15px;
-    height: 75dvh; // Légèrement plus petite sur tablette
-    width: 3px;
+    // Passage en mode horizontal
+    right: auto;
+    top: auto;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    height: 4px; // Hauteur réduite pour le mode horizontal
+    width: 80vw; // Largeur adaptée au mode horizontal
+  }
+
+  .scrollbar-track {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
   }
 
   .scrollbar-cursor {
-    height: 30px; // Proportionnel à la taille desktop
+    width: 40px; // Largeur du curseur en mode horizontal
+    height: 100%; // Hauteur complète de la track
 
     &::before {
-      width: 1px;
-      height: 12px; // Proportionnel
+      width: 16px; // Largeur de l'indicateur interne
+      height: 2px; // Hauteur de l'indicateur interne
+    }
+    
+    // Animation spécifique pour le mode horizontal
+    &.animating {
+      transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
   }
 }
 
 @media screen and (max-width: 768px) {
   .simple-scrollbar {
-    right: 10px;
-    height: 70dvh; // Plus petite sur mobile
-    width: 3px;
+    bottom: 15px;
+    width: 85vw; // Largeur légèrement plus grande sur mobile
+    height: 3px;
   }
 
   .scrollbar-cursor {
-    height: 25px; // Proportionnel
+    width: 35px; // Légèrement plus petit sur mobile
 
     &::before {
-      height: 10px; // Proportionnel
+      width: 14px;
+      height: 1px;
     }
   }
 }
