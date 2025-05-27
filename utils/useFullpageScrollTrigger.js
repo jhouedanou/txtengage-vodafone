@@ -18,18 +18,46 @@ export function useFullpageScrollTrigger() {
   const animationStates = ref({});
   const isAnimating = ref(false);
   
-  // Constantes
+  // Constantes d'animation - synchronisées avec refreence.js
   const SCROLLER_SELECTOR = "#master-scroll-container";
-  const sectionDuration = 1.2;
-  const sectionEase = "power2.inOut";
   
-  // AJOUTER CES VARIABLES MANQUANTES
-  // NOUVELLES CONSTANTES AJOUTÉES
-const tweenDuration = 0.4;
-const tweenEase = "power3.easeInOut";
-const slideEase = "power3.easeInOut";
-const slideDuration = 0.7;
-
+  // Détection mobile pour vitesses adaptées
+  const isMobile = () => window.innerWidth <= 768;
+  
+  // Vitesses d'animation selon l'appareil (comme dans refreence.js)
+  const getAnimationTiming = () => {
+    if (isMobile()) {
+      return {
+        sectionDuration: 0.7,        // 700ms pour les sections sur mobile
+        slideDuration: 0.6,          // 600ms pour les slides sur mobile
+        tweenDuration: 0.3,          // 300ms pour les micro-animations
+        sectionEase: "easeInOutCubic",
+        slideEase: "power3.easeInOut",
+        tweenEase: "easeInOutCubic"
+      };
+    } else {
+      return {
+        sectionDuration: 0.8,        // 800ms pour les sections sur desktop
+        slideDuration: 0.7,          // 700ms pour les slides sur desktop
+        tweenDuration: 0.4,          // 400ms pour les micro-animations
+        sectionEase: "power3.easeInOut",
+        slideEase: "power3.easeInOut",
+        tweenEase: "easeInOutCubic"
+      };
+    }
+  };
+  
+  // Variables dynamiques basées sur l'appareil
+  const timing = getAnimationTiming();
+  const sectionDuration = timing.sectionDuration;
+  const sectionEase = timing.sectionEase;
+  
+  // Fonctions helper pour récupérer les durées selon le contexte
+  const getTweenDuration = () => getAnimationTiming().tweenDuration;
+  const getSlideDuration = () => getAnimationTiming().slideDuration;
+  const getTweenEase = () => getAnimationTiming().tweenEase;
+  const getSlideEase = () => getAnimationTiming().slideEase;
+  
   // ===========================================================================
   // SECTION DETECTION MACOS ET GESTION TRACKPAD/MAGIC MOUSE
   // ===========================================================================
@@ -670,6 +698,7 @@ const triggerSlide73Animation = () => {
   const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
   const pointsFortDiv = slide73Section?.querySelector('.points-fort');
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
+  const subintDiv = slide73Section?.querySelector('#subint'); // Nouvel élément à animer
   
   if (!slidesContainerDiv || !pointsFortDiv) return;
 
@@ -685,26 +714,37 @@ const triggerSlide73Animation = () => {
     }
   });
 
-  // Phase 1: Faire entrer points-fort à moitié dans le champ
+  // Phase 1: Faire entrer points-fort à moitié dans le champ + fade-out #subint (desktop seulement)
   tl.to(pointsFortDiv, {
     width: '50vw', // Prends la moitié de la largeur
     x: 0, // Entre à moitié dans le champ
-    duration: 0.5,
-    ease: 'power3.easeInOut'
+    duration: getSlideDuration(),
+    ease: getSlideEase()
   })
   .to(slidesContainerDiv, {
-    backgroundPositionX: '-20vw', // Déplace le background de -50vw
-    duration: 0.5,
-    ease: 'power3.easeInOut'
+    //backgroundPositionX: '-20vw', // Déplace le background de -50vw
+    duration: getSlideDuration(),
+    ease: getSlideEase()
   }, "<"); // "<" pour démarrer en même temps
+  
+  // Fade-out de #subint en parallèle (desktop seulement)
+  if (subintDiv && !isMobile()) {
+    tl.to(subintDiv, {
+      autoAlpha: 0,
+      y: -20, // Légère translation vers le haut
+      duration: getSlideDuration(),
+      ease: getSlideEase()
+    }, "<"); // "<" pour démarrer en même temps que l'animation points-fort
+  }
+  
   // Phase 2: Faire apparaître les li en cascade avec un délai
   if (pointsFortLis.length > 0) {
     tl.to(pointsFortLis, {
       autoAlpha: 1,
       y: 0,
-      duration: 0.4,
+      duration: getTweenDuration(),
       stagger: 0.1, // Délai entre chaque li
-      ease: 'power2.out'
+      ease: getTweenEase()
     }, "+=0.3"); // Délai de 0.3s après l'entrée du container
   }
 };
@@ -717,6 +757,7 @@ const reverseSlide73Animation = () => {
   const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
   const pointsFortDiv = slide73Section?.querySelector('.points-fort');
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
+  const subintDiv = slide73Section?.querySelector('#subint'); // Nouvel élément à animer
   
   if (!slidesContainerDiv || !pointsFortDiv) return;
 
@@ -737,24 +778,34 @@ const reverseSlide73Animation = () => {
     tl.to(pointsFortLis, {
       autoAlpha: 0,
       y: 30,
-      duration: 0.3,
+      duration: getTweenDuration(),
       stagger: -0.05, // Stagger inversé (dernier en premier)
-      ease: 'power2.in'
+      ease: getTweenEase()
     });
   }
 
-  // Phase 2: Faire sortir points-fort et remettre background en place
+  // Phase 2: Faire sortir points-fort et remettre background en place + fade-in #subint (desktop seulement)
   tl.to(pointsFortDiv, {
     width: '0vw',
     x: '100vw', // Sort complètement du champ
-    duration: 0.5,
-    ease: 'power3.easeInOut'
+    duration: getSlideDuration(),
+    ease: getSlideEase()
   }, "+=0.2")
   .to(slidesContainerDiv, {
     backgroundPositionX: '0vw', // Remet le background à sa position initiale
-    duration: 0.5,
-    ease: 'power3.easeInOut'
+    duration: getSlideDuration(),
+    ease: getSlideEase()
   }, "<"); // En parallèle
+  
+  // Fade-in de #subint en parallèle (desktop seulement)
+  if (subintDiv && !isMobile()) {
+    tl.to(subintDiv, {
+      autoAlpha: 1,
+      y: 0, // Remise en position normale
+      duration: getSlideDuration(),
+      ease: getSlideEase()
+    }, "+=0.2"); // En même temps que la sortie de points-fort
+  }
 };
 
 // Mise à jour du resetSlide73Animation pour réinitialiser le background seulement sur slide-21
@@ -763,6 +814,7 @@ const resetSlide73Animation = () => {
   const slidesContainerDiv = slide73Section?.querySelector('.slides-container');
   const pointsFortDiv = slide73Section?.querySelector('.points-fort');
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
+  const subintDiv = slide73Section?.querySelector('#subint'); // Nouvel élément à réinitialiser
   
   if (slidesContainerDiv && pointsFortDiv) {
     // Ne plus réinitialiser le background - conserver la position -20vw
@@ -782,6 +834,14 @@ const resetSlide73Animation = () => {
     }
   }
   
+  // Réinitialiser #subint à son état initial (desktop seulement)
+  if (subintDiv && !isMobile()) {
+    gsap.set(subintDiv, {
+      autoAlpha: 1, // Visible par défaut
+      y: 0 // Position normale
+    });
+  }
+  
   animationStates.value['slide-73-complete'] = false;
   animationStates.value['slide-73-animating'] = false;
   animationStates.value['slide-73-reversing'] = false;
@@ -799,8 +859,8 @@ const resetSlide73Animation = () => {
       gsap.to(thoiathoing, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.8,
-        ease: "power2.out",
+        duration: sectionDuration,
+        ease: sectionEase,
         onComplete: () => {
           animationStates.value['slide-21-complete'] = true;
           isNavigating.value = false;
@@ -915,9 +975,9 @@ const resetSlide73Animation = () => {
       tl.to(textElements, {
         autoAlpha: 1,
         y: 0,
-        duration: tweenDuration,
+        duration: getTweenDuration(),
         stagger: 0.15, // Délai entre chaque élément
-        ease: tweenEase
+        ease: getTweenEase() // ← Correction : ajout des parenthèses pour appeler la fonction
       }, "+=0.3"); // Délai de 0.3s après turtlebeach
     }
   };
@@ -933,8 +993,8 @@ const resetSlide73Animation = () => {
       gsap.to(textElement5, {
         autoAlpha: 1,
         y: 0,
-        duration: tweenDuration, // ← Maintenant définie
-        ease: tweenEase, // ← Maintenant définie
+        duration: getTweenDuration(), // ← Maintenant définie
+        ease: getTweenEase(), // ← Correction : ajout des parenthèses pour appeler la fonction
         onComplete: () => {
           animationStates.value['slide-20-text-element-5'] = true;
           isNavigating.value = false;
@@ -984,8 +1044,8 @@ const resetSlide73Animation = () => {
       gsap.to(textContent, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.8,
-        ease: "power2.out",
+        duration: sectionDuration,
+        ease: sectionEase,
         onComplete: () => {
           animationStates.value['slide-22-complete'] = true;
           isNavigating.value = false;
@@ -1086,8 +1146,8 @@ const resetSlide73Animation = () => {
       // Afficher le conteneur et le premier case-study-content
       gsap.to(perdrixContainer, {
         autoAlpha: 1,
-        duration: 0.5,
-        ease: "power2.out",
+        duration: getSlideDuration(),
+        ease: getSlideEase(),
         onComplete: () => {
           // S'assurer que le premier case-study-content est visible
           if (firstPerdrixSlide) {
@@ -1178,8 +1238,8 @@ const resetSlide73Animation = () => {
         tl.to(currentTextContainer, {
           y: '-100vh',
           autoAlpha: 1,
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0);
       }
       
@@ -1187,8 +1247,8 @@ const resetSlide73Animation = () => {
         tl.to(nextTextContainer, {
           y: 0,
           autoAlpha: 1,
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0);
       }
       
@@ -1197,7 +1257,7 @@ const resetSlide73Animation = () => {
         autoAlpha: 1,
         duration: 0.1,
         ease: 'power3.out'
-      }, 0.4);
+      }, getTweenDuration());
     }
 
     // Animation synchronisée des image-containers sans fade
@@ -1208,14 +1268,14 @@ const resetSlide73Animation = () => {
       // Animation simultanée des image-containers - l'ancienne reste visible
       tl.to(currentImageContainer, {
         y: '-504px',
-        duration: 0.4,
-        ease: 'power3.easeInOut'
+        duration: getTweenDuration(),
+        ease: getTweenEase()
       }, 0);
       
       tl.to(nextImageContainer, {
         y: 0,
-        duration: 0.4,
-        ease: 'power3.easeInOut'
+        duration: getTweenDuration(),
+        ease: getTweenEase()
       }, 0);
     }
 
@@ -1263,8 +1323,8 @@ const resetSlide73Animation = () => {
         tl.to(currentTextContainer, {
           y: '100vh',
           autoAlpha: 1,
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0);
       }
       
@@ -1272,8 +1332,8 @@ const resetSlide73Animation = () => {
         tl.to(prevTextContainer, {
           y: 0,
           autoAlpha: 1,
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0);
       }
       
@@ -1282,7 +1342,7 @@ const resetSlide73Animation = () => {
         autoAlpha: 0,
         duration: 0.1,
         ease: 'power3.out'
-      }, 0.4);
+      }, getTweenDuration());
     }
 
     // Animation synchronisée des image-containers sans fade
@@ -1293,14 +1353,14 @@ const resetSlide73Animation = () => {
       // Animation simultanée des image-containers - l'ancienne reste visible
       tl.to(currentImageContainer, {
         y: '504px',
-        duration: 0.4,
-        ease: 'power3.easeInOut'
+        duration: getTweenDuration(),
+        ease: getTweenEase()
       }, 0);
       
       tl.to(prevImageContainer, {
         y: 0,
-        duration: 0.4,
-        ease: 'power3.easeInOut'
+        duration: getTweenDuration(),
+        ease: getTweenEase()
       }, 0);
     }
   };
@@ -1417,8 +1477,8 @@ const resetSlide73Animation = () => {
       // Animation avec effet de remplissage des barres rouges de gauche à droite
       gsap.to(llassDiv, {
         clipPath: 'inset(0 0 0 0%)', // Révèle complètement l'image de gauche à droite
-        duration: 1.5, // Plus long pour voir le remplissage
-        ease: "power2.out", // Effet fluide pour le remplissage
+        duration: sectionDuration * 1.5, // Plus long pour voir le remplissage (basé sur sectionDuration)
+        ease: sectionEase, // Utiliser l'easing de section
         onComplete: () => {
           animationStates.value['slide-59-lass-shown'] = true;
           // isNavigating.value = false; // SUPPRIMÉ - la navigation n'était pas bloquée
@@ -1522,8 +1582,8 @@ const resetSlide73Animation = () => {
       // Afficher le conteneur et le premier case-study-content
       gsap.to(killerwuDiv, {
         autoAlpha: 1,
-        duration: 0.8,
-        ease: "power2.out",
+        duration: sectionDuration,
+        ease: sectionEase,
         onComplete: () => {
           // S'assurer que le premier case-study-content est visible
           if (firstCaseStudyContent && firstCaseStudyItem) {
@@ -1607,17 +1667,17 @@ const resetSlide73Animation = () => {
         tl.to(currentContent, {
           autoAlpha: 0,
           y: '-50px',
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0)
         .to(nextContent, {
           autoAlpha: 1,
           y: 0,
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0)
         // Masquer le currentContent après l'animation
-        .set(currentContent, { display: 'none' }, 0.4);
+        .set(currentContent, { display: 'none' }, getTweenDuration());
         
         // Gérer les classes active sur les case-study-item
         currentItem.classList.remove('active');
@@ -1663,17 +1723,17 @@ const resetSlide73Animation = () => {
         tl.to(currentContent, {
           autoAlpha: 0,
           y: '50px',
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0)
         .to(prevContent, {
           autoAlpha: 1,
           y: 0,
-          duration: 0.4,
-          ease: 'power3.easeInOut'
+          duration: getTweenDuration(),
+          ease: getTweenEase()
         }, 0)
         // Masquer le currentContent après l'animation
-        .set(currentContent, { display: 'none' }, 0.4);
+        .set(currentContent, { display: 'none' }, getTweenDuration());
         
         // Gérer les classes active sur les case-study-item
         currentItem.classList.remove('active');
