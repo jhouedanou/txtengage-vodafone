@@ -1222,7 +1222,7 @@ const resetSlide73Animation = () => {
           gsap.set(container, { autoAlpha: 1, y: 0 });
         } else {
           // Autres containers : positionnés hors du viewport mais visibles
-          gsap.set(container, { autoAlpha: 1, y: '504px' });
+          gsap.set(container, { autoAlpha: 1, y: '580px' });
         }
       });
     }
@@ -1339,34 +1339,42 @@ const resetSlide73Animation = () => {
       }
     });
 
-    // Animation des perdrix-slides sans fade
+    // Animation des perdrix-slides avec style tc_digital_content
     if (currentSlide && nextSlide) {
       const currentTextContainer = currentSlide.querySelector('.text-container');
       const nextTextContainer = nextSlide.querySelector('.text-container');
       
-      // Préparer le slide suivant
+      // Préparer le slide suivant - VISIBLE dès le départ (pas de fade)
       gsap.set(nextSlide, { autoAlpha: 1 });
       if (nextTextContainer) {
-        gsap.set(nextTextContainer, { y: '100vh', autoAlpha: 0 });
+        gsap.set(nextTextContainer, { y: '100vh', autoAlpha: 1 }); // autoAlpha: 1 (pas de fade)
       }
       
-      // Animation simultanée des text-containers
+      // SORTIE : Fade out + slide up légèrement
       if (currentTextContainer) {
+        // Translation légère vers le haut
         tl.to(currentTextContainer, {
-          y: '-100vh',
-          autoAlpha: 1,
-          duration: getTweenDuration(),
+          y: '-50px', // Slide up légèrement (au lieu de -currentHeight)
+          duration: getTweenDuration() / 2, // Vitesse normale (0.3s)
+          ease: getTweenEase()
+        }, 0);
+        // Fade out simultané
+        tl.to(currentTextContainer, {
+          autoAlpha: 0,
+          duration: getTweenDuration() / 2, // Vitesse normale (0.3s)
           ease: getTweenEase()
         }, 0);
       }
       
+      // ENTRÉE : Slide up SANS fade (reste visible) - PLUS RAPIDE
       if (nextTextContainer) {
+        // Seulement translation - PAS de fade - PLUS RAPIDE
         tl.to(nextTextContainer, {
-          y: 0,
-          autoAlpha: 1,
-          duration: getTweenDuration(),
+          y: 0, // Slide vers position finale
+          duration: 0.2, // Plus rapide que l'élément sortant
           ease: getTweenEase()
-        }, 0);
+        }, "+=0");
+        // Pas d'animation de fade - l'élément reste à autoAlpha: 1
       }
       
       // Masquer le slide actuel après l'animation
@@ -1380,11 +1388,11 @@ const resetSlide73Animation = () => {
     // Animation synchronisée des image-containers sans fade
     if (currentImageContainer && nextImageContainer) {
       // Préparer le container suivant
-      gsap.set(nextImageContainer, { autoAlpha: 1, y: '504px' });
+      gsap.set(nextImageContainer, { autoAlpha: 1, y: '580px' });
       
       // Animation simultanée des image-containers - l'ancienne reste visible
       tl.to(currentImageContainer, {
-        y: '-504px',
+        y: '-580px',
         duration: getTweenDuration(),
         ease: getTweenEase()
       }, 0);
@@ -1424,34 +1432,47 @@ const resetSlide73Animation = () => {
       }
     });
 
-    // Animation des perdrix-slides sans fade
+    // Animation des perdrix-slides avec style tc_digital_content inversé
     if (currentSlide && prevSlide) {
       const currentTextContainer = currentSlide.querySelector('.text-container');
       const prevTextContainer = prevSlide.querySelector('.text-container');
       
-      // Préparer le slide précédent
+      // Préparer le slide précédent - MASQUÉ au départ pour le fadeIn
       gsap.set(prevSlide, { autoAlpha: 1 });
       if (prevTextContainer) {
-        gsap.set(prevTextContainer, { y: '-100vh', autoAlpha: 0 });
+        gsap.set(prevTextContainer, { y: '-50px', autoAlpha: 0 }); // autoAlpha: 0 pour permettre le fadeIn
       }
       
-      // Animation simultanée des text-containers
+      // SORTIE : Fade out + slide down légèrement - PLUS RAPIDE
       if (currentTextContainer) {
+        // Translation légère vers le bas
         tl.to(currentTextContainer, {
-          y: '100vh',
-          autoAlpha: 1,
-          duration: getTweenDuration(),
+          y: '50px', // Slide down légèrement
+          duration: 0.2, // Plus rapide que l'élément entrant
+          ease: getTweenEase()
+        }, 0);
+        // Fade out simultané
+        tl.to(currentTextContainer, {
+          autoAlpha: 0,
+          duration: 0.2, // Plus rapide que l'élément entrant
           ease: getTweenEase()
         }, 0);
       }
       
+      // ENTRÉE : Slide down AVEC fadeIn - PLUS LENT
       if (prevTextContainer) {
+        // Translation - PLUS LENT
         tl.to(prevTextContainer, {
-          y: 0,
-          autoAlpha: 1,
-          duration: getTweenDuration(),
+          y: 0, // Slide vers position finale
+          duration: 0.2, // Plus lent que l'élément sortant
           ease: getTweenEase()
-        }, 0);
+        }, "+=0");
+        // FadeIn simultané
+        tl.to(prevTextContainer, {
+          autoAlpha: 1,
+          duration: 0.2, // Même durée que la translation
+          ease: getTweenEase()
+        }, "+=0");
       }
       
       // Masquer le slide actuel après l'animation
@@ -1465,11 +1486,11 @@ const resetSlide73Animation = () => {
     // Animation synchronisée des image-containers sans fade
     if (currentImageContainer && prevImageContainer) {
       // Préparer le container précédent
-      gsap.set(prevImageContainer, { autoAlpha: 1, y: '-504px' });
+      gsap.set(prevImageContainer, { autoAlpha: 1, y: '-580px' });
       
       // Animation simultanée des image-containers - l'ancienne reste visible
       tl.to(currentImageContainer, {
-        y: '504px',
+        y: '580px',
         duration: getTweenDuration(),
         ease: getTweenEase()
       }, 0);
@@ -1519,7 +1540,7 @@ const resetSlide73Animation = () => {
           gsap.set(container, { autoAlpha: 1, y: 0 });
         } else {
           // Autres containers : positionnés hors du viewport mais visibles
-          gsap.set(container, { autoAlpha: 1, y: '504px' });
+          gsap.set(container, { autoAlpha: 1, y: '580px' });
         }
       });
     }

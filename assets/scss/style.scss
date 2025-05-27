@@ -1,5 +1,13 @@
 @use "sass:color";
-
+*{
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    // transition: all 0.3s ease;
+    // transition-delay: 0s;
+    // transition-duration: 0.3s;
+    // transition-property: all;
+    // transition-timing-function: ease;
+}
 // Variables
 $gradient-transparent-to-black: linear-gradient(to bottom, rgba(0, 0, 0, 0) 6%, rgba(0, 0, 0, 0.99) 89%);
 $vodafone-red : #e60000;
@@ -1880,6 +1888,7 @@ height:auto !important;
         .text-element {
             h3 {
                 font-size: 2.2em;
+                text-align: center;
             }
 
             p {
@@ -1989,6 +1998,7 @@ width:100% !important;
         height: 213px;
         margin: 0;
         padding: 0;
+        //transition: all 0.3s ease;
         li{
             font-size: 13px !important;
         }
@@ -4133,41 +4143,44 @@ body.slide-73-active,
   }
 
   #rodman{
-    height: 504px;
+    background: orange;
+    height: 761px;
     overflow: hidden;
-    width: 255px;
-    margin: 0 auto;
-    border-radius:39px 83px 39px 39px;
-    position: relative;
-        .bdrs
-{
-        border-radius: 54px;
-        overflow: hidden;
-        height: 100%;
-        width: 251px;
-        background-color: rgb(0, 0, 0);
-        display: flex;
-        flex-direction: column;
-    
+    position: absolute;
+    z-index: 2;
+    width: 527px;
+    bottom: 0;
+        .bdrs{
+            position: absolute;
+            left: 11.1vh;
+            top: 4.8vh;
+            border-radius: 54px;
+            overflow: hidden;
+            height: 580px;
+            width: 313px;
+            background-color: rgb(0, 0, 0);
+            display: flex;
+            flex-direction: column;
             img{
                 height: 100%;
                 width: 100%;
             }
         }
     .image-container {
-        width: 280px;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+        position: absolute;
+        width: 304px;
+        height: 580px;
+        top: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        right: 0;
+        margin: auto;
 
       img {
-        height: 504px;
+        height: 580px;
         width: auto;
         object-fit: contain;
       }
@@ -4195,20 +4208,17 @@ body.slide-73-active,
     height: 100vh;
   }
 #sparta{
-    height: 585px;
+    height: 100vh;
     position: relative;
     overflow: hidden;
-    width: 427px;
+    width: 100vw;
+    transform: translateZ(0);
+    background: oldlace;
     // Fix pour iOS : s'assurer que l'élément est visible
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     
-    #rodman{
-        height:504px;
-        overflow:hidden;
-        position: relative;
-        z-index: 2; // S'assurer qu'il est au-dessus du ::before
-    }
+    
     
     &::before{
         content: "";
@@ -4219,8 +4229,10 @@ body.slide-73-active,
         right: auto;
         background: url(/images/Subtract.png) no-repeat center center;
         background-size: contain;
-        height: 613px;
-        width: 492px;
+        // height: 613px;
+        // width: 492px;
+        height: 761px;
+        width: 613px;
         z-index: 1;
         will-change: transform;
         z-index: 10;

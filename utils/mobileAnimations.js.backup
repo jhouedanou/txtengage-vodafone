@@ -1144,42 +1144,34 @@ export function useMobileAnimations() {
         }
       });
 
-      // Animation des perdrix-slides avec style tc_digital_content mobile
+      // Animation des perdrix-slides (même logique que desktop)
       if (currentSlide && nextSlide) {
         const currentTextContainer = currentSlide.querySelector('.text-container');
         const nextTextContainer = nextSlide.querySelector('.text-container');
         
-        // Préparer le slide suivant - VISIBLE dès le départ (pas de fade)
+        // Préparer le slide suivant
         gsap.set(nextSlide, { autoAlpha: 1 });
         if (nextTextContainer) {
-          gsap.set(nextTextContainer, { y: '100vh', autoAlpha: 1 }); // autoAlpha: 1 (pas de fade)
+          gsap.set(nextTextContainer, { y: '100vh', autoAlpha: 0 });
         }
         
-        // SORTIE : Fade out + slide up légèrement
+        // Animation simultanée des text-containers
         if (currentTextContainer) {
-          // Translation légère vers le haut
           tl.to(currentTextContainer, {
-            y: '-50px', // Slide up légèrement
-            duration: 0.3, // Vitesse normale
-            ease: 'power3.easeInOut'
-          }, 0);
-          // Fade out simultané
-          tl.to(currentTextContainer, {
-            autoAlpha: 0,
-            duration: 0.3, // Vitesse normale
+            y: '-100vh',
+            autoAlpha: 1,
+            duration: 0.6, // Un peu plus lent sur mobile
             ease: 'power3.easeInOut'
           }, 0);
         }
         
-        // ENTRÉE : Slide up SANS fade (reste visible) - PLUS RAPIDE
         if (nextTextContainer) {
-          // Seulement translation - PAS de fade - PLUS RAPIDE
           tl.to(nextTextContainer, {
-            y: 0, // Slide vers position finale
-            duration: 0.2, // Plus rapide que l'élément sortant
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.6,
             ease: 'power3.easeInOut'
-          }, "+=0");
-          // Pas d'animation de fade - l'élément reste à autoAlpha: 1
+          }, 0);
         }
         
         // Masquer le slide actuel après l'animation
@@ -1260,47 +1252,34 @@ export function useMobileAnimations() {
         }
       });
 
-      // Animation des perdrix-slides (selon brief client)
+      // Animation des perdrix-slides (même logique que desktop)
       if (currentSlide && prevSlide) {
         const currentTextContainer = currentSlide.querySelector('.text-container');
         const prevTextContainer = prevSlide.querySelector('.text-container');
         
-        // Préparer le slide précédent - MASQUÉ au départ pour le fadeIn
+        // Préparer le slide précédent
         gsap.set(prevSlide, { autoAlpha: 1 });
         if (prevTextContainer) {
-          gsap.set(prevTextContainer, { y: '-50px', autoAlpha: 0 }); // autoAlpha: 0 pour permettre le fadeIn
+          gsap.set(prevTextContainer, { y: '-100vh', autoAlpha: 0 });
         }
         
-        // SORTIE : Fade out + slide down légèrement - PLUS RAPIDE
+        // Animation simultanée des text-containers
         if (currentTextContainer) {
-          // Translation légère vers le bas
           tl.to(currentTextContainer, {
-            y: '50px', // Slide down légèrement
-            duration: 0.2, // Plus rapide que l'élément entrant
-            ease: 'power3.easeInOut'
-          }, 0);
-          // Fade out simultané
-          tl.to(currentTextContainer, {
-            autoAlpha: 0,
-            duration: 0.2, // Plus rapide que l'élément entrant
+            y: '100vh',
+            autoAlpha: 1,
+            duration: 0.6,
             ease: 'power3.easeInOut'
           }, 0);
         }
         
-        // ENTRÉE : Slide down AVEC fadeIn - PLUS LENT
         if (prevTextContainer) {
-          // Translation - PLUS LENT
           tl.to(prevTextContainer, {
-            y: 0, // Slide vers position finale
-            duration: 0.4, // Plus lent que l'élément sortant
-            ease: 'power3.easeInOut'
-          }, "+=0");
-          // FadeIn simultané
-          tl.to(prevTextContainer, {
+            y: 0,
             autoAlpha: 1,
-            duration: 0.4, // Même durée que la translation
+            duration: 0.6,
             ease: 'power3.easeInOut'
-          }, "+=0");
+          }, 0);
         }
         
         // Masquer le slide actuel après l'animation
@@ -1311,7 +1290,7 @@ export function useMobileAnimations() {
         }, 0.6);
       }
 
-      // Animation synchronisée des image-containers (mobile : remontée de 332px)
+      // Animation synchronisée des image-containers (adaptée pour mobile)
       if (currentImageContainer && prevImageContainer) {
         if (isMobile()) {
           // Sur mobile : défilement vertical de 332px vers le bas
