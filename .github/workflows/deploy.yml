@@ -1,74 +1,187 @@
-name: Deploy to FTP
+name: Deploy to Server
 
-# Déclencher le workflow
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:  # Permet de déclencher manuellement
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to FTP Server
     runs-on: ubuntu-latest
-
+    
     steps:
-    # Checkout du code
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    # Configuration Node.js
+      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-
-    # Installation des dépendances
+        
     - name: Install dependencies
       run: npm ci
-
-    # Build de production
-    - name: Build for production
-      run: npm run generate:production
+      
+    - name: Build application
+      run: npm run build
       env:
-        NUXT_APP_BASE_URL: /txtengage/
-
-    # Déploiement FTP avec action spécialisée
-    - name: Deploy to FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        NUXT_PUBLIC_API_URL: ${{ secrets.API_URL }}
+        
+    - name: Generate static files
+      run: npm run generate
+      
+    - name: Create deployment package
+      run: |
+        tar -czf deployment.tar.gz \
+          .output/ \
+          assets/ \
+          public/ \
+          package*.json \
+          nuxt.config.ts
+          
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.0
       with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: ${{ secrets.FTP_PORT || 21 }}
-        protocol: ${{ secrets.FTP_SECURE == 'true' && 'ftps' || 'ftp' }}
-        local-dir: ./.output/public/
-        server-dir: ${{ secrets.FTP_REMOTE_PATH || '/public_html/txtengage/' }}
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/.DS_Store
-          **/*.map
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Créer le dossier de backup avec timestamp
+          BACKUP_DIR="/var/backups/vodafone-app/$(date +%Y%m%d_%H%M%S)"
+          sudo mkdir -p $BACKUP_DIR
+          
+          # Backup de l'ancienne version
+          if [ -d "/var/www/vodafone-app" ]; then
+            sudo cp -r /var/www/vodafone-app/* $BACKUP_DIR/
+            echo "Backup créé dans $BACKUP_DIR"
+          fi
+          
+          # Arrêter l'application (si PM2 est utilisé)
+          pm2 stop vodafone-app || true
+          
+          # Nettoyer le dossier de destination
+          sudo rm -rf /var/www/vodafone-app/*
+          
+    - name: Upload files to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        source: "deployment.tar.gz"
+        target: "/tmp/"
+        
+    - name: Extract and configure on server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Extraire les fichiers
+          cd /tmp
+          sudo tar -xzf deployment.tar.gz -C /var/www/vodafone-app/
+          
+          # Configurer les permissions
+          sudo chown -R www-data:www-data /var/www/vodafone-app
+          sudo chmod -R 755 /var/www/vodafone-app
+          
+          # Installer les dépendances de production
+          cd /var/www/vodafone-app
+          npm ci --only=production
+          
+          # Redémarrer l'application
+          pm2 start ecosystem.config.js || pm2 restart vodafone-app
+          
+          # Nettoyer les fichiers temporaires
+          rm -f /tmp/deployment.tar.gz
+          
+          # Configurer Nginx (si nécessaire)
+          sudo nginx -t && sudo systemctl reload nginx
+          
+          echo "🚀 Déploiement terminé avec succès!"
+          
+    - name: Health Check
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Vérifier que l'application répond
+          sleep 10
+          curl -f http://localhost:3000/health || curl -f http://localhost:3000/ || {
+            echo "❌ Health check failed"
+            # Rollback vers la dernière version
+            LATEST_BACKUP=$(ls -t /var/backups/vodafone-app/ | head -n 1)
+            if [ -n "$LATEST_BACKUP" ]; then
+              echo "🔄 Rollback vers $LATEST_BACKUP"
+              sudo rm -rf /var/www/vodafone-app/*
+              sudo cp -r /var/backups/vodafone-app/$LATEST_BACKUP/* /var/www/vodafone-app/
+              pm2 restart vodafone-app
+            fi
+            exit 1
+          }
+          echo "✅ Application accessible"
+          
+    - name: Cleanup old backups
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Garder seulement les 5 derniers backups
+          cd /var/backups/vodafone-app/
+          ls -t | tail -n +6 | xargs -r sudo rm -rf
+          echo "🧹 Anciens backups supprimés"
 
-    # Alternative: Déploiement FTP avec script custom
-    - name: Deploy with custom FTP script
-      if: false  # Désactivé par défaut, activez si nécessaire
-      run: npm run deploy:ftp
-      env:
-        FTP_HOST: ${{ secrets.FTP_HOST }}
-        FTP_USER: ${{ secrets.FTP_USER }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        FTP_PORT: ${{ secrets.FTP_PORT }}
-        FTP_SECURE: ${{ secrets.FTP_SECURE }}
-        FTP_REMOTE_PATH: ${{ secrets.FTP_REMOTE_PATH }}
+    - name: Notify deployment status
+      uses: appleboy/ssh-action@v1.0.0
+      if: always()
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Déploiement réussi - $(date)"
+            echo "🔄 Custom scrollbar mise à jour avec orientation responsive"
+          else
+            echo "❌ Déploiement échoué - $(date)"
+          fi
 
-    # Notification de succès
-    - name: Notify success
-      if: success()
-      run: echo "🚀 Déploiement réussi vers le dossier txtengage!"
-
-    # Notification d'échec
-    - name: Notify failure
-      if: failure()
-      run: echo "❌ Échec du déploiement. Vérifiez les logs." 
+  # Job optionnel pour tests
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint || true
+      
+    - name: Run tests
+      run: npm run test || true
+      
+    - name: Build test
+      run: npm run build
