@@ -1,10 +1,15 @@
-const gulp = require('gulp');
-const sass = require('gulp-sass')(require('sass'));
-const sourcemaps = require('gulp-sourcemaps');
-const browserSync = require('browser-sync').create();
-const autoprefixer = require('gulp-autoprefixer');
-const cleanCSS = require('gulp-clean-css');
-const rename = require('gulp-rename');
+import gulp from 'gulp';
+import gulpSass from 'gulp-sass';
+import * as sass from 'sass';
+import sourcemaps from 'gulp-sourcemaps';
+import browserSync from 'browser-sync';
+import autoprefixer from 'gulp-autoprefixer';
+import cleanCSS from 'gulp-clean-css';
+import rename from 'gulp-rename';
+
+const sassCompiler = gulpSass(sass);
+const { src, dest, watch, series, parallel } = gulp;
+const browser = browserSync.create();
 
 // Chemins des fichiers
 const paths = {
@@ -19,38 +24,38 @@ const paths = {
 
 // Compilation SCSS
 function compileSass() {
-    return gulp.src(paths.scss.main)
+    return src(paths.scss.main)
         .pipe(sourcemaps.init())
-        .pipe(sass({
+        .pipe(sassCompiler({
             outputStyle: 'expanded',
             precision: 8
-        }).on('error', sass.logError))
+        }).on('error', sassCompiler.logError))
         .pipe(autoprefixer({
             cascade: false
         }))
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(paths.scss.dest))
-        .pipe(browserSync.stream()); // Injection CSS à chaud
+        .pipe(dest(paths.scss.dest))
+        .pipe(browser.stream()); // Injection CSS à chaud
 }
 
 // Compilation SCSS minifiée pour production
 function compileSassMin() {
-    return gulp.src(paths.scss.main)
-        .pipe(sass({
+    return src(paths.scss.main)
+        .pipe(sassCompiler({
             outputStyle: 'compressed'
-        }).on('error', sass.logError))
+        }).on('error', sassCompiler.logError))
         .pipe(autoprefixer({
             cascade: false
         }))
         .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest(paths.scss.dest))
-        .pipe(browserSync.stream());
+        .pipe(dest(paths.scss.dest))
+        .pipe(browser.stream());
 }
 
 // Initialisation de BrowserSync
 function browserSyncInit() {
-    browserSync.init({
+    browser.init({
         proxy: "http://localhost:3000", // Proxy vers Nuxt
         port: 3333,
         notify: false,
@@ -68,25 +73,25 @@ function browserSyncInit() {
 
 // Rechargement du navigateur
 function browserSyncReload(done) {
-    browserSync.reload();
+    browser.reload();
     done();
 }
 
 // Surveillance des fichiers
 function watchFiles() {
-    gulp.watch(paths.scss.src, compileSass);
-    gulp.watch([paths.html, paths.js], browserSyncReload);
+    watch(paths.scss.src, compileSass);
+    watch([paths.html, paths.js], browserSyncReload);
 }
 
 // Tâches publiques
-const build = gulp.series(compileSass);
-const buildMin = gulp.series(compileSassMin);
-const dev = gulp.series(compileSass, gulp.parallel(browserSyncInit, watchFiles));
+const build = series(compileSass);
+const buildMin = series(compileSassMin);
+const dev = series(compileSass, parallel(browserSyncInit, watchFiles));
 
 // Exports
-exports.sass = compileSass;
-exports.sassMin = compileSassMin;
-exports.build = build;
-exports.buildMin = buildMin;
-exports.dev = dev;
-exports.default = dev; 
+export { compileSass as sass };
+export { compileSassMin as sassMin };
+export { build };
+export { buildMin };
+export { dev };
+export { dev as default }; 

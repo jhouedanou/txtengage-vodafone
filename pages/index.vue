@@ -261,26 +261,76 @@ const setupSectionScrolling = () => {
         console.log(
           `Entering section: ${section.id}, index: ${index}, slideId: ${slideId}`
         );
+        
+        // Supprimer la classe 'active' de toutes les sections
+        sections.forEach(sec => sec.classList.remove('active'));
+        
+        // Ajouter la classe 'active' à la section actuellement visible
+        section.classList.add('active');
+        
         activeSlideIndex.value = index;
         activeSlideId.value = slideId;
         updateBackground();
+        
+        // Gérer la couleur du hamburger pour les slides spécifiques (59, 73, 128)
+        const hamburger = document.querySelector('.hamburger');
+        if (hamburger) {
+          hamburger.classList.remove('hamburger-red', 'hamburger-white');
+          if (slideId === 59 || slideId === 73 || slideId === 128) {
+            hamburger.classList.add('hamburger-red');
+            console.log(`🍔 Hamburger rouge sur slide-${slideId}`);
+          } else {
+            hamburger.classList.add('hamburger-white');
+            console.log(`🍔 Hamburger blanc sur slide-${slideId}`);
+          }
+        }
+        
         // Supprimé : if (slideId === 73) { initSlide73AnimationGSAP(section); }
       },
       onEnterBack: () => {
         console.log(
           `Entering back section: ${section.id}, index: ${index}, slideId: ${slideId}`
         );
+        
+        // Supprimer la classe 'active' de toutes les sections
+        sections.forEach(sec => sec.classList.remove('active'));
+        
+        // Ajouter la classe 'active' à la section actuellement visible
+        section.classList.add('active');
+        
         activeSlideIndex.value = index;
         activeSlideId.value = slideId;
         updateBackground();
+        
+        // Gérer la couleur du hamburger pour les slides spécifiques (59, 73, 128)
+        const hamburger = document.querySelector('.hamburger');
+        if (hamburger) {
+          hamburger.classList.remove('hamburger-red', 'hamburger-white');
+          if (slideId === 59 || slideId === 73 || slideId === 128) {
+            hamburger.classList.add('hamburger-red');
+            console.log(`🍔 Hamburger rouge sur slide-${slideId}`);
+          } else {
+            hamburger.classList.add('hamburger-white');
+            console.log(`🍔 Hamburger blanc sur slide-${slideId}`);
+          }
+        }
+        
         // Supprimé : if (slideId === 73) { initSlide73AnimationGSAP(section); }
       },
       onLeave: () => {
         console.log(`Leaving section: ${section.id}`);
+        
+        // Supprimer la classe 'active' de la section qui est quittée
+        section.classList.remove('active');
+        
         // Supprimé : if (slideId === 73) { destroySlide73AnimationGSAP(section); }
       },
       onLeaveBack: () => {
         console.log(`Leaving back section: ${section.id}`);
+        
+        // Supprimer la classe 'active' de la section qui est quittée
+        section.classList.remove('active');
+        
         // Supprimé : if (slideId === 73) { destroySlide73AnimationGSAP(section); }
       },
     });
@@ -289,9 +339,27 @@ const setupSectionScrolling = () => {
   });
 
   if (sections.length > 0) {
+    // Ajouter la classe 'active' à la première section par défaut
+    sections[0].classList.add('active');
+    
     activeSlideIndex.value = 0;
     activeSlideId.value = parseInt(sections[0].dataset.slideId);
     updateBackground();
+    
+    // Initialiser la couleur du hamburger pour la première section
+    const initialSlideId = parseInt(sections[0].dataset.slideId);
+    const hamburger = document.querySelector('.hamburger');
+    if (hamburger) {
+      hamburger.classList.remove('hamburger-red', 'hamburger-white');
+      if (initialSlideId === 59 || initialSlideId === 73 || initialSlideId === 128) {
+        hamburger.classList.add('hamburger-red');
+        console.log(`🍔 Hamburger rouge initial sur slide-${initialSlideId}`);
+      } else {
+        hamburger.classList.add('hamburger-white');
+        console.log(`🍔 Hamburger blanc initial sur slide-${initialSlideId}`);
+      }
+    }
+    
     // Supprimé : if (activeSlideId.value === 73) { initSlide73AnimationGSAP(sections[0]); }
     // TODO: Animer la première slide si nécessaire
   }
@@ -370,9 +438,9 @@ onMounted(async () => {
   // Initialiser la couleur du hamburger
   nextTick(() => {
     const hamburger = document.querySelector('.hamburger');
-    if (hamburger && activeSlideId.value === 73) {
+    if (hamburger && (activeSlideId.value === 59 || activeSlideId.value === 73 || activeSlideId.value === 128)) {
       hamburger.classList.add('hamburger-red');
-      console.log('🍔 Hamburger initialisé en rouge sur slide-73');
+      console.log(`🍔 Hamburger initialisé en rouge sur slide-${activeSlideId.value}`);
     } else if (hamburger) {
       hamburger.classList.add('hamburger-white');
       console.log('🍔 Hamburger initialisé en blanc');
@@ -391,12 +459,12 @@ onMounted(async () => {
         hamburger.classList.remove('hamburger-red', 'hamburger-white');
         
         // Ajouter la classe appropriée selon la slide
-        if (newSlideId === 73) {
+        if (newSlideId === 59 || newSlideId === 73 || newSlideId === 128) {
           hamburger.classList.add('hamburger-red');
-          console.log('🍔 Hamburger rouge sur slide-73');
+          console.log(`🍔 Hamburger rouge sur slide-${newSlideId}`);
         } else {
           hamburger.classList.add('hamburger-white');
-          console.log('🍔 Hamburger blanc sur slide-', newSlideId);
+          console.log(`🍔 Hamburger blanc sur slide-${newSlideId}`);
         }
       }
     });
@@ -461,7 +529,19 @@ const goToSlide = (index) => {
   isMenuOpen.value = false;
 };
 
-useHead({ title: "TXT Engage - Vodafone" });
+useHead({ 
+  title: "TXT Engage - Vodafone",
+  script: [
+    {
+      src: '/js/debug-slides.js',
+      defer: true
+    },
+    {
+      src: '/js/test-hamburger-slides.js',
+      defer: true
+    }
+  ]
+});
 
 const extractTitle = (html) => {
   const match = html.match(/<h3>(.*?)<\/h3>/);

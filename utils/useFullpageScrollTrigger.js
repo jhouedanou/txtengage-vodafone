@@ -37,8 +37,8 @@ export function useFullpageScrollTrigger() {
       };
     } else {
       return {
-        sectionDuration: 0.8,        // 800ms pour les sections sur desktop
-        slideDuration: 0.7,          // 700ms pour les slides sur desktop
+        sectionDuration: 0.4,        // 800ms pour les sections sur desktop
+        slideDuration: 0.8,          // 700ms pour les slides sur desktop
         tweenDuration: 0.4,          // 400ms pour les micro-animations
         sectionEase: "power3.easeInOut",
         slideEase: "power3.easeInOut",
@@ -287,6 +287,14 @@ export function useFullpageScrollTrigger() {
         }
       }
       
+      // Gestion spéciale pour slide-20 - inverser l'animation de #text-element-5
+      if (currentSection && currentSection.id === 'slide-20') {
+        if (animationStates.value['slide-20-text-element-5'] && !animationStates.value['slide-20-text-element-5-reversing']) {
+          reverseSlide20TextElement5();
+          return;
+        }
+      }
+      
       // Gestion spéciale pour slide-23 (défilement des perdrix)
       if (currentSection && currentSection.id === 'slide-23') {
         if (animationStates.value['slide-23-initialized']) {
@@ -457,6 +465,14 @@ export function useFullpageScrollTrigger() {
         }
       }
       
+      // Gestion spéciale pour slide-20 - inverser l'animation de #text-element-5
+      if (currentSection && currentSection.id === 'slide-20') {
+        if (animationStates.value['slide-20-text-element-5'] && !animationStates.value['slide-20-text-element-5-reversing']) {
+          reverseSlide20TextElement5();
+          return;
+        }
+      }
+      
       // Gestion spéciale pour slide-23 (défilement des perdrix)
       if (currentSection && currentSection.id === 'slide-23') {
         if (animationStates.value['slide-23-initialized']) {
@@ -571,6 +587,14 @@ export function useFullpageScrollTrigger() {
         if (currentSection && currentSection.id === 'slide-73') {
           if (animationStates.value['slide-73-complete'] && !animationStates.value['slide-73-reversing']) {
             reverseSlide73Animation();
+            return;
+          }
+        }
+        
+        // Gestion spéciale pour slide-20 - inverser l'animation de #text-element-5
+        if (currentSection && currentSection.id === 'slide-20') {
+          if (animationStates.value['slide-20-text-element-5'] && !animationStates.value['slide-20-text-element-5-reversing']) {
+            reverseSlide20TextElement5();
             return;
           }
         }
@@ -803,8 +827,7 @@ const reverseSlide73Animation = () => {
       autoAlpha: 1,
       y: 0, // Remise en position normale
       duration: getSlideDuration(),
-    //duration:0.01,
-      ease: getTweenEase()
+      ease: getSlideEase()
     }, "+=0.2"); // En même temps que la sortie de points-fort
   }
 };
@@ -988,19 +1011,53 @@ const resetSlide73Animation = () => {
     
     const slide20Section = sections.value.find(s => s.id === 'slide-20');
     const textElement5 = slide20Section?.querySelector('#text-element-5');
+    const turtlebeach = slide20Section?.querySelector('#turtlebeach');
+    const otherTextElements = slide20Section?.querySelectorAll('.text-element:not(#text-element-5)');
     
     if (textElement5) {
       isNavigating.value = true;
-      gsap.to(textElement5, {
-        autoAlpha: 1,
-        y: 0,
-        duration: getTweenDuration(), // ← Maintenant définie
-        ease: getTweenEase(), // ← Correction : ajout des parenthèses pour appeler la fonction
+      
+      const tl = gsap.timeline({
         onComplete: () => {
           animationStates.value['slide-20-text-element-5'] = true;
           isNavigating.value = false;
+          console.log('Slide-20: #text-element-5 animation terminée');
         }
       });
+      
+      // Animation de #text-element-5
+      tl.to(textElement5, {
+        autoAlpha: 1,
+        y: 0,
+        duration: getTweenDuration(),
+        ease: getTweenEase()
+      });
+      
+      // Sur desktop seulement : faire disparaître les autres éléments en parallèle
+      if (!isMobile()) {
+        // Fade-out de #turtlebeach
+        if (turtlebeach) {
+          tl.to(turtlebeach, {
+            autoAlpha: 0,
+            scale: 0.9,
+            y: -30,
+            rotation: 5,
+            duration: getTweenDuration(),
+            ease: getTweenEase()
+          }, "<"); // En parallèle avec text-element-5
+        }
+        
+        // Fade-out des autres éléments texte
+        if (otherTextElements && otherTextElements.length > 0) {
+          tl.to(otherTextElements, {
+            autoAlpha: 0,
+            y: -50,
+            duration: getTweenDuration(),
+            stagger: -0.05, // Stagger inversé (dernier en premier)
+            ease: getTweenEase()
+          }, "<"); // En parallèle avec text-element-5
+        }
+      }
     }
   };
 
@@ -1030,7 +1087,66 @@ const resetSlide73Animation = () => {
     // Reset des états
     animationStates.value['slide-20-main-complete'] = false;
     animationStates.value['slide-20-text-element-5'] = false;
+    animationStates.value['slide-20-text-element-5-reversing'] = false;
     animationStates.value['slide-20-animating'] = false;
+  };
+
+  // Nouvelle fonction pour inverser l'animation de #text-element-5
+  const reverseSlide20TextElement5 = () => {
+    if (!animationStates.value['slide-20-text-element-5']) return;
+    
+    const slide20Section = sections.value.find(s => s.id === 'slide-20');
+    const textElement5 = slide20Section?.querySelector('#text-element-5');
+    const turtlebeach = slide20Section?.querySelector('#turtlebeach');
+    const otherTextElements = slide20Section?.querySelectorAll('.text-element:not(#text-element-5)');
+    
+    if (textElement5) {
+      isNavigating.value = true;
+      animationStates.value['slide-20-text-element-5-reversing'] = true;
+      
+      const tl = gsap.timeline({
+        onComplete: () => {
+          animationStates.value['slide-20-text-element-5'] = false;
+          animationStates.value['slide-20-text-element-5-reversing'] = false;
+          isNavigating.value = false;
+          console.log('Slide-20: #text-element-5 animation inversée terminée');
+        }
+      });
+      
+      // Animation inverse de #text-element-5
+      tl.to(textElement5, {
+        autoAlpha: 0,
+        y: 100,
+        duration: getTweenDuration(),
+        ease: getTweenEase()
+      });
+      
+      // Sur desktop seulement : faire réapparaître les autres éléments en parallèle
+      if (!isMobile()) {
+        // Fade-in de #turtlebeach
+        if (turtlebeach) {
+          tl.to(turtlebeach, {
+            autoAlpha: 1,
+            scale: 1,
+            y: 0,
+            rotation: 0,
+            duration: getTweenDuration(),
+            ease: getTweenEase()
+          }, "<"); // En parallèle avec text-element-5
+        }
+        
+        // Fade-in des autres éléments texte
+        if (otherTextElements && otherTextElements.length > 0) {
+          tl.to(otherTextElements, {
+            autoAlpha: 1,
+            y: 0,
+            duration: getTweenDuration(),
+            stagger: 0.05, // Stagger normal (premier en premier)
+            ease: getTweenEase()
+          }, "<"); // En parallèle avec text-element-5
+        }
+      }
+    }
   };
 
   // SLIDE-22 : Faire apparaître le texte une fois la slide visible

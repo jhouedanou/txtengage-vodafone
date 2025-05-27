@@ -1,0 +1,3403 @@
+@charset "UTF-8";
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  background-size: cover;
+  overflow-y: scroll !important; /* Force scrollbar to always show */
+}
+body p,
+body * {
+  white-space: pre-line;
+}
+
+@font-face {
+  font-family: "Vodafone";
+  src: url("/fonts/Vodafone.eot");
+  src: local("Vodafone"), url("/fonts/Vodafone.eot?#iefix") format("embedded-opentype"), url("/fonts/Vodafone.woff2") format("woff2"), url("/fonts/Vodafone.woff") format("woff"), url("/fonts/Vodafone.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Vodafone";
+  src: url("/fonts/Vodafone-Bold.eot");
+  src: local("Vodafone-Bold"), url("/fonts/Vodafone-Bold.eot?#iefix") format("embedded-opentype"), url("/fonts/Vodafone-Bold.woff2") format("woff2"), url("/fonts/Vodafone-Bold.woff") format("woff"), url("/fonts/Vodafone-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Vodafone";
+  src: url("/fonts/Vodafone-Light.eot");
+  src: local("Vodafone-Light"), url("/fonts/Vodafone-Light.eot?#iefix") format("embedded-opentype"), url("/fonts/Vodafone-Light.woff2") format("woff2"), url("/fonts/Vodafone-Light.woff") format("woff"), url("/fonts/Vodafone-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Vodafone";
+  src: url("/fonts/Vodafone-ExtraBold.eot");
+  src: local("Vodafone-ExtraBold"), url("/fonts/Vodafone-ExtraBold.eot?#iefix") format("embedded-opentype"), url("/fonts/Vodafone-ExtraBold.woff2") format("woff2"), url("/fonts/Vodafone-ExtraBold.woff") format("woff"), url("/fonts/Vodafone-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+}
+* {
+  font-family: "Vodafone", sans-serif;
+}
+
+.slide-container {
+  width: 100vw;
+  padding: 0;
+  margin: 0;
+}
+
+#slide-73 .slapjh {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+}
+#slide-73 .firstContainer {
+  padding: 0;
+}
+#slide-73 .txtintro {
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+#slide-73 .subint h2 {
+  font-size: 115px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-73 .subint p {
+  font-family: "Raleway";
+  font-size: 28px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 36px;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-73 .points-fort {
+  height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  /* For Safari */
+  /* For Firefox */
+  /* For Opera */
+  background: linear-gradient(90deg, #b70104, #ED1311);
+  /* For Internet Explorer 10+ */
+}
+@media screen and (min-width: 1025px) {
+  #slide-73 .points-fort {
+    position: absolute;
+    padding-left: 2.1em;
+  }
+}
+#slide-73 .points-fort .text-element {
+  align-items: flex-start;
+}
+
+#slide-10 .txtintro {
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+#slide-10 .subint h2 {
+  font-size: 10.2em;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-10 .subint p {
+  font-family: Raleway;
+  font-size: 2.6em;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.44;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-10 .slapjh {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+#slide-10 .points-fort {
+  height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  /* For Safari */
+  /* For Firefox */
+  /* For Opera */
+  background: linear-gradient(90deg, #b70104, #ED1311);
+  /* For Internet Explorer 10+ */
+  padding-left: 2.1em;
+}
+
+.slapjh {
+  position: relative;
+}
+
+.subint {
+  transition: opacity 0.5s;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  max-width: 50vw;
+  flex-direction: column;
+  flex-grow: 1;
+  height: -moz-fit-content;
+  height: fit-content;
+  overflow-y: auto;
+  padding: 2rem;
+  -webkit-transition: opacity 0.5s;
+  -moz-transition: opacity 0.5s;
+  -ms-transition: opacity 0.5s;
+  -o-transition: opacity 0.5s;
+}
+
+.points-fort {
+  opacity: 1;
+  padding: 2rem;
+  width: 50vw;
+}
+.points-fort h3 {
+  font-family: "Vodafone";
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 0.44;
+  color: white;
+}
+.points-fort p {
+  font-family: "Vodafone";
+  font-size: 23px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 18px;
+  letter-spacing: normal;
+  text-align: left;
+  color: #fff;
+}
+
+.text-element {
+  white-space: pre-line;
+  margin: 20px 0;
+  display: block;
+  width: 100%;
+}
+.text-element h3 {
+  font-family: "Vodafone";
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1.44;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.row .text-element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#slide-21 .text-element,
+#slide-22 .text-element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* Style spécifique pour les paragraphes */
+.text-element p {
+  white-space: pre-line;
+}
+
+#slide-20 {
+  width: 100vw;
+}
+#slide-20 #ozaru {
+  width: 100vw;
+  height: 100vh;
+}
+#slide-20 #mzu {
+  padding: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#slide-20 #mzu h2 {
+  align-items: flex-start;
+  font-family: Vodafone;
+  font-size: 85px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: #fff;
+  margin: 0;
+}
+#slide-20 #mzu h2:nth-of-type(3) {
+  font-weight: normal;
+}
+#slide-20 .slides-container {
+  background-position: center;
+}
+#slide-20 .slides-container #turtlebeach {
+  position: absolute;
+  top: -12%;
+  margin: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  -o-object-fit: cover;
+  object-fit: cover;
+  width: 100%;
+  height: auto;
+  max-width: 70vw;
+}
+#slide-20 #text-element-5 {
+  background: rgba(0, 0, 0, 0.72);
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  border-radius: 0px;
+  top: 0;
+  margin: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#slide-20 #kiff {
+  width: 100vw;
+  margin: 0 auto;
+  display: flex;
+  height: 100vh;
+}
+#slide-20 #usruu {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+}
+#slide-20 #usruu h2 {
+  color: white;
+  max-width: 540px;
+  margin: 0;
+  font-size: 6.7em;
+  font-weight: 800;
+}
+#slide-20 #usruu * {
+  line-height: 1;
+}
+#slide-20 .apitch {
+  color: white;
+  font-weight: normal;
+  margin: 0;
+  font-size: 4.4em;
+}
+#slide-20 .apitch h3 {
+  color: white;
+  font-weight: bold;
+  margin: 0;
+}
+#slide-20 .gee .text-element {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: white;
+  background: #ff0000;
+  border-radius: 100%;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+  -o-border-radius: 100%;
+  position: absolute;
+}
+#slide-20 .gee .text-element h3 {
+  font-family: "Vodafone";
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+}
+#slide-20 .gee .text-element p {
+  margin-top: 15px !important;
+  font-family: "Vodafone";
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  line-height: 0.5;
+  text-transform: uppercase;
+  /* Fixed text-transform property */
+}
+#slide-20 .gee .text-element:nth-of-type(1) {
+  width: 174px !important;
+  height: 174px !important;
+  left: 31vw !important;
+  top: 19vh !important;
+}
+#slide-20 .gee .text-element:nth-of-type(1) h3 {
+  font-size: 62px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.97;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-20 .gee .text-element:nth-of-type(1) p {
+  font-family: Vodafone;
+  font-size: 23px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.3;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-20 .gee .text-element:nth-of-type(2) {
+  width: 238px;
+  height: 238px;
+  left: 55vw !important;
+  top: 15vh !important;
+}
+#slide-20 .gee .text-element:nth-of-type(2) h3 {
+  font-size: 86px;
+}
+#slide-20 .gee .text-element:nth-of-type(2) p {
+  font-size: 20px;
+  text-transform: uppercase;
+}
+#slide-20 .gee .text-element:nth-of-type(3) {
+  width: 238px !important;
+  height: 238px !important;
+  left: 52vw !important;
+  bottom: 15vh !important;
+}
+#slide-20 .gee .text-element:nth-of-type(3) h3 {
+  font-size: 86px;
+}
+#slide-20 .gee .text-element:nth-of-type(3) p {
+  font-size: 20px;
+  color: #fff;
+}
+#slide-20 .gee .text-element:nth-of-type(4) {
+  width: 153px !important;
+  height: 153px !important;
+  left: 67vw !important;
+  bottom: 6vh !important;
+}
+#slide-20 .gee .text-element:nth-of-type(4) h3 {
+  font-size: 70px;
+}
+#slide-20 .gee .text-element:nth-of-type(4) p {
+  font-size: 20px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-20 .gee .text-element:nth-of-type(5) {
+  width: 174px !important;
+  height: 174px !important;
+  left: 72vw !important;
+  bottom: 31vh !important;
+}
+#slide-20 .gee .text-element:nth-of-type(5) h3 {
+  font-size: 70px;
+}
+#slide-20 .gee .text-element:nth-of-type(5) p {
+  font-size: 20px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+
+#slide-21 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#slide-21 .slides-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+#slide-21 #thoiathoing {
+  width: 100vw;
+  margin: 0;
+  padding-bottom: 5em !important;
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.99) 100%);
+}
+#slide-21 .row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+#slide-21 .row:nth-of-type(1) {
+  margin-bottom: 101px;
+}
+#slide-21 .row:nth-of-type(1) #mshill {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  font-size: 4.8em;
+  line-height: 2.5em;
+  font-weight: 700;
+}
+#slide-21 .row:nth-of-type(1) #mshill h3 {
+  text-align: center;
+}
+#slide-21 .row:nth-of-type(2) .text-element {
+  text-align: center;
+  line-height: 0.5;
+}
+#slide-21 .row:nth-of-type(2) .text-element h3 {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  text-transform: uppercase;
+  font-family: "Vodafone";
+  font-size: 28px;
+  line-height: 40.3px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+#slide-21 .row:nth-of-type(2) .text-element p {
+  font-size: 23px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 18px;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+  margin-bottom: 0em;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  font-stretch: normal;
+  font-style: normal;
+  text-align: center;
+  color: #fff;
+  min-height: 80px;
+  /* background  : black; */
+}
+
+#slide-22 #thoiathoing {
+  width: 100%;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+#slide-22 .cont {
+  width: 100vw;
+  margin: 0;
+  height: 100vh;
+  padding: 0 !important;
+}
+#slide-22 .cont .text-element {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 6%, rgba(0, 0, 0, 0.99) 89%);
+  height: 100vh;
+  display: flex;
+  padding-top: 18em !important;
+}
+#slide-22 .row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+#slide-22 .row:nth-of-type(1) {
+  margin-bottom: 7em;
+}
+#slide-22 .row:nth-of-type(1) #mshill {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  font-size: 4.8em;
+  line-height: 0.5em;
+  font-weight: 700;
+}
+#slide-22 .row:nth-of-type(1) #mshill h3 {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  font-size: 3.3em;
+  line-height: 0.8;
+  font-weight: 700;
+  margin-bottom: 0em;
+}
+@media screen and (max-width: 1440px) {
+  #slide-22 .row:nth-of-type(1) #mshill h3 {
+    font-size: calc(2.2em + 0.5vw);
+  }
+}
+@media screen and (max-width: 1024px) {
+  #slide-22 .row:nth-of-type(1) #mshill h3 {
+    font-size: calc(2.2em + 0.5vw);
+  }
+}
+#slide-22 .row:nth-of-type(1) #mshill p {
+  margin-bottom: 0em;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  font-size: 2em;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.8;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #fff;
+  min-height: 180px;
+  /* background  : black; */
+}
+@media screen and (max-width: 1440px) {
+  #slide-22 .row:nth-of-type(1) #mshill p {
+    font-size: calc(1.2em + 0.5vw);
+  }
+}
+#slide-22 .row:nth-of-type(2) .text-element {
+  text-align: center;
+}
+#slide-22 .row:nth-of-type(2) .text-element h3 {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  font-size: 3.3em;
+  line-height: 0.8;
+  font-weight: 700;
+  margin-bottom: 0em;
+}
+@media screen and (max-width: 1440px) {
+  #slide-22 .row:nth-of-type(2) .text-element h3 {
+    font-size: calc(2.2em + 0.5vw);
+  }
+}
+@media screen and (max-width: 1024px) {
+  #slide-22 .row:nth-of-type(2) .text-element h3 {
+    font-size: calc(2.2em + 0.5vw);
+  }
+}
+#slide-22 .row:nth-of-type(2) .text-element p {
+  margin-bottom: 0em;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  text-align: center;
+  font-size: 2em;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.8;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #fff;
+  min-height: 180px;
+  /* background  : black; */
+}
+@media screen and (max-width: 1440px) {
+  #slide-22 .row:nth-of-type(2) .text-element p {
+    font-size: calc(1.2em + 0.5vw);
+  }
+}
+
+#slide-23 #bygone {
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(297.95deg, #EE3625 45.57%, #6F1111 100%);
+}
+
+#slide-59 {
+  width: 100vw;
+}
+#slide-59 #gorr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2em 0;
+}
+@media screen and (min-width: 1025px) {
+  #slide-59 #gorr #llass {
+    position: absolute;
+  }
+}
+#slide-59 #gorr img {
+  width: 100% !important;
+  max-width: 502px;
+  height: 479px;
+}
+#slide-59 #killerjunior {
+  width: 95vw;
+}
+#slide-59 #killerjunior .kankan .lemouds {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  align-items: center;
+  flex-direction: column;
+}
+#slide-59 #killerjunior .kankan .lemouds p {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+#slide-59 #killerjunior .kankan .lemouds p p {
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+#slide-59 #killerjunior .kankan img {
+  margin: 0 auto;
+}
+#slide-59 #killerjunior .leporc h2 {
+  color: #ff0000;
+  font-size: 7em;
+}
+#slide-59 #killerjunior .leporc p {
+  font-family: Vodafone;
+  font-size: 28px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  text-align: left;
+  color: #f00;
+  /* background: red; */
+}
+
+.gsap-marker-scroller-start,
+.gsap-marker-scroller-end,
+.gsap-marker-start,
+.gsap-marker-end {
+  visibility: hidden !important;
+}
+
+#vodacomwrapper {
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  width: 100%;
+  background: url(/images/bg12.webp) no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Éléments d'arrière-plan pour la transition fluide */
+.background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  transition: opacity 0s;
+  z-index: -1;
+}
+
+.background-primary {
+  background-image: url(/images/bg12.webp);
+  opacity: 1;
+}
+
+.background-secondary {
+  background-image: url(/images/nono.webp);
+  opacity: 0;
+}
+
+#slide-23 {
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+#lephone {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  flex-direction: column;
+}
+#lephone img {
+  width: 100vw;
+  max-width: 656px;
+}
+
+#bygone-bip {
+  background: linear-gradient(297.95deg, #EE3625 45.57%, #6F1111 100%);
+  width: 100vw;
+  height: 100vh;
+  padding: 0em;
+}
+#bygone-bip .row {
+  width: 100vw;
+}
+#bygone-bip .container {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  background: linear-gradient(297.95deg, #EE3625 45.57%, #6F1111 100%);
+  max-width: 100%;
+}
+#bygone-bip .accordion-item .accordion-header.active-header h3 {
+  filter: alpha(opacity=100);
+  /*internetexplorer*/
+  -khtml-opacity: 1;
+  /*khtml,oldsafari*/
+  -moz-opacity: 1;
+  /*mozilla,netscape*/
+  opacity: 1;
+  /* fx, safari, opera */
+  -webkit-filter: alpha(opacity=100);
+  transition: all 0.4s ease-in-out 0.2s;
+}
+#bygone-bip .accordion-item h3 {
+  color: white;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.44;
+  filter: alpha(opacity=50);
+  /* internet explorer */
+  -khtml-opacity: 0.5;
+  /* khtml, old safari */
+  -moz-opacity: 0.5;
+  /* mozilla, netscape */
+  opacity: 0.5;
+  /* fx, safari, opera */
+  transition: all 0.4s ease-in-out 0.2s;
+}
+#bygone-bip .accordion-item h3:hover {
+  filter: alpha(opacity=100);
+  /*internetexplorer*/
+  -khtml-opacity: 1;
+  /*khtml,oldsafari*/
+  -moz-opacity: 1;
+  /*mozilla,netscape*/
+  opacity: 1;
+  /* fx, safari, opera */
+  -webkit-filter: alpha(opacity=100);
+  transition: all 0.4s ease-in-out 0.2s;
+}
+#bygone-bip .row {
+  padding: 0em;
+  height: 100vh;
+}
+#bygone-bip .columns-container {
+  padding: 0em 10em;
+}
+
+.accordion-content p {
+  font-family: "Vodafone";
+  font-size: 35px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.44;
+  letter-spacing: normal;
+  text-align: left;
+  color: #fff;
+}
+
+#naci {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.accordion-header {
+  padding: 0em !important;
+}
+
+#headerpadding img {
+  min-height: 62px;
+}
+
+#killerjunior h2 {
+  font-family: Vodafone;
+  font-size: 102px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-align: left;
+  color: #f00;
+}
+
+.form-row {
+  margin-bottom: 20px;
+}
+
+.form-row .col-md-6 {
+  padding: 0 10px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.submit-row {
+  text-align: center;
+}
+
+.btn-primary {
+  background: #e60000;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-row {
+  margin-bottom: 20px;
+}
+
+.form-row .col-md-6 {
+  padding: 0 10px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.submit-row {
+  text-align: center;
+}
+
+.btn-primary {
+  background: #e60000;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#lemof {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.contact-form input[type=submit],
+.contact-form button.btn.btn-primary {
+  background: #e60000;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-family: "Vodafone";
+  font-size: 30px;
+  width: 100%;
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+  -ms-border-radius: 25px;
+  -o-border-radius: 25px;
+}
+.contact-form input[type=submit]:hover,
+.contact-form button.btn.btn-primary:hover {
+  background: #b30000;
+}
+.contact-form .row {
+  padding: 0em 2em;
+}
+.contact-form input {
+  flex-grow: 0;
+  margin: 1em 0;
+  border-radius: 25px;
+  border: solid 2px #fff;
+  background: rgba(255, 255, 255, 0) !important;
+  color: white;
+  font-family: "Vodafone";
+  font-size: 30px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.5;
+  letter-spacing: normal;
+  text-align: left;
+  color: #fff;
+  margin: 15px 0;
+}
+.contact-form input:focus {
+  border-color: #e60000;
+  outline: none;
+  color: #fff;
+}
+.contact-form input::-moz-placeholder {
+  color: white;
+}
+.contact-form input::placeholder {
+  color: white;
+}
+
+.ditocard:nth-of-type(1) p {
+  font-family: "Vodafone";
+  font-size: 80px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.94;
+  letter-spacing: normal;
+  text-align: center;
+  color: #f00;
+}
+.ditocard:nth-of-type(1) p strong {
+  color: white !important;
+}
+.ditocard:nth-of-type(2) p {
+  font-family: "Vodafone";
+  font-size: 30px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.5;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+
+/* Correction des marges indésirables dans les conteneurs flex */
+.flex-container-fix {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  font-size: 0;
+  /* Élimine les espaces blancs entre les éléments inline */
+}
+
+.flex-container-fix > * {
+  font-size: 1rem;
+  /* Restaure la taille de police pour les enfants */
+}
+
+/* Résout le problème des marges dans les rangées flex */
+.row.flex-row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* S'assure que les éléments flex n'ont pas de marges par défaut */
+.text-element.col {
+  margin: 0;
+}
+
+/* Pour les conteneurs flex spécifiques qui montrent des marges */
+#thoiathoing .row.flex-row {
+  margin: 0;
+  width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+  #rodman {
+    border-radius: 25px 29px 39px 39px;
+  }
+  #case-study-content-3 div {
+    line-height: 0;
+    display: flex;
+  }
+  #case-study-content-3 ul {
+    flex-direction: column;
+  }
+  #slide-128 .case-study-item {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #case-study-content-3 ul li {
+    font-size: 14px !important;
+    margin: 2px 0 !important;
+  }
+  #case-study-content-3 ul li strong {
+    width: 68px !important;
+    height: 68px !important;
+    font-size: 27px !important;
+  }
+  #case-study-content-3 ul li strong span {
+    font-size: 13px !important;
+  }
+  #slide-21 #thoiathoing {
+    /* margin-top: 100px !important; */
+    height: 125px !important;
+    background: rgba(255, 255, 255, 0) !important;
+  }
+  #stone {
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+    height: 380px !important;
+    bottom: 0;
+  }
+  #joce {
+    height: 100vh !important;
+    align-items: flex-end;
+    gap: 0;
+    line-height: 0;
+    display: flex;
+    flex-basis: fit-content;
+  }
+  #joce #sharon {
+    height: 100vh !important;
+    align-items: flex-end;
+    gap: 0;
+    line-height: 0;
+    display: flex;
+    flex-basis: fit-content;
+  }
+  #quadi {
+    margin: 100px 0 0 0 !important;
+  }
+  #sparta {
+    height: 585px;
+    position: relative;
+    overflow: hidden;
+    width: 427px;
+    transform: translateZ(0);
+  }
+  #sparta #rodman {
+    height: 504px;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+  }
+  #sparta::before {
+    content: "";
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    background: url(/images/Subtract.png) no-repeat center center;
+    background-size: contain;
+    height: 613px;
+    width: 492px;
+    z-index: 1;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  .slide-section {
+    height: 100dvh !important;
+  }
+  #subint {
+    background: none !important;
+  }
+  #guysamuel {
+    max-width: 65vw !important;
+  }
+  #slide-73 .slapjh {
+    justify-content: flex-end;
+    display: flex;
+    align-items: center;
+    height: 100dvh;
+  }
+  #slide-73 .slide-container {
+    position: relative !important;
+    background-size: cover !important;
+  }
+  #slide-73 .subint {
+    max-width: 100% !important;
+    width: 100% !important;
+    justify-content: flex-end;
+    display: flex;
+    align-items: center;
+    margin-bottom: 2em !important;
+  }
+  #slide-73 .subint p {
+    font-size: 22px !important;
+  }
+  #slide-73 .points-fort {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    padding: 0rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    max-height: 60vh;
+    position: absolute !important;
+    left: 0;
+    right: 0;
+    /* top: 0; */
+    bottom: 0;
+    margin: 0 auto;
+    height: 100%;
+    width: 100%;
+  }
+  #slide-73 .points-fort .text-element {
+    margin: 0 auto 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center !important;
+  }
+  #slide-73 .points-fort h3 {
+    font-size: 28px;
+    line-height: 35px;
+    text-align: center;
+  }
+  #slide-73 .points-fort p {
+    font-size: 23px;
+    line-height: 35px;
+    text-align: center; /* Added space before the comment */
+  }
+  #slide-10 .firstContainer {
+    margin: 0em !important;
+    width: 100vw !important;
+    padding: 0em !important;
+  }
+  #slide-10 .slapjh {
+    justify-content: flex-end !important;
+    align-items: center !important;
+    height: 100vh !important;
+  }
+  #slide-10 .points-fort {
+    height: 66vh !important;
+    width: 100%;
+    padding: 0rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #slide-10 .points-fort .text-element {
+    text-align: center !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #slide-10 .points-fort .text-element h3 {
+    margin: 0em 0 !important;
+  }
+  #slide-10 .subint {
+    min-width: 100vw !important;
+    width: 100vw !important;
+    width: 100vw !important;
+    baclkground-color: #000 !important;
+    margin-bottom: 1.9em !important;
+  }
+  #slide-10 .subint p {
+    font-size: 22px !important;
+  }
+  #slide-10 .subint .txtintro {
+    justify-content: flex-end;
+  }
+  #slide-10 .points-fort {
+    width: 100%;
+    padding: 2rem;
+  }
+  #slide-10 .points-fort .text-element {
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #slide-10 .points-fort h3 {
+    font-size: 1.8em;
+    line-height: 2.2;
+  }
+  #slide-10 .points-fort p {
+    font-family: Vodafone;
+    font-size: 23px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 18px;
+    letter-spacing: normal;
+    text-align: center;
+    color: #fff;
+  }
+  #slide-22 .text-element-p {
+    min-height: 0;
+    padding-top: 1em !important;
+  }
+  #slide-22 #thoiathoing2 {
+    padding: 1em 1em 5em 1em !important;
+    min-height: 30vh !important;
+  }
+  #slide-20 #kiff, #slide-20 #ozaru {
+    width: 100%;
+  }
+  #slide-20 #text-element-5 {
+    width: 100% !important;
+    padding: 1em;
+    background: url("/images/Group205.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 103dvh;
+  }
+  #slide-20 #text-element-5 h5 {
+    font-size: 28px !important;
+  }
+  #slide-20 #text-element-5 p {
+    font-size: 23px !important;
+    line-height: 33.1px !important;
+    text-transform: none !important;
+  }
+  #slide-20 #turtlebeach {
+    position: absolute !important;
+    top: 23px !important;
+    margin: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    /* background-color: red !important; */
+    max-width: 378px !important;
+    max-height: 81vh !important;
+    height: 100vh !important;
+    background-size: contain !important;
+  }
+  #slide-20 #mzu {
+    height: auto;
+    max-width: 100% !important;
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+  #slide-20 #mzu h2 {
+    font-family: Vodafone;
+    font-size: 58px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+  }
+  #slide-20 #usruu {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #slide-20 #usruu h2 {
+    font-weight: normal !important;
+  }
+  #slide-20 #usruu .apitch {
+    margin-top: 0em !important;
+    font-size: 2.7em !important;
+  }
+  #slide-20 #usruu .text-element {
+    text-align: center !important;
+  }
+  #slide-20 #usruu .text-element:nth-of-type(1) {
+    margin: 0.5em 0 0 0;
+  }
+  #slide-20 #usruu .apitch {
+    text-align: center !important;
+  }
+  #slide-20 #usruu h2 {
+    height: auto;
+    font-size: 3.5em;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  #slide-20 #usruu .apitch {
+    height: auto;
+    font-size: 2.2em;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  #slide-20 .gee .text-element {
+    flex-grow: 0;
+    line-height: 0 !important;
+  }
+  #slide-20 .gee .text-element p {
+    margin-top: 0em !important;
+  }
+  #slide-20 .gee .text-element * {
+    line-height: 1;
+  }
+  #slide-20 .gee .text-element:nth-of-type(1) {
+    left: 4% !important;
+    top: 58% !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(2) {
+    left: 5% !important;
+    top: 36% !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(3) {
+    left: 50% !important;
+    bottom: 5% !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(4) {
+    left: 67% !important;
+    top: 49% !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(5) {
+    width: 85px !important;
+    height: 84px !important;
+    left: 4% !important;
+    bottom: 5% !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(5) h3 {
+    font-family: Vodafone;
+    font-size: 44px;
+  }
+  #slide-20 .gee .text-element:nth-of-type(5) p {
+    font-size: 13px;
+  }
+  #slide-20 .gee .text-element:nth-of-type(1), #slide-20 .gee .text-element:nth-of-type(4) {
+    width: 105px !important;
+    height: 105px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(1) h3, #slide-20 .gee .text-element:nth-of-type(4) h3 {
+    font-size: 40px;
+  }
+  #slide-20 .gee .text-element:nth-of-type(1) p, #slide-20 .gee .text-element:nth-of-type(4) p {
+    font-size: 18px;
+  }
+  #slide-20 .gee .text-element:nth-of-type(2), #slide-20 .gee .text-element:nth-of-type(3) {
+    width: 147px !important;
+    height: 147px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(2) h3, #slide-20 .gee .text-element:nth-of-type(3) h3 {
+    font-size: 59px;
+  }
+  #slide-20 .gee .text-element:nth-of-type(2) p, #slide-20 .gee .text-element:nth-of-type(3) p {
+    font-size: 16px;
+    line-height: 15px;
+  }
+  #doctornek {
+    background: url("/images/drnek.webp");
+    display: flex !important;
+    align-items: center;
+    flex-direction: column !important;
+    justify-content: center !important;
+    flex-grow: 0;
+    flex-basis: auto;
+    gap: 0;
+    background-size: cover;
+    background-repeat: none;
+    box-sizing: border-box;
+    padding: 0 !important;
+  }
+}
+@media screen and (max-width: 1024px) and (min-width: 1025px) {
+  #doctornek {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+}
+@media screen and (max-width: 1024px) {
+  #doctornek .text-element {
+    box-sizing: border-box;
+    padding: 0 !important;
+    margin: 0;
+    line-height: 0 !important;
+    margin: 2em 0 !important;
+    height: auto;
+    flex-grow: 0;
+  }
+  .points-fort p br {
+    display: none !important;
+  }
+  #slide-22 .cont {
+    height: auto !important;
+  }
+  #slide-22 #thoiathoing {
+    background: none !important;
+  }
+  #slide-22 #thoiathoing2 {
+    flex-grow: 1 !important;
+    padding-top: 1em !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto;
+    padding: 1em !important;
+    width: 100% !important;
+  }
+  #slide-22 h3 {
+    font-family: Vodafone;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    line-height: 1.44 !important;
+  }
+  #slide-21 #mshill,
+  #slide-22 #mshill {
+    font-size: 39px !important;
+  }
+  #slide-21 .text-element h3,
+  #slide-22 .text-element h3 {
+    font-size: 2.2em;
+  }
+  #slide-21 .text-element p,
+  #slide-22 .text-element p {
+    font-size: 1.8em;
+  }
+  #decodemerde {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #bygone-bip {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #bygone-bip .col-md-6 {
+    margin: 0;
+    padding: 0;
+    flex-grow: 0;
+    flex-basis: auto;
+    gap: 0;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    flex-direction: column;
+  }
+  #bygone-bip .row {
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #bygone-bip .container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #bygone-bip .accordion-item h3 {
+    font-size: 36px;
+  }
+  #bygone-bip .accordion-item p {
+    font-size: 24px;
+  }
+  #bygone-bip .perdrix-slide {
+    justify-content: center;
+    display: flex;
+    align-items: flex-end;
+    max-width: 100% !important;
+    margin: 0 auto;
+    padding: 0 1em;
+  }
+  #killerjunior h2 {
+    font-size: 3.5em;
+  }
+  #killerjunior p {
+    font-size: 2em;
+  }
+  .contact-form input,
+  .contact-form button {
+    font-size: 20px;
+  }
+  div#vodacomwrapper {
+    margin: 0 auto;
+    padding: 0em;
+  }
+  #teste::before {
+    background: url(/images/Subtract.png);
+    z-index: 100;
+    background-position: center bottom !important;
+    background-repeat: no-repeat;
+    /* background-color: red; */
+    bottom: 0;
+    content: "";
+    left: 0;
+    margin: auto;
+    right: 0;
+    height: 100%;
+    height: 445px;
+    background-size: 337px !important;
+    position: absolute;
+    width: 345px;
+  }
+  .text-container {
+    height: 213px;
+    margin: 0;
+    padding: 0;
+  }
+  .text-container li {
+    font-size: 13px !important;
+  }
+  .image-container {
+    min-height: 372px;
+    position: relative;
+  }
+  .image-container img {
+    margin: auto !important;
+    height: 329px !important;
+    position: absolute;
+    left: 0;
+    right: 56px;
+    top: -23px !important;
+  }
+  .case-study-container.container .row .col-md-5 {
+    order: 1;
+  }
+  .case-study-container.container .row .col-md-5 img {
+    width: 180px;
+    height: auto !important;
+  }
+  .case-study-container.container .row .col-md-7 {
+    order: 2;
+  }
+  #pdf ul {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .hightower {
+    font-weight: bold !important;
+    text-align: center !important;
+    font-size: 56px !important;
+    color: #FF0000 !important;
+  }
+  #casestudy .case-study-active h3 {
+    color: #FF0000;
+    opacity: 1;
+  }
+  #casestudy h3 {
+    color: #231F20;
+    font-family: Vodafone;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    line-height: 1.44 !important;
+    margin-bottom: 0em !important;
+    padding-bottom: 0em !important;
+    opacity: 0.27;
+    justify-content: flex-end;
+    text-align: left;
+  }
+  #casestudy p {
+    font-family: Vodafone;
+    font-size: 20px !important;
+    font-weight: normal !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    line-height: 1 !important;
+    letter-spacing: normal !important;
+    text-align: left !important;
+    margin-bottom: 0 !important;
+  }
+  #casestudy p br {
+    display: none;
+  }
+  #slide-59 #gorr {
+    position: relative;
+  }
+  #slide-59 #gorr #llass, #slide-59 #gorr #lele {
+    width: 290px !important;
+    height: 276px !important;
+  }
+  #killerjunior img {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+  .case-study-content div {
+    line-height: 0;
+  }
+}
+@media screen and (max-width: 1024px) {
+  #slide-73 .subint {
+    padding: 0 1em !important;
+  }
+  #slide-73 .subint h2 {
+    font-family: Vodafone;
+    font-size: 70px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #fff;
+  }
+  #slide-10 .subint {
+    padding: 0em !important;
+  }
+  #slide-73 .txtintro {
+    justify-content: center;
+    align-items: flex-end;
+  }
+  #slide-73 .txtintro h2 {
+    margin: 0;
+    padding: 0;
+  }
+  #slide-73 .txtintro p {
+    margin: 0;
+    padding: 0;
+  }
+  #slide-21 p,
+  #slide-22 p {
+    font-family: "Raleway" !important;
+    font-size: 18px !important;
+    font-weight: normal !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    line-height: 18px !important;
+    letter-spacing: normal !important;
+    text-align: center !important;
+    color: #fff !important;
+  }
+  #slide-21 h3,
+  #slide-22 h3 {
+    font-family: "Vodafone";
+    font-size: 25px !important;
+    font-weight: bold !important;
+    line-height: 24px !important;
+  }
+  .accordion-item .accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .accordion-item .accordion-header h3 {
+    margin: 0;
+    padding: 0;
+    font-family: "Vodafone";
+    font-size: 28px !important;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.44;
+    letter-spacing: normal;
+    text-align: center;
+    color: #fff;
+  }
+  .accordion-item p {
+    margin-bottom: 0em !important;
+    text-align: center !important;
+    font-size: 22px !important;
+  }
+  #lemof {
+    margin: 0;
+    width: 100%;
+  }
+  #lemof .text-element {
+    white-space: pre-line;
+    margin: 0;
+    display: block;
+    width: 100%;
+  }
+  #killerjunior h2 {
+    font-size: 56px !important;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #f00;
+  }
+  #killerjunior p {
+    font-size: 23px !important;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.2;
+    letter-spacing: normal;
+    text-align: center !important;
+    color: #f00;
+  }
+  #killerjunior img {
+    width: 80%;
+    height: auto;
+  }
+  #naci {
+    justify-content: flex-end;
+  }
+  #slide-21 {
+    justify-content: center !important;
+  }
+  #headerpadding img {
+    min-height: 52px !important;
+    height: 52px !important;
+  }
+  .ditocard:nth-of-type(1) p {
+    font-size: 56px !important;
+  }
+  .ditocard:nth-of-type(2) p {
+    font-size: 23px !important;
+    line-height: 1.2 !important;
+  }
+  #vodacomwrapper {
+    background: url("/images/bgmbile.jpg") !important;
+    background-size: cover !important;
+    background-position: 50% 50% !important;
+  }
+  #thoiathoing {
+    width: 100vw;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5098039216);
+  }
+  #slide-21 .cont,
+  #slide-22 .cont {
+    justify-content: center;
+  }
+  .accordion-content {
+    line-height: 1.2;
+    justify-content: flex-start;
+  }
+  #case-study-content-3 div {
+    line-height: 0;
+    display: flex;
+  }
+  #case-study-content-3 ul {
+    flex-direction: column;
+  }
+  #slide-128 .case-study-item {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left;
+    display: flex;
+    align-content: flex-start;
+    align-items: flex-start;
+  }
+  #case-study-content-3 ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    margin: 0;
+    padding: 0;
+    flex-direction: column;
+  }
+  #case-study-content-3 ul li {
+    font-size: 14px !important;
+    margin: 2px 0 !important;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #case-study-content-3 ul li strong {
+    width: 68px !important;
+    height: 68px !important;
+    background-color: #FF0000;
+    color: white;
+    font-size: 27px !important;
+    display: flex;
+    border-radius: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    line-height: 1;
+  }
+  #case-study-content-3 ul li strong span {
+    font-size: 13px !important;
+    text-transform: uppercase;
+  }
+  br {
+    display: none !important;
+  }
+}
+.error-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.97);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.error-message {
+  text-align: center;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 90%;
+  width: 500px;
+}
+
+.error-message p {
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.retry-button {
+  background-color: #e60000;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+  background-color: #cc0000;
+}
+
+/* Styles pour la slide 114 (Reach part 2) */
+#kiffyu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.59);
+}
+
+#slide-73 .slides-container {
+  background-size: cover !important;
+}
+
+#tchoffo {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#deffp.preme {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0rem;
+  flex-direction: column;
+  align-items: center;
+}
+#deffp.preme .text-element {
+  text-align: center;
+  border-radius: 10px;
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  color: white;
+}
+#deffp.preme .text-element:hover {
+  transform: translateY(-10px);
+  background-color: rgba(230, 0, 0, 0.3);
+}
+#deffp.preme .text-element h3 {
+  color: white;
+  font-weight: bold;
+  font-family: "Vodafone";
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 27px;
+  margin-bottom: 0em;
+}
+#deffp.preme .text-element p {
+  font-family: Raleway;
+  font-size: 23px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 15px;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+
+#slide-22::before {
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 89%, rgba(0, 0, 0, 0.99) 6%);
+}
+
+#slide-10 .points-fort .text-element {
+  opacity: 0;
+  text-align: left;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.perdrix-swiper-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  margin: 0 auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.perdrix-swiper {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.perdrix-slide {
+  transition: all 0.6s ease-out;
+  will-change: opacity, transform;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #fff;
+  padding: 0;
+  box-sizing: border-box;
+}
+.perdrix-slide:nth-of-type(1) {
+  opacity: 1;
+}
+.perdrix-slide:nth-of-type(2) {
+  opacity: 0;
+}
+.perdrix-slide:nth-of-type(3) {
+  opacity: 0;
+}
+.perdrix-slide:nth-of-type(4) {
+  opacity: 0;
+}
+.perdrix-slide .text-element {
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+.perdrix-slide .text-element:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.perdrix-swiper-button-next, .perdrix-swiper-button-prev {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.perdrix-swiper-button-next:after, .perdrix-swiper-button-prev:after {
+  font-size: 18px;
+}
+.perdrix-swiper-button-next:hover, .perdrix-swiper-button-prev:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.perdrix-swiper-pagination {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+.perdrix-swiper-pagination .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.6);
+  opacity: 0.6;
+  margin: 0 5px;
+}
+.perdrix-swiper-pagination .swiper-pagination-bullet-active {
+  opacity: 1;
+}
+
+.perdrix-swiper-scrollbar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  bottom: 0;
+}
+.perdrix-swiper-scrollbar .swiper-scrollbar-drag {
+  border-radius: 4px;
+}
+
+.split-container ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 15px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0;
+  padding: 0 !important;
+  list-style: none;
+  place-items: center;
+  justify-content: center;
+}
+.split-container ul > li:nth-child(3), .split-container ul > li:nth-child(4) {
+  justify-self: center;
+  margin: 0 auto;
+}
+.split-container ul > li:nth-child(3):only-child, .split-container ul > li:nth-child(3):last-child {
+  grid-column: 1/-1;
+  margin: 0 auto;
+}
+.split-container ul li {
+  width: 100%;
+  max-width: 240px;
+  list-style: none;
+  background: url("/images/check.jpg") 10px center no-repeat white;
+  background-size: 14px 14px;
+  height: 28px;
+  font-family: Vodafone;
+  font-size: 18px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 26px;
+  letter-spacing: normal;
+  text-align: left;
+  padding: 0px 0px 0px 30px;
+  margin: 0;
+  color: #e60000;
+}
+.split-container .text-content {
+  font-family: Vodafone;
+  font-size: 23px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.split-container h3 {
+  font-size: 48px;
+  font-weight: bold;
+  line-height: 50px;
+  margin-bottom: 0em !important;
+  padding-bottom: 0em !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#killerwu {
+  width: 100vw;
+}
+
+#slide-128 {
+  background-color: #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.case-study-container .text-element p {
+  font-family: Raleway;
+  font-size: 23px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 15px;
+  letter-spacing: normal;
+  text-align: left;
+  color: #000;
+}
+.case-study-container .row {
+  width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+  .slide-section {
+    height: 100dvh !important;
+    overflow: hidden;
+  }
+}
+html,
+body {
+  overflow: hidden !important;
+  /* Essayez avec !important pour le débogage */
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#vodacomwrapper {
+  /* Ou votre conteneur principal de page si différent */
+  height: 100vh;
+  overflow: hidden !important;
+  /* Essayez avec !important */
+}
+
+#master-scroll-container {
+  /* Le conteneur direct des .slide-section */
+  height: 100%;
+  width: 100%;
+  overflow: hidden !important;
+  /* Essayez avec !important */
+}
+
+.slide-section {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  /* Chaque section prend tout le viewport */
+  /* display: flex; align-items: center; justify-content: center; etc. */
+}
+
+#slide-73 .slides-container {
+  background-size: cover !important;
+  opacity: 1;
+  visibility: inherit;
+  height: 100vh;
+  width: 100vw;
+  will-change: background-position, background-size;
+}
+#slide-73 .points-fort {
+  opacity: 1;
+  visibility: inherit;
+  height: 100vh;
+  width: 0vw;
+  transform: translateX(100vw);
+  will-change: width, transform;
+}
+#slide-73 .points-fort li {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(30px);
+  will-change: opacity, transform;
+}
+
+@media screen and (min-width: 1025px) {
+  #slide-21 #thoiathoing {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  #slide-20 #turtlebeach {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+    will-change: opacity, transform;
+    transition: none;
+  }
+  #slide-20 .text-element {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100px);
+    will-change: opacity, transform;
+    transition: none;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  #slide-22 .text-element, #slide-22 .content {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  #slide-23 .perdrix-slide-1 {
+    opacity: 0;
+    visibility: hidden;
+    will-change: opacity;
+  }
+  #slide-23 .perdix {
+    will-change: transform;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  #slide-59 #lass {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(50px);
+    will-change: opacity, transform;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  #slide-128 #killerwu {
+    opacity: 0;
+    visibility: hidden;
+    will-change: opacity;
+  }
+  #slide-128 .case-study {
+    opacity: 0;
+    visibility: hidden;
+    will-change: transform, opacity;
+  }
+}
+
+.subint {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.76) 100%);
+}
+
+.sidebar-menu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+  z-index: 9999;
+  transition: right 0.3s ease-in-out;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+}
+.sidebar-menu.active {
+  right: 0;
+}
+.sidebar-menu .menu-header {
+  padding: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.sidebar-menu .menu-header .close-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+.sidebar-menu .menu-header .close-btn:hover {
+  opacity: 0.7;
+}
+.sidebar-menu .menu-content {
+  padding: 2rem;
+}
+.sidebar-menu .menu-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar-menu .menu-content ul li {
+  margin-bottom: 1rem;
+}
+.sidebar-menu .menu-content ul li a {
+  color: white;
+  text-decoration: none;
+  font-family: "Vodafone", sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  display: block;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+.sidebar-menu .menu-content ul li a:hover {
+  padding-left: 10px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  background: rgba(230, 0, 0, 0.9);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Vodafone", sans-serif;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+.menu-toggle:hover {
+  background: rgb(230, 0, 0);
+  transform: scale(1.05);
+}
+.menu-toggle.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.menu-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: white;
+  margin: 3px 0;
+  transition: all 0.3s ease;
+  border-radius: 1px;
+}
+
+#slide-73 .menu-toggle span {
+  background: #ff0000 !important;
+}
+#slide-73 .menu-toggle span:hover {
+  background: #ff3333 !important;
+}
+
+body.slide-73-active .menu-toggle span,
+.slide-73-active .menu-toggle span {
+  background: #ff0000 !important;
+}
+body.slide-73-active .menu-toggle span:hover,
+.slide-73-active .menu-toggle span:hover {
+  background: #ff3333 !important;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.menu-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Custom Scrollbar Component */
+.custom-scrollbar {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  height: 300px;
+  width: 4px;
+  background: transparent;
+  pointer-events: none;
+}
+
+.scrollbar-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.scrollbar-cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(180deg, #e60000 0%, #cc0000 100%);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+}
+.scrollbar-cursor::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1px;
+}
+.scrollbar-cursor:hover {
+  background: linear-gradient(180deg, #ff1a1a 0%, #e60000 100%);
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(230, 0, 0, 0.6);
+}
+
+.custom-scrollbar {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.custom-scrollbar.visible {
+  opacity: 1;
+  visibility: visible;
+}
+.custom-scrollbar.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media screen and (max-width: 1024px) {
+  .custom-scrollbar {
+    right: 15px;
+    height: 250px;
+    width: 3px;
+  }
+  .scrollbar-cursor {
+    height: 15px;
+  }
+  .scrollbar-cursor::before {
+    width: 1px;
+    height: 6px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .custom-scrollbar {
+    right: 10px;
+    height: 200px;
+    width: 3px;
+  }
+  .scrollbar-cursor {
+    height: 12px;
+  }
+}
+.custom-scrollbar:hover .scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+}
+.custom-scrollbar:hover .scrollbar-cursor {
+  background: linear-gradient(180deg, #ff1a1a 0%, #e60000 100%);
+}
+
+.scrollbar-cursor.animating {
+  transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.custom-scrollbar.with-indicators .scrollbar-track::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 100%;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 35px, rgba(255, 255, 255, 0.3) 35px, rgba(255, 255, 255, 0.3) 37px);
+}
+
+.custom-scrollbar.numbered {
+  width: 30px;
+  right: 15px;
+}
+.custom-scrollbar.numbered .scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.custom-scrollbar.numbered .scrollbar-cursor {
+  width: 28px;
+  height: 25px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  font-family: "Vodafone", sans-serif;
+}
+.custom-scrollbar.numbered .scrollbar-cursor::before {
+  display: none;
+}
+
+@keyframes scrollbar-pulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(230, 0, 0, 0.8);
+    transform: scale(1.1);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(230, 0, 0, 0.4);
+    transform: scale(1);
+  }
+}
+.scrollbar-cursor.pulse {
+  animation: scrollbar-pulse 2s infinite;
+}
+
+.dark-mode .custom-scrollbar .scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.dark-mode .custom-scrollbar .scrollbar-cursor {
+  background: linear-gradient(180deg, #ff4444 0%, #e60000 100%);
+  box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+}
+
+@media screen and (min-width: 1025px) {
+  #slide-20 #turtlebeach {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+    will-change: opacity, transform;
+    transition: none;
+  }
+  #slide-20 .text-element {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100px);
+    will-change: opacity, transform;
+    transition: none;
+  }
+}
+
+#turtlebeach {
+  transform-origin: center center;
+}
+#turtlebeach.animating {
+  will-change: opacity, transform;
+}
+#turtlebeach.animated {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1) translateY(0) rotate(0deg);
+}
+
+@media screen and (max-width: 768px) {
+  #slide-20 #turtlebeach {
+    transform: scale(0.9) translateY(30px) rotate(-3deg);
+  }
+}
+@keyframes turtlebeach-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(50px) rotate(-5deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05) translateY(-10px) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+.turtlebeach-animate {
+  animation: turtlebeach-entrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.slides-container {
+  background-size: cover;
+}
+
+.clientrequest {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 2em 0;
+}
+
+#perdrix {
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+#perdrix .perdrix-slider {
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+.image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+  margin-left: -12px;
+  position: relative;
+}
+.image-container img {
+  margin: 0 165px 85px 0;
+  height: 504px;
+}
+
+#teste {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+#teste::before {
+  background: url(/images/Subtract.png);
+  z-index: 100;
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  bottom: 0;
+  content: "";
+  left: 0;
+  margin: auto;
+  right: 0;
+  height: 100%;
+  max-height: 623px;
+  background-size: contain;
+  position: absolute;
+}
+
+#decodemerde {
+  position: absolute;
+}
+
+.innerphone {
+  background-repeat: no-repeat;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.split-container .text-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#quadi {
+  height: 208px;
+  overflow: hidden;
+  position: relative;
+}
+#quadi .perdrix-slide {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+#rodman {
+  height: 504px;
+  overflow: hidden;
+  width: 255px;
+  margin: 0 auto;
+  border-radius: 39px 83px 39px 39px;
+  position: relative;
+}
+#rodman .bdrs {
+  border-radius: 54px;
+  overflow: hidden;
+  height: 100%;
+  width: 251px;
+  background-color: rgb(0, 0, 0);
+  display: flex;
+  flex-direction: column;
+}
+#rodman .bdrs img {
+  height: 100%;
+  width: 100%;
+}
+#rodman .image-container {
+  width: 280px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+#rodman .image-container img {
+  height: 504px;
+  width: auto;
+  -o-object-fit: contain;
+  object-fit: contain;
+}
+
+#sharon {
+  height: 100%;
+  width: 90vw !important;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  display: flex;
+  flex-direction: row;
+}
+
+#stone {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#sparta {
+  height: 585px;
+  position: relative;
+  overflow: hidden;
+  width: 427px;
+  transform: translateZ(0);
+}
+#sparta #rodman {
+  height: 504px;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+#sparta::before {
+  content: "";
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  background: url(/images/Subtract.png) no-repeat center center;
+  background-size: contain;
+  height: 613px;
+  width: 492px;
+  z-index: 1;
+  will-change: transform;
+  z-index: 10;
+}
+
+.test {
+  display: none;
+}
+
+@media screen and (max-width: 1024px) {
+  #slide-73 .slides-container {
+    background-position-x: -69vw !important;
+  }
+  #joce {
+    height: 100dvh !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end;
+    display: flex;
+  }
+  #quadi {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 37vh !important;
+    width: 100vw !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+  }
+  #quadi .perdrix-slide {
+    margin: 0 !important;
+    padding: 1rem !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #quadi .perdrix-slide .text-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+  }
+  #quadi .perdrix-slide .text-container h3 {
+    color: white !important;
+    font-size: 24px !important;
+    margin-bottom: 1rem !important;
+  }
+  #quadi .perdrix-slide .text-container .text-content {
+    color: white !important;
+    font-size: 18px !important;
+    line-height: 1.4 !important;
+  }
+  #stone {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    display: block !important;
+  }
+  #stone .bdrs {
+    position: relative;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    width: 163px !important;
+    height: 332px !important;
+    flex-direction: column;
+    border-radius: 10px;
+  }
+  #stone #sparta {
+    margin: 0 auto !important;
+    padding: 0 !important;
+    width: 389px;
+    height: 447px !important;
+    display: block !important;
+    position: relative !important;
+    line-height: 0;
+    text-align: center !important;
+    transform: translateZ(0);
+  }
+  #stone #sparta::before {
+    content: "" !important;
+    position: absolute !important;
+    bottom: 63px !important;
+    left: -7% !important;
+    right: 0 !important;
+    margin: 0 auto !important;
+    background: url(/images/Subtract.png) no-repeat center center !important;
+    background-size: contain !important;
+    height: 400px !important;
+    z-index: 7 !important;
+    will-change: transform !important;
+  }
+  #stone #sparta #rodman {
+    margin: 1% auto !important;
+    padding: 0 !important;
+    width: 163px !important;
+    height: 332px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: absolute !important;
+    z-index: 2 !important;
+    border-radius: 26px !important;
+    transform: translateZ(0);
+    left: 0;
+    right: 0;
+    transform: translateZ(0);
+  }
+  #stone #sparta #rodman .image-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 332px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: absolute !important;
+    z-index: 3 !important;
+  }
+  #stone #sparta #rodman .image-container::after {
+    content: "nique ta lere";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  #stone #sparta #rodman .image-container img {
+    height: 332px !important;
+    -o-object-fit: contain !important;
+    object-fit: contain !important;
+    width: auto !important;
+    position: relative !important;
+    z-index: 4 !important;
+    transform: translateZ(0);
+  }
+  #gorr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    margin: 0 !important;
+  }
+  #gorr #gor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #gorr #lass, #gorr img#llass {
+    position: absolute;
+  }
+}
+#pdf {
+  background-blend-mode: multiply;
+  background-image: linear-gradient(to bottom, #909090, #909090);
+  padding: 1em 0;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+#pdf ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  flex-direction: row;
+  justify-content: space-evenly;
+  max-width: 70vw;
+  margin: 0 auto;
+}
+#pdf ul li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#pdf ul li a {
+  text-decoration: none;
+  list-style: none;
+  font-family: Vodafone;
+  font-size: 24px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+@media screen and (max-width: 1024px) {
+  #pdf ul li a {
+    font-size: 14px;
+  }
+}
+
+#slide-128 {
+  background-color: #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#slide-128 img {
+  height: 650px;
+}
+#slide-128 .case-study-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0px;
+  width: 100%;
+  max-width: 100%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: auto;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+}
+#slide-128 .case-study-item ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+#slide-128 .case-study-item ul li {
+  display: flex;
+  flex-direction: column;
+  margin-right: 2em;
+  font-family: Raleway;
+  font-size: 23px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.44;
+  letter-spacing: normal;
+  text-align: left;
+  color: #000;
+  align-items: center;
+  justify-content: center;
+}
+#slide-128 .case-study-item ul li strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #f00;
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.4;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+  margin-bottom: 10px;
+}
+#slide-128 .case-study-item ul li strong span {
+  font-family: Vodafone;
+  font-size: 20px;
+  font-weight: normal;
+  text-transform: uppercase;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 2;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+#slide-128 .case-study-item.active h3 {
+  color: #f00;
+  opacity: 1;
+}
+#slide-128 .aya {
+  font-family: Vodafone;
+  font-size: 102px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-align: left;
+  color: #f00;
+}
+#slide-128 .case-study-header {
+  opacity: 0.27;
+  font-family: Vodafone;
+  font-size: 48px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 0.83;
+  letter-spacing: normal;
+  text-align: left;
+  color: #231f20;
+}
+
+/* ==============================================
+   DARK MODE PREVENTION SYSTEM FOR ANDROID SAMSUNG
+   ============================================== */
+/* Global dark mode prevention */
+html {
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
+  -moz-color-scheme: light !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+  -moz-forced-color-adjust: none !important;
+}
+
+body {
+  color-scheme: light !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+}
+
+/* Specific protection for .split-container ul li elements */
+.split-container ul li {
+  /* Primary color protection */
+  color: #e60000 !important;
+  -webkit-text-fill-color: #e60000 !important;
+  -moz-text-fill-color: #e60000 !important;
+  /* Dark mode prevention */
+  color-scheme: light !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+  -moz-forced-color-adjust: none !important;
+  /* Samsung Internet specific */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  /* Text decoration protection */
+  text-decoration-color: #e60000 !important;
+  caret-color: #e60000 !important;
+  /* Background protection */
+  background-color: white !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+/* Global text color protection for all white text elements */
+.split-container .text-content,
+.split-container h3,
+.text-element h3,
+.text-element p,
+.points-fort h3,
+.points-fort p {
+  color-scheme: light !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* Protection against dark mode color forcing */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    color-scheme: light !important;
+    forced-color-adjust: none !important;
+    -webkit-forced-color-adjust: none !important;
+  }
+  .split-container ul li {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+    background-color: white !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+  /* Vodafone red text protection */
+  h3[style*="color: #e60000"], h3[style*="color: #ff0000"], h3[style*="color: red"], p[style*="color: #e60000"], p[style*="color: #ff0000"], p[style*="color: red"], span[style*="color: #e60000"], span[style*="color: #ff0000"], span[style*="color: red"], div[style*="color: #e60000"], div[style*="color: #ff0000"], div[style*="color: red"] {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+  }
+  /* White text protection */
+  .text-element h3[style*="color: #fff"], .text-element h3[style*="color: white"], .text-element p[style*="color: #fff"], .text-element p[style*="color: white"],
+  .points-fort h3[style*="color: #fff"],
+  .points-fort h3[style*="color: white"],
+  .points-fort p[style*="color: #fff"],
+  .points-fort p[style*="color: white"],
+  .subint h3[style*="color: #fff"],
+  .subint h3[style*="color: white"],
+  .subint p[style*="color: #fff"],
+  .subint p[style*="color: white"] {
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+  }
+}
+/* Samsung Internet Browser specific detection and override */
+@supports (-webkit-appearance: none) {
+  .split-container ul li {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+    background-color: white !important;
+  }
+}
+/* Protection against Dark Reader and similar extensions */
+html[data-darkreader-scheme=dark] .split-container ul li {
+  color: #e60000 !important;
+  -webkit-text-fill-color: #e60000 !important;
+  background-color: white !important;
+  filter: none !important;
+}
+
+/* High contrast mode prevention */
+@media (prefers-contrast: high) {
+  .split-container ul li {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+    forced-color-adjust: none !important;
+  }
+}
+/* Reduced motion respect but color preservation */
+@media (prefers-reduced-motion: reduce) {
+  .split-container ul li {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+  }
+}
+/* Android Chrome dark mode specific */
+@media screen and (-webkit-min-device-pixel-ratio: 1) {
+  .split-container ul li {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+    -webkit-appearance: none !important;
+  }
+}
+/* Override any system-level dark mode forcing */
+*[data-theme=dark] .split-container ul li {
+  color: #e60000 !important;
+  -webkit-text-fill-color: #e60000 !important;
+}
+
+/* Fallback for older Android versions */
+@media screen and (max-device-width: 1024px) {
+  .split-container ul li {
+    color: #e60000 !important;
+    -webkit-text-fill-color: #e60000 !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+}
+/* Additional protection for Vodafone brand colors */
+.vodafone-red,
+[class*=vodafone],
+[class*=red] {
+  color: #e60000 !important;
+  -webkit-text-fill-color: #e60000 !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+}
+
+/* Debug mode - uncomment to test color forcing */
+/*
+.split-container ul li {
+    border: 2px solid lime !important;
+    background: yellow !important;
+    padding: 5px !important;
+}
+*/
+.slide-section.active {
+  position: relative;
+  z-index: 2;
+}
+.slide-section.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.slide-section#slide-59.active .hamburger span {
+  background: #ff0000 !important;
+  box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
+}
+.slide-section#slide-59.active .hamburger:hover span {
+  background: #ff3333 !important;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
+}
+
+.hamburger.hamburger-red span {
+  background: #ff0000 !important;
+  box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+.hamburger.hamburger-red:hover span {
+  background: #ff3333 !important;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
+  transform: scale(1.05);
+}
+.hamburger.hamburger-red.is-active span:nth-child(1), .hamburger.hamburger-red.is-active span:nth-child(3) {
+  background: #ff0000 !important;
+  box-shadow: 0 2px 6px rgba(255, 0, 0, 0.4);
+}
+
+.hamburger.hamburger-white span {
+  background: white !important;
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+.hamburger.hamburger-white:hover span {
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+.hamburger.hamburger-white.is-active span:nth-child(1), .hamburger.hamburger-white.is-active span:nth-child(3) {
+  background: white !important;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+}
+
+.slide-section#slide-59.active .hamburger span,
+.slide-section#slide-73.active .hamburger span,
+.slide-section#slide-128.active .hamburger span {
+  background: #ff0000 !important;
+  box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
+}
+.slide-section#slide-59.active .hamburger:hover span,
+.slide-section#slide-73.active .hamburger:hover span,
+.slide-section#slide-128.active .hamburger:hover span {
+  background: #ff3333 !important;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
+}
+
+mt a.back-to-top:hover {
+  cursor: pointer;
+}
+/*# sourceMappingURL=style.css.map */

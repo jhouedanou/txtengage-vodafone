@@ -3981,3 +3981,140 @@ html[data-darkreader-scheme="dark"] {
     padding: 5px !important;
 }
 */
+
+// Styles pour la section active
+.slide-section {
+    &.active {
+        position: relative;
+        z-index: 2;
+        
+        // Optionnel : ajouter un effet visuel pour indiquer que la section est active
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -1;
+            // Vous pouvez ajouter des effets visuels ici si souhaité
+            // Par exemple: box-shadow: inset 0 0 0 2px rgba(230, 0, 0, 0.3);
+        }
+    }
+}
+
+// Styles spécifiques pour le hamburger rouge sur slide-59
+.slide-section#slide-59.active {
+    // Styles spécifiques quand slide-59 est actif
+    .hamburger {
+        span {
+            background: #ff0000 !important;
+            box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
+        }
+        
+        &:hover span {
+            background: #ff3333 !important;
+            box-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
+        }
+    }
+}
+
+// Améliorations pour les styles du hamburger rouge
+.hamburger.hamburger-red {
+    span {
+        background: #ff0000 !important;
+        box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    &:hover span {
+        background: #ff3333 !important;
+        box-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
+        transform: scale(1.05);
+    }
+    
+    &.is-active span:nth-child(1),
+    &.is-active span:nth-child(3) {
+        background: #ff0000 !important;
+        box-shadow: 0 2px 6px rgba(255, 0, 0, 0.4);
+    }
+}
+
+// Styles par défaut pour le hamburger blanc
+.hamburger.hamburger-white {
+    span {
+        background: white !important;
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    &:hover span {
+        background: rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+    
+    &.is-active span:nth-child(1),
+    &.is-active span:nth-child(3) {
+        background: white !important;
+        box-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+    }
+}
+
+// Styles spécifiques pour le hamburger rouge sur slides 59, 73 et 128
+.slide-section#slide-59.active,
+.slide-section#slide-73.active,
+.slide-section#slide-128.active {
+    // Styles spécifiques quand ces slides sont actives
+    .hamburger {
+        span {
+            background: #ff0000 !important;
+            box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
+        }
+        
+        &:hover span {
+            background: #ff3333 !important;
+            box-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
+        }
+    }
+}
+
+a.back-to-top{
+    margin-top: 1em;
+    &:hover{
+
+        cursor: pointer
+        ;
+    }
+}
+@media screen and (min-width: 1025px) {
+ 
+#thoiathoing2{
+    h3{
+        font-family: Vodafone;
+        font-size: 48px;
+        font-weight: bold;
+        line-height: 0.64;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        color: white;
+        margin-bottom: 15px;
+        margin-top: 15px;
+    }
+    p{
+        font-family: Raleway;
+  font-size: 28px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.44;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+    }
+}   
+}
