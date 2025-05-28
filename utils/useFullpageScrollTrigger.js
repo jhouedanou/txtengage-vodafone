@@ -1741,7 +1741,7 @@ const resetSlide73Animation = () => {
         document.addEventListener('wheel', macScrollAggregator, { passive: false });
       } else {
         console.log('💻 Système non-macOS - Utilisation du scroll normal');
-        document.addEventListener('wheel', handleWheelEvent, { passive: false });
+      document.addEventListener('wheel', handleWheelEvent, { passive: false });
       }
 
       // Navigation initiale
@@ -1783,7 +1783,7 @@ const resetSlide73Animation = () => {
     if (isMacOS()) {
       document.removeEventListener('wheel', macScrollAggregator);
     } else {
-      document.removeEventListener('wheel', handleWheelEvent);
+    document.removeEventListener('wheel', handleWheelEvent);
     }
 
     gsap.killTweensOf(SCROLLER_SELECTOR);
