@@ -715,8 +715,8 @@ const goToFirstSlide = () => {
         </div>
         <h2 class="title">Rotation Required</h2>
         <p class="description">
-          Please rotate your device to landscape mode<br>
-          for an optimal experience
+          Please rotate your iPad (including iPad Mini 6)<br>
+          to landscape mode for an optimal experience
         </p>
       </div>
     </div>
