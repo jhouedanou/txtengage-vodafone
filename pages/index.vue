@@ -704,6 +704,23 @@ const goToFirstSlide = () => {
 
 <template>
   <div id="vodacomwrapper">
+    <!-- Overlay de rotation pour tablettes en mode portrait -->
+    <div class="rotation-overlay">
+      <div class="message-container">
+        <div class="icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.48 2.52c3.27 1.55 5.61 4.72 5.97 8.48M1.55 7.52C2.72 4.25 5.89 1.91 9.65 1.55M8.53 20.93c-4.15-.69-7.4-3.94-8.09-8.09M20.93 15.47c-.69 4.15-3.94 7.4-8.09 8.09" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <h2 class="title">Rotation Required</h2>
+        <p class="description">
+          Please rotate your device to landscape mode<br>
+          for an optimal experience
+        </p>
+      </div>
+    </div>
+
     <div v-if="loading" class="loader-container">
       <img src="/images/logovector.svg" class="logo-loader" alt="Logo" />
     </div>
