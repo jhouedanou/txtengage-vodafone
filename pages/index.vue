@@ -27,14 +27,17 @@ const slidesStore = useSlidesStore();
 const loading = computed(() => slidesStore.loading);
 const sortedSlides = computed(() => slidesStore.sortedSlides);
 
-// Nouveau système responsif qui commute automatiquement entre desktop et mobile
+// Nouveau système responsif qui commute automatiquement entre desktop/mobile/tablette
 const {
   isMobile: isResponsiveMobile,
+  isTablet: isResponsiveTablet,
   isInitialized: animationsInitialized,
   currentAnimationSystem,
   initResponsiveAnimations,
   goToSection: goToResponsiveSection,
   getCurrentSectionIndex,
+  isNavigating: isResponsiveNavigating,
+  getAnimationStates
 } = useResponsiveAnimations();
 
 // Utiliser l'index de section depuis le système responsif
@@ -489,7 +492,18 @@ onMounted(async () => {
   };
 
   if (sectionsArray.length > 0) {
+    // Utiliser le nouveau système responsif qui gère automatiquement tablettes/desktop/mobile
     initResponsiveAnimations(sectionsArray, fullpageOptions);
+    console.log(`🚀 Système responsif initialisé avec ${sectionsArray.length} sections`);
+    
+    // Log du type d'appareil détecté
+    if (isResponsiveTablet.value) {
+      console.log('📱 Tablette détectée - Mode desktop avec gestes tactiles activé');
+    } else if (isResponsiveMobile.value) {
+      console.log('📱 Mobile détecté - Mode mobile natif activé');
+    } else {
+      console.log('🖥️ Desktop détecté - Mode desktop complet activé');
+    }
   } else {
     console.warn("No sections found for fullpage scroll initialization.");
   }
@@ -525,7 +539,8 @@ const toggleMenu = () => {
 };
 
 const goToSlide = (index) => {
-  goToResponsiveSection(index); // Utiliser le nouveau système responsif
+  // Utiliser le nouveau système responsif qui gère automatiquement tablettes/desktop/mobile
+  goToResponsiveSection(index);
   isMenuOpen.value = false;
 };
 
@@ -538,6 +553,10 @@ useHead({
     },
     {
       src: '/js/test-hamburger-slides.js',
+      defer: true
+    },
+    {
+      src: '/js/debug-tablet-detection.js',
       defer: true
     }
   ]
@@ -606,11 +625,11 @@ const getBackgroundImage = (slide) => {
 const handleNavigateToSection = (event) => {
   const sectionIndex = event.detail.index;
   if (sectionIndex >= 0 && sectionIndex < sortedSlides.value.length) {
-    // Utiliser le système de navigation responsif
+    // Utiliser le système de navigation responsif qui gère automatiquement tablettes/desktop/mobile
     if (animationsInitialized.value && goToResponsiveSection) {
       goToResponsiveSection(sectionIndex);
     } else {
-      // Fallback à la navigation manuelle
+      // Fallback à la navigation manuelle si le système n'est pas encore initialisé
       scrollToSection(sectionIndex);
     }
   }
@@ -1601,6 +1620,65 @@ header.fixed-top.scrolled {
       width: 14px;
       height: 1px;
     }
+  }
+}
+
+// Responsive design pour tablettes
+@media screen and (min-width: 768px) and (max-width: 1366px) and (pointer: coarse) {
+  /* Styles spécifiques pour tablettes avec écran tactile */
+  .simple-scrollbar {
+    /* Scrollbar légèrement plus grande sur tablettes pour faciliter l'interaction */
+    width: 6px;
+  }
+
+  .scrollbar-cursor {
+    height: 50px; // Curseur plus grand pour les tablettes
+    
+    &::before {
+      height: 20px; // Indicateur interne plus grand
+    }
+  }
+
+  /* Améliorer les zones tactiles */
+  .hamburger {
+    width: 35px;
+    height: 30px;
+    
+    span {
+      height: 4px; // Barres légèrement plus épaisses
+    }
+  }
+
+  #menu ul li {
+    padding: 15px 25px; // Zones tactiles plus grandes
+    font-size: 1.1em; // Texte légèrement plus grand
+  }
+}
+
+/* Optimisations pour iPad en mode paysage */
+@media screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) and (pointer: coarse) {
+  .slide-section {
+    /* S'assurer que les sections utilisent toute la hauteur sur iPad paysage */
+    min-height: 100vh;
+  }
+}
+
+/* Optimisations pour iPad en mode portrait */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) and (pointer: coarse) {
+  .simple-scrollbar {
+    /* Repositionner la scrollbar en mode portrait */
+    right: 15px;
+    height: 75vh;
+  }
+}
+
+/* Désactiver le scroll natif sur tablettes quand le système desktop est actif */
+.tablet-mode-desktop {
+  overflow: hidden !important;
+  
+  body, html {
+    overflow: hidden !important;
+    touch-action: none; /* Empêcher les gestes natifs */
   }
 }
 </style>

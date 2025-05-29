@@ -4212,28 +4212,28 @@ body.slide-73-active,
             position: absolute;
             left: 11.1vh;
             top: 4.8vh;
-            border-radius: 54px;
-            overflow: hidden;
+        border-radius: 54px;
+        overflow: hidden;
             height: 580px;
             width: 313px;
             background-color: rgb(0, 0, 0);
-            display: flex;
-            flex-direction: column;
+        display: flex;
+        flex-direction: column;
             img{
                 height: 100%;
                 width: 100%;
             }
         }
     .image-container {
-        position: absolute;
+      position: absolute;
         width: 304px;
         height: 580px;
-        top: 0;
-        left: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
         right: 0;
         margin: auto;
 
@@ -4400,7 +4400,7 @@ body.slide-73-active,
             -webkit-transform: translateZ(0);
             transform: translateZ(0);
             height: 100% !important;
-
+            
             &::before {
                 width: 360px;
                 content: "" !important;
@@ -4426,7 +4426,7 @@ body.slide-73-active,
                 justify-content: center !important;
                 position: absolute !important;
                 z-index: 2 !important;
-                border-radius: 26px !important;
+        border-radius: 26px !important;
                 transform: translateZ(0);
                 left: 0;
                 right: 0;
@@ -4616,20 +4616,20 @@ body.slide-73-active,
             -webkit-transform: translate3d(0, 0, 0);
             
             li{
-                display: flex;
-                flex-direction:column;
-                margin-right: 2em;
-                font-family: Raleway;
-                font-size: 23px;
-                font-weight: normal;
-                font-stretch: normal;
-                font-style: normal;
-                line-height: 1.44;
-                letter-spacing: normal;
-                text-align: left;
-                color: #000;
-                align-items: center;
-                justify-content: center;
+display: flex;
+flex-direction:column;
+margin-right: 2em;
+font-family: Raleway;
+font-size: 23px;
+font-weight: normal;
+font-stretch: normal;
+font-style: normal;
+line-height: 1.44;
+letter-spacing: normal;
+text-align: left;
+color: #000;
+align-items: center;
+justify-content: center;
                 
                 // Transitions pour les éléments de liste
                 transition: transform 0.3s ease-out;
@@ -4641,27 +4641,27 @@ body.slide-73-active,
                     -webkit-transform: translateY(-2px);
                 }
                 
-                strong{
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                    background-color: #f00;
-                    width: 94px;
-                    height: 94px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 50px;
-                    font-weight: bold;
-                    font-stretch: normal;
-                    font-style: normal;
-                    line-height: 0.4;
-                    letter-spacing: normal;
-                    text-align: center;
-                    color: #fff;
-                    margin-bottom: 10px;
+        strong{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background-color: #f00;
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 0.4;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;
+          margin-bottom: 10px;
                     
                     // Transitions pour les cercles rouges
                     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -4674,17 +4674,17 @@ body.slide-73-active,
                         box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
                     }
                     
-                    span{
-                        font-family: Vodafone;
-                        font-size: 20px;
-                        font-weight: normal;
-                        text-transform: uppercase;
-                        font-stretch: normal;
-                        font-style: normal;
-                        line-height: 2;
-                        letter-spacing: normal;
-                        text-align: center;
-                        color: #fff;
+            span{
+                font-family: Vodafone;
+                font-size: 20px;
+                font-weight: normal;
+                text-transform: uppercase;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 2;
+                letter-spacing: normal;
+                text-align: center;
+                color: #fff;
                         
                         // Transition pour le texte dans les cercles
                         transition: all 0.2s ease;
