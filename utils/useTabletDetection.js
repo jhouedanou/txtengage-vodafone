@@ -30,8 +30,36 @@ export function useTabletDetection() {
     // Détection iPadOS 13+ (qui se fait passer pour macOS)
     const isIpadOS = /macintosh/.test(userAgent) && maxTouchPoints > 1;
     
-    // Détection tablettes Android
-    const isAndroidTablet = /android/.test(userAgent) && !/mobile/.test(userAgent);
+    // CORRECTION: Détection plus précise des téléphones pour les exclure
+    const isMobilePhone = (
+      // iPhones (tous les modèles)
+      /iphone/.test(userAgent) ||
+      // Android phones (avec le mot-clé "mobile")
+      (/android/.test(userAgent) && /mobile/.test(userAgent)) ||
+      // Modèles spécifiques de téléphones Android (sans "mobile" dans l'UA)
+      /sm-g\d{3}/.test(userAgent) || // Samsung Galaxy (SM-G981B, etc.)
+      /sm-a\d{3}/.test(userAgent) || // Samsung Galaxy A series
+      /sm-n\d{3}/.test(userAgent) || // Samsung Galaxy Note series
+      /pixel \d/.test(userAgent) ||   // Google Pixel
+      /oneplus/.test(userAgent) ||    // OnePlus
+      /huawei/.test(userAgent) ||     // Huawei phones
+      /xiaomi/.test(userAgent) ||     // Xiaomi phones
+      /redmi/.test(userAgent) ||      // Redmi phones
+      /oppo/.test(userAgent) ||       // Oppo phones
+      /vivo/.test(userAgent) ||       // Vivo phones
+      // Dimensions typiques de téléphones (largeur <= 480px OU ratio > 1.8)
+      (window.screen.width <= 480) ||
+      (window.screen.height / window.screen.width > 1.8)
+    );
+    
+    // Si c'est détecté comme un téléphone, ce n'est PAS une tablette
+    if (isMobilePhone) {
+      console.log('📱 Téléphone détecté - utilisation des animations mobiles');
+      return false;
+    }
+    
+    // Détection tablettes Android (APRÈS avoir exclu les téléphones)
+    const isAndroidTablet = /android/.test(userAgent) && !/mobile/.test(userAgent) && !isMobilePhone;
     
     // Détection autres tablettes (Surface, etc.)
     const isOtherTablet = (
@@ -42,30 +70,40 @@ export function useTabletDetection() {
       (platform.includes('win') && maxTouchPoints > 1 && window.screen.width >= 768)
     );
     
-    // Détection basée sur les dimensions et capacités tactiles
+    // CORRECTION: Détection basée sur les dimensions - PLUS RESTRICTIVE
     const screenWidth = window.screen.width;
     const screenHeight = window.screen.height;
     const hasTouch = 'ontouchstart' in window || maxTouchPoints > 0;
-    const isDimensionTablet = hasTouch && (
-      (screenWidth >= 768 && screenWidth <= 1366) ||
-      (screenHeight >= 768 && screenHeight <= 1366)
-    );
+    
+    // Pour être une tablette basée sur les dimensions :
+    // 1. Doit avoir le tactile
+    // 2. Largeur minimale 768px ET maximale 1366px
+    // 3. Ratio aspect <= 1.6 (pas de téléphones longs)
+    // 4. Ne doit pas être détecté comme téléphone
+    const aspectRatio = Math.max(screenWidth, screenHeight) / Math.min(screenWidth, screenHeight);
+    const isDimensionTablet = hasTouch && 
+      !isMobilePhone && 
+      screenWidth >= 768 && 
+      screenWidth <= 1366 && 
+      aspectRatio <= 1.6;
     
     const result = isIpad || isIpadOS || isAndroidTablet || isOtherTablet || isDimensionTablet;
     
-    console.log('🔍 Détection tablette:', {
+    console.log('🔍 Détection tablette CORRIGÉE:', {
       userAgent: navigator.userAgent,
       platform: navigator.platform,
       maxTouchPoints,
       screenWidth,
       screenHeight,
+      aspectRatio: aspectRatio.toFixed(2),
+      isMobilePhone,
       isIpad,
       isIpadOS,
       isAndroidTablet,
       isOtherTablet,
       isDimensionTablet,
       hasTouch,
-      result
+      result: result ? 'TABLETTE' : 'MOBILE/DESKTOP'
     });
     
     return result;
@@ -174,10 +212,12 @@ export function useTabletDetection() {
   };
 
   /**
-   * Fonction pour forcer le mode desktop sur tablettes
+   * Fonction pour forcer le mode desktop sur tablettes UNIQUEMENT
    */
   const shouldUseDesktopMode = () => {
-    return isTablet.value || window.innerWidth > 768;
+    // CORRECTION: Utiliser SEULEMENT la détection de tablette
+    // Ne plus se baser sur window.innerWidth qui classe les téléphones comme desktop
+    return isTablet.value;
   };
 
   /**
@@ -188,7 +228,28 @@ export function useTabletDetection() {
       // Les tablettes utilisent toujours le mode desktop
       return 'desktop';
     }
-    return window.innerWidth <= 768 ? 'mobile' : 'desktop';
+    
+    // CORRECTION: Utiliser une logique plus précise pour mobile vs desktop
+    // Vérifier d'abord si c'est un téléphone (qui doit toujours être mobile)
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobilePhone = (
+      /iphone/.test(userAgent) ||
+      (/android/.test(userAgent) && /mobile/.test(userAgent)) ||
+      /sm-g\d{3}/.test(userAgent) || // Samsung Galaxy
+      /sm-a\d{3}/.test(userAgent) || // Samsung Galaxy A series
+      /sm-n\d{3}/.test(userAgent) || // Samsung Galaxy Note series
+      /pixel \d/.test(userAgent) ||   // Google Pixel
+      window.screen.width <= 480 ||
+      (window.screen.height / window.screen.width > 1.8)
+    );
+    
+    // Si c'est un téléphone, toujours mobile
+    if (isMobilePhone) {
+      return 'mobile';
+    }
+    
+    // Pour les vrais ordinateurs/desktop, utiliser 1024px comme seuil
+    return window.innerWidth <= 1024 ? 'mobile' : 'desktop';
   };
 
   /**
@@ -249,6 +310,33 @@ export function useTabletDetection() {
         touchEndTime.value = Date.now();
         processSwipe();
         console.log(`🧪 Test swipe ${direction} simulé`);
+      },
+      // NOUVELLE FONCTION: Test de la détection corrigée
+      testCorrectedDetection: () => {
+        console.group('🧪 TEST DÉTECTION CORRIGÉE');
+        
+        const userAgent = navigator.userAgent;
+        const result = detectTablet();
+        
+        console.log('📱 User Agent:', userAgent);
+        console.log('📏 Dimensions écran:', window.screen.width + 'x' + window.screen.height);
+        console.log('📐 Ratio aspect:', (Math.max(window.screen.width, window.screen.height) / Math.min(window.screen.width, window.screen.height)).toFixed(2));
+        console.log('🎯 Détection finale:', result ? 'TABLETTE' : 'MOBILE/DESKTOP');
+        console.log('🚀 Animation system:', result ? 'DESKTOP' : 'MOBILE');
+        
+        // Tests spécifiques
+        if (/iphone/.test(userAgent.toLowerCase())) {
+          console.log('📱 iPhone détecté:', !result ? '✅ CORRECT (mobile)' : '❌ ERREUR (tablette)');
+        }
+        if (/android.*mobile/.test(userAgent.toLowerCase())) {
+          console.log('📱 Android phone détecté:', !result ? '✅ CORRECT (mobile)' : '❌ ERREUR (tablette)');
+        }
+        if (/sm-g\d{3}/.test(userAgent.toLowerCase())) {
+          console.log('📱 Samsung Galaxy détecté:', !result ? '✅ CORRECT (mobile)' : '❌ ERREUR (tablette)');
+        }
+        
+        console.groupEnd();
+        return result;
       }
     };
   }

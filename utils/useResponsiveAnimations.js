@@ -1,12 +1,14 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { useTabletDetection } from './useTabletDetection.js';
 import { useFullpageScrollTrigger } from './useFullpageScrollTrigger.js';
+import useMobileAnimations from './mobileAnimations.js';
 
 // Système de commutation intelligent entre animations desktop/mobile/tablette
 export function useResponsiveAnimations() {
   // Initialisation des systèmes
   const tabletDetection = useTabletDetection();
   const desktopAnimations = useFullpageScrollTrigger();
+  const mobileAnimations = useMobileAnimations();
   
   // États globaux
   const isInitialized = ref(false);
@@ -102,14 +104,19 @@ export function useResponsiveAnimations() {
    * Configuration pour mobile
    */
   const setupMobileBehavior = () => {
-    console.log('📱 Configuration du comportement mobile');
+    console.log('📱 Configuration du comportement mobile avec animations complètes');
     
-    // Réactiver le scroll natif
+    // Réactiver le scroll natif pour le conteneur principal
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';
 
-    // Configuration mobile spécifique si nécessaire
-    // (animations simplifiées, etc.)
+    // IMPORTANT: Initialiser les vraies animations mobiles avec toutes les fonctionnalités
+    if (sections.value && sections.value.length > 0) {
+      console.log('🚀 Initialisation des animations mobiles avancées');
+      mobileAnimations.initMobileAnimations(sections.value);
+    } else {
+      console.warn('⚠️ Pas de sections disponibles pour les animations mobiles');
+    }
   };
 
   /**
@@ -132,14 +139,9 @@ export function useResponsiveAnimations() {
       // Utiliser le système desktop/tablette
       desktopAnimations.goToSection(index, duration);
     } else {
-      // Navigation mobile native
-      const targetSection = sections.value[index];
-      if (targetSection) {
-        targetSection.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
+      // CORRECTION: Utiliser le système d'animations mobiles complet
+      console.log(`📱 Navigation mobile vers section ${index} avec animations`);
+      mobileAnimations.goToMobileSection(index, duration || 0.8);
     }
   };
 
@@ -152,21 +154,8 @@ export function useResponsiveAnimations() {
     if (currentAnimationSystem.value === 'desktop') {
       return desktopAnimations.currentSectionIndex.value;
     } else {
-      // Pour mobile, calculer l'index basé sur la position de scroll
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      
-      let currentIndex = 0;
-      for (let i = 0; i < sections.value.length; i++) {
-        const section = sections.value[i];
-        const sectionTop = section.offsetTop;
-        if (scrollTop + windowHeight / 2 >= sectionTop) {
-          currentIndex = i;
-        } else {
-          break;
-        }
-      }
-      return currentIndex;
+      // CORRECTION: Utiliser l'index du système d'animations mobiles
+      return mobileAnimations.currentSectionIndex.value;
     }
   };
 
@@ -176,8 +165,10 @@ export function useResponsiveAnimations() {
   const isNavigating = computed(() => {
     if (currentAnimationSystem.value === 'desktop') {
       return desktopAnimations.isNavigating.value || tabletDetection.isProcessingSwipe.value;
+    } else {
+      // CORRECTION: Utiliser l'état de navigation du système mobile
+      return mobileAnimations.isNavigating.value;
     }
-    return false;
   });
 
   /**
@@ -186,8 +177,10 @@ export function useResponsiveAnimations() {
   const getAnimationStates = () => {
     if (currentAnimationSystem.value === 'desktop') {
       return desktopAnimations.animationStates.value;
+    } else {
+      // CORRECTION: Utiliser les états d'animation du système mobile
+      return mobileAnimations.animationStates.value;
     }
-    return {};
   };
 
   /**
@@ -217,6 +210,7 @@ export function useResponsiveAnimations() {
         setupTabletSpecificBehavior();
       }
     } else {
+      // CORRECTION: Initialiser le système mobile complet
       setupMobileBehavior();
     }
 
@@ -244,6 +238,9 @@ export function useResponsiveAnimations() {
   const cleanup = () => {
     if (currentAnimationSystem.value === 'desktop') {
       desktopAnimations.cleanup();
+    } else if (currentAnimationSystem.value === 'mobile') {
+      // CORRECTION: Nettoyer aussi les animations mobiles
+      mobileAnimations.cleanupMobileAnimations();
     }
     
     tabletDetection.cleanup();
