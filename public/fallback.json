@@ -39,10 +39,10 @@
     "wp_content": "Stay informed with transparent, detailed monthly campaign reports to optimise performance.",
     "title": " Campain Analytics Reporting",
     "content": "Stay informed with transparent, detailed monthly campaign reports to optimise performance.",
-    "thumbnail": "https://bfedition.com/vodafone/wp-content/uploads/2024/11/iStock-1147284430-1.jpg",
+    "thumbnail": "images/iStock-1147284430-1.jpg",
     "paragraphs": [
     "",
-    "<p><img loading=\"lazy\" decoding=\"async\" class=\"alignnone wp-image-126 size-full\" src=\"https://bfedition.com/vodafone/wp-content/uploads/2024/11/Group185.webp\" alt=\"\" width=\"373\" height=\"37\" srcset=\"https://bfedition.com/vodafone/wp-content/uploads/2024/11/Group185.webp 373w, https://bfedition.com/vodafone/wp-content/uploads/2024/11/Group185-300x30.webp 300w\" sizes=\"auto, (max-width: 373px) 100vw, 373px\" /></p>\n",
+    "<p><img loading=\"lazy\" decoding=\"async\" class=\"alignnone wp-image-126 size-full\" src=\"images/Group185.webp\" alt=\"\" width=\"373\" height=\"37\" srcset=\"images/Group185.webp 373w, images/Group185-300x30.webp 300w\" sizes=\"auto, (max-width: 373px) 100vw, 373px\" /></p>\n",
     ""
     ],
     "date": "28/11/2024 11:29:02",
@@ -58,11 +58,11 @@
     "content": "",
     "thumbnail": false,
     "paragraphs": [
-    "<h3>Text Ads</h3>\n<p>Short and impactful messaging directly to your audience&#8217;s devices.</p>\n<ul>\n<li>Mass communication</li>\n<li>Engagement</li>\n<li>Lead generation</li>\n<li>Customer surveys</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-154 size-full\" src=\"https://bfedition.com/vodafone/wp-content/uploads/2024/11/01.webp\" /></p>\n",
-    "<h3>Video Ads</h3>\n<p>Capture attention with dynamic, engaging video content.</p>\n<ul>\n<li>Engagement</li>\n<li>Product promotion</li>\n<li>Customer eductation</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-156 size-full\" src=\"https://bfedition.com/vodafone/wp-content/uploads/2024/11/02.webp\" /></p>\n",
-    "<h3>Image Ads</h3>\n<p>Deliver visually appealing ads to make your brand stand out.</p>\n<ul>\n<li>Product promotion</li>\n<li>Brand awareness</li>\n<li>Lead generation</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-158 size-full\" src=\"https://bfedition.com/vodafone/wp-content/uploads/2024/11/03.webp\" /></p>\n",
-    "<h3>Audio Ads</h3>\n<p>Create an unforgettable connection with the power of sound.</p>\n<ul>\n<li>Engagement</li>\n<li>Product promotion</li>\n<li>Driving conversations</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-160 size-full\" src=\"https://bfedition.com/vodafone/wp-content/uploads/2024/11/04.webp\"  /></p>\n",
-    "<h3>Microsites</h3>\n<p>Get instant impact with a fast, focused microsite built to convert.</p>\n<ul>\n<li>Lead generation</li>\n<li>Customer surveys</li>\n<li>Drive Traffic</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-162 size-full\" src=\"https://bfedition.com/vodafone/wp-content/uploads/2024/11/05.webp\"  /></p>\n"
+    "<h3>Text Ads</h3>\n<p>Short and impactful messaging directly to your audience&#8217;s devices.</p>\n<ul>\n<li>Mass communication</li>\n<li>Engagement</li>\n<li>Lead generation</li>\n<li>Customer surveys</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-154 size-full\" src=\"images/01.webp\" /></p>\n",
+    "<h3>Video Ads</h3>\n<p>Capture attention with dynamic, engaging video content.</p>\n<ul>\n<li>Engagement</li>\n<li>Product promotion</li>\n<li>Customer eductation</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-156 size-full\" src=\"images/02.webp\" /></p>\n",
+    "<h3>Image Ads</h3>\n<p>Deliver visually appealing ads to make your brand stand out.</p>\n<ul>\n<li>Product promotion</li>\n<li>Brand awareness</li>\n<li>Lead generation</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-158 size-full\" src=\"images/03.webp\" /></p>\n",
+    "<h3>Audio Ads</h3>\n<p>Create an unforgettable connection with the power of sound.</p>\n<ul>\n<li>Engagement</li>\n<li>Product promotion</li>\n<li>Driving conversations</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-160 size-full\" src=\"images/04.webp\"  /></p>\n",
+    "<h3>Microsites</h3>\n<p>Get instant impact with a fast, focused microsite built to convert.</p>\n<ul>\n<li>Lead generation</li>\n<li>Customer surveys</li>\n<li>Drive Traffic</li>\n</ul>\n<p><img decoding=\"async\" class=\"alignnone wp-image-162 size-full\" src=\"images/05.webp\"  /></p>\n"
     ],
     "date": "28/11/2024 10:29:39",
     "backgroundMobile": false,
@@ -80,7 +80,7 @@
     "<h3>MAXIMISE IMPACT WITH POWERFUL<br />\nAD FORMATS</h3>\n<p>TxtEngage reaches South Africa’s largest mobile audience.</p>\n"
     ],
     "date": "28/11/2024 10:26:43",
-    "backgroundMobile": "https://bfedition.com/vodafone/wp-content/uploads/2024/11/Group-123.webp",
+    "backgroundMobile": "images/Group-123.webp",
     "menuTitle": "Maximise impact"
     },
     {
@@ -100,7 +100,7 @@
     "<div class=\"clientrequest\">\n<h3>AFFORDABLE ADVERTISING</h3>\n<p>Maximise ROI with cost-effective campaigns.</p>\n</div>\n<div class=\"clientrequest\">\n<h3>LANGUAGE INCLUSIVITY</h3>\n<p>MCommunicate in your audience’s preferred language for SMS.</p>\n</div>\n"
     ],
     "date": "28/11/2024 10:09:30",
-    "backgroundMobile": "https://bfedition.com/vodafone/wp-content/uploads/2024/11/Group184a.jpg",
+    "backgroundMobile": "images/Group184a.jpg",
     "menuTitle": "Reach 32 Million Active users"
     },
     {
@@ -117,7 +117,7 @@
     "<h3>HIGH ENGAGEMENT</h3>\n<p>Hyper-personalised ads drive<br />\nmeaningful interactions.</p>\n"
     ],
     "date": "28/11/2024 10:13:41",
-    "backgroundMobile": "https://bfedition.com/vodafone/wp-content/uploads/2024/11/bgmbile2.webp",
+    "backgroundMobile": "images/bgmbile2.webp",
     "menuTitle": "Why TxtEngage?"
     },
     {
@@ -135,7 +135,7 @@
     "<h3><span class=\"\" data-color-group=\"turquoise\">Brand Awareness</span></h3>\n<p>Keep your brand top of mind with<br />\nengaging and consistent messaging.</p>\n"
     ],
     "date": "25/11/2024 08:59:11",
-    "backgroundMobile": "https://bfedition.com/vodafone/wp-content/uploads/2024/11/istockphoto-1424819867-1024x1024_MOBILE-3-1.jpg",
+    "backgroundMobile": "images/istockphoto-1424819867-1024x1024_MOBILE-3-1.jpg",
     "menuTitle": "TXT Engage"
     }
     ]

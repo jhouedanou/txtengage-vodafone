@@ -15,7 +15,22 @@ $vodafone-light-red: #ff1a1a;
 $primary-color : #ff0000;
 
 $primary : #ff0000;
+@media screen and (min-width: 1441px) and (max-width: 2560px) {
+    .bdrs{
+        display: noen;
+        left: 104px !important;
+        top: 43px !important;
+            }
 
+}
+@media screen and (min-width: 1025px) and (max-width: 1440px) {
+    .bdrs{
+        display: noen;
+        left: 104px !important;
+        top: 43px !important;
+            }
+
+}
 // Styles globaux
 body {
     margin: 0 !important;
@@ -5278,6 +5293,6 @@ a.back-to-top{
       -webkit-playsinline: true;
     }
   }
+//cibler les ecrans entre 1440px et 1024px 
 
-  //cibler les ipads et les tablettes
-  
+ 
