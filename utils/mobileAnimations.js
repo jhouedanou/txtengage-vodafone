@@ -46,10 +46,9 @@ export function useMobileAnimations() {
       
       console.log('🔧 Application des styles mobiles pour slide-73');
       
-      // Neutraliser complètement tous les styles desktop
+      // FORCER complètement les styles mobiles pour .points-fort
       gsap.set(pointsFortDiv, {
         position: 'relative',
-        transform: 'none',
         width: '100vw',
         maxWidth: '100vw',
         padding: '0rem',
@@ -62,8 +61,9 @@ export function useMobileAnimations() {
         top: 'auto',
         bottom: 'auto',
         margin: '0 auto',
-        // Forcer la réinitialisation complète
-        clearProps: 'x,y,width,height,transform,left,right,top,bottom,translateX,translateY'
+        // IMPORTANT: Forcer x à 0 et supprimer tout transform horizontal
+        x: 0,
+        clearProps: 'transform' // Supprimer tout transform CSS existant
       });
       
       // S'assurer que le background du slides-container est bien configuré
@@ -85,18 +85,47 @@ export function useMobileAnimations() {
         gsap.killTweensOf(pointsFortDiv);
         gsap.killTweensOf(pointsElements);
         
-        // ÉTAPE 2: Appliquer les styles mobiles de base
+        // ÉTAPE 2: SUPPRIMER COMPLÈTEMENT tout transform CSS existant qui pourrait venir de la droite
+        pointsFortDiv.style.transform = '';
+        pointsFortDiv.style.webkitTransform = '';
+        pointsFortDiv.style.cssText = pointsFortDiv.style.cssText.replace(/transform[^;]*;?/g, '');
+        
+        // ÉTAPE 3: Appliquer les styles mobiles de base IMMÉDIATEMENT
         applyMobileStylesIfNeeded();
         
-                 // ÉTAPE 3: Attendre un frame, puis définir la position initiale
-         gsap.delayedCall(0.01, () => {
-          gsap.set(pointsFortDiv, { 
-            y: '100vh',
-            x: 0,
-            scale: 1
-          });
-          console.log('✅ Slide-73 position initiale définie: y=100vh');
+        // ÉTAPE 4: Définir la position initiale AVEC FORCE - VIENT DU BAS UNIQUEMENT
+        gsap.set(pointsFortDiv, { 
+          y: '100vh', // OBLIGATOIREMENT du BAS - pas de la droite!
+          x: 0,       // AUCUN décalage horizontal
+          scale: 1,
+          autoAlpha: 1, // Visible mais hors écran
+          // Forcer l'effacement de tout transform précédent
+          rotation: 0,  // S'assurer qu'il n'y a pas de rotation
+          skewX: 0,     // S'assurer qu'il n'y a pas de skew
+          skewY: 0
         });
+        
+        console.log('✅ Slide-73 position initiale FORCÉE: y=100vh (DEPUIS LE BAS UNIQUEMENT)');
+        
+        // Vérification de debug IMMÉDIATE
+        nextTick(() => {
+          const yPos = gsap.getProperty(pointsFortDiv, 'y');
+          const xPos = gsap.getProperty(pointsFortDiv, 'x');
+          const transform = window.getComputedStyle(pointsFortDiv).transform;
+          console.log('🔍 Vérification IMMÉDIATE position après set: y=' + yPos + ', x=' + xPos);
+          console.log('🔍 Transform CSS après set:', transform);
+          
+          // Si la position n'est pas correcte, forcer à nouveau
+          if (yPos !== '100vh' && yPos !== window.innerHeight) {
+            console.log('⚠️ Position incorrecte détectée, forçage supplémentaire...');
+            gsap.set(pointsFortDiv, { 
+              y: window.innerHeight, // Utiliser la valeur pixel directement
+              x: 0,
+              force3D: true // Forcer l'utilisation de transform3d
+            });
+          }
+        });
+        
       } else {
         // Sur desktop, laisser les styles par défaut
         gsap.set(pointsFortDiv, { autoAlpha: 0, y: 50 });
@@ -150,13 +179,16 @@ export function useMobileAnimations() {
     
     // Forcer immédiatement les styles mobiles pour éviter le glissement depuis la droite
     if (isMobile()) {
-      // Appliquer les styles de base immédiatement
+      // STEP 1: Nettoyer tout transform CSS existant IMMÉDIATEMENT
+      pointsFortDiv.style.transform = '';
+      pointsFortDiv.style.webkitTransform = '';
+      pointsFortDiv.style.cssText = pointsFortDiv.style.cssText.replace(/transform[^;]*;?/g, '');
+      
+      // STEP 2: Appliquer les styles de base immédiatement
       applyMobileStylesIfNeeded();
       
-      // Petit délai pour que les styles CSS soient bien appliqués
-      gsap.delayedCall(0.05, () => {
-    resetToInitialState();
-      });
+      // STEP 3: Reset IMMÉDIAT avec position forcée du BAS - PAS DE DÉLAI
+      resetToInitialState();
     } else {
       resetToInitialState();
     }
@@ -236,7 +268,7 @@ export function useMobileAnimations() {
           animationStates.value['slide-73-mobile'] = 'hidden';
           animationStates.value['slide-73-animation-playing'] = false;
           animationStates.value['slide-73-animation-complete'] = false;
-          
+            
           // Réactiver les interactions DOM
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
@@ -316,13 +348,21 @@ export function useMobileAnimations() {
     const slide21Section = sections.value.find(s => s.id === 'slide-21');
     if (!slide21Section) return;
 
-    const mshillDiv = slide21Section.querySelector('#mshill');
-    const doctornekDiv = slide21Section.querySelector('#doctornek');
+    // Corriger la sélection des éléments selon la vraie structure HTML
+    const thoiathoingDiv = slide21Section.querySelector('#thoiathoing'); // Le conteneur principal
+    const mshillDiv = slide21Section.querySelector('#mshill'); // Le h3 titre
+    const doctornekDiv = slide21Section.querySelector('#doctornek'); // Le div.row avec les paragraphes
     
-    if (!mshillDiv || !doctornekDiv) {
-      console.warn('❌ Éléments #mshill ou #doctornek non trouvés dans slide-21');
+    if (!thoiathoingDiv || !mshillDiv || !doctornekDiv) {
+      console.warn('❌ Éléments #thoiathoing, #mshill ou #doctornek non trouvés dans slide-21');
       return;
     }
+
+    console.log('🚀 Slide-21 structure trouvée:', {
+      thoiathoing: !!thoiathoingDiv,
+      mshill: !!mshillDiv,
+      doctornek: !!doctornekDiv
+    });
 
     // Fonction pour vérifier si on est sur mobile
     const isMobile = () => {
@@ -335,13 +375,19 @@ export function useMobileAnimations() {
       
       console.log('🔧 Application des styles mobiles pour slide-21');
       
-      // Configurer #doctornek pour le recouvrement (comme .points-fort sur slide-73)
+      // S'assurer que #thoiathoing (conteneur principal) est bien configuré
+      gsap.set(thoiathoingDiv, {
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden' // Important pour masquer doctornek quand il est hors écran
+      });
+
+      // Configurer #doctornek pour le recouvrement (overlay complet)
       gsap.set(doctornekDiv, {
         position: 'absolute',
         left: 0,
-        right: 0,
         top: 0,
-        bottom: 0,
         width: '100vw',
         height: '100vh',
         zIndex: 10,
@@ -349,21 +395,13 @@ export function useMobileAnimations() {
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column',
-        backgroundSize: 'cover',
-        clearProps: 'transform'
+        backgroundColor: 'rgba(0, 0, 0, 0.9)', // Fond sombre pour l'overlay
+        // Supprimer right, bottom qui peuvent créer des conflits avec width/height
+        clearProps: 'right,bottom,transform'
       });
 
-      // S'assurer que #thoiathoing est visible et bien positionné
-      gsap.set(mshillDiv, {
-        position: 'relative',
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        zIndex: 1
-      });
+      // #mshill reste normal (c'est juste un h3 titre)
+      // Pas besoin de modifier ses styles
     };
 
     // Fonction pour réinitialiser les éléments à l'état initial
@@ -372,23 +410,53 @@ export function useMobileAnimations() {
       
       if (isMobile()) {
         // Nettoyer les animations GSAP précédentes
-        gsap.killTweensOf([mshillDiv, doctornekDiv]);
+        gsap.killTweensOf([thoiathoingDiv, mshillDiv, doctornekDiv]);
         
-        // Appliquer les styles mobiles
+        // SUPPRIMER tout transform CSS existant pour #doctornek
+        doctornekDiv.style.transform = '';
+        doctornekDiv.style.webkitTransform = '';
+        doctornekDiv.style.cssText = doctornekDiv.style.cssText.replace(/transform[^;]*;?/g, '');
+        
+        // Appliquer les styles mobiles AVANT de définir la position
         applyMobileStylesIfNeeded();
         
-        // État initial mobile : #doctornek caché, glissé vers le bas
+        // État initial mobile : #doctornek caché COMPLÈTEMENT hors écran en bas
         gsap.set(doctornekDiv, { 
-          y: '100vh', // Commence hors écran en bas, comme .points-fort
+          y: '100vh', // Commence hors écran en bas
           x: 0,
-          scale: 1
+          scale: 1,
+          autoAlpha: 1, // Visible mais positionné hors écran
+          zIndex: 10,   // S'assurer qu'il est au-dessus
+          force3D: true // Forcer l'utilisation de transform3d
+        });
+        console.log('✅ Slide-21 #doctornek position initiale FORCÉE: y=100vh (complètement caché en bas)');
+        
+        // Vérification IMMÉDIATE de la position
+        nextTick(() => {
+          const yPos = gsap.getProperty(doctornekDiv, 'y');
+          const xPos = gsap.getProperty(doctornekDiv, 'x');
+          const zIndex = gsap.getProperty(doctornekDiv, 'zIndex');
+          const transform = window.getComputedStyle(doctornekDiv).transform;
+          console.log('🔍 Vérification #doctornek: y=' + yPos + ', x=' + xPos + ', zIndex=' + zIndex);
+          console.log('🔍 Transform CSS #doctornek:', transform);
+          
+          // Si la position n'est pas correcte, forcer à nouveau
+          if (yPos !== '100vh' && yPos !== window.innerHeight) {
+            console.log('⚠️ Position #doctornek incorrecte, forçage supplémentaire...');
+            gsap.set(doctornekDiv, { 
+              y: window.innerHeight, // Utiliser la valeur pixel directement
+              x: 0,
+              zIndex: 10,
+              force3D: true
+            });
+          }
         });
         
-        // #thoiathoing (mshill) caché initialement
-        gsap.set(mshillDiv, { autoAlpha: 0, y: 50 });
+        // #thoiathoing (conteneur principal) caché initialement pour l'animation d'entrée
+        gsap.set(thoiathoingDiv, { autoAlpha: 0, y: 50 });
       } else {
         // Desktop - états par défaut
-      gsap.set(doctornekDiv, { autoAlpha: 0, y: 50, scale: 1 });
+        gsap.set(doctornekDiv, { autoAlpha: 0, y: 50, scale: 1 });
         gsap.set(mshillDiv, { autoAlpha: 0, y: 50 });
       }
     
@@ -406,13 +474,16 @@ export function useMobileAnimations() {
     console.log('🚀 Initialisation slide-21, écran mobile:', isMobile());
     
     if (isMobile()) {
-      // Appliquer les styles de base immédiatement
+      // STEP 1: Nettoyer tout transform CSS existant IMMÉDIATEMENT pour #doctornek
+      doctornekDiv.style.transform = '';
+      doctornekDiv.style.webkitTransform = '';
+      doctornekDiv.style.cssText = doctornekDiv.style.cssText.replace(/transform[^;]*;?/g, '');
+      
+      // STEP 2: Appliquer les styles de base immédiatement
       applyMobileStylesIfNeeded();
       
-      // Petit délai pour que les styles CSS soient bien appliqués
-      gsap.delayedCall(0.05, () => {
-    resetToInitialState();
-      });
+      // STEP 3: Reset IMMÉDIAT - PAS DE DÉLAI
+      resetToInitialState();
     } else {
       resetToInitialState();
     }
@@ -424,9 +495,20 @@ export function useMobileAnimations() {
       animationStates.value['slide-21-animation-playing'] = true;
       animationStates.value['slide-21-mobile'] = 'animating-forward';
 
-      // Bloquer les interactions pendant l'animation
+      console.log('🎬 Démarrage animation #doctornek - recouvrement depuis le bas');
+
+      // BLOCAGE COMPLET des interactions pendant l'animation
       document.body.style.overflow = 'hidden';
       document.body.style.touchAction = 'none';
+      document.body.style.pointerEvents = 'none'; // Bloquer TOUS les événements pointeur
+      
+      // Bloquer aussi le scroll sur le conteneur principal
+      const scrollContainer = document.querySelector(SCROLLER_SELECTOR);
+      if (scrollContainer) {
+        scrollContainer.style.overflow = 'hidden';
+        scrollContainer.style.touchAction = 'none';
+        scrollContainer.style.pointerEvents = 'none';
+      }
 
       const tl = gsap.timeline({
         onComplete: () => {
@@ -434,19 +516,33 @@ export function useMobileAnimations() {
           animationStates.value['slide-21-animation-playing'] = false;
           animationStates.value['slide-21-animation-complete'] = true;
           
-          // Réactiver les interactions DOM
+          // Réactiver TOUTES les interactions DOM
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
+          document.body.style.pointerEvents = '';
           
-          console.log('Slide-21: Animation forward #doctornek terminée');
+          if (scrollContainer) {
+            scrollContainer.style.overflow = '';
+            scrollContainer.style.touchAction = '';
+            scrollContainer.style.pointerEvents = '';
+          }
+          
+          console.log('✅ Slide-21: Animation forward #doctornek terminée - recouvrement complet');
         }
       });
 
-      // Glissement de #doctornek depuis le bas de l'écran pour recouvrir #thoiathoing
+      // Glissement de #doctornek depuis le bas de l'écran pour recouvrir COMPLÈTEMENT #thoiathoing
       tl.to(doctornekDiv, {
-        y: 0, // Glisser vers la position finale
+        y: 0, // Glisser vers la position finale (recouvrement complet)
         duration: 0.8,
-        ease: 'power2.out'
+        ease: 'power2.out',
+        force3D: true, // Optimiser les performances
+        onStart: () => {
+          console.log('🚀 #doctornek glisse du bas vers le haut pour recouvrir la slide');
+        },
+        onComplete: () => {
+          console.log('✅ #doctornek maintenant en position de recouvrement complet');
+        }
       });
     };
 
@@ -457,9 +553,20 @@ export function useMobileAnimations() {
       animationStates.value['slide-21-animation-playing'] = true;
       animationStates.value['slide-21-mobile'] = 'animating-reverse';
 
-      // Bloquer les interactions pendant l'animation
+      console.log('🎬 Démarrage animation reverse #doctornek - retour vers le bas');
+
+      // BLOCAGE COMPLET des interactions pendant l'animation
       document.body.style.overflow = 'hidden';
       document.body.style.touchAction = 'none';
+      document.body.style.pointerEvents = 'none'; // Bloquer TOUS les événements pointeur
+      
+      // Bloquer aussi le scroll sur le conteneur principal
+      const scrollContainer = document.querySelector(SCROLLER_SELECTOR);
+      if (scrollContainer) {
+        scrollContainer.style.overflow = 'hidden';
+        scrollContainer.style.touchAction = 'none';
+        scrollContainer.style.pointerEvents = 'none';
+      }
 
       const tl = gsap.timeline({
         onComplete: () => {
@@ -467,19 +574,33 @@ export function useMobileAnimations() {
           animationStates.value['slide-21-animation-playing'] = false;
           animationStates.value['slide-21-animation-complete'] = false;
           
-          // Réactiver les interactions DOM
+          // Réactiver TOUTES les interactions DOM
           document.body.style.overflow = '';
           document.body.style.touchAction = '';
+          document.body.style.pointerEvents = '';
           
-          console.log('Slide-21: Animation reverse #doctornek terminée');
+          if (scrollContainer) {
+            scrollContainer.style.overflow = '';
+            scrollContainer.style.touchAction = '';
+            scrollContainer.style.pointerEvents = '';
+          }
+          
+          console.log('✅ Slide-21: Animation reverse #doctornek terminée - retour en bas');
         }
       });
 
-      // Glissement de #doctornek vers le bas de l'écran
+      // Glissement de #doctornek vers le bas de l'écran (sortie complète)
       tl.to(doctornekDiv, {
-        y: '100vh', // Glisser complètement vers le bas
+        y: '100vh', // Glisser complètement vers le bas (hors écran)
         duration: 0.6,
-        ease: 'power2.in'
+        ease: 'power2.in',
+        force3D: true, // Optimiser les performances
+        onStart: () => {
+          console.log('🚀 #doctornek glisse vers le bas pour libérer la slide');
+        },
+        onComplete: () => {
+          console.log('✅ #doctornek maintenant caché en bas, slide libérée');
+        }
       });
     };
 
@@ -491,7 +612,7 @@ export function useMobileAnimations() {
       animationStates.value['slide-21-mobile'] = 'thoiathoing-visible';
       
       // Animation d'apparition de #thoiathoing
-      gsap.to(mshillDiv, {
+      gsap.to(thoiathoingDiv, {
         autoAlpha: 1,
         y: 0,
         duration: 0.8,
@@ -509,6 +630,7 @@ export function useMobileAnimations() {
         applyMobileStylesIfNeeded();
       }
       
+      gsap.set(thoiathoingDiv, { autoAlpha: 1, y: 0 });
       gsap.set(mshillDiv, { autoAlpha: 1, y: 0 });
       gsap.set(doctornekDiv, { y: 0 });
       
@@ -2420,15 +2542,249 @@ export function useMobileAnimations() {
     }
   };
 
+  // Fonction de debug pour tester l'effet de recouvrement de doctornek
+  const debugDoctornekOverlay = () => {
+    const slide21Section = sections.value.find(s => s.id === 'slide-21');
+    if (!slide21Section) {
+      console.log('❌ Section slide-21 non trouvée');
+      return;
+    }
+    
+    const thoiathoingDiv = slide21Section.querySelector('#thoiathoing');
+    const doctornekDiv = slide21Section.querySelector('#doctornek');
+    const mshillDiv = slide21Section.querySelector('#mshill');
+    
+    console.log('🔍 DEBUG Doctornek Overlay:');
+    console.log('- Section slide-21 trouvée:', !!slide21Section);
+    console.log('- #thoiathoing trouvé:', !!thoiathoingDiv);
+    console.log('- #doctornek trouvé:', !!doctornekDiv);
+    console.log('- #mshill trouvé:', !!mshillDiv);
+    console.log('- isMobile:', window.innerWidth <= 1024);
+    
+    if (doctornekDiv) {
+      const computedStyle = window.getComputedStyle(doctornekDiv);
+      const gsapStyle = gsap.getProperty(doctornekDiv, 'y');
+      
+      console.log('- Styles #doctornek:');
+      console.log('  * position CSS:', computedStyle.position);
+      console.log('  * left CSS:', computedStyle.left);
+      console.log('  * top CSS:', computedStyle.top);
+      console.log('  * width CSS:', computedStyle.width);
+      console.log('  * height CSS:', computedStyle.height);
+      console.log('  * zIndex CSS:', computedStyle.zIndex);
+      console.log('  * transform CSS:', computedStyle.transform);
+      console.log('  * y GSAP:', gsapStyle);
+      console.log('  * opacity CSS:', computedStyle.opacity);
+      console.log('  * display CSS:', computedStyle.display);
+      console.log('  * backgroundColor CSS:', computedStyle.backgroundColor);
+    }
+    
+    if (thoiathoingDiv) {
+      const computedStyle = window.getComputedStyle(thoiathoingDiv);
+      console.log('- Styles #thoiathoing:');
+      console.log('  * position CSS:', computedStyle.position);
+      console.log('  * overflow CSS:', computedStyle.overflow);
+      console.log('  * opacity CSS:', computedStyle.opacity);
+      console.log('  * zIndex CSS:', computedStyle.zIndex);
+    }
+    
+    console.log('- États actuels:');
+    console.log('  * slide-21-mobile:', animationStates.value['slide-21-mobile']);
+    console.log('  * animation-playing:', animationStates.value['slide-21-animation-playing']);
+    console.log('  * thoiathoing-shown:', animationStates.value['slide-21-thoiathoing-shown']);
+    
+    // Test manuel de l'effet de recouvrement
+    console.log('🎬 Test recouvrement dans 2 secondes...');
+    setTimeout(() => {
+      if (slide21Section._triggerForwardAnimation) {
+        console.log('🚀 Déclenchement animation recouvrement doctornek');
+        slide21Section._triggerForwardAnimation();
+      }
+    }, 2000);
+  };
+
+  // Fonction pour forcer le reset et tester doctornek
+  const forceDoctornekReset = () => {
+    const slide21Section = sections.value.find(s => s.id === 'slide-21');
+    if (slide21Section && slide21Section._resetToInitialState) {
+      console.log('🔄 Reset forcé de slide-21');
+      slide21Section._resetToInitialState();
+      
+      // Attendre un peu puis tester
+      setTimeout(() => {
+        debugDoctornekOverlay();
+      }, 500);
+    }
+  };
+
+  // Fonction de test pour vérifier que slide-73 vient du bas (NOUVELLE VERSION)
+  const testSlide73BottomDirection = () => {
+    const slide73Section = sections.value.find(s => s.id === 'slide-73');
+    if (!slide73Section) {
+      console.log('❌ Section slide-73 non trouvée');
+      return;
+    }
+    
+    const pointsFortDiv = slide73Section.querySelector('.points-fort');
+    if (!pointsFortDiv) {
+      console.log('❌ Div .points-fort non trouvée');
+      return;
+    }
+    
+    console.log('🧪 TEST SLIDE-73 CORRECTION - Vérification direction BAS:');
+    console.log('- isMobile:', window.innerWidth <= 1024);
+    
+    // Forcer le reset complet
+    if (slide73Section._resetToInitialState) {
+      console.log('🔄 Reset forcé...');
+      slide73Section._resetToInitialState();
+    }
+    
+    // Vérifier la position après reset - IMMÉDIAT
+    const checkPosition = () => {
+      const yPosition = gsap.getProperty(pointsFortDiv, 'y');
+      const xPosition = gsap.getProperty(pointsFortDiv, 'x');
+      const computedStyle = window.getComputedStyle(pointsFortDiv);
+      const transform = computedStyle.transform;
+      const position = computedStyle.position;
+      
+      console.log('📍 Position après reset CORRIGÉ:');
+      console.log('  * y GSAP:', yPosition);
+      console.log('  * x GSAP:', xPosition);
+      console.log('  * transform CSS:', transform);
+      console.log('  * position CSS:', position);
+      console.log('  * Hauteur fenêtre:', window.innerHeight + 'px');
+      
+      // Vérifier si la position est correcte
+      const isYCorrect = (yPosition === '100vh' || yPosition === window.innerHeight || yPosition === window.innerHeight + 'px');
+      const isXCorrect = (xPosition === 0 || xPosition === '0px');
+      
+      if (isYCorrect && isXCorrect) {
+        console.log('✅ CORRECTION RÉUSSIE: .points-fort vient bien du BAS');
+        console.log('   Position Y correcte:', yPosition);
+        console.log('   Position X correcte:', xPosition);
+      } else {
+        console.log('❌ CORRECTION ÉCHOUÉE:');
+        if (!isYCorrect) console.log('   Y incorrect:', yPosition, '(devrait être 100vh ou', window.innerHeight + 'px)');
+        if (!isXCorrect) console.log('   X incorrect:', xPosition, '(devrait être 0)');
+      }
+      
+      // Test animation après 1 seconde
+      console.log('🎬 Test animation dans 1 seconde...');
+      setTimeout(() => {
+        if (slide73Section._triggerForwardAnimation) {
+          console.log('🚀 Déclenchement animation slide-73 CORRIGÉE (BAS vers HAUT)');
+          slide73Section._triggerForwardAnimation();
+        }
+      }, 1000);
+    };
+    
+    // Vérifier immédiatement et aussi après un petit délai
+    checkPosition();
+    setTimeout(checkPosition, 100);
+  };
+
+  // Fonction de test pour vérifier que slide-21 #doctornek fonctionne correctement
+  const testSlide21DoctornekHiding = () => {
+    const slide21Section = sections.value.find(s => s.id === 'slide-21');
+    if (!slide21Section) {
+      console.log('❌ Section slide-21 non trouvée');
+      return;
+    }
+    
+    const doctornekDiv = slide21Section.querySelector('#doctornek');
+    const thoiathoingDiv = slide21Section.querySelector('#thoiathoing');
+    
+    if (!doctornekDiv || !thoiathoingDiv) {
+      console.log('❌ Éléments #doctornek ou #thoiathoing non trouvés');
+      return;
+    }
+    
+    console.log('🧪 TEST SLIDE-21 CORRECTION - Vérification cachage/recouvrement:');
+    console.log('- isMobile:', window.innerWidth <= 1024);
+    
+    // Forcer le reset complet
+    if (slide21Section._resetToInitialState) {
+      console.log('🔄 Reset forcé slide-21...');
+      slide21Section._resetToInitialState();
+    }
+    
+    // Vérifier la position initiale de #doctornek
+    const checkInitialPosition = () => {
+      const yPosition = gsap.getProperty(doctornekDiv, 'y');
+      const xPosition = gsap.getProperty(doctornekDiv, 'x');
+      const zIndex = gsap.getProperty(doctornekDiv, 'zIndex');
+      const autoAlpha = gsap.getProperty(doctornekDiv, 'autoAlpha');
+      const computedStyle = window.getComputedStyle(doctornekDiv);
+      
+      console.log('📍 Position initiale #doctornek CORRIGÉE:');
+      console.log('  * y GSAP:', yPosition);
+      console.log('  * x GSAP:', xPosition);
+      console.log('  * zIndex GSAP:', zIndex);
+      console.log('  * autoAlpha GSAP:', autoAlpha);
+      console.log('  * position CSS:', computedStyle.position);
+      console.log('  * display CSS:', computedStyle.display);
+      console.log('  * transform CSS:', computedStyle.transform);
+      
+      // Vérifier si la position est correcte
+      const isYCorrect = (yPosition === '100vh' || yPosition === window.innerHeight || yPosition === window.innerHeight + 'px');
+      const isXCorrect = (xPosition === 0 || xPosition === '0px');
+      const isZIndexCorrect = (zIndex === 10 || zIndex === '10');
+      
+      if (isYCorrect && isXCorrect && isZIndexCorrect) {
+        console.log('✅ CORRECTION RÉUSSIE: #doctornek bien caché en bas');
+        console.log('   Position Y correcte:', yPosition);
+        console.log('   Position X correcte:', xPosition);
+        console.log('   zIndex correct:', zIndex);
+      } else {
+        console.log('❌ CORRECTION ÉCHOUÉE:');
+        if (!isYCorrect) console.log('   Y incorrect:', yPosition);
+        if (!isXCorrect) console.log('   X incorrect:', xPosition);
+        if (!isZIndexCorrect) console.log('   zIndex incorrect:', zIndex);
+      }
+      
+      // Vérifier que #thoiathoing est bien configuré
+      const thoiathoing_autoAlpha = gsap.getProperty(thoiathoingDiv, 'autoAlpha');
+      console.log('📍 État #thoiathoing: autoAlpha =', thoiathoing_autoAlpha);
+      
+      // Test recouvrement après 2 secondes
+      console.log('🎬 Test recouvrement #doctornek dans 2 secondes...');
+      setTimeout(() => {
+        if (slide21Section._triggerForwardAnimation) {
+          console.log('🚀 Déclenchement animation recouvrement CORRIGÉE');
+          slide21Section._triggerForwardAnimation();
+          
+          // Vérifier le blocage pendant l'animation
+          setTimeout(() => {
+            const isBlocked = animationStates.value['slide-21-animation-playing'];
+            if (isBlocked) {
+              console.log('✅ BLOCAGE RÉUSSI: Navigation bloquée pendant animation');
+            } else {
+              console.log('❌ BLOCAGE ÉCHOUÉ: Animation pas en cours ou terminée trop vite');
+            }
+          }, 200);
+        }
+      }, 2000);
+    };
+    
+    // Vérifier immédiatement et aussi après un petit délai
+    checkInitialPosition();
+    setTimeout(checkInitialPosition, 100);
+  };
+
   // Exposer les fonctions pour le debug
   window.resetSlide73State = resetSlide73State;
   window.setSlide73ToFinalState = setSlide73ToFinalState;
   window.debugSlide73Animation = debugSlide73Animation;
+  window.testSlide73BottomDirection = testSlide73BottomDirection; // Nouvelle fonction de test
   window.debugSlide21Animation = debugSlide21Animation;
+  window.testSlide21DoctornekHiding = testSlide21DoctornekHiding; // Nouvelle fonction de test
+  window.debugDoctornekOverlay = debugDoctornekOverlay;
+  window.forceDoctornekReset = forceDoctornekReset;
   window.debugSlide20Animation = debugSlide20Animation;
   window.debugSlide23Animation = debugSlide23Animation;
-  window.debugSlide23Margins = debugSlide23Margins; // Nouvelle fonction
-  window.forceRemoveSlide23Margins = forceRemoveSlide23Margins; // Nouvelle fonction
+  window.debugSlide23Margins = debugSlide23Margins;
+  window.forceRemoveSlide23Margins = forceRemoveSlide23Margins;
   window.debugSlide128Animation = debugSlide128Animation;
 
   // Retour de l'API publique

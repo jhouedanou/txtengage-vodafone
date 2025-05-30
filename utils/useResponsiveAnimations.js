@@ -1,221 +1,339 @@
-import { ref, readonly, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
+import { useTabletDetection } from './useTabletDetection.js';
 import { useFullpageScrollTrigger } from './useFullpageScrollTrigger.js';
-import { useMobileAnimations } from './mobileAnimations.js';
+import useMobileAnimations from './mobileAnimations.js';
 
-// Système de commutation intelligent entre animations desktop et mobile
+// Système de commutation intelligent entre animations desktop/mobile/tablette
 export function useResponsiveAnimations() {
-  // Variables d'état
-  const isMobile = ref(false);
+  // Initialisation des systèmes
+  const tabletDetection = useTabletDetection();
+  const desktopAnimations = useFullpageScrollTrigger();
+  const mobileAnimations = useMobileAnimations();
+  
+  // États globaux
   const isInitialized = ref(false);
   const currentAnimationSystem = ref(null);
+  const sections = ref([]);
   
-  // Instances des systèmes d'animation
-  let desktopAnimations = null;
-  let mobileAnimations = null;
+  // Computed properties
+  const isMobile = computed(() => {
+    return !tabletDetection.shouldUseDesktopMode();
+  });
   
-  // Seuil de largeur d'écran pour le mobile (moins de 1024px)
-  const MOBILE_BREAKPOINT = 1024;
+  const isTablet = computed(() => {
+    return tabletDetection.isTablet.value;
+  });
   
-  // Observer pour détecter les changements de taille d'écran
-  let resizeObserver = null;
-  let resizeTimeout = null;
+  const shouldUseDesktopAnimations = computed(() => {
+    return tabletDetection.shouldUseDesktopMode();
+  });
 
-  // Fonction pour détecter si on est sur mobile
-  const checkIsMobile = () => {
-    return window.innerWidth < MOBILE_BREAKPOINT;
-  };
-
-  // Fonction pour nettoyer le système d'animation actuel
-  const cleanupCurrentSystem = () => {
-    if (currentAnimationSystem.value === 'desktop' && desktopAnimations) {
-      console.log('🧹 Nettoyage des animations desktop');
-      desktopAnimations.cleanup?.();
-      desktopAnimations = null;
-    } else if (currentAnimationSystem.value === 'mobile' && mobileAnimations) {
-      console.log('🧹 Nettoyage des animations mobiles');
-      mobileAnimations.cleanupMobileAnimations?.();
-      mobileAnimations = null;
-    }
-    currentAnimationSystem.value = null;
-  };
-
-  // Fonction pour initialiser le système desktop
-  const initDesktopAnimations = (sectionsElements) => {
-    console.log('🖥️ Initialisation des animations desktop');
-    
-    cleanupCurrentSystem();
-    
-    desktopAnimations = useFullpageScrollTrigger();
-    desktopAnimations.init(sectionsElements);
-    currentAnimationSystem.value = 'desktop';
-    
-    return desktopAnimations;
-  };
-
-  // Fonction pour initialiser le système mobile
-  const initMobileAnimations = (sectionsElements) => {
-    console.log('📱 Initialisation des animations mobiles');
-    
-    cleanupCurrentSystem();
-    
-    mobileAnimations = useMobileAnimations();
-    mobileAnimations.initMobileAnimations(sectionsElements);
-    currentAnimationSystem.value = 'mobile';
-    
-    return mobileAnimations;
-  };
-
-  // Fonction principale d'initialisation
-  const initResponsiveAnimations = (sectionsElements) => {
-    if (!sectionsElements || sectionsElements.length === 0) {
-      console.warn('⚠️ Aucune section fournie pour les animations');
-      return null;
+  /**
+   * Initialisation du système responsif
+   */
+  const initResponsiveAnimations = (sectionsElements, options = {}) => {
+    if (isInitialized.value) {
+      console.warn('⚠️ Système responsif déjà initialisé');
+      return;
     }
 
-    // Détecter le type d'écran actuel
-    const currentIsMobile = checkIsMobile();
-    isMobile.value = currentIsMobile;
+    console.log('🚀 Initialisation du système d\'animations responsif');
+    
+    // Validation des sections
+    if (!Array.isArray(sectionsElements) || sectionsElements.length === 0) {
+      console.error('❌ Erreur: sections manquantes ou invalides');
+      return;
+    }
 
-    console.log(`🔄 Initialisation responsive - Mode: ${currentIsMobile ? 'Mobile' : 'Desktop'} (largeur: ${window.innerWidth}px)`);
+    sections.value = sectionsElements;
 
-    let activeSystem = null;
+    // Initialiser la détection de tablettes
+    tabletDetection.init();
 
-    if (currentIsMobile) {
-      activeSystem = initMobileAnimations(sectionsElements);
+    // Déterminer et initialiser le système d'animations approprié
+    if (shouldUseDesktopAnimations.value) {
+      console.log('🖥️ Initialisation du système desktop/tablette');
+      currentAnimationSystem.value = 'desktop';
+      
+      // Initialiser le système desktop avec toutes les sections
+      desktopAnimations.init(sectionsElements);
+      
+      // Configuration spéciale pour les tablettes
+      if (isTablet.value) {
+        setupTabletSpecificBehavior();
+      }
     } else {
-      activeSystem = initDesktopAnimations(sectionsElements);
+      console.log('📱 Initialisation du système mobile');
+      currentAnimationSystem.value = 'mobile';
+      
+      // Pour mobile, on utilise le scroll natif avec des adaptations légères
+      setupMobileBehavior();
     }
 
     isInitialized.value = true;
-    return activeSystem;
+    console.log(`✅ Système responsif initialisé (${currentAnimationSystem.value})`);
   };
 
-  // Fonction pour gérer le changement de taille d'écran
-  const handleResize = () => {
-    // Debounce pour éviter trop d'appels lors du redimensionnement
-    clearTimeout(resizeTimeout);
+  /**
+   * Configuration spécifique pour les tablettes
+   */
+  const setupTabletSpecificBehavior = () => {
+    console.log('📱 Configuration du comportement spécifique aux tablettes');
     
-    resizeTimeout = setTimeout(() => {
-      const newIsMobile = checkIsMobile();
-      
-      // Si le mode a changé (mobile <-> desktop)
-      if (newIsMobile !== isMobile.value) {
-        console.log(`🔄 Changement de mode détecté: ${isMobile.value ? 'Mobile' : 'Desktop'} → ${newIsMobile ? 'Mobile' : 'Desktop'}`);
+    // Écouter les événements de swipe convertis en événements clavier
+    const handleTabletKeyboardEvent = (e) => {
+      // Vérifier si l'événement vient d'un swipe tablette
+      if (e.detail && e.detail.source === 'tablet-swipe') {
+        console.log(`📱 Événement clavier provenant d'un swipe tablette: ${e.key}`);
         
-        isMobile.value = newIsMobile;
-        
-        // Récupérer les sections actuelles
-        const sections = document.querySelectorAll('[data-section], .section, .slide');
-        const sectionsArray = Array.from(sections);
-        
-        if (sectionsArray.length > 0) {
-          // Réinitialiser avec le nouveau système
-          if (newIsMobile) {
-            initMobileAnimations(sectionsArray);
-          } else {
-            initDesktopAnimations(sectionsArray);
-          }
-        }
+        // Ajouter une logique spécifique si nécessaire
+        // Par exemple, des animations différentes pour les tablettes
       }
-    }, 250); // Délai de 250ms pour le debounce
+    };
+
+    document.addEventListener('keydown', handleTabletKeyboardEvent);
+
+    // Désactiver le scroll natif pour éviter les conflits
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    console.log('✅ Comportement tablette configuré');
   };
 
-  // Configuration de l'observer de redimensionnement
-  const setupResizeObserver = () => {
-    // Utiliser ResizeObserver si disponible, sinon l'événement resize
-    if (window.ResizeObserver) {
-      resizeObserver = new ResizeObserver(handleResize);
-      resizeObserver.observe(document.body);
+  /**
+   * Configuration pour mobile
+   */
+  const setupMobileBehavior = () => {
+    console.log('📱 Configuration du comportement mobile avec animations complètes');
+    
+    // Réactiver le scroll natif pour le conteneur principal
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+
+    // IMPORTANT: Initialiser les vraies animations mobiles avec toutes les fonctionnalités
+    if (sections.value && sections.value.length > 0) {
+      console.log('🚀 Initialisation des animations mobiles avancées');
+      mobileAnimations.initMobileAnimations(sections.value);
     } else {
-      window.addEventListener('resize', handleResize);
+      console.warn('⚠️ Pas de sections disponibles pour les animations mobiles');
     }
   };
 
-  // Fonction pour obtenir le système d'animation actuel
-  const getCurrentAnimationSystem = () => {
+  /**
+   * Navigation vers une section
+   */
+  const goToSection = (index, duration = null) => {
+    if (!isInitialized.value) {
+      console.warn('⚠️ Système non initialisé');
+      return;
+    }
+
+    if (index < 0 || index >= sections.value.length) {
+      console.warn(`⚠️ Index de section invalide: ${index}`);
+      return;
+    }
+
+    console.log(`🎯 Navigation vers la section ${index} (système: ${currentAnimationSystem.value})`);
+
     if (currentAnimationSystem.value === 'desktop') {
-      return desktopAnimations;
-    } else if (currentAnimationSystem.value === 'mobile') {
-      return mobileAnimations;
-    }
-    return null;
-  };
-
-  // Fonction pour naviguer vers une section (compatible avec les deux systèmes)
-  const goToSection = (index, duration) => {
-    const activeSystem = getCurrentAnimationSystem();
-    
-    if (activeSystem) {
-      // Vérifier si le scroll est bloqué sur mobile (slide 73)
-      if (currentAnimationSystem.value === 'mobile' && 
-          activeSystem.animationStates?.value?.['slide-73-scroll-blocked']) {
-        console.log('🚫 Navigation bloquée - Animation slide 73 en cours sur mobile');
-        return; // Empêcher la navigation
-      }
-
-      if (currentAnimationSystem.value === 'desktop' && activeSystem.goToSection) {
-        activeSystem.goToSection(index, duration);
-      } else if (currentAnimationSystem.value === 'mobile' && activeSystem.goToMobileSection) {
-        activeSystem.goToMobileSection(index, duration);
-      }
-    }
-  };
-
-  // Fonction pour obtenir l'index de la section actuelle
-  const getCurrentSectionIndex = () => {
-    const activeSystem = getCurrentAnimationSystem();
-    return activeSystem?.currentSectionIndex?.value || 0;
-  };
-
-  // Fonction de nettoyage complète
-  const cleanup = () => {
-    console.log('🧹 Nettoyage complet du système responsive');
-    
-    // Nettoyer les timeouts
-    clearTimeout(resizeTimeout);
-    
-    // Nettoyer l'observer de redimensionnement
-    if (resizeObserver) {
-      resizeObserver.disconnect();
-      resizeObserver = null;
+      // Utiliser le système desktop/tablette
+      desktopAnimations.goToSection(index, duration);
     } else {
-      window.removeEventListener('resize', handleResize);
+      // CORRECTION: Utiliser le système d'animations mobiles complet
+      console.log(`📱 Navigation mobile vers section ${index} avec animations`);
+      mobileAnimations.goToMobileSection(index, duration || 0.8);
     }
-    
-    // Nettoyer le système d'animation actuel
-    cleanupCurrentSystem();
-    
-    // Réinitialiser les états
-    isInitialized.value = false;
-    isMobile.value = false;
   };
 
-  // Lifecycle hooks
-  onMounted(() => {
-    setupResizeObserver();
+  /**
+   * Obtenir l'index de la section actuelle
+   */
+  const getCurrentSectionIndex = () => {
+    if (!isInitialized.value) return 0;
+    
+    if (currentAnimationSystem.value === 'desktop') {
+      return desktopAnimations.currentSectionIndex.value;
+    } else {
+      // CORRECTION: Utiliser l'index du système d'animations mobiles
+      return mobileAnimations.currentSectionIndex.value;
+    }
+  };
+
+  /**
+   * Vérifier si on navigue actuellement
+   */
+  const isNavigating = computed(() => {
+    if (currentAnimationSystem.value === 'desktop') {
+      return desktopAnimations.isNavigating.value || tabletDetection.isProcessingSwipe.value;
+    } else {
+      // CORRECTION: Utiliser l'état de navigation du système mobile
+      return mobileAnimations.isNavigating.value;
+    }
   });
 
+  /**
+   * Obtenir les états d'animation
+   */
+  const getAnimationStates = () => {
+    if (currentAnimationSystem.value === 'desktop') {
+      return desktopAnimations.animationStates.value;
+    } else {
+      // CORRECTION: Utiliser les états d'animation du système mobile
+      return mobileAnimations.animationStates.value;
+    }
+  };
+
+  /**
+   * Basculer entre les systèmes d'animations
+   */
+  const switchAnimationSystem = (forceSystem = null) => {
+    if (!isInitialized.value) return;
+
+    const newSystem = forceSystem || (shouldUseDesktopAnimations.value ? 'desktop' : 'mobile');
+    
+    if (newSystem === currentAnimationSystem.value) {
+      console.log(`ℹ️ Système déjà en mode ${newSystem}`);
+      return;
+    }
+
+    console.log(`🔄 Basculement du système: ${currentAnimationSystem.value} → ${newSystem}`);
+
+    // Nettoyer l'ancien système
+    cleanup();
+
+    // Initialiser le nouveau système
+    currentAnimationSystem.value = newSystem;
+    
+    if (newSystem === 'desktop') {
+      desktopAnimations.init(sections.value);
+      if (isTablet.value) {
+        setupTabletSpecificBehavior();
+      }
+    } else {
+      // CORRECTION: Initialiser le système mobile complet
+      setupMobileBehavior();
+    }
+
+    console.log(`✅ Basculement terminé vers ${newSystem}`);
+  };
+
+  /**
+   * Gestion du redimensionnement
+   */
+  const handleResize = () => {
+    // Re-détecter le type d'appareil
+    const wasTablet = tabletDetection.isTablet.value;
+    tabletDetection.init();
+    
+    // Si le type d'appareil a changé, basculer le système
+    if (wasTablet !== tabletDetection.isTablet.value) {
+      console.log('🔄 Changement de type d\'appareil détecté');
+      switchAnimationSystem();
+    }
+  };
+
+  /**
+   * Nettoyage
+   */
+  const cleanup = () => {
+    if (currentAnimationSystem.value === 'desktop') {
+      desktopAnimations.cleanup();
+    } else if (currentAnimationSystem.value === 'mobile') {
+      // CORRECTION: Nettoyer aussi les animations mobiles
+      mobileAnimations.cleanupMobileAnimations();
+    }
+    
+    tabletDetection.cleanup();
+    
+    // Restaurer le scroll natif
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    
+    isInitialized.value = false;
+    currentAnimationSystem.value = null;
+    sections.value = [];
+    
+    console.log('🧹 Nettoyage du système responsif terminé');
+  };
+
+  /**
+   * Fonctions de debug spécifiques au système responsif
+   */
+  const debugInfo = () => {
+    return {
+      isInitialized: isInitialized.value,
+      currentAnimationSystem: currentAnimationSystem.value,
+      isMobile: isMobile.value,
+      isTablet: isTablet.value,
+      shouldUseDesktopAnimations: shouldUseDesktopAnimations.value,
+      sectionsCount: sections.value.length,
+      currentSectionIndex: getCurrentSectionIndex(),
+      isNavigating: isNavigating.value,
+      animationStates: getAnimationStates(),
+      tabletDetection: tabletDetection.debugInfo(),
+      desktopAnimations: currentAnimationSystem.value === 'desktop' ? {
+        currentSectionIndex: desktopAnimations.currentSectionIndex.value,
+        isNavigating: desktopAnimations.isNavigating.value,
+        animationStates: desktopAnimations.animationStates.value
+      } : null
+    };
+  };
+
+  // Exposer les fonctions de debug globalement
+  if (typeof window !== 'undefined') {
+    window.debugResponsiveAnimations = {
+      info: debugInfo,
+      switchToDesktop: () => switchAnimationSystem('desktop'),
+      switchToMobile: () => switchAnimationSystem('mobile'),
+      getCurrentSection: getCurrentSectionIndex,
+      goToSection,
+      forceTabletMode: () => {
+        tabletDetection.forceTabletMode();
+        switchAnimationSystem('desktop');
+      },
+      cleanup,
+      // Proxy vers les fonctions de debug des sous-systèmes
+      tablet: window.debugTabletDetection,
+      desktop: window.debugDesktopAnimations
+    };
+  }
+
+  // Écouter les changements de taille d'écran
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+  }
+
+  // Cleanup automatique au unmount
   onUnmounted(() => {
     cleanup();
+    // Nettoyer aussi les event listeners
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    }
   });
 
   // API publique
   return {
     // États
-    isMobile: readonly(isMobile),
-    isInitialized: readonly(isInitialized),
-    currentAnimationSystem: readonly(currentAnimationSystem),
-    
-    // Méthodes principales
+    isMobile,
+    isTablet,
+    isInitialized,
+    currentAnimationSystem,
+    isNavigating,
+
+    // Fonctions principales
     initResponsiveAnimations,
     goToSection,
     getCurrentSectionIndex,
-    getCurrentAnimationSystem,
+    getAnimationStates,
+
+    // Fonctions de contrôle
+    switchAnimationSystem,
+    handleResize,
     cleanup,
-    
-    // Utilitaires
-    checkIsMobile,
-    MOBILE_BREAKPOINT
+    debugInfo
   };
 }
 
