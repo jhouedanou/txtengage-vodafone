@@ -1382,12 +1382,12 @@ body {
             font-size: 13px !important;
         }
     }}
-  #slide-21{ 
-     #thoiathoing{
-    /* margin-top: 100px !important; */
-    height: 125px !important;   
-    background:rgba(255, 255, 255, 0) !important;
- }}
+//   #slide-21{ 
+//      #thoiathoing{
+//     /* margin-top: 100px !important; */
+//     height: 125px !important;   
+//     background:rgba(255, 255, 255, 0) !important;
+//  }}
     #stone{
         display: flex;
         justify-content: flex-end;
@@ -1460,7 +1460,7 @@ body {
     #slide-60,#slide-59{
         height: 100vh !important;
     }
-    #slide-128,#slide-73,#slide-21,#slide-20,#slide-22,#doctornek,#slide-59{
+    #slide-128,#slide-73,#slide-21,#slide-20,#slide-22,#slide-59{
         height: 100dvh !important;
     }
     #subint{
@@ -2908,9 +2908,9 @@ br{
         //     }
         // }
     }
-    #doctornek{
-        height:100dvh !important;
-    }
+    // #doctornek{
+    //     height:100dvh !important;
+    // }
     #slide-22{
         height:100vh !important;
         
@@ -3169,8 +3169,6 @@ justify-content: space-between;
     
         }
     }
-
-
 }
 br{
     display:none !important;
@@ -4212,28 +4210,28 @@ body.slide-73-active,
             position: absolute;
             left: 11.1vh;
             top: 4.8vh;
-            border-radius: 54px;
-            overflow: hidden;
+        border-radius: 54px;
+        overflow: hidden;
             height: 580px;
             width: 313px;
             background-color: rgb(0, 0, 0);
-            display: flex;
-            flex-direction: column;
+        display: flex;
+        flex-direction: column;
             img{
                 height: 100%;
                 width: 100%;
             }
         }
     .image-container {
-        position: absolute;
+      position: absolute;
         width: 304px;
         height: 580px;
-        top: 0;
-        left: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
         right: 0;
         margin: auto;
 
@@ -4400,7 +4398,7 @@ body.slide-73-active,
             -webkit-transform: translateZ(0);
             transform: translateZ(0);
             height: 100% !important;
-
+            
             &::before {
                 width: 360px;
                 content: "" !important;
@@ -4426,7 +4424,7 @@ body.slide-73-active,
                 justify-content: center !important;
                 position: absolute !important;
                 z-index: 2 !important;
-                border-radius: 26px !important;
+        border-radius: 26px !important;
                 transform: translateZ(0);
                 left: 0;
                 right: 0;
@@ -4616,20 +4614,20 @@ body.slide-73-active,
             -webkit-transform: translate3d(0, 0, 0);
             
             li{
-                display: flex;
-                flex-direction:column;
-                margin-right: 2em;
-                font-family: Raleway;
-                font-size: 23px;
-                font-weight: normal;
-                font-stretch: normal;
-                font-style: normal;
-                line-height: 1.44;
-                letter-spacing: normal;
-                text-align: left;
-                color: #000;
-                align-items: center;
-                justify-content: center;
+display: flex;
+flex-direction:column;
+margin-right: 2em;
+font-family: Raleway;
+font-size: 23px;
+font-weight: normal;
+font-stretch: normal;
+font-style: normal;
+line-height: 1.44;
+letter-spacing: normal;
+text-align: left;
+color: #000;
+align-items: center;
+justify-content: center;
                 
                 // Transitions pour les éléments de liste
                 transition: transform 0.3s ease-out;
@@ -4641,27 +4639,27 @@ body.slide-73-active,
                     -webkit-transform: translateY(-2px);
                 }
                 
-                strong{
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                    background-color: #f00;
-                    width: 94px;
-                    height: 94px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 50px;
-                    font-weight: bold;
-                    font-stretch: normal;
-                    font-style: normal;
-                    line-height: 0.4;
-                    letter-spacing: normal;
-                    text-align: center;
-                    color: #fff;
-                    margin-bottom: 10px;
+        strong{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background-color: #f00;
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 0.4;
+            letter-spacing: normal;
+            text-align: center;
+            color: #fff;
+          margin-bottom: 10px;
                     
                     // Transitions pour les cercles rouges
                     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -4674,17 +4672,17 @@ body.slide-73-active,
                         box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
                     }
                     
-                    span{
-                        font-family: Vodafone;
-                        font-size: 20px;
-                        font-weight: normal;
-                        text-transform: uppercase;
-                        font-stretch: normal;
-                        font-style: normal;
-                        line-height: 2;
-                        letter-spacing: normal;
-                        text-align: center;
-                        color: #fff;
+            span{
+                font-family: Vodafone;
+                font-size: 20px;
+                font-weight: normal;
+                text-transform: uppercase;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 2;
+                letter-spacing: normal;
+                text-align: center;
+                color: #fff;
                         
                         // Transition pour le texte dans les cercles
                         transition: all 0.2s ease;
@@ -4913,7 +4911,7 @@ html[data-darkreader-scheme="dark"] {
 }
 
 /* Fallback for older Android versions */
-@media screen and (max-device-width: 1024px) {
+@media screen and (max-device-width: 1180px) {
     .split-container ul li {
         color: #e60000 !important;
         -webkit-text-fill-color: #e60000 !important;
@@ -5279,5 +5277,768 @@ a.back-to-top{
     }
   }
 
-  //cibler les ipads et les tablettes
+/* iPad en orientation portrait */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1180px) 
+  and (orientation: portrait) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+  /* Styles pour iPad portrait */
+}
+
+/* iPad en orientation paysage */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1180px) 
+  and (orientation: landscape) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+  /* Styles pour iPad paysage */
+
   
+}
+
+/* iPad Pro 12.9" */
+@media only screen 
+  and (min-device-width: 1024px) 
+  and (max-device-width: 1366px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+  /* Styles pour iPad Pro 12.9" */
+}
+
+/* iPad Pro 11" */
+@media only screen 
+  and (min-device-width: 834px) 
+  and (max-device-width: 1194px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+  /* Styles pour iPad Pro 11" */
+}
+
+/* Tablettes Android génériques */
+@media only screen 
+  and (min-width: 768px) 
+  and (max-width: 1024px) {
+  /* Styles pour tablettes Android */
+}
+
+/* Tablettes haute résolution */
+@media only screen 
+  and (min-width: 768px) 
+  and (max-width: 1024px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+  /* Styles pour tablettes haute résolution */
+}
+
+
+/* Forcer l'orientation paysage sur tablettes */
+@media screen 
+  and (min-width: 768px) 
+  and (max-width: 1024px) 
+  and (orientation: portrait) {
+  
+
+  
+  /* Option 2: Afficher un message de rotation */
+  body::before {
+    content: "Please rotate your device to landscape mode";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #e60000;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+    font-size: 18px;
+    text-align: center;
+  }
+}
+
+/* Overlay de rotation pour tablettes en portrait sans blur */
+.rotation-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  /* backdrop-filter: blur(20px); */
+  /* -webkit-backdrop-filter: blur(20px); */
+  z-index: 99999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+  text-align: center;
+  font-family: 'Raleway', sans-serif;
+  
+  .message-container {
+    background: rgba(230, 0, 0, 0.9);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    max-width: 90%;
+    /* backdrop-filter: blur(5px); */
+    /* -webkit-backdrop-filter: blur(5px); */
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: rotate 2s linear infinite;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    svg {
+      width: 80px;
+      height: 80px;
+      color: white;
+    }
+  }
+  
+  .title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #fff;
+  }
+  
+  .description {
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+}
+
+/* Forcer l'orientation paysage sur tablettes et iPads Mini */
+@media screen 
+  and (min-width: 744px) /* Inclut iPad Mini 6 */
+  and (max-width: 1024px) 
+  and (orientation: portrait) {
+  
+  /* Blur désactivé - seulement masquer le contenu */
+  body {
+    /* filter: blur(8px); */
+    /* -webkit-filter: blur(8px); */
+    overflow: hidden;
+  }
+  
+  .rotation-overlay {
+    display: flex;
+    filter: none;
+    -webkit-filter: none;
+  }
+  
+  /* Alternative: masquer complètement le contenu principal */
+  /* .main-content {
+    display: none;
+  } */
+}
+
+
+/* Tous les iPads et écrans moyens - Toutes générations et orientations */
+/* Media query mise à jour pour inclure l'iPad Mini (y compris Mini 6) + écrans PC/tablettes 768-1151px */
+@media only screen 
+  and (min-device-width: 744px) /* iPad Mini 6 commence à 744px */
+  and (max-device-width: 1366px) 
+  and (-webkit-min-device-pixel-ratio: 1), 
+  only screen 
+  and (min-device-width: 744px) /* iPad Mini 6 commence à 744px */
+  and (max-device-width: 1366px) 
+  and (-webkit-min-device-pixel-ratio: 2),
+  screen 
+  and (min-width: 768px) /* Écrans PC/tablettes moyens */
+  and (max-width: 1151px) {
+  /* Styles pour tous les iPads (y compris iPad Mini 6) + écrans PC/tablettes 768-1151px */
+  #slide-21{
+
+  }
+  #llass, #lele{
+    min-width: 502px !important;
+    min-height: 479px !important;
+  }
+
+  /* Styles pour le composant #sharon et ses éléments */
+  #sharon {
+    max-height: 100vh !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: row !important;
+  }
+  
+  #quadi {
+    height: 30vh !important;
+    max-height: 30vh !important;
+    width: 50vw !important;
+    max-width: 50vw !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    position: relative !important;
+    
+    .perdrix-slide {
+      position: absolute !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      top: 0 !important;
+      left: 0 !important;
+      margin: 0 !important;
+      padding: 1rem !important;
+      height: 30vh !important;
+      max-height: 30vh !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      
+      .text-container {
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center !important;
+        width: 100% !important;
+        max-width: 85% !important;
+        
+        h3 {
+          color: white !important;
+          font-size: 28px !important;
+          margin-bottom: 1rem !important;
+        }
+        
+        .text-content {
+          color: white !important;
+          font-size: 20px !important;
+          line-height: 1.4 !important;
+          
+          p {
+            font-size: 18px !important;
+            line-height: 1.3 !important;
+            margin-bottom: 1rem !important;
+          }
+          
+          ul {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            grid-template-rows: repeat(2, auto) !important;
+            gap: 15px !important;
+            width: 100% !important;
+            max-width: 500px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+            place-items: center !important;
+            justify-content: center !important;
+            
+            li {
+              width: 100% !important;
+              max-width: 240px !important;
+              list-style: none !important;
+              background: url('/images/check.jpg') 10px center no-repeat white !important;
+              background-size: 14px 14px !important;
+              height: 28px !important;
+              max-height: 28px !important;
+              font-family: Vodafone !important;
+              font-size: 16px !important;
+              font-weight: normal !important;
+              line-height: 26px !important;
+              text-align: left !important;
+              padding: 0px 0px 0px 30px !important;
+              margin: 0 !important;
+              color: #e60000 !important;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  #stone {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    width: 50vw !important;
+    max-width: 50vw !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    
+    #sparta {
+        height: 574px !important;
+        position: relative !important;
+        overflow: hidden !important;
+        width: 463px !important;
+        transform: translateZ(0) !important;
+        -webkit-transform: translateZ(0) !important;
+      
+      &::before {
+        content: "" !important;
+        position: absolute !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        background: url(/images/Subtract.png) no-repeat center center !important;
+        background-size: contain !important;
+       
+        height: 574px !important;
+        width: 463px !important;
+
+        z-index: 1 !important;
+        will-change: transform !important;
+        z-index: 10 !important;
+      }
+      
+      #rodman {
+       
+        overflow: hidden !important;
+        position: absolute !important;
+        z-index: 2 !important;
+        width: 100% !important;
+        bottom: 0 !important;
+        height: 574px !important;
+        width: 463px !important;
+        .bdrs {
+            position: absolute !important;
+            left: -65px;
+            top: 2.8vh !important;
+            border-radius: 54px !important;
+            overflow: hidden !important;
+            height: 492px !important;
+            width: 252px !important;
+            background-color: rgb(0, 0, 0) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            right: 0;
+            margin: 0 auto;
+          .image-container {
+            position: absolute !important;
+            width: 100vw !important;        max-width: 236px !important;
+
+            height: 100vh !important;
+            max-height:507px !important;
+            top: 0 !important;
+            left: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            right: 0 !important;
+            margin: auto !important;
+            
+            img {
+              height: 100vh !important;
+              max-height: 580px !important;
+              width: 100vw !important;
+              max-width: auto !important;
+              object-fit: contain !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  #text-element-0{
+max-height:100px !important;
+max-width:100px !important;
+}
+  #text-element-1{
+    max-height:150px !important;
+max-width:150px !important;
+
+}
+  #text-element-2{
+    max-height:180px !important;
+max-width:180px !important;
+}
+  #text-element-3{
+    max-height:120px !important;
+max-width:120px !important;
+}
+  #text-element-4{
+    max-height:100px !important;
+max-width:100px !important;
+}
+  /* Styles responsifs pour slide-20 spécifiquement */
+  #slide-20 {
+    .text-element {
+      /* Réduction globale des tailles pour iPad paysage */
+      font-size: 0.8em;
+      line-height: 1.2;
+      margin: 10px auto;
+      padding: 0.6rem;
+      max-width: 90%;
+      text-align: center;
+      
+    //   h3 {
+    //     font-size: 25px !important;
+    //     line-height: 1.1;
+    //     font-weight: bold;
+    //   }
+      
+    //   p {
+    //     font-size: 15px !important;
+    //     line-height: 1.3;
+    //   }
+      
+    //   h5 {
+    //     font-size: 18px !important;
+    //     line-height: 1.2;
+    //   }
+    }
+    
+    /* Hiérarchie progressive des tailles */
+    #text-element-0 {
+      /* Élément principal - légèrement plus grand */
+      h3 {
+        font-size: 22px !important;
+      }
+      p {
+        font-size: 18px !important;
+      }
+      h5 {
+        font-size: 20px !important;
+      }
+    }
+    
+    #text-element-1 {
+      /* Réduction modérée */
+      h3 {
+        font-size: 20px !important;
+      }
+      p {
+        font-size: 16px !important;
+      }
+      h5 {
+        font-size: 18px !important;
+      }
+    }
+    
+    #text-element-2 {
+      /* Réduction standard */
+      h3 {
+        font-size: 19px !important;
+      }
+      p {
+        font-size: 15px !important;
+      }
+      h5 {
+        font-size: 17px !important;
+      }
+    }
+    
+    #text-element-3 {
+      /* Réduction plus importante */
+      h3 {
+        font-size: 18px !important;
+      }
+      p {
+        font-size: 14px !important;
+      }
+      h5 {
+        font-size: 16px !important;
+      }
+    }
+    
+    #text-element-4 {
+      /* Réduction maximale tout en restant lisible */
+      h3 {
+        font-size: 17px !important;
+      }
+      p {
+        font-size: 13px !important;
+      }
+      h5 {
+        font-size: 15px !important;
+      }
+    }
+    
+    /* Optimisations spécifiques pour les conteneurs de slide-20 */
+    #text-element-5 {
+      padding: 0.8rem !important;
+      
+      h5 {
+        font-size: 22px !important;
+        line-height: 1.2;
+      }
+      
+      p {
+        font-size: 16px !important;
+        line-height: 1.3 !important;
+      }
+    }
+    
+    #mzu {
+      padding: 1.5em !important;
+      
+      h2 {
+        font-size: 45px !important;
+        line-height: 1.1;
+        margin: 0;
+      }
+    }
+    
+    #usruu {
+      h2 {
+        font-size: 2.8em !important;
+        max-width: 90% !important;
+        line-height: 0.9;
+      }
+      
+      .apitch {
+        font-size: 2.0em !important;
+        line-height: 1.0;
+      }
+    }
+    
+    /* Optimisation des éléments circulaires dans .gee */
+
+    
+    /* Optimisation du positionnement pour iPad paysage */
+    #text-element-0,
+    .text-element-1,
+    .text-element-2,
+    .text-element-3,
+    .text-element-4 {
+      /* Centrage et espacement optimisé */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      
+      /* Éviter le débordement */
+      max-height: 70vh;
+      overflow: hidden;
+      
+      /* Optimisation de la lisibilité */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      
+      /* Espacement optimisé pour l'écran iPad */
+      word-spacing: 0.05em;
+      letter-spacing: 0.01em;
+    }
+    
+    /* Gestion des éléments avec arrière-plans */
+    .text-element-0,
+    .text-element-1,
+    .text-element-2,
+    .text-element-3,
+    .text-element-4 {
+      &[style*="background"] {
+        border-radius: 6px;
+        padding: 1rem;
+        margin: 0.8rem auto;
+      }
+    }
+    
+    /* Adaptation du conteneur principal */
+    .slide-container {
+      padding: 0.8rem;
+      max-width: 100%;
+      
+      .text-element-0,
+      .text-element-1,
+      .text-element-2,
+      .text-element-3,
+      .text-element-4 {
+        width: 100%;
+        max-width: 85%;
+        margin: 0 auto 1rem;
+      }
+    }
+  }
+}
+
+/* Écrans PC et tablettes entre 768px et 1151px */
+@media only screen 
+  and (min-width: 768px) 
+  and (max-width: 1151px) {
+  /* Styles pour écrans PC et tablettes moyens */
+  #text-element-0{
+    max-height: 120px !important;
+    max-width: 120px !important;
+  }
+  #text-element-1{
+    max-height: 170px !important;
+    max-width: 170px !important;
+  }
+  #text-element-2{
+    max-height: 200px !important;
+    max-width: 200px !important;
+  }
+  #text-element-3{
+    max-height: 140px !important;
+    max-width: 140px !important;
+  }
+  #text-element-4{
+    max-height: 120px !important;
+    max-width: 120px !important;
+  }
+  
+  /* Styles responsifs pour slide-20 */
+  #slide-20 {
+    .text-element {
+      font-size: 0.9em;
+      line-height: 1.3;
+      margin: 12px auto;
+      padding: 0.8rem;
+      max-width: 85%;
+      text-align: center;
+    }
+    
+    #text-element-0 {
+      h3 {
+        font-size: 26px !important;
+      }
+      p {
+        font-size: 20px !important;
+      }
+      h5 {
+        font-size: 22px !important;
+      }
+    }
+    
+    #text-element-1 {
+      h3 {
+        font-size: 24px !important;
+      }
+      p {
+        font-size: 18px !important;
+      }
+      h5 {
+        font-size: 20px !important;
+      }
+    }
+    
+    #text-element-2 {
+      h3 {
+        font-size: 22px !important;
+      }
+      p {
+        font-size: 17px !important;
+      }
+      h5 {
+        font-size: 19px !important;
+      }
+    }
+    
+    #text-element-3 {
+      h3 {
+        font-size: 20px !important;
+      }
+      p {
+        font-size: 16px !important;
+      }
+      h5 {
+        font-size: 18px !important;
+      }
+    }
+    
+    #text-element-4 {
+      h3 {
+        font-size: 19px !important;
+      }
+      p {
+        font-size: 15px !important;
+      }
+      h5 {
+        font-size: 17px !important;
+      }
+    }
+    
+    #text-element-5 {
+      padding: 1rem !important;
+      
+      h5 {
+        font-size: 24px !important;
+        line-height: 1.2;
+      }
+      
+      p {
+        font-size: 18px !important;
+        line-height: 1.3 !important;
+      }
+    }
+    
+    #mzu {
+      padding: 1.8em !important;
+      
+      h2 {
+        font-size: 50px !important;
+        line-height: 1.1;
+        margin: 0;
+      }
+    }
+    
+    #usruu {
+      h2 {
+        font-size: 3.2em !important;
+        max-width: 85% !important;
+        line-height: 0.9;
+      }
+      
+      .apitch {
+        font-size: 2.4em !important;
+        line-height: 1.0;
+      }
+    }
+    
+    #text-element-0,
+    .text-element-1,
+    .text-element-2,
+    .text-element-3,
+    .text-element-4 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      max-height: 75vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      word-spacing: 0.05em;
+      letter-spacing: 0.01em;
+    }
+    
+    .text-element-0,
+    .text-element-1,
+    .text-element-2,
+    .text-element-3,
+    .text-element-4 {
+      &[style*="background"] {
+        border-radius: 8px;
+        padding: 1.2rem;
+        margin: 1rem auto;
+      }
+    }
+    
+    .slide-container {
+      padding: 1rem;
+      max-width: 100%;
+      
+      .text-element-0,
+      .text-element-1,
+      .text-element-2,
+      .text-element-3,
+      .text-element-4 {
+        width: 100%;
+        max-width: 80%;
+        margin: 0 auto 1.2rem;
+      }
+    }
+  }
+}

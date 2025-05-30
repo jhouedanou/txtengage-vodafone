@@ -19,8 +19,8 @@ export default defineNuxtConfig({
         // Additional Samsung Internet specific
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'format-detection', content: 'telephone=no' },
-        // Viewport meta for proper rendering
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover' }
+        // Viewport meta for proper rendering with landscape orientation for tablets
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover, orientation=landscape' }
       ],
       link: [
         {
