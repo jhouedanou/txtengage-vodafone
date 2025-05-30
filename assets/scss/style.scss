@@ -1682,7 +1682,6 @@ body {
             bottom: 0 !important;
             left: 0 !important;
             width: 82vw !important;
-            /* background-color: red !important; */
             max-width: 369px !important;
             max-height: 600px !important;
             height: 100vh !important;
@@ -5260,7 +5259,8 @@ a.back-to-top{
       }
       #slide-60{
         p{
-            font-size: 20px !important;
+            font-size: 22px !important;
+  margin: 1em 0 !important;
         }
       }
     * {
@@ -6058,3 +6058,394 @@ max-width:100px !important;
     }
   }
 }
+
+
+// ...existing code...
+
+/* ==============================================
+   MEDIA QUERIES POUR IPHONES SPÉCIFIQUES
+   ============================================== */
+
+/* iPhone SE (1ère, 2ème et 3ème génération) */
+@media only screen 
+  and (device-width: 320px) 
+  and (device-height: 568px) 
+  and (-webkit-device-pixel-ratio: 2),
+  only screen 
+  and (device-width: 375px) 
+  and (device-height: 667px) 
+  and (-webkit-device-pixel-ratio: 2) {
+  
+  /* Styles spécifiques iPhone SE */
+  body {
+    font-size: 14px !important;
+  }
+  
+  #slide-73 {
+    .subint {
+      padding: 0 0.5em !important;
+      
+      h2 {
+        font-size: 45px !important;
+        line-height: 1.1 !important;
+      }
+      
+      p {
+        font-size: 16px !important;
+        line-height: 1.3 !important;
+      }
+    }
+    
+    .points-fort {
+      padding: 0.5rem !important;
+      
+      h3 {
+        font-size: 20px !important;
+        line-height: 1.2 !important;
+      }
+      
+      p {
+        font-size: 16px !important;
+        line-height: 1.3 !important;
+      }
+    }
+  }
+  
+  #slide-20 {
+    #text-element-5 {
+      padding: 0.5em !important;
+      
+      h5 {
+        font-size: 20px !important;
+      }
+      
+      p {
+        font-size: 16px !important;
+        line-height: 1.2 !important;
+      }
+    }
+    
+    #mzu {
+      h2 {
+        font-size: 35px !important;
+      }
+    }
+    
+    .gee .text-element {
+      &:nth-of-type(1),
+      &:nth-of-type(4) {
+        width: 80px !important;
+        height: 80px !important;
+        
+        h3 {
+          font-size: 28px !important;
+        }
+        
+        p {
+          font-size: 12px !important;
+        }
+      }
+      
+      &:nth-of-type(2),
+      &:nth-of-type(3) {
+        width: 110px !important;
+        height: 110px !important;
+        
+        h3 {
+          font-size: 40px !important;
+        }
+        
+        p {
+          font-size: 12px !important;
+        }
+      }
+      
+      &:nth-of-type(5) {
+        width: 70px !important;
+        height: 70px !important;
+        
+        h3 {
+          font-size: 30px !important;
+        }
+        
+        p {
+          font-size: 10px !important;
+        }
+      }
+    }
+  }
+  
+  #slide-21,
+  #slide-22 {
+    #mshill {
+      font-size: 28px !important;
+    }
+    
+    .text-element {
+      h3 {
+        font-size: 18px !important;
+      }
+      
+      p {
+        font-size: 14px !important;
+      }
+    }
+  }
+  
+  #bygone-bip {
+    .accordion-item {
+      h3 {
+        font-size: 24px !important;
+      }
+      
+      p {
+        font-size: 16px !important;
+      }
+    }
+  }
+  
+  #killerjunior {
+    h2 {
+      font-size: 35px !important;
+    }
+    
+    p {
+      font-size: 16px !important;
+    }
+  }
+  
+  .ditocard {
+    &:nth-of-type(1) {
+      p {
+        font-size: 35px !important;
+      }
+    }
+    
+    &:nth-of-type(2) {
+      p {
+        font-size: 14px !important;
+        padding: 0 2em !important;
+      }
+    }
+  }
+}
+
+/* iPhone 12 mini */
+@media only screen 
+  and (device-width: 375px) 
+  and (device-height: 812px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  
+    #lemof {
+        margin: 0 !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100dvh !important;
+      }
+
+    #yenamarre{
+        margin:1em 0 !important;
+        padding:0 !important;
+    }
+    .back-to-top{
+        img{
+
+            height:50px;width:auto;
+        }
+    }
+    .contact-form{
+        input{
+            margin:2px 0 !important;
+        }
+    }
+    .ditocard{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        p{
+            margin:0 !important;
+            font-size: 18px !important;
+        }
+    }
+    #stone{
+        min-height:458px !important;
+        height:100vh !important;
+        overflow:auto !important;
+    }
+    #slide-73{
+        .slides-container{
+
+            background-position-x:center !important;
+            background-size:cover !important;
+        }
+        .points-fort{
+            max-height:70vh !important;
+        }
+    }
+    #turtlebeach{
+        max-width:100px !important;
+    }
+    #quadi 
+    {
+        min-height:215px !important;
+        .perdrix-slide{
+    }
+}
+    #joce{
+        justify-content:space-between !important;
+        #sharon{
+            min-height:100% !important;
+        }
+    }
+
+
+#lafill{
+    height:100dvh !important;
+}
+}
+
+/* iPhone 12, iPhone 12 Pro */
+@media only screen 
+  and (device-width: 390px) 
+  and (device-height: 844px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  
+    #lemof {
+        margin: 0 !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100dvh !important;
+      }
+
+    #yenamarre{
+        margin:1em 0 !important;
+        padding:0 !important;
+    }
+    .back-to-top{
+        img{
+
+            height:50px;width:auto;
+        }
+    }
+    .contact-form{
+        input{
+            margin:2px 0 !important;
+        }
+    }
+    .ditocard{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        p{
+            margin:0 !important;
+            font-size: 18px !important;
+        }
+    }
+    #stone{
+        min-height:458px !important;
+        height:100vh !important;
+        overflow:auto !important;
+    }
+    #slide-73{
+        .slides-container{
+
+            background-position-x:center !important;
+            background-size:cover !important;
+        }
+        .points-fort{
+            max-height:70vh !important;
+        }
+    }
+    #turtlebeach{
+        max-width:100px !important;
+    }
+    #quadi 
+    {
+        min-height:215px !important;
+        .perdrix-slide{
+    }
+}
+    #joce{
+        justify-content:space-between !important;
+        #sharon{
+            min-height:100% !important;
+        }
+    }
+
+
+#lafill{
+    height:100dvh !important;
+}
+}
+
+/* Optimisations communes pour tous les petits iPhones */
+@media only screen 
+  and (max-device-width: 390px) 
+  and (max-device-height: 844px) {
+    #lemof {
+        margin: 0 !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100dvh !important;
+      }
+
+    #yenamarre{
+        margin:1em 0 !important;
+        padding:0 !important;
+    }
+    .back-to-top{
+        img{
+
+            height:50px;width:auto;
+        }
+    }
+    .contact-form{
+        input{
+            margin:2px 0 !important;
+        }
+    }
+    .ditocard{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        p{
+            margin:0 !important;
+            font-size: 18px !important;
+        }
+    }
+    #stone{
+        min-height:458px !important;
+        height:100vh !important;
+        overflow:auto !important;
+    }
+    #slide-73{
+        .slides-container{
+
+            background-position-x:center !important;
+            background-size:cover !important;
+        }
+        .points-fort{
+            max-height:70vh !important;
+        }
+    }
+    #turtlebeach{
+        max-width:100px !important;
+    }
+    #quadi 
+    {
+        min-height:215px !important;
+        .perdrix-slide{
+    }
+}
+    #joce{
+        justify-content:space-between !important;
+        #sharon{
+            min-height:100% !important;
+        }
+    }
+
+
+#lafill{
+    height:100dvh !important;
+}
+    }
