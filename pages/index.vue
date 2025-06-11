@@ -918,7 +918,17 @@ const initSvgatorAnimations = () => {
     // Fonction pour traiter un objet SVG
     const processSvgObject = (obj, index) => {
       const containerId = obj.getAttribute('data-container-id') || `svg-${index}`;
+      const svgUrl = obj.data;
+      
       console.log(`🔍 Traitement du SVG ${index + 1} dans ${containerId}`);
+      console.log(`📍 URL: ${svgUrl}`);
+      
+      // Détecter si c'est un SVG externe
+      const isExternal = svgUrl.startsWith('http') && !svgUrl.includes(window.location.hostname);
+      if (isExternal) {
+        console.warn(`🌐 SVG EXTERNE détecté: ${svgUrl}`);
+        console.warn(`⚠️ Risque de problème CORS en production !`);
+      }
       
       // Fonction pour initialiser le SVG une fois chargé
       const initializeSvg = () => {
@@ -926,6 +936,23 @@ const initSvgatorAnimations = () => {
           const svgDoc = obj.contentDocument;
           if (!svgDoc) {
             console.warn(`⚠️ Impossible d'accéder au contentDocument de ${containerId}`);
+            
+            // Si c'est un SVG externe, expliquer le problème
+            if (isExternal) {
+              console.error(`🚨 PROBLÈME CORS: ${containerId} utilise un SVG externe`);
+              console.info(`💡 SOLUTION: Télécharger ${svgUrl.split('/').pop()} vers /public/svgs/`);
+              
+              // Stocker l'information pour le debug
+              if (!window.externalSvgIssues) {
+                window.externalSvgIssues = [];
+              }
+              window.externalSvgIssues.push({
+                containerId,
+                svgUrl,
+                fileName: svgUrl.split('/').pop(),
+                status: 'CORS_BLOCKED'
+              });
+            }
             return false;
           }
           
@@ -951,6 +978,14 @@ const initSvgatorAnimations = () => {
                     
                     console.log(`✅ Script Svgator exécuté dans ${containerId}`);
                     
+                    // Marquer comme succès si externe
+                    if (isExternal && window.externalSvgIssues) {
+                      const issue = window.externalSvgIssues.find(i => i.containerId === containerId);
+                      if (issue) {
+                        issue.status = 'SUCCESS';
+                      }
+                    }
+                    
                     // Configurer l'animation avec retry
                     setTimeout(() => {
                       configureSvgatorRepeat(svgDoc, containerId);
@@ -959,6 +994,15 @@ const initSvgatorAnimations = () => {
                     return true;
                   } catch (error) {
                     console.error(`❌ Erreur lors de l'exécution du script pour ${containerId}:`, error);
+                    
+                    // Marquer comme erreur si externe
+                    if (isExternal && window.externalSvgIssues) {
+                      const issue = window.externalSvgIssues.find(i => i.containerId === containerId);
+                      if (issue) {
+                        issue.status = 'SCRIPT_ERROR';
+                        issue.error = error.message;
+                      }
+                    }
                     return false;
                   }
                 };
@@ -1002,8 +1046,29 @@ const initSvgatorAnimations = () => {
           setTimeout(() => initializeSvg(), 100);
         };
         
-        // Écouter l'événement load
+        const onError = () => {
+          console.error(`❌ Erreur de chargement du SVG ${containerId}`);
+          
+          if (isExternal) {
+            console.error(`🚨 SVG externe inaccessible: ${svgUrl}`);
+            console.info(`💡 Vérifier la connectivité ou télécharger localement`);
+            
+            // Stocker l'erreur
+            if (!window.externalSvgIssues) {
+              window.externalSvgIssues = [];
+            }
+            window.externalSvgIssues.push({
+              containerId,
+              svgUrl,
+              fileName: svgUrl.split('/').pop(),
+              status: 'LOAD_ERROR'
+            });
+          }
+        };
+        
+        // Écouter les événements
         obj.addEventListener('load', onLoad, { once: true });
+        obj.addEventListener('error', onError, { once: true });
         
         // Fallback avec polling pour la production
         let checkAttempts = 0;
@@ -1015,11 +1080,17 @@ const initSvgatorAnimations = () => {
           if (obj.contentDocument) {
             console.log(`📥 SVG ${containerId} détecté via polling (tentative ${checkAttempts})`);
             obj.removeEventListener('load', onLoad);
+            obj.removeEventListener('error', onError);
             initializeSvg();
           } else if (checkAttempts < maxCheckAttempts) {
             setTimeout(pollForContent, 300);
           } else {
             console.warn(`⚠️ Timeout pour le chargement de ${containerId} après ${maxCheckAttempts} tentatives`);
+            
+            if (isExternal) {
+              console.error(`🚨 TIMEOUT SVG externe: ${svgUrl}`);
+              console.info(`💡 Problème probable de CORS ou de connectivité`);
+            }
           }
         };
         
@@ -1039,6 +1110,32 @@ const initSvgatorAnimations = () => {
     
     // Traiter chaque objet SVG
     svgObjects.forEach(processSvgObject);
+    
+    // Afficher un résumé après traitement
+    setTimeout(() => {
+      if (window.externalSvgIssues && window.externalSvgIssues.length > 0) {
+        console.group('📊 RÉSUMÉ - Problèmes SVG Externes');
+        window.externalSvgIssues.forEach(issue => {
+          console.warn(`${issue.containerId}: ${issue.status} - ${issue.fileName}`);
+        });
+        console.groupEnd();
+        
+        // Créer une liste des fichiers à télécharger
+        const filesToDownload = window.externalSvgIssues
+          .filter(issue => issue.status !== 'SUCCESS')
+          .map(issue => issue.fileName);
+        
+        if (filesToDownload.length > 0) {
+          console.group('💾 ACTIONS REQUISES');
+          console.info('Télécharger ces fichiers SVG vers /public/svgs/:');
+          filesToDownload.forEach(fileName => {
+            const sourceUrl = window.externalSvgIssues.find(i => i.fileName === fileName).svgUrl;
+            console.info(`wget -O public/svgs/${fileName} "${sourceUrl}"`);
+          });
+          console.groupEnd();
+        }
+      }
+    }, 3000);
   });
 };
 
@@ -1898,6 +1995,113 @@ const forceSvgReload = () => {
       obj.parentNode.replaceChild(newObj, obj);
     }
   });
+};
+
+// Fonction pour gérer les SVG externes avec fallback local
+const handleExternalSvg = async (svgUrl, containerId) => {
+  console.log(`🌐 Gestion SVG externe: ${svgUrl} pour ${containerId}`);
+  
+  // Vérifier si c'est un SVG externe
+  const isExternal = svgUrl.startsWith('http') && !svgUrl.includes(window.location.hostname);
+  
+  if (!isExternal) {
+    console.log(`✅ SVG local détecté: ${svgUrl}`);
+    return svgUrl; // Retourner l'URL inchangée pour les SVG locaux
+  }
+  
+  console.log(`🔍 SVG externe détecté: ${svgUrl}`);
+  
+  // Extraire le nom du fichier
+  const fileName = svgUrl.split('/').pop();
+  const localPath = `/svgs/${fileName}`;
+  const localUrl = `${window.location.origin}${localPath}`;
+  
+  // Vérifier si le SVG existe déjà localement
+  try {
+    const response = await fetch(localUrl, { method: 'HEAD' });
+    if (response.ok) {
+      console.log(`✅ SVG trouvé localement: ${localUrl}`);
+      return localPath; // Utiliser le chemin local
+    }
+  } catch (error) {
+    console.log(`❌ SVG pas trouvé localement: ${localUrl}`);
+  }
+  
+  // Si pas trouvé localement et en production, afficher un avertissement
+  if (process.env.NODE_ENV === 'production') {
+    console.warn(`⚠️ PROBLÈME CORS: SVG externe ${svgUrl} ne fonctionnera pas en production !`);
+    console.warn(`💡 SOLUTION: Télécharger le fichier vers /public/svgs/${fileName}`);
+    
+    // Créer un message d'aide pour l'utilisateur
+    if (typeof window !== 'undefined' && !window.externalSvgWarningShown) {
+      window.externalSvgWarningShown = true;
+      
+      // Afficher un message console plus visible
+      console.group('🚨 PROBLÈME DÉTECTÉ - SVG Externes');
+      console.warn('Les animations SVG ne fonctionnent pas car elles sont hébergées sur un domaine externe.');
+      console.info('SOLUTIONS:');
+      console.info('1. Télécharger tous les SVG vers /public/svgs/');
+      console.info('2. Configurer CORS sur le serveur externe');
+      console.info('3. Utiliser un proxy/CDN');
+      console.groupEnd();
+    }
+  }
+  
+  // Retourner l'URL externe (ne fonctionnera qu'en développement)
+  return svgUrl;
+};
+
+// Fonction pour créer un objet SVG avec gestion des erreurs CORS
+const createSvgObject = async (svgUrl, containerId, attributes = {}) => {
+  console.log(`🔨 Création objet SVG pour ${containerId}`);
+  
+  // Gérer les SVG externes
+  const finalUrl = await handleExternalSvg(svgUrl, containerId);
+  
+  // Créer l'objet SVG
+  const svgObject = document.createElement('object');
+  svgObject.type = 'image/svg+xml';
+  svgObject.data = finalUrl;
+  
+  // Appliquer les attributs
+  Object.entries(attributes).forEach(([key, value]) => {
+    svgObject.setAttribute(key, value);
+  });
+  
+  // Ajouter data-container-id
+  svgObject.setAttribute('data-container-id', containerId);
+  
+  // Ajouter un gestionnaire d'erreur CORS
+  svgObject.addEventListener('error', () => {
+    console.error(`❌ Erreur de chargement SVG: ${finalUrl}`);
+    
+    if (finalUrl !== svgUrl) {
+      console.log(`🔄 Tentative avec URL originale: ${svgUrl}`);
+      // Essayer avec l'URL originale en dernier recours
+      svgObject.data = svgUrl;
+    }
+  });
+  
+  // Ajouter un gestionnaire de succès
+  svgObject.addEventListener('load', () => {
+    console.log(`✅ SVG chargé avec succès: ${finalUrl}`);
+    
+    // Vérifier l'accès au contentDocument
+    setTimeout(() => {
+      if (svgObject.contentDocument) {
+        console.log(`✅ ContentDocument accessible pour ${containerId}`);
+      } else {
+        console.warn(`⚠️ ContentDocument inaccessible pour ${containerId} - Problème CORS probable`);
+        
+        // Si en production, suggérer des solutions
+        if (process.env.NODE_ENV === 'production') {
+          console.warn(`💡 Pour résoudre: télécharger ${svgUrl.split('/').pop()} vers /public/svgs/`);
+        }
+      }
+    }, 100);
+  });
+  
+  return svgObject;
 };
 </script>
 
