@@ -1007,12 +1007,18 @@ const resetSlide73Animation = () => {
     // Initialiser tous les image-containers - masqués sauf le premier
     if (imageContainers.length > 0) {
       imageContainers.forEach((container, index) => {
+        // ✅ NOUVEAU : Gérer les SVG - les supprimer du DOM sauf pour le premier
+        const containerId = container.id || `image-container-${index + 1}`;
+        
         if (index === 0) {
-          // Premier container : visible
+          // Premier container : visible avec SVG présents dans le DOM
           gsap.set(container, { autoAlpha: 1, y: 0 });
+          // Les SVG restent dans le DOM pour le premier container
         } else {
-          // Autres containers : positionnés hors du viewport mais visibles
+          // Autres containers : positionnés hors du viewport, SVG supprimés du DOM
           gsap.set(container, { autoAlpha: 1, y: '580px' });
+          // Supprimer les SVG du DOM et les stocker
+          removeSvgFromContainer(container, containerId);
         }
       });
     }
@@ -1062,6 +1068,10 @@ const resetSlide73Animation = () => {
           }
           if (firstImageContainer) {
             gsap.set(firstImageContainer, { autoAlpha: 1, y: 0 });
+            // ✅ NOUVEAU : S'assurer que les SVG du premier container sont présents dans le DOM
+            // (ils devraient déjà l'être, mais on vérifie par sécurité)
+            const firstContainerId = firstImageContainer.id || 'image-container-1';
+            console.log(`🎯 Premier container actif: ${firstContainerId} - SVG doivent être présents`);
           }
           
           animationStates.value['slide-23-initialized'] = true;
@@ -1079,6 +1089,9 @@ const resetSlide73Animation = () => {
   let perdrixScrollIndex = 0;
   let maxPerdrixScroll = 0; // Sera calculé dynamiquement
   let isScrollingPerdrix = false;
+  
+  // ✅ NOUVEAU : Stockage des SVG pour insertion/suppression DOM
+  let slide23SvgStorage = new Map(); // Stocke les SVG supprimés avec leur container parent et position
 
   const initializePerdrixScrollLimits = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
@@ -1180,7 +1193,7 @@ const resetSlide73Animation = () => {
       // Préparer le container suivant
       gsap.set(nextImageContainer, { autoAlpha: 1, y: '580px' });
       
-      // Animation simultanée des image-containers - l'ancienne reste visible
+      // Animation simultanée des image-containers
       tl.to(currentImageContainer, {
         y: '-580px',
         duration: getTweenDuration(),
@@ -1190,7 +1203,15 @@ const resetSlide73Animation = () => {
       tl.to(nextImageContainer, {
         y: 0,
         duration: getTweenDuration(),
-        ease: getTweenEase()
+        ease: getTweenEase(),
+        // ✅ NOUVEAU : Réinsérer les SVG dans le DOM APRÈS l'animation du container
+        onComplete: () => {
+          const nextContainerId = nextImageContainer.id || `image-container-${perdrixScrollIndex + 2}`;
+          const insertedCount = insertSvgIntoContainer(nextImageContainer, nextContainerId);
+          if (insertedCount > 0) {
+            console.log(`🎬 Animation SVG peut maintenant commencer pour ${nextContainerId}`);
+          }
+        }
       }, 0);
     }
 
@@ -1278,7 +1299,7 @@ const resetSlide73Animation = () => {
       // Préparer le container précédent
       gsap.set(prevImageContainer, { autoAlpha: 1, y: '-580px' });
       
-      // Animation simultanée des image-containers - l'ancienne reste visible
+      // Animation simultanée des image-containers
       tl.to(currentImageContainer, {
         y: '580px',
         duration: getTweenDuration(),
@@ -1288,7 +1309,15 @@ const resetSlide73Animation = () => {
       tl.to(prevImageContainer, {
         y: 0,
         duration: getTweenDuration(),
-        ease: getTweenEase()
+        ease: getTweenEase(),
+        // ✅ NOUVEAU : Réinsérer les SVG dans le DOM APRÈS l'animation du container
+        onComplete: () => {
+          const prevContainerId = prevImageContainer.id || `image-container-${perdrixScrollIndex}`;
+          const insertedCount = insertSvgIntoContainer(prevImageContainer, prevContainerId);
+          if (insertedCount > 0) {
+            console.log(`🎬 Animation SVG peut maintenant commencer pour ${prevContainerId}`);
+          }
+        }
       }, 0);
     }
   };
@@ -1325,12 +1354,24 @@ const resetSlide73Animation = () => {
     // Réinitialiser les image-containers
     if (imageContainers) {
       imageContainers.forEach((container, index) => {
+        // ✅ NOUVEAU : Gérer l'état des SVG lors du reset - supprimer du DOM sauf le premier
+        const containerId = container.id || `image-container-${index + 1}`;
+        
         if (index === 0) {
-          // Premier container : prêt pour réinitialisation
+          // Premier container : prêt pour réinitialisation avec SVG présents dans le DOM
           gsap.set(container, { autoAlpha: 1, y: 0 });
+          // S'assurer que les SVG sont présents dans le DOM (réinsérer si nécessaire)
+          if (slide23SvgStorage.has(containerId)) {
+            insertSvgIntoContainer(container, containerId);
+          }
         } else {
-          // Autres containers : positionnés hors du viewport mais visibles
+          // Autres containers : positionnés hors du viewport, SVG supprimés du DOM
           gsap.set(container, { autoAlpha: 1, y: '580px' });
+          // Supprimer les SVG du DOM s'ils y sont encore
+          const existingSvgs = container.querySelectorAll('svg, object[type="image/svg+xml"]');
+          if (existingSvgs.length > 0) {
+            removeSvgFromContainer(container, containerId);
+          }
         }
       });
     }
@@ -1341,6 +1382,53 @@ const resetSlide73Animation = () => {
     isScrollingPerdrix = false;
     animationStates.value['slide-23-initialized'] = false;
     animationStates.value['slide-23-current-index'] = 0;
+    
+    // ✅ NOUVEAU : Nettoyer le stockage SVG
+    slide23SvgStorage.clear();
+    console.log('🧹 Stockage SVG slide-23 nettoyé');
+  };
+
+  // Fonction pour supprimer les SVG d'un container et les stocker
+  const removeSvgFromContainer = (container, containerId) => {
+    const svgElements = container.querySelectorAll('svg, object[type="image/svg+xml"]');
+    if (svgElements.length > 0) {
+      const svgData = [];
+      svgElements.forEach((svg, index) => {
+        // Stocker l'élément, son parent et sa position
+        const parent = svg.parentNode;
+        const nextSibling = svg.nextSibling;
+        svgData.push({
+          element: svg.cloneNode(true), // Cloner pour préserver l'élément original
+          parent: parent,
+          nextSibling: nextSibling,
+          index: index
+        });
+        // Supprimer du DOM
+        svg.remove();
+      });
+      slide23SvgStorage.set(containerId, svgData);
+      console.log(`🗑️ SVG supprimés du container ${containerId}:`, svgData.length);
+    }
+  };
+
+  // Fonction pour réinsérer les SVG dans un container
+  const insertSvgIntoContainer = (container, containerId) => {
+    const svgData = slide23SvgStorage.get(containerId);
+    if (svgData && svgData.length > 0) {
+      svgData.forEach(data => {
+        // Réinsérer l'élément à sa position d'origine
+        if (data.nextSibling) {
+          data.parent.insertBefore(data.element, data.nextSibling);
+        } else {
+          data.parent.appendChild(data.element);
+        }
+      });
+      // Nettoyer le stockage
+      slide23SvgStorage.delete(containerId);
+      console.log(`🔄 SVG réinsérés dans le container ${containerId}:`, svgData.length);
+      return svgData.length;
+    }
+    return 0;
   };
 
   // SLIDE-59 : Afficher #llass avec effet de remplissage et gestion de navigation
@@ -1795,6 +1883,11 @@ const resetSlide73Animation = () => {
     isAnimating.value = false;
     Object.keys(animationStates.value).forEach(key => delete animationStates.value[key]);
     sections.value = [];
+    
+    // ✅ NOUVEAU : Nettoyer le stockage SVG slide-23
+    if (slide23SvgStorage) {
+      slide23SvgStorage.clear();
+    }
   };
 
   // Fonctions de debug
