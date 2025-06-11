@@ -1099,6 +1099,72 @@ const resetSlide73Animation = () => {
   // ✅ NOUVEAU : Système de préchargement et cache SVG
   let slide23SvgCache = new Map(); // Cache permanent des SVG pour préchargement rapide
   let slide23PreloadQueue = []; // Queue des containers à précharger
+  
+  // ✅ NOUVEAU : Système de spinner pour le chargement SVG
+  const createSvgSpinner = (container, containerId) => {
+    // Vérifier si un spinner existe déjà
+    const existingSpinner = container.querySelector('.svg-loading-spinner');
+    if (existingSpinner) return existingSpinner;
+    
+    // Créer le spinner
+    const spinner = document.createElement('div');
+    spinner.className = 'svg-loading-spinner';
+    spinner.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top: 3px solid #ffffff;
+      border-radius: 50%;
+      animation: svg-spin 1s linear infinite;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+    `;
+    
+    // Ajouter l'animation CSS si pas encore présente
+    if (!document.querySelector('#svg-spinner-styles')) {
+      const style = document.createElement('style');
+      style.id = 'svg-spinner-styles';
+      style.textContent = `
+        @keyframes svg-spin {
+          0% { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        .svg-loading-spinner {
+          pointer-events: none;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Insérer le spinner dans le container
+    container.style.position = 'relative'; // S'assurer que le container est relatif
+    container.appendChild(spinner);
+    
+    console.log(`⏳ Spinner créé pour ${containerId}`);
+    return spinner;
+  };
+  
+  const removeSvgSpinner = (container, containerId) => {
+    const spinner = container.querySelector('.svg-loading-spinner');
+    if (spinner) {
+      // Animation de fade-out avant suppression
+      spinner.style.transition = 'opacity 0.3s ease-out';
+      spinner.style.opacity = '0';
+      
+      setTimeout(() => {
+        if (spinner.parentNode) {
+          spinner.parentNode.removeChild(spinner);
+        }
+      }, 300);
+      
+      console.log(`✅ Spinner supprimé pour ${containerId}`);
+    }
+  };
 
   const initializePerdrixScrollLimits = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
@@ -1373,23 +1439,27 @@ const resetSlide73Animation = () => {
     // Réinitialiser les image-containers
     if (imageContainers) {
       imageContainers.forEach((container, index) => {
-        // ✅ NOUVEAU : Gérer l'état des SVG lors du reset - supprimer du DOM sauf le premier
+        // ✅ NOUVEAU : Gérer l'état des SVG lors du reset - utiliser le cache optimisé
         const containerId = container.id || `image-container-${index + 1}`;
+        
+        // ✅ NOUVEAU : Supprimer les spinners existants lors du reset
+        removeSvgSpinner(container, containerId);
         
         if (index === 0) {
           // Premier container : prêt pour réinitialisation avec SVG présents dans le DOM
           gsap.set(container, { autoAlpha: 1, y: 0 });
-          // S'assurer que les SVG sont présents dans le DOM (réinsérer si nécessaire)
-          if (slide23SvgStorage.has(containerId)) {
-            insertSvgIntoContainer(container, containerId);
+          // S'assurer que les SVG sont présents dans le DOM (réinsérer depuis le cache)
+          const existingSvgs = container.querySelectorAll('svg, object[type="image/svg+xml"]');
+          if (existingSvgs.length === 0) {
+            insertSvgFromCache(container, containerId);
           }
         } else {
           // Autres containers : positionnés hors du viewport, SVG supprimés du DOM
           gsap.set(container, { autoAlpha: 1, y: '580px' });
-          // Supprimer les SVG du DOM s'ils y sont encore
+          // Supprimer les SVG du DOM s'ils y sont encore (cache conservé)
           const existingSvgs = container.querySelectorAll('svg, object[type="image/svg+xml"]');
           if (existingSvgs.length > 0) {
-            removeSvgFromContainer(container, containerId);
+            removeSvgFromContainerOptimized(container, containerId);
           }
         }
       });
@@ -1406,10 +1476,27 @@ const resetSlide73Animation = () => {
     slide23SvgStorage.clear();
     console.log('🧹 Stockage SVG slide-23 nettoyé');
     
-    // ✅ NOUVEAU : Nettoyer le cache SVG
-    slide23SvgCache.clear();
-    slide23PreloadQueue.length = 0;
-    console.log('🧹 Cache SVG slide-23 nettoyé');
+    // ✅ NOUVEAU : Nettoyer le cache SVG slide-23
+    if (slide23SvgCache) {
+      slide23SvgCache.clear();
+    }
+    if (slide23PreloadQueue) {
+      slide23PreloadQueue.length = 0;
+    }
+    
+    // ✅ NOUVEAU : Nettoyer tous les spinners restants
+    const allSpinners = document.querySelectorAll('.svg-loading-spinner');
+    allSpinners.forEach(spinner => {
+      if (spinner.parentNode) {
+        spinner.parentNode.removeChild(spinner);
+      }
+    });
+    
+    // Nettoyer le style CSS des spinners
+    const spinnerStyles = document.querySelector('#svg-spinner-styles');
+    if (spinnerStyles) {
+      spinnerStyles.remove();
+    }
   };
 
   // Fonction pour supprimer les SVG d'un container et les stocker
@@ -1920,6 +2007,20 @@ const resetSlide73Animation = () => {
     if (slide23PreloadQueue) {
       slide23PreloadQueue.length = 0;
     }
+    
+    // ✅ NOUVEAU : Nettoyer tous les spinners restants
+    const allSpinners = document.querySelectorAll('.svg-loading-spinner');
+    allSpinners.forEach(spinner => {
+      if (spinner.parentNode) {
+        spinner.parentNode.removeChild(spinner);
+      }
+    });
+    
+    // Nettoyer le style CSS des spinners
+    const spinnerStyles = document.querySelector('#svg-spinner-styles');
+    if (spinnerStyles) {
+      spinnerStyles.remove();
+    }
   };
 
   // Fonctions de debug
@@ -2051,28 +2152,46 @@ const resetSlide73Animation = () => {
 
   // Fonction optimisée pour insérer les SVG (utilise le cache)
   const insertSvgFromCache = (container, containerId) => {
+    // ✅ NOUVEAU : Afficher le spinner pendant l'insertion
+    const spinner = createSvgSpinner(container, containerId);
+    
     const cachedData = slide23SvgCache.get(containerId);
     if (cachedData && cachedData.length > 0) {
       let insertedCount = 0;
       
-      cachedData.forEach(data => {
-        // Créer une nouvelle copie depuis le cache
-        const newSvg = data.element.cloneNode(true);
+      // Délai léger pour que le spinner soit visible (simulation de chargement)
+      setTimeout(() => {
+        cachedData.forEach(data => {
+          // Créer une nouvelle copie depuis le cache
+          const newSvg = data.element.cloneNode(true);
+          
+          // Insérer à la position d'origine
+          if (data.nextSibling && data.nextSibling.parentNode === data.parent) {
+            data.parent.insertBefore(newSvg, data.nextSibling);
+          } else {
+            data.parent.appendChild(newSvg);
+          }
+          insertedCount++;
+        });
         
-        // Insérer à la position d'origine
-        if (data.nextSibling && data.nextSibling.parentNode === data.parent) {
-          data.parent.insertBefore(newSvg, data.nextSibling);
-        } else {
-          data.parent.appendChild(newSvg);
-        }
-        insertedCount++;
-      });
+        console.log(`🚀 ${insertedCount} SVG réinsérés depuis le cache pour ${containerId}`);
+        
+        // ✅ NOUVEAU : Supprimer le spinner après insertion
+        setTimeout(() => {
+          removeSvgSpinner(container, containerId);
+        }, 100); // Délai court pour voir l'animation SVG commencer
+        
+      }, 200); // Délai de 200ms pour voir le spinner
       
-      console.log(`🚀 ${insertedCount} SVG réinsérés depuis le cache pour ${containerId}`);
       return insertedCount;
     }
     
     console.warn(`⚠️ Pas de cache trouvé pour ${containerId}`);
+    // Supprimer le spinner même si pas de cache
+    setTimeout(() => {
+      removeSvgSpinner(container, containerId);
+    }, 500);
+    
     return 0;
   };
 
