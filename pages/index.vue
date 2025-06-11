@@ -301,10 +301,21 @@ const setupSectionScrolling = () => {
           }
         }
         
-        // 🎬 NOUVEAU : Redémarrer automatiquement les animations SVG dans cette section
-        setTimeout(() => {
-          restartSectionSvgAnimations(section);
-        }, 100); // Petit délai pour s'assurer que la section est bien visible
+        // 🚀 NOUVEAU : Gestion du lazy loading pour slide-23
+        if (slideId === 23) {
+          console.log(`🎯 Activation du lazy loading pour slide-23`);
+          toggleSlide23LazyLoading(true);
+        } else {
+          // Désactiver le lazy loading si on quitte slide-23
+          toggleSlide23LazyLoading(false);
+        }
+        
+        // 🎬 Redémarrer automatiquement les animations SVG dans cette section (autres slides)
+        if (slideId !== 23) {
+          setTimeout(() => {
+            restartSectionSvgAnimations(section);
+          }, 100);
+        }
       },
       onEnterBack: () => {
         console.log(
@@ -334,10 +345,21 @@ const setupSectionScrolling = () => {
           }
         }
         
-        // 🎬 NOUVEAU : Redémarrer automatiquement les animations SVG dans cette section
-        setTimeout(() => {
-          restartSectionSvgAnimations(section);
-        }, 100); // Petit délai pour s'assurer que la section est bien visible
+        // 🚀 NOUVEAU : Gestion du lazy loading pour slide-23
+        if (slideId === 23) {
+          console.log(`🎯 Activation du lazy loading pour slide-23 (retour)`);
+          toggleSlide23LazyLoading(true);
+        } else {
+          // Désactiver le lazy loading si on quitte slide-23
+          toggleSlide23LazyLoading(false);
+        }
+        
+        // 🎬 Redémarrer automatiquement les animations SVG dans cette section (autres slides)
+        if (slideId !== 23) {
+          setTimeout(() => {
+            restartSectionSvgAnimations(section);
+          }, 100);
+        }
       },
       onLeave: () => {
         console.log(`Leaving section: ${section.id}`);
@@ -529,9 +551,20 @@ onMounted(async () => {
 
   // Initialiser les animations SVG Svgator
   initSvgatorAnimations();
+  
+  // Ajouter un fallback pour la production avec un délai plus long
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🏭 Mode production détecté - Activation du fallback SVG');
+    initSvgatorProductionFallback();
+  }
 
-  // 🎯 NOUVEAU : Système de surveillance pour slide-23
-  initSlide23SvgWatcher();
+  // 🎯 NOUVEAU : Système de lazy loading pour slide-23
+  initSlide23LazyLoading();
+
+  // 🚀 NOUVEAU : Initialiser le système optimisé pour image-containers  
+  setTimeout(() => {
+    initImageContainerAnimations();
+  }, 2000);
 
   // Exposer les fonctions utiles globalement pour le debug
   if (typeof window !== 'undefined') {
@@ -597,279 +630,74 @@ onMounted(async () => {
           }
         });
       },
-      // 🎯 NOUVEAU : Fonctions spécifiques pour slide-23
-      slide23: {
-        forceUpdate: () => {
-          // Force la mise à jour des animations slide-23
-          const slide23Section = document.getElementById('slide-23');
-          if (slide23Section) {
-            console.log('🔄 Mise à jour forcée des animations slide-23');
-            handleSlide23SvgAnimations(slide23Section);
-          } else {
-            console.warn('❌ Slide-23 non trouvée');
-          }
+      forceReload: forceSvgReload,
+      productionFallback: () => {
+        console.log('🏭 Activation manuelle du fallback production');
+        initSvgatorProductionFallback();
+      },
+      // 🚀 NOUVEAU : Fonctions pour le lazy loading
+      lazyLoading: {
+        reinit: () => {
+          console.log('🔄 Réinitialisation du lazy loading slide-23');
+          cleanupSlide23LazyLoading();
+          setTimeout(() => {
+            initSlide23LazyLoading();
+          }, 500);
         },
-        checkStatus: () => {
-          // Vérifier l'état du système slide-23
-          console.log('📊 État du système slide-23:');
-          console.log(`   - Slide active: ${isSlide23Active}`);
-          console.log(`   - Dernier index: ${lastSlide23Index}`);
-          console.log(`   - Surveillance active: ${slide23SvgWatcherInterval !== null}`);
-          
-          if (typeof window !== 'undefined') {
-            const desktopIndex = window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'];
-            const mobileIndex = window.debugMobileAnimations?.states?.value?.['slide-23-current-index'];
-            console.log(`   - Index desktop: ${desktopIndex}`);
-            console.log(`   - Index mobile: ${mobileIndex}`);
-          }
-        },
-        restartCurrent: () => {
-          // Redémarrer l'animation du container actuellement actif
-          if (!isSlide23Active) {
-            console.warn('❌ Pas sur slide-23 actuellement');
-            return;
-          }
-          
-          let currentIndex = 0;
-          if (typeof window !== 'undefined') {
-            if (window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
-              currentIndex = window.debugDesktopAnimations.states.value['slide-23-current-index'];
-            } else if (window.debugMobileAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
-              currentIndex = window.debugMobileAnimations.states.value['slide-23-current-index'];
-            }
-          }
-          
-          const containerId = `image-container-${currentIndex + 1}`;
-          console.log(`🎬 Redémarrage forcé de l'animation ${containerId}`);
-          restartSlide23SvgAnimation(containerId);
-        },
-        stopAll: () => {
-          // Arrêter toutes les animations slide-23
+        testVisible: () => {
+          // Tester quels containers sont visibles
           const slide23Section = document.getElementById('slide-23');
           if (slide23Section) {
             const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
-            console.log(`⏸️ Arrêt de ${imageContainers.length} animations slide-23`);
-            imageContainers.forEach((container) => {
-              if (container.id) {
-                stopSlide23SvgAnimation(container.id);
-              }
+            imageContainers.forEach(container => {
+              const rect = container.getBoundingClientRect();
+              const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+              console.log(`👁️ ${container.id}: ${isVisible ? 'VISIBLE' : 'CACHÉ'}`);
             });
           }
         },
-        testRestart: () => {
-          // Forcer le redémarrage de toutes les animations (test)
-          const slide23Section = document.getElementById('slide-23');
-          if (slide23Section) {
-            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
-            console.log(`🧪 Test redémarrage de ${imageContainers.length} animations slide-23`);
-            imageContainers.forEach((container, index) => {
-              if (container.id) {
-                console.log(`🧪 Test redémarrage ${container.id} (index ${index})`);
-                restartSlide23SvgAnimation(container.id);
-              }
-            });
-          }
-        },
-        realTimeCheck: () => {
-          // Vérification en temps réel de l'état
-          console.log('⏰ Vérification en temps réel:');
-          console.log(`   - activeSlideId.value: ${activeSlideId.value}`);
-          console.log(`   - isSlide23Active: ${isSlide23Active}`);
-          console.log(`   - lastSlide23Index: ${lastSlide23Index}`);
-          
-          if (typeof window !== 'undefined') {
-            const desktopIndex = window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'];
-            const mobileIndex = window.debugMobileAnimations?.states?.value?.['slide-23-current-index'];
-            console.log(`   - Desktop index: ${desktopIndex}`);
-            console.log(`   - Mobile index: ${mobileIndex}`);
-          }
-          
-          // Forcer une mise à jour si on est sur slide-23
-          if (activeSlideId.value === 23) {
-            console.log('🔄 Force mise à jour car sur slide-23');
-            const slide23Section = document.getElementById('slide-23');
-            if (slide23Section) {
-              handleSlide23SvgAnimations(slide23Section);
-            }
-          }
-        },
-        forceLoadSvgs: () => {
-          // Forcer le chargement des SVG en les rendant visibles
-          console.log('🚀 Tentative de force de chargement des SVG...');
-          
-          const slide23Section = document.getElementById('slide-23');
-          if (slide23Section) {
-            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
-            console.log(`📊 ${imageContainers.length} containers à traiter`);
-            
-            imageContainers.forEach((container, index) => {
-              const svgObject = container.querySelector('object[type="image/svg+xml"]');
-              if (svgObject) {
-                console.log(`🔧 Force chargement ${container.id}`);
-                
-                // Méthode 1: Rendre visible temporairement
-                const originalDisplay = svgObject.style.display;
-                const originalVisibility = svgObject.style.visibility;
-                
-                svgObject.style.display = 'block';
-                svgObject.style.visibility = 'visible';
-                svgObject.style.position = 'absolute';
-                svgObject.style.top = '0';
-                svgObject.style.left = '0';
-                svgObject.style.zIndex = '9999';
-                
-                // Méthode 2: Déclencher le chargement en forçant un reload
-                const originalData = svgObject.data;
-                svgObject.data = '';
-                setTimeout(() => {
-                  svgObject.data = originalData;
-                  console.log(`🔄 Rechargement forcé de ${container.id}`);
-                }, 100);
-                
-                // Vérifier le chargement après délai
-                setTimeout(() => {
-                  console.log(`📋 État après force: ${container.id} - contentDocument: ${!!svgObject.contentDocument}`);
-                  
-                  // Restaurer les styles originaux
-                  svgObject.style.display = originalDisplay;
-                  svgObject.style.visibility = originalVisibility;
-                  svgObject.style.position = '';
-                  svgObject.style.top = '';
-                  svgObject.style.left = '';
-                  svgObject.style.zIndex = '';
-                }, 2000);
-              }
-            });
-          }
-        },
-        alternativeApproach: () => {
-          // Approche alternative : charger directement les SVG via fetch
-          console.log('🔧 Approche alternative : chargement direct via fetch');
-          
-          const slide23Section = document.getElementById('slide-23');
-          if (slide23Section) {
-            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
-            
-            imageContainers.forEach(async (container, index) => {
-              const svgObject = container.querySelector('object[type="image/svg+xml"]');
-              if (svgObject && svgObject.data) {
-                console.log(`🌐 Tentative de chargement direct : ${container.id}`);
-                
-                try {
-                  const response = await fetch(svgObject.data);
-                  const svgText = await response.text();
-                  
-                  // Créer un document SVG temporaire
-                  const parser = new DOMParser();
-                  const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-                  
-                  console.log(`✅ SVG chargé directement pour ${container.id}`);
-                  console.log(`📄 Document SVG créé:`, svgDoc);
-                  
-                  // Chercher les scripts Svgator dans le SVG
-                  const scripts = svgDoc.querySelectorAll('script');
-                  console.log(`🔍 ${scripts.length} scripts trouvés dans ${container.id}`);
-                  
-                  scripts.forEach((script, idx) => {
-                    if (script.textContent && script.textContent.includes('svgatorPlayer')) {
-                      console.log(`🎬 Script Svgator trouvé dans ${container.id} (script ${idx + 1})`);
-                      
-                      // Essayer d'exécuter le script dans un contexte global
-                      try {
-                        const svgatorCode = script.textContent;
-                        eval(svgatorCode);
-                        console.log(`✅ Script Svgator exécuté pour ${container.id}`);
-                      } catch (execError) {
-                        console.error(`❌ Erreur exécution script Svgator pour ${container.id}:`, execError);
-                      }
-                    }
-                  });
-                  
-                } catch (fetchError) {
-                  console.error(`❌ Erreur chargement SVG ${container.id}:`, fetchError);
-                }
-              }
-            });
-          }
-        },
-        diagnose: () => {
-          // Diagnostic complet de la slide-23
-          console.log('🏥 Diagnostic slide-23:');
-          
-          const slide23Section = document.getElementById('slide-23');
-          if (!slide23Section) {
-            console.error('❌ Section slide-23 non trouvée');
-            return;
-          }
-          
-          const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
-          console.log(`📊 ${imageContainers.length} image-containers trouvés`);
-          
-          imageContainers.forEach((container, index) => {
-            console.log(`\n🔍 Container ${index + 1}: ${container.id}`);
-            
+        forceLoad: (containerId) => {
+          // Forcer le lazy loading d'un container spécifique
+          const container = document.getElementById(containerId);
+          if (container) {
             const svgObject = container.querySelector('object[type="image/svg+xml"]');
-            if (!svgObject) {
-              console.log(`  ❌ Aucun object SVG trouvé`);
-              return;
+            if (svgObject) {
+              console.log(`🚀 Force lazy loading de ${containerId}`);
+              lazyLoadSvgAnimation(containerId, svgObject);
             }
-            
-            console.log(`  ✅ Object SVG trouvé: ${svgObject.data}`);
-            console.log(`  📄 contentDocument: ${!!svgObject.contentDocument}`);
-            
-            if (svgObject.contentDocument) {
-              const svgWindow = svgObject.contentDocument.defaultView;
-              console.log(`  🪟 defaultView: ${!!svgWindow}`);
-              
-              if (svgWindow) {
-                console.log(`  🎮 svgatorPlayer: ${!!svgWindow.svgatorPlayer}`);
-                
-                // Lister toutes les propriétés contenant 'svgator' ou 'player'
-                const relevantProps = [];
-                for (let prop in svgWindow) {
-                  if (prop.toLowerCase().includes('svgator') || prop.toLowerCase().includes('player')) {
-                    relevantProps.push(prop);
-                  }
-                }
-                console.log(`  🔑 Propriétés intéressantes: ${relevantProps.join(', ') || 'aucune'}`);
-                
-                // Vérifier les méthodes du player si trouvé
-                if (svgWindow.svgatorPlayer) {
-                  const player = svgWindow.svgatorPlayer;
-                  console.log(`  📋 Méthodes disponibles:`);
-                  console.log(`    - restart: ${typeof player.restart}`);
-                  console.log(`    - pause: ${typeof player.pause}`);
-                  console.log(`    - seek: ${typeof player.seek}`);
-                  console.log(`    - setCurrentTime: ${typeof player.setCurrentTime}`);
-                }
-              }
-            } else {
-              console.log(`  ⏳ SVG pas encore chargé`);
-            }
-          });
+          }
+        },
+        toggleActive: (active) => {
+          // Activer/désactiver le lazy loading
+          toggleSlide23LazyLoading(active);
+        },
+        status: () => {
+          // État du lazy loading
+          console.log('📊 État lazy loading slide-23:');
+          console.log(`   - Observer: ${slide23Observer ? '✅ actif' : '❌ inactif'}`);
+          console.log(`   - Slide active: ${slide23IsActive ? '✅' : '❌'}`);
+          console.log(`   - Slide courante: ${activeSlideId.value}`);
         }
       }
     };
     
-    console.log('🛠️ Fonctions de debug améliorées disponibles:');
+    console.log('🛠️ Fonctions de debug avec lazy loading disponibles:');
     console.log('- window.debugSvgAnimations.restart("image-container-1") // Redémarre une animation spécifique');
     console.log('- window.debugSvgAnimations.restartAll() // Redémarre toutes les animations');
-    console.log('- window.debugSvgAnimations.restartSection("slide-23") // 🎬 NOUVEAU: Redémarre les animations d\'une section');
-    console.log('- window.debugSvgAnimations.restartCurrentSection() // 🎬 NOUVEAU: Redémarre les animations de la section active');
+    console.log('- window.debugSvgAnimations.restartSection("slide-23") // Redémarre les animations d\'une section');
+    console.log('- window.debugSvgAnimations.restartCurrentSection() // Redémarre les animations de la section active');
     console.log('- window.debugSvgAnimations.listAnimations() // Liste toutes les animations');
     console.log('- window.debugSvgAnimations.reinitialize() // Réinitialise complètement');
     console.log('- window.debugSvgAnimations.checkPlayers() // Vérifie l\'état des players');
+    console.log('- window.debugSvgAnimations.forceReload() // Force le rechargement des objets SVG');
+    console.log('- window.debugSvgAnimations.productionFallback() // Active le fallback de production');
     console.log('');
-    console.log('🎯 Fonctions spécifiques pour slide-23:');
-    console.log('- window.debugSvgAnimations.slide23.forceUpdate() // Force la mise à jour des animations slide-23');
-    console.log('- window.debugSvgAnimations.slide23.checkStatus() // Vérifie l\'état du système slide-23'); 
-    console.log('- window.debugSvgAnimations.slide23.restartCurrent() // Redémarre l\'animation du container actif');
-    console.log('- window.debugSvgAnimations.slide23.stopAll() // Arrête toutes les animations slide-23');
-    console.log('- window.debugSvgAnimations.slide23.testRestart() // Forcer le redémarrage de toutes les animations slide-23');
-    console.log('- window.debugSvgAnimations.slide23.realTimeCheck() // Vérification en temps réel');
-    console.log('- window.debugSvgAnimations.slide23.forceLoadSvgs() // Forcer le chargement des SVG en les rendant visibles');
-    console.log('- window.debugSvgAnimations.slide23.alternativeApproach() // Approche alternative : chargement direct via fetch');
-    console.log('- window.debugSvgAnimations.slide23.diagnose() // Diagnostic complet des SVG slide-23');
+    console.log('🚀 Nouvelles fonctions de lazy loading:');
+    console.log('- window.debugSvgAnimations.lazyLoading.reinit() // Réinitialise le lazy loading');
+    console.log('- window.debugSvgAnimations.lazyLoading.testVisible() // Teste quels containers sont visibles');
+    console.log('- window.debugSvgAnimations.lazyLoading.forceLoad("image-container-1") // Force le lazy loading d\'un container');
+    console.log('- window.debugSvgAnimations.lazyLoading.toggleActive(true/false) // Active/désactive le lazy loading');
+    console.log('- window.debugSvgAnimations.lazyLoading.status() // État du lazy loading');
   }
 
   // Bouton Back to Top
@@ -895,7 +723,7 @@ onBeforeUnmount(() => {
   document.removeEventListener("navigateToSection", handleNavigateToSection);
   sectionScrollTriggers.forEach((trigger) => trigger.kill());
   sectionScrollTriggers.length = 0;
-  cleanupSlide23SvgWatcher();
+  cleanupSlide23LazyLoading();
 });
 
 const isMenuOpen = ref(false);
@@ -1072,74 +900,145 @@ const goToFirstSlide = () => {
 
 // Méthode spécifique pour les SVG Svgator avec réinitialisation des animations
 const initSvgatorAnimations = () => {
+  console.log('🚀 Initialisation des animations SVG Svgator...');
+  
+  // Attendre que le DOM soit complètement hydraté
   nextTick(() => {
-    // Attendre que les objects SVG soient chargés
-    const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
+    // Double vérification pour s'assurer que nous sommes côté client
+    if (typeof window === 'undefined') {
+      console.warn('⚠️ initSvgatorAnimations: pas côté client, abandon');
+      return;
+    }
     
-    svgObjects.forEach((obj, index) => {
-      obj.addEventListener('load', () => {
+    // Initialiser le stockage global des players
+    if (!window.svgatorPlayers) {
+      window.svgatorPlayers = new Map();
+    }
+    
+    // Fonction pour traiter un objet SVG
+    const processSvgObject = (obj, index) => {
+      const containerId = obj.getAttribute('data-container-id') || `svg-${index}`;
+      console.log(`🔍 Traitement du SVG ${index + 1} dans ${containerId}`);
+      
+      // Fonction pour initialiser le SVG une fois chargé
+      const initializeSvg = () => {
         try {
           const svgDoc = obj.contentDocument;
-          if (svgDoc) {
-            console.log(`🔍 Analyse du SVG ${index + 1} dans ${obj.getAttribute('data-container-id') || 'conteneur inconnu'}`);
-            
-            // Rechercher les scripts Svgator dans le document SVG
-            const scripts = svgDoc.querySelectorAll('script');
-            let svgatorFound = false;
-            
-            scripts.forEach(script => {
-              if (script.textContent && script.textContent.includes('svgatorPlayer')) {
-                svgatorFound = true;
-                console.log(`🎬 Animation Svgator trouvée dans ${obj.getAttribute('data-container-id')}`);
-                
-                try {
-                  // Créer un script element dans le document SVG au lieu d'utiliser Function
-                  const newScript = svgDoc.createElement('script');
-                  newScript.textContent = script.textContent;
-                  
-                  // Supprimer l'ancien script pour éviter les doublons
-                  script.remove();
-                  
-                  // Ajouter le nouveau script au SVG document
-                  svgDoc.documentElement.appendChild(newScript);
-                  
-                  console.log(`✅ Script Svgator réinjecté avec succès dans ${obj.getAttribute('data-container-id')}`);
-                  
-                  // Configurer l'animation après un délai court
-                  setTimeout(() => {
-                    configureSvgatorRepeat(svgDoc, obj.getAttribute('data-container-id'));
-                  }, 1000); // Réduit à 1 seconde
-                  
-                } catch (execError) {
-                  console.error(`❌ Erreur lors de l'injection du script Svgator:`, execError);
-                  
-                  // Fallback: essayer d'exécuter le script dans le contexte de la fenêtre SVG
+          if (!svgDoc) {
+            console.warn(`⚠️ Impossible d'accéder au contentDocument de ${containerId}`);
+            return false;
+          }
+          
+          console.log(`📄 Document SVG accessible pour ${containerId}`);
+          
+          // Rechercher les scripts Svgator dans le document SVG
+          const scripts = svgDoc.querySelectorAll('script');
+          let svgatorFound = false;
+          
+          scripts.forEach(script => {
+            if (script.textContent && script.textContent.includes('svgatorPlayer')) {
+              svgatorFound = true;
+              console.log(`🎬 Animation Svgator trouvée dans ${containerId}`);
+              
+              try {
+                // Méthode robuste pour l'exécution du script
+                const executeScript = () => {
                   try {
+                    // Essayer d'exécuter le script dans le contexte du SVG
                     const svgWindow = svgDoc.defaultView || window;
                     const scriptFunction = new Function(script.textContent);
                     scriptFunction.call(svgWindow);
-                    console.log(`✅ Script Svgator exécuté via fallback dans ${obj.getAttribute('data-container-id')}`);
                     
-                    // Configurer après le fallback
+                    console.log(`✅ Script Svgator exécuté dans ${containerId}`);
+                    
+                    // Configurer l'animation avec retry
                     setTimeout(() => {
-                      configureSvgatorRepeat(svgDoc, obj.getAttribute('data-container-id'));
-                    }, 1000);
-                  } catch (fallbackError) {
-                    console.error(`❌ Échec du fallback pour ${obj.getAttribute('data-container-id')}:`, fallbackError);
+                      configureSvgatorRepeat(svgDoc, containerId);
+                    }, 500);
+                    
+                    return true;
+                  } catch (error) {
+                    console.error(`❌ Erreur lors de l'exécution du script pour ${containerId}:`, error);
+                    return false;
                   }
+                };
+                
+                // Exécuter immédiatement
+                if (!executeScript()) {
+                  // Retry après un délai
+                  setTimeout(() => {
+                    console.log(`🔄 Retry script execution pour ${containerId}`);
+                    executeScript();
+                  }, 1000);
                 }
+                
+              } catch (error) {
+                console.error(`❌ Erreur lors du traitement du script Svgator:`, error);
               }
-            });
-            
-            if (!svgatorFound) {
-              console.log(`ℹ️ Aucune animation Svgator détectée dans ${obj.getAttribute('data-container-id')}`);
             }
+          });
+          
+          if (!svgatorFound) {
+            console.log(`ℹ️ Aucune animation Svgator détectée dans ${containerId}`);
           }
+          
+          return true;
         } catch (error) {
-          console.warn(`⚠️ Impossible d'accéder au contenu du SVG ${index + 1}:`, error);
+          console.warn(`⚠️ Erreur lors de l'initialisation du SVG ${containerId}:`, error);
+          return false;
         }
-      });
-    });
+      };
+      
+      // Vérifier si le SVG est déjà chargé
+      if (obj.contentDocument) {
+        console.log(`✅ SVG ${containerId} déjà chargé`);
+        initializeSvg();
+      } else {
+        // Ajouter des listeners pour le chargement
+        console.log(`⏳ Attente du chargement de ${containerId}`);
+        
+        const onLoad = () => {
+          console.log(`📥 SVG ${containerId} chargé via événement load`);
+          setTimeout(() => initializeSvg(), 100);
+        };
+        
+        // Écouter l'événement load
+        obj.addEventListener('load', onLoad, { once: true });
+        
+        // Fallback avec polling pour la production
+        let checkAttempts = 0;
+        const maxCheckAttempts = 10;
+        
+        const pollForContent = () => {
+          checkAttempts++;
+          
+          if (obj.contentDocument) {
+            console.log(`📥 SVG ${containerId} détecté via polling (tentative ${checkAttempts})`);
+            obj.removeEventListener('load', onLoad);
+            initializeSvg();
+          } else if (checkAttempts < maxCheckAttempts) {
+            setTimeout(pollForContent, 300);
+          } else {
+            console.warn(`⚠️ Timeout pour le chargement de ${containerId} après ${maxCheckAttempts} tentatives`);
+          }
+        };
+        
+        // Démarrer le polling après un délai initial
+        setTimeout(pollForContent, 200);
+      }
+    };
+    
+    // Trouver tous les objets SVG
+    const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
+    console.log(`🔍 ${svgObjects.length} objets SVG trouvés`);
+    
+    if (svgObjects.length === 0) {
+      console.warn('⚠️ Aucun objet SVG trouvé dans le DOM');
+      return;
+    }
+    
+    // Traiter chaque objet SVG
+    svgObjects.forEach(processSvgObject);
   });
 };
 
@@ -1187,14 +1086,34 @@ const configureSvgatorRepeat = (svgDoc, containerId) => {
         console.log(`🎯 Player Svgator trouvé dans ${containerId} après ${attempts} tentatives`);
         
         try {
-          // Ne plus configurer de répétition automatique
-          // L'animation se jouera une seule fois naturellement
-          console.log(`✅ Animation configurée pour lecture unique dans ${containerId}`);
+          // ⚠️ MODIFICATION : Ne pas démarrer automatiquement les animations des image-containers
+          // Ces animations ne doivent se lancer que quand la slide-23 est visible
           
-          // Optionnel: démarrer l'animation immédiatement si elle n'est pas déjà en cours
-          if (typeof player.restart === 'function') {
-            player.restart();
-            console.log(`🎬 Animation démarrée dans ${containerId}`);
+          if (containerId && containerId.startsWith('image-container-')) {
+            console.log(`⏸️ Animation ${containerId} configurée mais non démarrée (attente slide-23)`);
+            
+            // Stocker le player pour utilisation ultérieure
+            if (!window.svgatorPlayers) {
+              window.svgatorPlayers = new Map();
+            }
+            window.svgatorPlayers.set(containerId, player);
+            
+            // S'assurer que l'animation est à l'état initial
+            if (typeof player.seek === 'function') {
+              player.seek(0);
+            }
+            if (typeof player.pause === 'function') {
+              player.pause();
+            }
+          } else {
+            // Pour les autres animations (non image-containers), démarrer normalement
+            console.log(`✅ Animation configurée pour lecture unique dans ${containerId}`);
+            
+            // Démarrer l'animation immédiatement pour les conteneurs non-slide-23
+            if (typeof player.restart === 'function') {
+              player.restart();
+              console.log(`🎬 Animation démarrée dans ${containerId}`);
+            }
           }
           
         } catch (configError) {
@@ -1238,9 +1157,9 @@ const restartSectionSvgAnimations = (section) => {
   
   console.log(`🔍 Recherche d'animations SVG dans ${section.id}`);
   
-  // Traitement spécial pour la slide-23
+  // Traitement spécial pour la slide-23 - maintenant géré par lazy loading
   if (section.id === 'slide-23') {
-    handleSlide23SvgAnimations(section);
+    console.log(`🚀 Slide-23 détectée - Lazy loading activé automatiquement`);
     return;
   }
   
@@ -1368,6 +1287,22 @@ const handleSlide23SvgAnimations = (section) => {
 const restartSlide23SvgAnimation = (containerId) => {
   console.log(`🔍 Tentative de redémarrage ${containerId}`);
   
+  // 🚀 NOUVEAU : Utiliser le player stocké si disponible
+  if (window.svgatorPlayers && window.svgatorPlayers.has(containerId)) {
+    const player = window.svgatorPlayers.get(containerId);
+    
+    try {
+      if (player && typeof player.restart === 'function') {
+        player.restart();
+        console.log(`✅ Animation redémarrée avec succès via player stocké dans ${containerId}`);
+        return;
+      }
+    } catch (error) {
+      console.warn(`⚠️ Erreur avec player stocké pour ${containerId}, fallback vers méthode classique:`, error);
+    }
+  }
+  
+  // Fallback vers la méthode classique si le player stocké n'est pas disponible
   const container = document.getElementById(containerId);
   if (!container) {
     console.warn(`❌ Container ${containerId} non trouvé`);
@@ -1483,6 +1418,33 @@ const restartSlide23SvgAnimationForced = (containerId) => {
 const stopSlide23SvgAnimation = (containerId) => {
   console.log(`🔍 Tentative d'arrêt ${containerId}`);
   
+  // 🚀 NOUVEAU : Utiliser le player stocké si disponible
+  if (window.svgatorPlayers && window.svgatorPlayers.has(containerId)) {
+    const player = window.svgatorPlayers.get(containerId);
+    
+    try {
+      if (player) {
+        // Arrêter l'animation
+        if (typeof player.pause === 'function') {
+          player.pause();
+          console.log(`⏸️ Animation mise en pause via player stocké dans ${containerId}`);
+        }
+        
+        // Revenir au début
+        if (typeof player.seek === 'function') {
+          player.seek(0);
+          console.log(`⏮️ Animation remise à zéro via player stocké dans ${containerId}`);
+        }
+        
+        console.log(`✅ Animation SVG arrêtée avec succès via player stocké dans ${containerId}`);
+        return;
+      }
+    } catch (error) {
+      console.warn(`⚠️ Erreur avec player stocké pour arrêt ${containerId}, fallback vers méthode classique:`, error);
+    }
+  }
+  
+  // Fallback vers la méthode classique si le player stocké n'est pas disponible
   const container = document.getElementById(containerId);
   if (!container) {
     console.warn(`❌ Container ${containerId} non trouvé pour arrêt`);
@@ -1639,6 +1601,303 @@ const cleanupSlide23SvgWatcher = () => {
     slide23SvgWatcherInterval = null;
     console.log(`🧹 Système de surveillance slide-23 nettoyé`);
   }
+};
+
+// Système de lazy loading pour slide-23 avec Intersection Observer
+let slide23Observer = null;
+let slide23IsActive = false;
+
+const initSlide23LazyLoading = () => {
+  console.log(`🚀 Initialisation du lazy loading slide-23`);
+  
+  // Nettoyer l'observer existant
+  if (slide23Observer) {
+    slide23Observer.disconnect();
+  }
+  
+  // Créer l'observer pour surveiller les .image-container dans slide-23
+  slide23Observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const container = entry.target;
+      const containerId = container.id;
+      
+      if (entry.isIntersecting && slide23IsActive) {
+        console.log(`👁️ Container ${containerId} devient visible - Lazy loading`);
+        
+        // Trouver l'object SVG dans ce container
+        const svgObject = container.querySelector('object[type="image/svg+xml"]');
+        if (svgObject) {
+          lazyLoadSvgAnimation(containerId, svgObject);
+        }
+      } else if (!entry.isIntersecting && slide23IsActive) {
+        console.log(`👁️ Container ${containerId} n'est plus visible - Arrêt lazy`);
+        // Optionnel : arrêter l'animation quand pas visible
+        stopLazyLoadedAnimation(containerId);
+      }
+    });
+  }, {
+    root: null, // Viewport
+    rootMargin: '10px', // Petite marge pour déclencher avant que ce soit complètement visible
+    threshold: 0.1 // Déclencher quand 10% du container est visible
+  });
+  
+  // Observer tous les image-containers dans slide-23
+  const slide23Section = document.getElementById('slide-23');
+  if (slide23Section) {
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    imageContainers.forEach(container => {
+      if (container.id) {
+        console.log(`📋 Observation de ${container.id} pour lazy loading`);
+        slide23Observer.observe(container);
+      }
+    });
+  }
+};
+
+// Fonction pour lazy load d'une animation SVG
+const lazyLoadSvgAnimation = (containerId, svgObject) => {
+  console.log(`🔄 Lazy loading animation pour ${containerId}`);
+  
+  // Forcer le rechargement du SVG pour déclencher l'animation
+  const originalData = svgObject.data;
+  
+  // Méthode 1: Recharger complètement le SVG
+  svgObject.data = '';
+  
+  setTimeout(() => {
+    svgObject.data = originalData;
+    console.log(`✅ SVG rechargé pour ${containerId}`);
+    
+    // Attendre que le SVG soit chargé et essayer de démarrer l'animation
+    svgObject.addEventListener('load', () => {
+      setTimeout(() => {
+        console.log(`🎬 Tentative de démarrage animation lazy pour ${containerId}`);
+        startLazyLoadedAnimation(containerId);
+      }, 500);
+    }, { once: true });
+    
+  }, 100);
+};
+
+// Fonction pour démarrer une animation lazy loaded
+const startLazyLoadedAnimation = (containerId) => {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const svgObject = container.querySelector('object[type="image/svg+xml"]');
+  if (!svgObject || !svgObject.contentDocument) {
+    console.log(`⚠️ SVG pas prêt pour ${containerId}, retry dans 1s`);
+    
+    // Retry une seule fois
+    setTimeout(() => {
+      startLazyLoadedAnimation(containerId);
+    }, 1000);
+    return;
+  }
+  
+  try {
+    const svgWindow = svgObject.contentDocument.defaultView;
+    if (svgWindow && svgWindow.svgatorPlayer) {
+      svgWindow.svgatorPlayer.restart();
+      console.log(`🎯 Animation lazy démarrée avec succès pour ${containerId}`);
+    } else {
+      console.log(`⚠️ Player Svgator non trouvé dans ${containerId} (lazy)`);
+    }
+  } catch (error) {
+    console.error(`❌ Erreur animation lazy ${containerId}:`, error);
+  }
+};
+
+// Fonction pour arrêter une animation lazy loaded
+const stopLazyLoadedAnimation = (containerId) => {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const svgObject = container.querySelector('object[type="image/svg+xml"]');
+  if (!svgObject || !svgObject.contentDocument) return;
+  
+  try {
+    const svgWindow = svgObject.contentDocument.defaultView;
+    if (svgWindow && svgWindow.svgatorPlayer) {
+      if (typeof svgWindow.svgatorPlayer.pause === 'function') {
+        svgWindow.svgatorPlayer.pause();
+      }
+      console.log(`⏸️ Animation lazy arrêtée pour ${containerId}`);
+    }
+  } catch (error) {
+    console.error(`❌ Erreur arrêt lazy ${containerId}:`, error);
+  }
+};
+
+// Fonction pour activer/désactiver le lazy loading selon la slide
+const toggleSlide23LazyLoading = (isActive) => {
+  slide23IsActive = isActive;
+  console.log(`🔄 Lazy loading slide-23: ${isActive ? 'ACTIVÉ' : 'DÉSACTIVÉ'}`);
+  
+  if (isActive) {
+    // Déclencher immédiatement un check pour voir quels containers sont visibles
+    setTimeout(() => {
+      const slide23Section = document.getElementById('slide-23');
+      if (slide23Section) {
+        const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+        imageContainers.forEach(container => {
+          const rect = container.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          
+          if (isVisible) {
+            console.log(`👁️ Container ${container.id} déjà visible au chargement`);
+            const svgObject = container.querySelector('object[type="image/svg+xml"]');
+            if (svgObject) {
+              lazyLoadSvgAnimation(container.id, svgObject);
+            }
+          }
+        });
+      }
+    }, 500);
+  }
+};
+
+// Nettoyer le lazy loading
+const cleanupSlide23LazyLoading = () => {
+  if (slide23Observer) {
+    slide23Observer.disconnect();
+    slide23Observer = null;
+    console.log('Lazy loading slide-23 nettoye');
+  }
+  slide23IsActive = false;
+};
+
+// Fonction d'initialisation retardée pour la production
+const initSvgatorProductionFallback = () => {
+  console.log('🔧 Initialisation fallback pour la production...');
+  
+  // Attendre plus longtemps pour s'assurer que tout est chargé
+  setTimeout(() => {
+    if (typeof window === 'undefined') return;
+    
+    const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
+    
+    svgObjects.forEach((obj, index) => {
+      const containerId = obj.getAttribute('data-container-id') || `svg-fallback-${index}`;
+      
+      // Forcer le rechargement de l'objet SVG si nécessaire
+      if (!obj.contentDocument && obj.data) {
+        console.log(`🔄 Rechargement forcé du SVG ${containerId}`);
+        const originalData = obj.data;
+        obj.data = '';
+        setTimeout(() => {
+          obj.data = originalData;
+        }, 100);
+      }
+      
+      // Polling plus agressif pour la production
+      let retryCount = 0;
+      const maxRetries = 15;
+      
+      const aggressivePolling = () => {
+        retryCount++;
+        
+        if (obj.contentDocument) {
+          console.log(`✅ SVG ${containerId} finalement accessible (retry ${retryCount})`);
+          
+          // Réessayer l'initialisation avec un délai
+          setTimeout(() => {
+            const svgDoc = obj.contentDocument;
+            const scripts = svgDoc.querySelectorAll('script');
+            
+            scripts.forEach(script => {
+              if (script.textContent && script.textContent.includes('svgatorPlayer')) {
+                try {
+                  const svgWindow = svgDoc.defaultView || window;
+                  const scriptFunction = new Function(script.textContent);
+                  scriptFunction.call(svgWindow);
+                  
+                  console.log(`✅ Script Svgator ré-exécuté avec succès (fallback) pour ${containerId}`);
+                  
+                  // Configuration avec délai plus long
+                  setTimeout(() => {
+                    configureSvgatorRepeat(svgDoc, containerId);
+                  }, 1000);
+                } catch (error) {
+                  console.error(`❌ Erreur fallback pour ${containerId}:`, error);
+                }
+              }
+            });
+          }, 200);
+          
+        } else if (retryCount < maxRetries) {
+          setTimeout(aggressivePolling, 500);
+        } else {
+          console.warn(`⚠️ Fallback timeout pour ${containerId} après ${maxRetries} tentatives`);
+        }
+      };
+      
+      // Démarrer le polling agressif après un délai initial
+      setTimeout(aggressivePolling, 1000);
+    });
+  }, 2000); // Délai initial plus long pour la production
+};
+
+// Fonction pour forcer le rechargement des objets SVG
+const forceSvgReload = () => {
+  console.log('🔄 Rechargement forcé de tous les objets SVG...');
+  
+  const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
+  
+  svgObjects.forEach((obj, index) => {
+    const containerId = obj.getAttribute('data-container-id') || `svg-${index}`;
+    
+    // Vérifier si l'objet a des problèmes de chargement
+    if (!obj.contentDocument) {
+      console.log(`🔄 Rechargement de ${containerId}`);
+      
+      const originalData = obj.data;
+      
+      // Créer un nouvel objet SVG pour remplacer l'ancien
+      const newObj = document.createElement('object');
+      newObj.type = 'image/svg+xml';
+      newObj.data = originalData;
+      
+      // Copier tous les attributs
+      Array.from(obj.attributes).forEach(attr => {
+        if (attr.name !== 'data') {
+          newObj.setAttribute(attr.name, attr.value);
+        }
+      });
+      
+      // Ajouter un listener pour l'initialisation après rechargement
+      newObj.addEventListener('load', () => {
+        console.log(`✅ ${containerId} rechargé avec succès`);
+        
+        setTimeout(() => {
+          const svgDoc = newObj.contentDocument;
+          if (svgDoc) {
+            const scripts = svgDoc.querySelectorAll('script');
+            scripts.forEach(script => {
+              if (script.textContent && script.textContent.includes('svgatorPlayer')) {
+                try {
+                  const svgWindow = svgDoc.defaultView || window;
+                  const scriptFunction = new Function(script.textContent);
+                  scriptFunction.call(svgWindow);
+                  
+                  console.log(`✅ Script Svgator réinitialisé pour ${containerId} après rechargement`);
+                  
+                  setTimeout(() => {
+                    configureSvgatorRepeat(svgDoc, containerId);
+                  }, 500);
+                } catch (error) {
+                  console.error(`❌ Erreur lors de la réinitialisation après rechargement:`, error);
+                }
+              }
+            });
+          }
+        }, 200);
+      }, { once: true });
+      
+      // Remplacer l'ancien objet par le nouveau
+      obj.parentNode.replaceChild(newObj, obj);
+    }
+  });
 };
 </script>
 
