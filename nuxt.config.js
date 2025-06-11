@@ -3,10 +3,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
   
-  // Configuration pour le déploiement sous /txtengage/
+  // Configuration pour le déploiement à la racine
   app: {
-    baseURL: process.env.NODE_ENV === 'production' ? '/txtengage/' : '/',
-    buildAssetsDir: '/txtengage/_nuxt/',
+    baseURL: '/', // Toujours à la racine maintenant
+    buildAssetsDir: '/_nuxt/', // Assets à la racine
     head: {
       meta: [
         // Dark mode prevention meta tags for Android Samsung
@@ -70,11 +70,11 @@ export default defineNuxtConfig({
     }
   },
 
-  // Configuration pour la génération statique Vercel
+  // Configuration pour la génération statique à la racine
   nitro: {
     output: {
-      dir: '.vercel/static/txtengage',
-      publicDir: '.vercel/static/txtengage'
+      dir: '.vercel/static', // Suppression du sous-dossier txtengage
+      publicDir: '.vercel/static'
     },
     prerender: {
       failOnError: false,
@@ -97,7 +97,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiUrl: process.env.API_URL || 'https://dev-txtengagevodafone.pantheonsite.io/wp-json/wp/v2',
-      baseURL: process.env.NODE_ENV === 'production' ? '/txtengage/' : '/'
+      baseURL: '/' // Toujours à la racine
     }
   },
 
@@ -107,7 +107,7 @@ export default defineNuxtConfig({
       preprocessorOptions: {
         scss: {
           additionalData: `
-            $asset-base: "${process.env.NODE_ENV === 'production' ? '/txtengage' : ''}";
+            $asset-base: ""; // Pas de préfixe pour les assets
           `
         }
       }
