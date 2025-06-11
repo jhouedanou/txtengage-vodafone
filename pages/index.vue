@@ -301,7 +301,10 @@ const setupSectionScrolling = () => {
           }
         }
         
-        // Supprimé : if (slideId === 73) { initSlide73AnimationGSAP(section); }
+        // 🎬 NOUVEAU : Redémarrer automatiquement les animations SVG dans cette section
+        setTimeout(() => {
+          restartSectionSvgAnimations(section);
+        }, 100); // Petit délai pour s'assurer que la section est bien visible
       },
       onEnterBack: () => {
         console.log(
@@ -331,7 +334,10 @@ const setupSectionScrolling = () => {
           }
         }
         
-        // Supprimé : if (slideId === 73) { initSlide73AnimationGSAP(section); }
+        // 🎬 NOUVEAU : Redémarrer automatiquement les animations SVG dans cette section
+        setTimeout(() => {
+          restartSectionSvgAnimations(section);
+        }, 100); // Petit délai pour s'assurer que la section est bien visible
       },
       onLeave: () => {
         console.log(`Leaving section: ${section.id}`);
@@ -524,6 +530,9 @@ onMounted(async () => {
   // Initialiser les animations SVG Svgator
   initSvgatorAnimations();
 
+  // 🎯 NOUVEAU : Système de surveillance pour slide-23
+  initSlide23SvgWatcher();
+
   // Exposer les fonctions utiles globalement pour le debug
   if (typeof window !== 'undefined') {
     window.debugSvgAnimations = {
@@ -536,6 +545,25 @@ onMounted(async () => {
             restartSvgAnimation(container.id);
           }
         });
+      },
+      restartSection: (sectionId) => {
+        // 🎬 NOUVEAU : Redémarrer les animations d'une section spécifique
+        const section = document.getElementById(sectionId);
+        if (section) {
+          restartSectionSvgAnimations(section);
+        } else {
+          console.warn(`❌ Section non trouvée: ${sectionId}`);
+        }
+      },
+      restartCurrentSection: () => {
+        // 🎬 NOUVEAU : Redémarrer les animations de la section actuellement active
+        const activeSection = document.querySelector('.slide-section.active');
+        if (activeSection) {
+          console.log(`🎯 Redémarrage des animations de la section active: ${activeSection.id}`);
+          restartSectionSvgAnimations(activeSection);
+        } else {
+          console.warn(`❌ Aucune section active trouvée`);
+        }
       },
       listAnimations: () => {
         // Lister toutes les animations détectées
@@ -568,15 +596,280 @@ onMounted(async () => {
             }
           }
         });
+      },
+      // 🎯 NOUVEAU : Fonctions spécifiques pour slide-23
+      slide23: {
+        forceUpdate: () => {
+          // Force la mise à jour des animations slide-23
+          const slide23Section = document.getElementById('slide-23');
+          if (slide23Section) {
+            console.log('🔄 Mise à jour forcée des animations slide-23');
+            handleSlide23SvgAnimations(slide23Section);
+          } else {
+            console.warn('❌ Slide-23 non trouvée');
+          }
+        },
+        checkStatus: () => {
+          // Vérifier l'état du système slide-23
+          console.log('📊 État du système slide-23:');
+          console.log(`   - Slide active: ${isSlide23Active}`);
+          console.log(`   - Dernier index: ${lastSlide23Index}`);
+          console.log(`   - Surveillance active: ${slide23SvgWatcherInterval !== null}`);
+          
+          if (typeof window !== 'undefined') {
+            const desktopIndex = window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'];
+            const mobileIndex = window.debugMobileAnimations?.states?.value?.['slide-23-current-index'];
+            console.log(`   - Index desktop: ${desktopIndex}`);
+            console.log(`   - Index mobile: ${mobileIndex}`);
+          }
+        },
+        restartCurrent: () => {
+          // Redémarrer l'animation du container actuellement actif
+          if (!isSlide23Active) {
+            console.warn('❌ Pas sur slide-23 actuellement');
+            return;
+          }
+          
+          let currentIndex = 0;
+          if (typeof window !== 'undefined') {
+            if (window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
+              currentIndex = window.debugDesktopAnimations.states.value['slide-23-current-index'];
+            } else if (window.debugMobileAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
+              currentIndex = window.debugMobileAnimations.states.value['slide-23-current-index'];
+            }
+          }
+          
+          const containerId = `image-container-${currentIndex + 1}`;
+          console.log(`🎬 Redémarrage forcé de l'animation ${containerId}`);
+          restartSlide23SvgAnimation(containerId);
+        },
+        stopAll: () => {
+          // Arrêter toutes les animations slide-23
+          const slide23Section = document.getElementById('slide-23');
+          if (slide23Section) {
+            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+            console.log(`⏸️ Arrêt de ${imageContainers.length} animations slide-23`);
+            imageContainers.forEach((container) => {
+              if (container.id) {
+                stopSlide23SvgAnimation(container.id);
+              }
+            });
+          }
+        },
+        testRestart: () => {
+          // Forcer le redémarrage de toutes les animations (test)
+          const slide23Section = document.getElementById('slide-23');
+          if (slide23Section) {
+            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+            console.log(`🧪 Test redémarrage de ${imageContainers.length} animations slide-23`);
+            imageContainers.forEach((container, index) => {
+              if (container.id) {
+                console.log(`🧪 Test redémarrage ${container.id} (index ${index})`);
+                restartSlide23SvgAnimation(container.id);
+              }
+            });
+          }
+        },
+        realTimeCheck: () => {
+          // Vérification en temps réel de l'état
+          console.log('⏰ Vérification en temps réel:');
+          console.log(`   - activeSlideId.value: ${activeSlideId.value}`);
+          console.log(`   - isSlide23Active: ${isSlide23Active}`);
+          console.log(`   - lastSlide23Index: ${lastSlide23Index}`);
+          
+          if (typeof window !== 'undefined') {
+            const desktopIndex = window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'];
+            const mobileIndex = window.debugMobileAnimations?.states?.value?.['slide-23-current-index'];
+            console.log(`   - Desktop index: ${desktopIndex}`);
+            console.log(`   - Mobile index: ${mobileIndex}`);
+          }
+          
+          // Forcer une mise à jour si on est sur slide-23
+          if (activeSlideId.value === 23) {
+            console.log('🔄 Force mise à jour car sur slide-23');
+            const slide23Section = document.getElementById('slide-23');
+            if (slide23Section) {
+              handleSlide23SvgAnimations(slide23Section);
+            }
+          }
+        },
+        forceLoadSvgs: () => {
+          // Forcer le chargement des SVG en les rendant visibles
+          console.log('🚀 Tentative de force de chargement des SVG...');
+          
+          const slide23Section = document.getElementById('slide-23');
+          if (slide23Section) {
+            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+            console.log(`📊 ${imageContainers.length} containers à traiter`);
+            
+            imageContainers.forEach((container, index) => {
+              const svgObject = container.querySelector('object[type="image/svg+xml"]');
+              if (svgObject) {
+                console.log(`🔧 Force chargement ${container.id}`);
+                
+                // Méthode 1: Rendre visible temporairement
+                const originalDisplay = svgObject.style.display;
+                const originalVisibility = svgObject.style.visibility;
+                
+                svgObject.style.display = 'block';
+                svgObject.style.visibility = 'visible';
+                svgObject.style.position = 'absolute';
+                svgObject.style.top = '0';
+                svgObject.style.left = '0';
+                svgObject.style.zIndex = '9999';
+                
+                // Méthode 2: Déclencher le chargement en forçant un reload
+                const originalData = svgObject.data;
+                svgObject.data = '';
+                setTimeout(() => {
+                  svgObject.data = originalData;
+                  console.log(`🔄 Rechargement forcé de ${container.id}`);
+                }, 100);
+                
+                // Vérifier le chargement après délai
+                setTimeout(() => {
+                  console.log(`📋 État après force: ${container.id} - contentDocument: ${!!svgObject.contentDocument}`);
+                  
+                  // Restaurer les styles originaux
+                  svgObject.style.display = originalDisplay;
+                  svgObject.style.visibility = originalVisibility;
+                  svgObject.style.position = '';
+                  svgObject.style.top = '';
+                  svgObject.style.left = '';
+                  svgObject.style.zIndex = '';
+                }, 2000);
+              }
+            });
+          }
+        },
+        alternativeApproach: () => {
+          // Approche alternative : charger directement les SVG via fetch
+          console.log('🔧 Approche alternative : chargement direct via fetch');
+          
+          const slide23Section = document.getElementById('slide-23');
+          if (slide23Section) {
+            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+            
+            imageContainers.forEach(async (container, index) => {
+              const svgObject = container.querySelector('object[type="image/svg+xml"]');
+              if (svgObject && svgObject.data) {
+                console.log(`🌐 Tentative de chargement direct : ${container.id}`);
+                
+                try {
+                  const response = await fetch(svgObject.data);
+                  const svgText = await response.text();
+                  
+                  // Créer un document SVG temporaire
+                  const parser = new DOMParser();
+                  const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+                  
+                  console.log(`✅ SVG chargé directement pour ${container.id}`);
+                  console.log(`📄 Document SVG créé:`, svgDoc);
+                  
+                  // Chercher les scripts Svgator dans le SVG
+                  const scripts = svgDoc.querySelectorAll('script');
+                  console.log(`🔍 ${scripts.length} scripts trouvés dans ${container.id}`);
+                  
+                  scripts.forEach((script, idx) => {
+                    if (script.textContent && script.textContent.includes('svgatorPlayer')) {
+                      console.log(`🎬 Script Svgator trouvé dans ${container.id} (script ${idx + 1})`);
+                      
+                      // Essayer d'exécuter le script dans un contexte global
+                      try {
+                        const svgatorCode = script.textContent;
+                        eval(svgatorCode);
+                        console.log(`✅ Script Svgator exécuté pour ${container.id}`);
+                      } catch (execError) {
+                        console.error(`❌ Erreur exécution script Svgator pour ${container.id}:`, execError);
+                      }
+                    }
+                  });
+                  
+                } catch (fetchError) {
+                  console.error(`❌ Erreur chargement SVG ${container.id}:`, fetchError);
+                }
+              }
+            });
+          }
+        },
+        diagnose: () => {
+          // Diagnostic complet de la slide-23
+          console.log('🏥 Diagnostic slide-23:');
+          
+          const slide23Section = document.getElementById('slide-23');
+          if (!slide23Section) {
+            console.error('❌ Section slide-23 non trouvée');
+            return;
+          }
+          
+          const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+          console.log(`📊 ${imageContainers.length} image-containers trouvés`);
+          
+          imageContainers.forEach((container, index) => {
+            console.log(`\n🔍 Container ${index + 1}: ${container.id}`);
+            
+            const svgObject = container.querySelector('object[type="image/svg+xml"]');
+            if (!svgObject) {
+              console.log(`  ❌ Aucun object SVG trouvé`);
+              return;
+            }
+            
+            console.log(`  ✅ Object SVG trouvé: ${svgObject.data}`);
+            console.log(`  📄 contentDocument: ${!!svgObject.contentDocument}`);
+            
+            if (svgObject.contentDocument) {
+              const svgWindow = svgObject.contentDocument.defaultView;
+              console.log(`  🪟 defaultView: ${!!svgWindow}`);
+              
+              if (svgWindow) {
+                console.log(`  🎮 svgatorPlayer: ${!!svgWindow.svgatorPlayer}`);
+                
+                // Lister toutes les propriétés contenant 'svgator' ou 'player'
+                const relevantProps = [];
+                for (let prop in svgWindow) {
+                  if (prop.toLowerCase().includes('svgator') || prop.toLowerCase().includes('player')) {
+                    relevantProps.push(prop);
+                  }
+                }
+                console.log(`  🔑 Propriétés intéressantes: ${relevantProps.join(', ') || 'aucune'}`);
+                
+                // Vérifier les méthodes du player si trouvé
+                if (svgWindow.svgatorPlayer) {
+                  const player = svgWindow.svgatorPlayer;
+                  console.log(`  📋 Méthodes disponibles:`);
+                  console.log(`    - restart: ${typeof player.restart}`);
+                  console.log(`    - pause: ${typeof player.pause}`);
+                  console.log(`    - seek: ${typeof player.seek}`);
+                  console.log(`    - setCurrentTime: ${typeof player.setCurrentTime}`);
+                }
+              }
+            } else {
+              console.log(`  ⏳ SVG pas encore chargé`);
+            }
+          });
+        }
       }
     };
     
     console.log('🛠️ Fonctions de debug améliorées disponibles:');
     console.log('- window.debugSvgAnimations.restart("image-container-1") // Redémarre une animation spécifique');
     console.log('- window.debugSvgAnimations.restartAll() // Redémarre toutes les animations');
+    console.log('- window.debugSvgAnimations.restartSection("slide-23") // 🎬 NOUVEAU: Redémarre les animations d\'une section');
+    console.log('- window.debugSvgAnimations.restartCurrentSection() // 🎬 NOUVEAU: Redémarre les animations de la section active');
     console.log('- window.debugSvgAnimations.listAnimations() // Liste toutes les animations');
     console.log('- window.debugSvgAnimations.reinitialize() // Réinitialise complètement');
     console.log('- window.debugSvgAnimations.checkPlayers() // Vérifie l\'état des players');
+    console.log('');
+    console.log('🎯 Fonctions spécifiques pour slide-23:');
+    console.log('- window.debugSvgAnimations.slide23.forceUpdate() // Force la mise à jour des animations slide-23');
+    console.log('- window.debugSvgAnimations.slide23.checkStatus() // Vérifie l\'état du système slide-23'); 
+    console.log('- window.debugSvgAnimations.slide23.restartCurrent() // Redémarre l\'animation du container actif');
+    console.log('- window.debugSvgAnimations.slide23.stopAll() // Arrête toutes les animations slide-23');
+    console.log('- window.debugSvgAnimations.slide23.testRestart() // Forcer le redémarrage de toutes les animations slide-23');
+    console.log('- window.debugSvgAnimations.slide23.realTimeCheck() // Vérification en temps réel');
+    console.log('- window.debugSvgAnimations.slide23.forceLoadSvgs() // Forcer le chargement des SVG en les rendant visibles');
+    console.log('- window.debugSvgAnimations.slide23.alternativeApproach() // Approche alternative : chargement direct via fetch');
+    console.log('- window.debugSvgAnimations.slide23.diagnose() // Diagnostic complet des SVG slide-23');
   }
 
   // Bouton Back to Top
@@ -602,6 +895,7 @@ onBeforeUnmount(() => {
   document.removeEventListener("navigateToSection", handleNavigateToSection);
   sectionScrollTriggers.forEach((trigger) => trigger.kill());
   sectionScrollTriggers.length = 0;
+  cleanupSlide23SvgWatcher();
 });
 
 const isMenuOpen = ref(false);
@@ -935,6 +1229,415 @@ const restartSvgAnimation = (containerId) => {
         console.log(`🎬 Animation redémarrée manuellement dans ${containerId}`);
       }
     }
+  }
+};
+
+// Nouvelle fonction pour redémarrer toutes les animations SVG dans une section
+const restartSectionSvgAnimations = (section) => {
+  if (!section) return;
+  
+  console.log(`🔍 Recherche d'animations SVG dans ${section.id}`);
+  
+  // Traitement spécial pour la slide-23
+  if (section.id === 'slide-23') {
+    handleSlide23SvgAnimations(section);
+    return;
+  }
+  
+  // Chercher tous les .image-container dans cette section
+  const imageContainers = section.querySelectorAll('.image-container');
+  
+  imageContainers.forEach((container) => {
+    const containerId = container.id;
+    const svgObject = container.querySelector('object[type="image/svg+xml"]');
+    
+    if (svgObject && containerId) {
+      console.log(`🎯 Container SVG trouvé: ${containerId}`);
+      
+      // Vérifier si le SVG est déjà chargé
+      if (svgObject.contentDocument) {
+        restartSvgAnimation(containerId);
+      } else {
+        // Si le SVG n'est pas encore chargé, attendre l'événement load
+        console.log(`⏳ Attente du chargement du SVG dans ${containerId}`);
+        svgObject.addEventListener('load', () => {
+          setTimeout(() => {
+            restartSvgAnimation(containerId);
+          }, 500); // Petit délai pour s'assurer que le player Svgator est prêt
+        }, { once: true }); // N'écouter qu'une seule fois
+      }
+    }
+  });
+  
+  // Si aucun container trouvé, chercher aussi les SVG directement dans les objects
+  if (imageContainers.length === 0) {
+    const directSvgObjects = section.querySelectorAll('object[type="image/svg+xml"]');
+    
+    directSvgObjects.forEach((svgObject) => {
+      const containerElement = svgObject.closest('[id^="image-container-"]') || svgObject.parentElement;
+      if (containerElement && containerElement.id) {
+        console.log(`🎯 SVG direct trouvé dans: ${containerElement.id}`);
+        
+        if (svgObject.contentDocument) {
+          restartSvgAnimation(containerElement.id);
+        } else {
+          svgObject.addEventListener('load', () => {
+            setTimeout(() => {
+              restartSvgAnimation(containerElement.id);
+            }, 500);
+          }, { once: true });
+        }
+      }
+    });
+  }
+};
+
+// Fonction spécifique pour la slide-23 avec contrôle des animations selon l'index actif
+const handleSlide23SvgAnimations = (section) => {
+  console.log(`🎯 Gestion spécifique slide-23`);
+  
+  // Chercher tous les image-containers dans .bdrs
+  const imageContainers = section.querySelectorAll('.bdrs .image-container');
+  
+  if (imageContainers.length === 0) {
+    console.log(`⚠️ Aucun image-container trouvé dans .bdrs de slide-23`);
+    return;
+  }
+  
+  console.log(`📊 ${imageContainers.length} image-containers trouvés dans slide-23`);
+  
+  // Utiliser l'index depuis le système de navigation responsif ou fallback vers 0
+  let currentIndex = 0;
+  
+  // Essayer de récupérer l'index depuis les systèmes d'animation
+  if (typeof window !== 'undefined') {
+    // Essayer le système desktop
+    if (window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
+      currentIndex = window.debugDesktopAnimations.states.value['slide-23-current-index'];
+      console.log(`🖥️ Index depuis système desktop: ${currentIndex}`);
+    }
+    // Essayer le système mobile
+    else if (window.debugMobileAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
+      currentIndex = window.debugMobileAnimations.states.value['slide-23-current-index'];
+      console.log(`📱 Index depuis système mobile: ${currentIndex}`);
+    } else {
+      console.log(`⚠️ Aucun index trouvé dans les systèmes d'animation, utilisation de 0`);
+    }
+  }
+  
+  console.log(`📊 Index actuel slide-23: ${currentIndex} / ${imageContainers.length - 1}`);
+  
+  // Contrôler les animations SVG selon l'index actif
+  imageContainers.forEach((container, index) => {
+    const containerId = container.id;
+    const svgObject = container.querySelector('object[type="image/svg+xml"]');
+    
+    if (svgObject && containerId) {
+      if (index === currentIndex) {
+        // Container actif : démarrer l'animation
+        console.log(`🎬 Démarrage animation ${containerId} (actif) - Index ${index}`);
+        
+        if (svgObject.contentDocument) {
+          restartSlide23SvgAnimation(containerId);
+        } else {
+          console.log(`⏳ SVG non chargé pour ${containerId}, attente de chargement...`);
+          svgObject.addEventListener('load', () => {
+            setTimeout(() => {
+              console.log(`✅ SVG maintenant chargé pour ${containerId}, redémarrage...`);
+              restartSlide23SvgAnimation(containerId);
+            }, 500);
+          }, { once: true });
+        }
+      } else {
+        // Container inactif : arrêter/réinitialiser l'animation
+        console.log(`⏸️ Arrêt animation ${containerId} (inactif) - Index ${index}`);
+        stopSlide23SvgAnimation(containerId);
+      }
+    } else {
+      if (!svgObject) {
+        console.log(`❌ Pas d'object SVG trouvé dans ${containerId || `container-${index}`}`);
+      }
+      if (!containerId) {
+        console.log(`❌ Pas d'ID trouvé pour le container ${index}`);
+      }
+    }
+  });
+};
+
+// Fonction pour démarrer une animation SVG spécifique à slide-23
+const restartSlide23SvgAnimation = (containerId) => {
+  console.log(`🔍 Tentative de redémarrage ${containerId}`);
+  
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.warn(`❌ Container ${containerId} non trouvé`);
+    return;
+  }
+  
+  const svgObject = container.querySelector('object[type="image/svg+xml"]');
+  if (!svgObject) {
+    console.warn(`❌ Object SVG non trouvé dans ${containerId}`);
+    return;
+  }
+  
+  console.log(`🎯 Object SVG trouvé dans ${containerId}, URL: ${svgObject.data}`);
+  
+  // Vérifier si le SVG est chargé
+  if (!svgObject.contentDocument) {
+    console.log(`⏳ SVG pas encore chargé dans ${containerId}, attente...`);
+    
+    // Attendre le chargement du SVG (une seule fois)
+    const loadHandler = () => {
+      console.log(`✅ SVG chargé dans ${containerId}, tentative de redémarrage`);
+      setTimeout(() => {
+        restartSlide23SvgAnimationForced(containerId);
+      }, 300);
+    };
+    
+    svgObject.addEventListener('load', loadHandler, { once: true });
+    
+    // Timeout de sécurité
+    setTimeout(() => {
+      svgObject.removeEventListener('load', loadHandler);
+      console.warn(`⏰ Timeout pour le chargement SVG de ${containerId}`);
+    }, 3000);
+    
+    return;
+  }
+  
+  // SVG chargé, essayer de redémarrer
+  restartSlide23SvgAnimationForced(containerId);
+};
+
+// Fonction interne pour forcer le redémarrage (sans retry)
+const restartSlide23SvgAnimationForced = (containerId) => {
+  const container = document.getElementById(containerId);
+  const svgObject = container?.querySelector('object[type="image/svg+xml"]');
+  
+  if (!svgObject?.contentDocument) {
+    console.warn(`❌ Impossible d'accéder au contentDocument de ${containerId}`);
+    return;
+  }
+  
+  try {
+    const svgDoc = svgObject.contentDocument;
+    const svgWindow = svgDoc.defaultView;
+    
+    console.log(`🔍 Recherche du player dans ${containerId}`);
+    console.log(`   - svgDoc: ${!!svgDoc}`);
+    console.log(`   - svgWindow: ${!!svgWindow}`);
+    
+    // Essayer différentes méthodes pour trouver le player
+    let player = null;
+    
+    // Méthode 1: svgWindow.svgatorPlayer
+    if (svgWindow && svgWindow.svgatorPlayer) {
+      player = svgWindow.svgatorPlayer;
+      console.log(`✅ Player trouvé via svgWindow.svgatorPlayer dans ${containerId}`);
+    }
+    
+    // Méthode 2: Chercher dans les propriétés de svgWindow
+    if (!player && svgWindow) {
+      for (let prop in svgWindow) {
+        if (prop.toLowerCase().includes('svgator') || prop.toLowerCase().includes('player')) {
+          console.log(`🔍 Propriété potentielle trouvée: ${prop}`);
+          if (svgWindow[prop] && typeof svgWindow[prop] === 'object' && svgWindow[prop].restart) {
+            player = svgWindow[prop];
+            console.log(`✅ Player trouvé via ${prop} dans ${containerId}`);
+            break;
+          }
+        }
+      }
+    }
+    
+    // Méthode 3: Chercher dans window global du SVG
+    if (!player && svgWindow) {
+      if (svgWindow.window && svgWindow.window.svgatorPlayer) {
+        player = svgWindow.window.svgatorPlayer;
+        console.log(`✅ Player trouvé via window.svgatorPlayer dans ${containerId}`);
+      }
+    }
+    
+    if (player && typeof player.restart === 'function') {
+      console.log(`🎬 Redémarrage effectif de l'animation dans ${containerId}`);
+      player.restart();
+      console.log(`✅ Animation SVG redémarrée avec succès dans ${containerId}`);
+    } else {
+      console.warn(`⚠️ Player Svgator non trouvé ou méthode restart manquante dans ${containerId}`);
+      console.log(`   - player: ${!!player}`);
+      console.log(`   - restart method: ${player ? typeof player.restart : 'N/A'}`);
+      
+      // Lister toutes les méthodes disponibles si player trouvé
+      if (player) {
+        const methods = Object.getOwnPropertyNames(player).filter(prop => typeof player[prop] === 'function');
+        console.log(`   - méthodes disponibles: ${methods.join(', ')}`);
+      }
+    }
+    
+  } catch (error) {
+    console.error(`❌ Erreur lors du redémarrage de l'animation dans ${containerId}:`, error);
+  }
+};
+
+// Fonction pour arrêter une animation SVG spécifique à slide-23
+const stopSlide23SvgAnimation = (containerId) => {
+  console.log(`🔍 Tentative d'arrêt ${containerId}`);
+  
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.warn(`❌ Container ${containerId} non trouvé pour arrêt`);
+    return;
+  }
+  
+  const svgObject = container.querySelector('object[type="image/svg+xml"]');
+  if (!svgObject) {
+    console.warn(`❌ Object SVG non trouvé dans ${containerId} pour arrêt`);
+    return;
+  }
+  
+  if (!svgObject.contentDocument) {
+    console.log(`⏳ SVG pas encore chargé dans ${containerId}, arrêt non nécessaire`);
+    return;
+  }
+  
+  try {
+    const svgDoc = svgObject.contentDocument;
+    const svgWindow = svgDoc.defaultView;
+    
+    // Essayer différentes méthodes pour trouver le player
+    let player = null;
+    
+    if (svgWindow && svgWindow.svgatorPlayer) {
+      player = svgWindow.svgatorPlayer;
+    } else if (svgWindow) {
+      // Chercher dans les propriétés
+      for (let prop in svgWindow) {
+        if (prop.toLowerCase().includes('svgator') || prop.toLowerCase().includes('player')) {
+          if (svgWindow[prop] && typeof svgWindow[prop] === 'object') {
+            player = svgWindow[prop];
+            break;
+          }
+        }
+      }
+    }
+    
+    if (player) {
+      console.log(`⏸️ Arrêt effectif de l'animation dans ${containerId}`);
+      
+      // Arrêter l'animation
+      if (typeof player.pause === 'function') {
+        player.pause();
+        console.log(`⏸️ Animation mise en pause dans ${containerId}`);
+      }
+      
+      // Revenir au début
+      if (typeof player.seek === 'function') {
+        player.seek(0);
+        console.log(`⏮️ Animation remise à zéro dans ${containerId}`);
+      } else if (typeof player.setCurrentTime === 'function') {
+        player.setCurrentTime(0);
+        console.log(`⏮️ Animation remise à zéro (setCurrentTime) dans ${containerId}`);
+      }
+      
+      console.log(`✅ Animation SVG arrêtée avec succès dans ${containerId}`);
+    } else {
+      console.warn(`⚠️ Player Svgator non trouvé pour arrêt dans ${containerId}`);
+    }
+    
+  } catch (error) {
+    console.error(`❌ Erreur lors de l'arrêt de l'animation dans ${containerId}:`, error);
+  }
+};
+
+// Système de surveillance pour slide-23
+let slide23SvgWatcherInterval = null;
+let lastSlide23Index = -1;
+let isSlide23Active = false;
+
+const initSlide23SvgWatcher = () => {
+  console.log(`🔍 Initialisation du système de surveillance slide-23`);
+  
+  // Nettoyer l'interval existant s'il y en a un
+  if (slide23SvgWatcherInterval) {
+    clearInterval(slide23SvgWatcherInterval);
+  }
+  
+  // Démarrer la surveillance toutes les 200ms
+  slide23SvgWatcherInterval = setInterval(() => {
+    // Vérifier si on est sur la slide-23
+    const currentSlide23Active = activeSlideId.value === 23;
+    
+    // Si on vient d'entrer dans slide-23
+    if (currentSlide23Active && !isSlide23Active) {
+      console.log(`🎯 Entrée dans slide-23 détectée`);
+      isSlide23Active = true;
+      lastSlide23Index = -1; // Force la mise à jour
+      
+      // Démarrer immédiatement le contrôle des animations
+      setTimeout(() => {
+        const slide23Section = document.getElementById('slide-23');
+        if (slide23Section) {
+          console.log(`🔄 Premier contrôle des animations après entrée dans slide-23`);
+          handleSlide23SvgAnimations(slide23Section);
+        }
+      }, 300); // Petit délai pour que la section soit bien active
+    }
+    // Si on vient de quitter slide-23
+    else if (!currentSlide23Active && isSlide23Active) {
+      console.log(`🚪 Sortie de slide-23 détectée`);
+      isSlide23Active = false;
+      
+      // Arrêter toutes les animations SVG de slide-23
+      const slide23Section = document.getElementById('slide-23');
+      if (slide23Section) {
+        const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+        imageContainers.forEach((container) => {
+          if (container.id) {
+            stopSlide23SvgAnimation(container.id);
+          }
+        });
+      }
+      return; // Pas besoin de vérifier l'index si on n'est pas sur slide-23
+    }
+    
+    // Si on est sur slide-23, surveiller les changements d'index
+    if (isSlide23Active) {
+      let currentIndex = 0;
+      
+      // Récupérer l'index actuel depuis les systèmes d'animation
+      if (typeof window !== 'undefined') {
+        // Essayer le système desktop
+        if (window.debugDesktopAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
+          currentIndex = window.debugDesktopAnimations.states.value['slide-23-current-index'];
+        }
+        // Essayer le système mobile
+        else if (window.debugMobileAnimations?.states?.value?.['slide-23-current-index'] !== undefined) {
+          currentIndex = window.debugMobileAnimations.states.value['slide-23-current-index'];
+        }
+      }
+      
+      // Si l'index a changé, mettre à jour les animations
+      if (currentIndex !== lastSlide23Index) {
+        console.log(`📊 Changement d'index slide-23: ${lastSlide23Index} → ${currentIndex}`);
+        lastSlide23Index = currentIndex;
+        
+        const slide23Section = document.getElementById('slide-23');
+        if (slide23Section) {
+          handleSlide23SvgAnimations(slide23Section);
+        }
+      }
+    }
+  }, 200); // Surveillance toutes les 200ms
+  
+  console.log(`✅ Système de surveillance slide-23 démarré`);
+};
+
+// Fonction pour nettoyer le système de surveillance
+const cleanupSlide23SvgWatcher = () => {
+  if (slide23SvgWatcherInterval) {
+    clearInterval(slide23SvgWatcherInterval);
+    slide23SvgWatcherInterval = null;
+    console.log(`🧹 Système de surveillance slide-23 nettoyé`);
   }
 };
 </script>
@@ -2019,7 +2722,7 @@ header.fixed-top.scrolled {
   
   textarea.form-control {
     resize: vertical;
-    min-height: 100px;
+    min-height: 50px;
     font-family: inherit;
   }
   
