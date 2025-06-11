@@ -1373,6 +1373,27 @@ body {
 }
 
 @media screen and (max-width: 1024px) {
+
+
+    #lafill{
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        align-items: center;
+        justify-content: center;
+    }
+    #slide-128 .aya{
+        font-size:35px !important;
+    }
+    .perdrix-slide{
+        p{  
+            padding:0 5em !important;
+            font-size: 14px !important;
+        }
+        h3{ 
+            font-size: 18px !important;
+        }
+    }
     #rodman{
         border-radius: 25px 29px 39px 39px;
 
@@ -1980,7 +2001,9 @@ width:100% !important;
 
     .contact-form {
         textarea{
+            margin:0em !important;
             padding:1.5rem 1em !important;
+            min-height: 50px !important;
         }
         textarea,
         input,
@@ -4314,7 +4337,29 @@ body.slide-73-active,
 .test{
     display:none;
 }
+@media screen and (max-width: 376px) {
+    //css for bloody small iphones
+    #slide-20{
+        #turtlebeach{
+        width: 68vw !important;
+        max-width: 325px !important;
+        max-height: 490px !important;
+        }
+    }
+    #gorr{
 
+    }
+    #slide-59 #gorr{
+        width:100% !important;
+        
+    }
+    #slide-59 #gorr #llass, #slide-59 #gorr #lele{
+               width: 186px !important;
+        height: auto !important;
+    }
+
+
+}
 // CSS mobile pour supprimer les espaces dans #sharon en conservant les ::before
 @media screen and (max-width: 1024px) {
     #slide-128{
@@ -4322,7 +4367,8 @@ body.slide-73-active,
     }
     #slide-73 .slides-container{
     
-    background-position-x: -69vw !important;
+    //background-position-x: -69vw !important;
+    background-position-x: -49vw !important;
         
     }
     #joce {
@@ -5265,9 +5311,13 @@ a.back-to-top{
         }
       }
       #slide-60{
+
         p{
-            font-size: 22px !important;
-  margin: 1em 0 !important;
+            &:nth-child(1){
+            
+                margin: 0.5em 0 !important;
+            }
+  margin: 0.5em 0 !important;
         }
       }
     * {
@@ -6397,7 +6447,7 @@ max-width:100px !important;
       }
 
     #yenamarre{
-        margin:1em 0 !important;
+        margin:2px 0 0 0 !important;
         padding:0 !important;
     }
     .back-to-top{
@@ -6456,23 +6506,51 @@ max-width:100px !important;
     height:100dvh !important;
 }
     }
-    .contact-form .form-control{
-        border: radius 40px !important;
-        -webkit-border-radius:40px !important;
-        -moz-border-radius:40px !important;
-        -ms-border-radius:40px !important;
-        -o-border-radius:40px !important;
-}
 
-    textarea.form-control{
-        border: radius 40px !important;
-        -webkit-border-radius:40px !important;
-        -moz-border-radius:40px !important;
-        -ms-border-radius:40px !important;
-        -o-border-radius:40px !important;
-        padding:1em !important;
-    }
 
     .ditocard{
         margin:0
+    }
+
+
+    .contact-form .form-control{
+        border-radius: 24px !important;
+        -webkit-border-radius: 24px !important;
+        -moz-border-radius: 24px !important;
+        -ms-border-radius: 24px !important;
+        -o-border-radius: 24px !important;
+}
+
+    textarea.form-control{
+        border-radius: 24px !important;
+        -webkit-border-radius: 24px !important;
+        -moz-border-radius: 24px !important;
+        -ms-border-radius: 24px !important;
+        -o-border-radius: 24px !important;
+        padding:1em !important;
+    }
+
+    @media screen and (max-width: 375px) {
+        #slide-60 p {
+            font-size:14px !important;
+        }
+
+        .contact-form textarea, .contact-form input, .contact-form button{
+            font-size:12px !important;
+            padding:10px !important;
+        }
+        .back-to-top img{
+            height:35px !important;
+        }
+        #lafill button.btn.btn-primary{
+            font-size:14px !important;
+            padding:4px !important;
+        }
+        .ditocard, .contact-form{
+                max-width:280px !important  ;
+                margin:0 auto !important;
+        }
+        #lemof{
+            align-items:center !important;
+        }
     }

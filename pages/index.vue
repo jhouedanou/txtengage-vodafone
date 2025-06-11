@@ -528,16 +528,12 @@ onMounted(async () => {
   if (typeof window !== 'undefined') {
     window.debugSvgAnimations = {
       restart: restartSvgAnimation,
-      startAll: () => {
-        // Démarrer toutes les animations SVG immédiatement
+      restartAll: () => {
+        // Redémarrer toutes les animations SVG
         const containers = document.querySelectorAll('[id^="image-container-"]');
         containers.forEach(container => {
           if (container.querySelector('object[type="image/svg+xml"]')) {
-            const containerId = container.id;
-            const svgObject = container.querySelector('object[type="image/svg+xml"]');
-            if (svgObject && svgObject.contentDocument) {
-              configureSvgatorImmediate(svgObject.contentDocument, containerId);
-            }
+            restartSvgAnimation(container.id);
           }
         });
       },
@@ -549,13 +545,11 @@ onMounted(async () => {
           console.log(`📋 Animation ${index + 1}: ${containerId}, URL: ${obj.data}`);
         });
       },
-      cleanup: cleanupSvgatorIntervals,
       reinitialize: () => {
-        console.log('🔄 Réinitialisation des animations SVG avec chargement immédiat');
-        cleanupSvgatorIntervals();
+        console.log('🔄 Réinitialisation des animations SVG');
         setTimeout(() => {
           initSvgatorAnimations();
-        }, 500);
+        }, 1000);
       },
       checkPlayers: () => {
         // Vérifier l'état des players Svgator
@@ -569,31 +563,19 @@ onMounted(async () => {
             console.log(`🔍 ${containerId}: Player ${player ? '✅ trouvé' : '❌ non trouvé'}`);
             if (player) {
               console.log(`   - restart: ${typeof player.restart === 'function' ? '✅' : '❌'}`);
-              console.log(`   - play: ${typeof player.play === 'function' ? '✅' : '❌'}`);
               console.log(`   - setOptions: ${typeof player.setOptions === 'function' ? '✅' : '❌'}`);
+              console.log(`   - onFinish: ${typeof player.onFinish === 'function' ? '✅' : '❌'}`);
             }
           }
         });
-      },
-      startImmediate: (containerId) => {
-        // Démarrer immédiatement une animation spécifique
-        const container = document.getElementById(containerId);
-        if (container) {
-          const svgObject = container.querySelector('object[type="image/svg+xml"]');
-          if (svgObject && svgObject.contentDocument) {
-            configureSvgatorImmediate(svgObject.contentDocument, containerId);
-          }
-        }
       }
     };
     
     console.log('🛠️ Fonctions de debug améliorées disponibles:');
     console.log('- window.debugSvgAnimations.restart("image-container-1") // Redémarre une animation spécifique');
-    console.log('- window.debugSvgAnimations.startAll() // Démarre toutes les animations immédiatement');
-    console.log('- window.debugSvgAnimations.startImmediate("image-container-1") // Démarre une animation immédiatement');
+    console.log('- window.debugSvgAnimations.restartAll() // Redémarre toutes les animations');
     console.log('- window.debugSvgAnimations.listAnimations() // Liste toutes les animations');
-    console.log('- window.debugSvgAnimations.cleanup() // Nettoie les ressources');
-    console.log('- window.debugSvgAnimations.reinitialize() // Réinitialise avec chargement immédiat');
+    console.log('- window.debugSvgAnimations.reinitialize() // Réinitialise complètement');
     console.log('- window.debugSvgAnimations.checkPlayers() // Vérifie l\'état des players');
   }
 
@@ -620,9 +602,6 @@ onBeforeUnmount(() => {
   document.removeEventListener("navigateToSection", handleNavigateToSection);
   sectionScrollTriggers.forEach((trigger) => trigger.kill());
   sectionScrollTriggers.length = 0;
-  
-  // Nettoyer les intervalles Svgator
-  cleanupSvgatorIntervals();
 });
 
 const isMenuOpen = ref(false);
@@ -797,7 +776,7 @@ const goToFirstSlide = () => {
   }
 };
 
-// Méthode spécifique pour les SVG Svgator avec chargement immédiat
+// Méthode spécifique pour les SVG Svgator avec réinitialisation des animations
 const initSvgatorAnimations = () => {
   nextTick(() => {
     // Attendre que les objects SVG soient chargés
@@ -808,8 +787,7 @@ const initSvgatorAnimations = () => {
         try {
           const svgDoc = obj.contentDocument;
           if (svgDoc) {
-            const containerId = obj.getAttribute('data-container-id');
-            console.log(`🔍 Chargement immédiat du SVG dans ${containerId}`);
+            console.log(`🔍 Analyse du SVG ${index + 1} dans ${obj.getAttribute('data-container-id') || 'conteneur inconnu'}`);
             
             // Rechercher les scripts Svgator dans le document SVG
             const scripts = svgDoc.querySelectorAll('script');
@@ -818,10 +796,10 @@ const initSvgatorAnimations = () => {
             scripts.forEach(script => {
               if (script.textContent && script.textContent.includes('svgatorPlayer')) {
                 svgatorFound = true;
-                console.log(`🎬 Animation Svgator trouvée dans ${containerId}`);
+                console.log(`🎬 Animation Svgator trouvée dans ${obj.getAttribute('data-container-id')}`);
                 
                 try {
-                  // Créer un script element dans le document SVG
+                  // Créer un script element dans le document SVG au lieu d'utiliser Function
                   const newScript = svgDoc.createElement('script');
                   newScript.textContent = script.textContent;
                   
@@ -831,60 +809,70 @@ const initSvgatorAnimations = () => {
                   // Ajouter le nouveau script au SVG document
                   svgDoc.documentElement.appendChild(newScript);
                   
-                  console.log(`✅ Script Svgator chargé avec succès dans ${containerId}`);
+                  console.log(`✅ Script Svgator réinjecté avec succès dans ${obj.getAttribute('data-container-id')}`);
                   
-                  // Configurer pour démarrage immédiat sans répétition
+                  // Configurer l'animation après un délai court
                   setTimeout(() => {
-                    configureSvgatorImmediate(svgDoc, containerId);
-                  }, 1000);
+                    configureSvgatorRepeat(svgDoc, obj.getAttribute('data-container-id'));
+                  }, 1000); // Réduit à 1 seconde
                   
                 } catch (execError) {
-                  console.error(`❌ Erreur lors du chargement du script Svgator:`, execError);
+                  console.error(`❌ Erreur lors de l'injection du script Svgator:`, execError);
+                  
+                  // Fallback: essayer d'exécuter le script dans le contexte de la fenêtre SVG
+                  try {
+                    const svgWindow = svgDoc.defaultView || window;
+                    const scriptFunction = new Function(script.textContent);
+                    scriptFunction.call(svgWindow);
+                    console.log(`✅ Script Svgator exécuté via fallback dans ${obj.getAttribute('data-container-id')}`);
+                    
+                    // Configurer après le fallback
+                    setTimeout(() => {
+                      configureSvgatorRepeat(svgDoc, obj.getAttribute('data-container-id'));
+                    }, 1000);
+                  } catch (fallbackError) {
+                    console.error(`❌ Échec du fallback pour ${obj.getAttribute('data-container-id')}:`, fallbackError);
+                  }
                 }
               }
             });
             
             if (!svgatorFound) {
-              console.log(`ℹ️ Aucune animation Svgator détectée dans ${containerId}`);
+              console.log(`ℹ️ Aucune animation Svgator détectée dans ${obj.getAttribute('data-container-id')}`);
             }
           }
         } catch (error) {
           console.warn(`⚠️ Impossible d'accéder au contenu du SVG ${index + 1}:`, error);
         }
       });
-      
-      // Timeout de sécurité pour le chargement
-      setTimeout(() => {
-        if (obj.contentDocument) {
-          console.log(`⏰ Chargement tardif pour ${obj.getAttribute('data-container-id')}`);
-          obj.dispatchEvent(new Event('load'));
-        }
-      }, 2000);
     });
   });
 };
 
-// Fonction pour configurer le démarrage immédiat sans répétition
-const configureSvgatorImmediate = (svgDoc, containerId) => {
+// Fonction pour configurer la répétition des animations Svgator
+const configureSvgatorRepeat = (svgDoc, containerId) => {
   try {
-    console.log(`🚀 Configuration immédiate pour ${containerId}`);
+    console.log(`🔍 Recherche du player Svgator dans ${containerId}`);
     
+    // Rechercher les players Svgator dans le document SVG
     const svgWindow = svgDoc.defaultView;
     
-    // Recherche du player avec tentatives limitées
+    // Attendre que le player soit initialisé avec plusieurs tentatives
     let attempts = 0;
-    const maxAttempts = 5;
+    const maxAttempts = 5; // Réduire le nombre de tentatives
     
-    const findAndStartPlayer = () => {
+    const findAndConfigurePlayer = () => {
       attempts++;
       
-      // Rechercher le player Svgator
+      // Méthode 1: Chercher dans svgWindow
       let player = svgWindow && svgWindow.svgatorPlayer;
       
-      // Recherche alternative dans les propriétés de la fenêtre SVG
+      // Méthode 2: Chercher dans les variables globales du SVG
       if (!player && svgWindow) {
+        // Chercher dans toutes les propriétés de svgWindow
         for (let prop in svgWindow) {
           if (prop.includes('svgator') || prop.includes('player')) {
+            console.log(`🔍 Propriété trouvée: ${prop}`, svgWindow[prop]);
             if (svgWindow[prop] && typeof svgWindow[prop] === 'object') {
               player = svgWindow[prop];
               break;
@@ -893,27 +881,26 @@ const configureSvgatorImmediate = (svgDoc, containerId) => {
         }
       }
       
+      // Méthode 3: Chercher dans le document SVG lui-même
+      if (!player) {
+        const svgElement = svgDoc.querySelector('svg');
+        if (svgElement && svgElement.svgatorPlayer) {
+          player = svgElement.svgatorPlayer;
+        }
+      }
+      
       if (player) {
-        console.log(`🎯 Player Svgator trouvé dans ${containerId}`);
+        console.log(`🎯 Player Svgator trouvé dans ${containerId} après ${attempts} tentatives`);
         
         try {
-          // Configuration pour une seule lecture (pas de répétition automatique)
-          if (typeof player.setOptions === 'function') {
-            player.setOptions({
-              repeat: false,
-              iterations: 1,
-              autoplay: true
-            });
-            console.log(`✅ Animation configurée pour démarrage unique dans ${containerId}`);
-          }
+          // Ne plus configurer de répétition automatique
+          // L'animation se jouera une seule fois naturellement
+          console.log(`✅ Animation configurée pour lecture unique dans ${containerId}`);
           
-          // Démarrer l'animation immédiatement
+          // Optionnel: démarrer l'animation immédiatement si elle n'est pas déjà en cours
           if (typeof player.restart === 'function') {
             player.restart();
-            console.log(`🎬 Animation démarrée immédiatement dans ${containerId}`);
-          } else if (typeof player.play === 'function') {
-            player.play();
-            console.log(`▶️ Animation lancée via play() dans ${containerId}`);
+            console.log(`🎬 Animation démarrée dans ${containerId}`);
           }
           
         } catch (configError) {
@@ -922,21 +909,21 @@ const configureSvgatorImmediate = (svgDoc, containerId) => {
         
       } else if (attempts < maxAttempts) {
         console.log(`⏳ Player non trouvé, tentative ${attempts}/${maxAttempts} dans ${containerId}`);
-        setTimeout(findAndStartPlayer, 300);
+        setTimeout(findAndConfigurePlayer, 300); // Réduire le délai à 300ms
       } else {
         console.warn(`⚠️ Player Svgator non trouvé après ${maxAttempts} tentatives dans ${containerId}`);
       }
     };
     
     // Démarrer la recherche
-    findAndStartPlayer();
+    findAndConfigurePlayer();
     
   } catch (error) {
-    console.error(`❌ Erreur lors de la configuration immédiate pour ${containerId}:`, error);
+    console.error(`❌ Erreur lors de la configuration pour ${containerId}:`, error);
   }
 };
 
-// Fonction manuelle pour redémarrer une animation spécifique (gardée pour le debug)
+// Fonction manuelle pour redémarrer une animation spécifique
 const restartSvgAnimation = (containerId) => {
   const container = document.getElementById(containerId);
   if (container) {
@@ -949,12 +936,6 @@ const restartSvgAnimation = (containerId) => {
       }
     }
   }
-};
-
-// Fonction simplifiée pour nettoyer (plus d'intervalles automatiques)
-const cleanupSvgatorIntervals = () => {
-  // Plus d'intervalles automatiques à nettoyer
-  console.log(`🧹 Nettoyage terminé (aucun intervalle automatique)`);
 };
 </script>
 
