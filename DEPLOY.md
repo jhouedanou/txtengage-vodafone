@@ -1,3 +1,101 @@
+# Guide de Déploiement - Application Nuxt
+
+## Scripts de Génération
+
+L'application est configurée pour supporter deux modes de déploiement :
+
+### 1. Déploiement à la racine
+```bash
+npm run generate
+```
+- Génère l'application pour être déployée à la racine du domaine
+- URL de base : `/`
+- Dossier de sortie : `.vercel/static`
+- Idéal pour un domaine principal (ex: `https://monsite.com`)
+
+### 2. Déploiement en sous-dossier
+```bash
+npm run generate:subfolder
+```
+- Génère l'application pour être déployée dans le sous-dossier `/txtengage/`
+- URL de base : `/txtengage/`
+- Dossier de sortie : `.vercel/static/txtengage`
+- Idéal pour un sous-dossier d'un site existant (ex: `https://monsite.com/txtengage/`)
+
+## Scripts de Déploiement Complets
+
+### Production (racine)
+```bash
+npm run deploy:production
+```
+Équivaut à : `npm run generate` puis `npm run deploy:ftp`
+
+### Staging/Test (sous-dossier)
+```bash
+npm run deploy:staging
+```
+Équivaut à : `npm run generate:subfolder` puis `npm run deploy:ftp`
+
+## Configuration Technique
+
+La configuration se base sur la variable d'environnement `NUXT_APP_BASE_URL` :
+- **Racine** : `NUXT_APP_BASE_URL=/`
+- **Sous-dossier** : `NUXT_APP_BASE_URL=/txtengage/`
+
+### Gestion automatique des assets
+- Les chemins des assets CSS/JS sont ajustés automatiquement
+- Les images et fichiers statiques suivent la configuration de base
+- Generation d'un `index.html` correct pour chaque mode
+
+### Structure de sortie
+```
+.vercel/static/          # Mode racine
+├── index.html
+├── _nuxt/
+└── ...
+
+.vercel/static/txtengage/  # Mode sous-dossier
+├── index.html
+├── txtengage/_nuxt/
+└── ...
+```
+
+## Exemples d'utilisation
+
+```bash
+# Développement en mode racine
+npm run dev
+
+# Développement en mode sous-dossier
+npm run dev:root
+
+# Build pour production (racine)
+npm run generate
+
+# Build pour staging (sous-dossier)
+npm run generate:subfolder
+
+# Test local de la build
+npm run preview
+```
+
+## Notes importantes
+
+1. **Variables d'environnement** : La configuration se base sur `NUXT_APP_BASE_URL`
+2. **Assets** : Tous les assets (CSS, JS, images) s'adaptent automatiquement
+3. **Routing** : Le routeur Vue Router est configuré pour chaque mode
+4. **SEO** : Les meta tags et liens canoniques s'adaptent à l'URL de base
+
+## Résolution des problèmes
+
+### Les assets ne se chargent pas
+- Vérifiez que la variable `NUXT_APP_BASE_URL` est correcte
+- Assurez-vous que le serveur web sert les fichiers depuis le bon dossier
+
+### Erreurs de routage
+- En mode sous-dossier, assurez-vous que votre serveur web redirige correctement vers `/txtengage/`
+- Vérifiez la configuration de votre hébergeur (Vercel, Netlify, etc.)
+
 # Guide de Déploiement - Vodafone TxtEngage
 
 Ce guide vous explique comment déployer automatiquement votre projet Nuxt.js vers le dossier `txtengage` via FTP ou git-ftp.

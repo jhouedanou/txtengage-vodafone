@@ -3,10 +3,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
   
-  // Configuration pour le déploiement à la racine
+  // Configuration pour le déploiement
   app: {
-    baseURL: '/', // Toujours à la racine maintenant
-    buildAssetsDir: '/_nuxt/',
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+    buildAssetsDir: process.env.NUXT_APP_BASE_URL === '/txtengage/' ? '/txtengage/_nuxt/' : '/_nuxt/',
     head: {
       meta: [
         // Dark mode prevention meta tags for Android Samsung
@@ -70,16 +70,22 @@ export default defineNuxtConfig({
     }
   },
 
-  // Configuration pour la génération statique à la racine
+  // Configuration pour la génération statique avec index.html
   nitro: {
-    output: {
-      dir: '.vercel/static', // Suppression du sous-dossier txtengage
-      publicDir: '.vercel/static'
-    },
     prerender: {
       failOnError: false,
       crawlLinks: true,
       routes: ['/'],
+    },
+    // Configuration pour générer index.html au lieu de 200.html
+    output: {
+      dir: process.env.NUXT_APP_BASE_URL === '/txtengage/' ? '.vercel/static/txtengage' : '.vercel/static',
+      publicDir: process.env.NUXT_APP_BASE_URL === '/txtengage/' ? '.vercel/static/txtengage' : '.vercel/static'
+    },
+    // Forcer la génération d'index.html
+    experimental: {
+      payloadExtraction: false,
+      inlineSSRStyles: false
     }
   },
 
@@ -89,15 +95,21 @@ export default defineNuxtConfig({
     'bootstrap/dist/css/bootstrap.min.css'
   ],
 
-  // Configuration des routes pour SPA
-  ssr: false, // Mode SPA pour compatibilité Vercel Static
+  // Configuration pour la génération statique (SSG) avec index.html
+  ssr: true,
   target: 'static',
+  
+  // Mode de génération qui produit index.html
+  generate: {
+    fallback: false,
+    nojekyll: true
+  },
 
   // Configuration des assets publics
   runtimeConfig: {
     public: {
       apiUrl: process.env.API_URL || 'https://dev-txtengagevodafone.pantheonsite.io/wp-json/wp/v2',
-      baseURL: '/' // Toujours à la racine
+      baseURL: process.env.NUXT_APP_BASE_URL || '/'
     }
   },
 
@@ -107,7 +119,7 @@ export default defineNuxtConfig({
       preprocessorOptions: {
         scss: {
           additionalData: `
-            $asset-base: ""; // Pas de préfixe pour les assets
+            $asset-base: "${process.env.NUXT_APP_BASE_URL || ''}";
           `
         }
       }
@@ -189,5 +201,50 @@ export default defineNuxtConfig({
   // Configuration publique
   publicRuntimeConfig: {
     // Configuration retirée car fullpage.js n'est plus utilisé
-  }
+  },
+
+  // Hook pour générer index.html
+  hooks: {
+    'nitro:build:public-assets': async (nitro) => {
+      const fs = await import('fs')
+      const path = await import('path')
+      
+      const outputDir = nitro.options.output.publicDir
+      const file200 = path.join(outputDir, '200.html')
+      const indexFile = path.join(outputDir, 'index.html')
+      
+      // Si 200.html existe, le copier vers index.html
+      if (fs.existsSync(file200)) {
+        fs.copyFileSync(file200, indexFile)
+        console.log('✅ index.html généré depuis 200.html')
+      }
+    },
+    'generate:done': async (generator) => {
+      const fs = await import('fs')
+      const path = await import('path')
+      
+      // Pour le mode sous-dossier
+      if (process.env.NUXT_APP_BASE_URL === '/txtengage/') {
+        const outputDir = '.vercel/static/txtengage'
+        const file200 = path.join(outputDir, '200.html')
+        const indexFile = path.join(outputDir, 'index.html')
+        
+        if (fs.existsSync(file200)) {
+          fs.copyFileSync(file200, indexFile)
+          console.log('✅ index.html généré pour le sous-dossier /txtengage/')
+        }
+      }
+      // Pour le mode racine
+      else {
+        const outputDir = '.vercel/static'
+        const file200 = path.join(outputDir, '200.html')
+        const indexFile = path.join(outputDir, 'index.html')
+        
+        if (fs.existsSync(file200)) {
+          fs.copyFileSync(file200, indexFile)
+          console.log('✅ index.html généré pour la racine')
+        }
+      }
+    }
+  },
 })
