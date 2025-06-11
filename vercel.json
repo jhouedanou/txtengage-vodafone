@@ -1,7 +1,7 @@
 {
     "version": 2,
-    "name": "txtengage-vodafone-macos-fix",
-    "alias": ["macos-fix.txtengage.com"],
+    "name": "txtengage-vodafone-root-deploy",
+    "alias": ["txtengage.com"],
     "builds": [
         {
             "src": "nuxt.config.js",
@@ -10,16 +10,12 @@
     ],
     "routes": [
         {
-            "src": "/txtengage/(.*)",
-            "dest": "/$1"
-        },
-        {
             "src": "/(.*)",
-            "dest": "/txtengage/$1"
+            "dest": "/$1"
         }
     ],
     "env": {
-        "NUXT_APP_BASE_URL": "/txtengage/"
+        "NUXT_APP_BASE_URL": "/"
     },
     "functions": {
         "pages/**": {
