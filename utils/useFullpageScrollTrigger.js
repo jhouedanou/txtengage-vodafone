@@ -1006,6 +1006,9 @@ const resetSlide73Animation = () => {
 
     // Initialiser tous les image-containers - masqués sauf le premier
     if (imageContainers.length > 0) {
+      // ✅ NOUVEAU : Précharger tous les SVG AVANT de modifier le DOM
+      preloadAllSlide23Svgs();
+      
       imageContainers.forEach((container, index) => {
         // ✅ NOUVEAU : Gérer les SVG - les supprimer du DOM sauf pour le premier
         const containerId = container.id || `image-container-${index + 1}`;
@@ -1017,8 +1020,8 @@ const resetSlide73Animation = () => {
         } else {
           // Autres containers : positionnés hors du viewport, SVG supprimés du DOM
           gsap.set(container, { autoAlpha: 1, y: '580px' });
-          // Supprimer les SVG du DOM et les stocker
-          removeSvgFromContainer(container, containerId);
+          // Supprimer les SVG du DOM (mais ils sont déjà en cache)
+          removeSvgFromContainerOptimized(container, containerId);
         }
       });
     }
@@ -1092,6 +1095,10 @@ const resetSlide73Animation = () => {
   
   // ✅ NOUVEAU : Stockage des SVG pour insertion/suppression DOM
   let slide23SvgStorage = new Map(); // Stocke les SVG supprimés avec leur container parent et position
+  
+  // ✅ NOUVEAU : Système de préchargement et cache SVG
+  let slide23SvgCache = new Map(); // Cache permanent des SVG pour préchargement rapide
+  let slide23PreloadQueue = []; // Queue des containers à précharger
 
   const initializePerdrixScrollLimits = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
@@ -1203,16 +1210,22 @@ const resetSlide73Animation = () => {
       tl.to(nextImageContainer, {
         y: 0,
         duration: getTweenDuration(),
-        ease: getTweenEase(),
-        // ✅ NOUVEAU : Réinsérer les SVG dans le DOM APRÈS l'animation du container
-        onComplete: () => {
-          const nextContainerId = nextImageContainer.id || `image-container-${perdrixScrollIndex + 2}`;
-          const insertedCount = insertSvgIntoContainer(nextImageContainer, nextContainerId);
-          if (insertedCount > 0) {
-            console.log(`🎬 Animation SVG peut maintenant commencer pour ${nextContainerId}`);
-          }
-        }
+        ease: getTweenEase()
       }, 0);
+      
+      // ✅ NOUVEAU : Réinsérer les SVG PLUS TÔT (à mi-parcours) pour apparition rapide
+      tl.call(() => {
+        const nextContainerId = nextImageContainer.id || `image-container-${perdrixScrollIndex + 2}`;
+        const insertedCount = insertSvgFromCache(nextImageContainer, nextContainerId);
+        if (insertedCount > 0) {
+          console.log(`🚀 SVG réinsérés rapidement depuis le cache pour ${nextContainerId} - animation peut commencer`);
+        }
+        
+        // ✅ BONUS : Supprimer les SVG du container qui part pour optimiser
+        const currentContainerId = currentImageContainer.id || `image-container-${perdrixScrollIndex + 1}`;
+        removeSvgFromContainerOptimized(currentImageContainer, currentContainerId);
+        console.log(`🗑️ SVG supprimés du container sortant ${currentContainerId}`);
+      }, [], getTweenDuration() * 0.5); // À 50% de l'animation du container
     }
 
     return true; // Indiquer que l'animation a été lancée
@@ -1309,16 +1322,22 @@ const resetSlide73Animation = () => {
       tl.to(prevImageContainer, {
         y: 0,
         duration: getTweenDuration(),
-        ease: getTweenEase(),
-        // ✅ NOUVEAU : Réinsérer les SVG dans le DOM APRÈS l'animation du container
-        onComplete: () => {
-          const prevContainerId = prevImageContainer.id || `image-container-${perdrixScrollIndex}`;
-          const insertedCount = insertSvgIntoContainer(prevImageContainer, prevContainerId);
-          if (insertedCount > 0) {
-            console.log(`🎬 Animation SVG peut maintenant commencer pour ${prevContainerId}`);
-          }
-        }
+        ease: getTweenEase()
       }, 0);
+      
+      // ✅ NOUVEAU : Réinsérer les SVG PLUS TÔT (à mi-parcours) pour apparition rapide - SENS INVERSE
+      tl.call(() => {
+        const prevContainerId = prevImageContainer.id || `image-container-${perdrixScrollIndex}`;
+        const insertedCount = insertSvgFromCache(prevImageContainer, prevContainerId);
+        if (insertedCount > 0) {
+          console.log(`🔄 SVG réinsérés rapidement (sens inverse) depuis le cache pour ${prevContainerId} - animation peut commencer`);
+        }
+        
+        // ✅ BONUS : Supprimer les SVG du container qui part pour optimiser - SENS INVERSE
+        const currentContainerId = currentImageContainer.id || `image-container-${perdrixScrollIndex + 1}`;
+        removeSvgFromContainerOptimized(currentImageContainer, currentContainerId);
+        console.log(`🗑️ SVG supprimés du container sortant ${currentContainerId} (sens inverse)`);
+      }, [], getTweenDuration() * 0.5); // À 50% de l'animation du container
     }
   };
 
@@ -1386,6 +1405,11 @@ const resetSlide73Animation = () => {
     // ✅ NOUVEAU : Nettoyer le stockage SVG
     slide23SvgStorage.clear();
     console.log('🧹 Stockage SVG slide-23 nettoyé');
+    
+    // ✅ NOUVEAU : Nettoyer le cache SVG
+    slide23SvgCache.clear();
+    slide23PreloadQueue.length = 0;
+    console.log('🧹 Cache SVG slide-23 nettoyé');
   };
 
   // Fonction pour supprimer les SVG d'un container et les stocker
@@ -1888,6 +1912,14 @@ const resetSlide73Animation = () => {
     if (slide23SvgStorage) {
       slide23SvgStorage.clear();
     }
+    
+    // ✅ NOUVEAU : Nettoyer le cache SVG slide-23
+    if (slide23SvgCache) {
+      slide23SvgCache.clear();
+    }
+    if (slide23PreloadQueue) {
+      slide23PreloadQueue.length = 0;
+    }
   };
 
   // Fonctions de debug
@@ -1947,6 +1979,101 @@ const resetSlide73Animation = () => {
       lastGestureTime = Date.now();
       console.log('🍎 Cooldown forcé - prochains événements seront ignorés pendant 200ms');
     }
+  };
+
+  // Fonction pour précharger et cacher tous les SVG de slide-23
+  const preloadAllSlide23Svgs = () => {
+    const slide23Section = sections.value.find(s => s.id === 'slide-23');
+    if (!slide23Section) return;
+    
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    console.log(`🔄 Préchargement de ${imageContainers.length} containers SVG...`);
+    
+    imageContainers.forEach((container, index) => {
+      const containerId = container.id || `image-container-${index + 1}`;
+      const svgElements = container.querySelectorAll('svg, object[type="image/svg+xml"]');
+      
+      if (svgElements.length > 0) {
+        const svgData = [];
+        svgElements.forEach((svg, svgIndex) => {
+          // Créer une copie complète pour le cache
+          const clonedSvg = svg.cloneNode(true);
+          const parent = svg.parentNode;
+          const nextSibling = svg.nextSibling;
+          
+          svgData.push({
+            element: clonedSvg,
+            originalElement: svg, // Référence vers l'original
+            parent: parent,
+            nextSibling: nextSibling,
+            index: svgIndex
+          });
+        });
+        
+        // Stocker dans le cache permanent
+        slide23SvgCache.set(containerId, svgData);
+        console.log(`📦 Cache créé pour ${containerId}: ${svgData.length} SVG`);
+      }
+    });
+    
+    console.log(`✅ Préchargement terminé - ${slide23SvgCache.size} containers en cache`);
+  };
+
+  // Fonction optimisée pour supprimer les SVG (utilise le cache si possible)
+  const removeSvgFromContainerOptimized = (container, containerId) => {
+    // Vérifier si on a déjà un cache pour ce container
+    if (!slide23SvgCache.has(containerId)) {
+      // Créer le cache maintenant si pas encore fait
+      const svgElements = container.querySelectorAll('svg, object[type="image/svg+xml"]');
+      if (svgElements.length > 0) {
+        const svgData = [];
+        svgElements.forEach((svg, index) => {
+          const parent = svg.parentNode;
+          const nextSibling = svg.nextSibling;
+          svgData.push({
+            element: svg.cloneNode(true),
+            originalElement: svg,
+            parent: parent,
+            nextSibling: nextSibling,
+            index: index
+          });
+        });
+        slide23SvgCache.set(containerId, svgData);
+      }
+    }
+    
+    // Supprimer les SVG du DOM
+    const svgElements = container.querySelectorAll('svg, object[type="image/svg+xml"]');
+    svgElements.forEach(svg => svg.remove());
+    
+    console.log(`🗑️ SVG supprimés du DOM pour ${containerId} (cache conservé)`);
+  };
+
+  // Fonction optimisée pour insérer les SVG (utilise le cache)
+  const insertSvgFromCache = (container, containerId) => {
+    const cachedData = slide23SvgCache.get(containerId);
+    if (cachedData && cachedData.length > 0) {
+      let insertedCount = 0;
+      
+      cachedData.forEach(data => {
+        // Créer une nouvelle copie depuis le cache
+        const newSvg = data.element.cloneNode(true);
+        
+        // Insérer à la position d'origine
+        if (data.nextSibling && data.nextSibling.parentNode === data.parent) {
+          data.parent.insertBefore(newSvg, data.nextSibling);
+        } else {
+          data.parent.appendChild(newSvg);
+        }
+        insertedCount++;
+      });
+      
+      console.log(`🚀 ${insertedCount} SVG réinsérés depuis le cache pour ${containerId}`);
+      return insertedCount;
+    }
+    
+    console.warn(`⚠️ Pas de cache trouvé pour ${containerId}`);
+    return 0;
   };
 
   return {

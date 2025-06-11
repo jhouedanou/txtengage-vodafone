@@ -947,10 +947,10 @@ const initSvgatorAnimations = () => {
       const containerId = obj.getAttribute('data-container-id') || `svg-${index}`;
       
       // ⛔ BLOCAGE TOTAL : Ignorer TOUS les SVG de slide-23 - ils seront gérés à l'activation
-      const slide23Section = document.getElementById('slide-23');
+        const slide23Section = document.getElementById('slide-23');
       if (slide23Section && slide23Section.contains(obj)) {
         console.log(`⛔ BLOQUÉ: ${containerId} appartient à slide-23, sera géré uniquement à l'activation`);
-        return;
+            return;
       }
       
       console.log(`🔍 Traitement du SVG ${index + 1} dans ${containerId}`);
@@ -1122,12 +1122,12 @@ const configureSvgatorRepeat = (svgDoc, containerId) => {
         
         try {
           // Pour les animations normales (non-slide-23), démarrer normalement
-          console.log(`✅ Animation configurée pour lecture unique dans ${containerId}`);
-          
+            console.log(`✅ Animation configurée pour lecture unique dans ${containerId}`);
+            
           // Démarrer l'animation immédiatement
-          if (typeof player.restart === 'function') {
-            player.restart();
-            console.log(`🎬 Animation démarrée dans ${containerId}`);
+            if (typeof player.restart === 'function') {
+              player.restart();
+              console.log(`🎬 Animation démarrée dans ${containerId}`);
           }
           
         } catch (configError) {
@@ -1169,27 +1169,27 @@ const initSlide23SvgOnActivation = () => {
     console.log(`🔄 Initialisation SVG slide-23: ${containerId}`);
     
     const initSvg = () => {
-      try {
-        const svgDoc = obj.contentDocument;
-        if (!svgDoc) {
+    try {
+      const svgDoc = obj.contentDocument;
+      if (!svgDoc) {
           console.warn(`⚠️ Pas d'accès contentDocument pour ${containerId}`);
           return;
-        }
-        
+      }
+      
         console.log(`📄 Document SVG accessible pour ${containerId}`);
-        
-        const scripts = svgDoc.querySelectorAll('script');
-        scripts.forEach(script => {
-          if (script.textContent && script.textContent.includes('svgatorPlayer')) {
-            try {
+      
+      const scripts = svgDoc.querySelectorAll('script');
+      scripts.forEach(script => {
+        if (script.textContent && script.textContent.includes('svgatorPlayer')) {
+          try {
               console.log(`🎬 Exécution script Svgator pour ${containerId}`);
               
-              const svgWindow = svgDoc.defaultView || window;
-              const scriptFunction = new Function(script.textContent);
-              scriptFunction.call(svgWindow);
-              
+            const svgWindow = svgDoc.defaultView || window;
+            const scriptFunction = new Function(script.textContent);
+            scriptFunction.call(svgWindow);
+            
               // Attendre et configurer le player
-              setTimeout(() => {
+            setTimeout(() => {
                 const player = svgWindow.svgatorPlayer;
                 if (player && typeof player.restart === 'function') {
                   player.restart();
@@ -1197,15 +1197,15 @@ const initSlide23SvgOnActivation = () => {
                 } else {
                   console.warn(`⚠️ Player non trouvé pour ${containerId}`);
                 }
-              }, 500);
-              
-            } catch (error) {
+            }, 500);
+            
+          } catch (error) {
               console.error(`❌ Erreur script ${containerId}:`, error);
-            }
           }
-        });
-        
-      } catch (error) {
+        }
+      });
+      
+    } catch (error) {
         console.error(`❌ Erreur init ${containerId}:`, error);
       }
     };
@@ -1213,7 +1213,7 @@ const initSlide23SvgOnActivation = () => {
     // Si déjà chargé, initialiser immédiatement
     if (obj.contentDocument) {
       initSvg();
-    } else {
+  } else {
       // Sinon attendre le chargement
       obj.addEventListener('load', () => {
         setTimeout(initSvg, 100);
@@ -1233,23 +1233,23 @@ const cleanupSlide23SvgOnDeactivation = () => {
   
   svgObjects.forEach(obj => {
     try {
-      const svgDoc = obj.contentDocument;
-      if (svgDoc) {
-        const svgWindow = svgDoc.defaultView;
-        const player = svgWindow && svgWindow.svgatorPlayer;
-        
-        if (player) {
+          const svgDoc = obj.contentDocument;
+          if (svgDoc) {
+            const svgWindow = svgDoc.defaultView;
+            const player = svgWindow && svgWindow.svgatorPlayer;
+      
+      if (player) {
           if (typeof player.pause === 'function') {
             player.pause();
           }
-          if (typeof player.seek === 'function') {
-            player.seek(0);
-          }
+            if (typeof player.seek === 'function') {
+              player.seek(0);
+            }
         }
       }
-    } catch (error) {
+  } catch (error) {
       console.warn('⚠️ Erreur nettoyage SVG:', error);
-    }
+  }
   });
 };
 
