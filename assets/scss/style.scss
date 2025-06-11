@@ -1271,8 +1271,8 @@ body {
         padding: 0em 2em;
 
     }
-
-    input {
+ 
+    input , textarea{
         flex-grow: 0;
         margin: 1em 0;
         border-radius: 25px;
@@ -1280,7 +1280,7 @@ body {
         background: rgba(255, 255, 255, 0) !important;
         color: white;
         font-family: "Vodafone";
-        font-size: 30px;
+        font-size: 16px;
         font-weight: normal;
         font-stretch: normal;
         font-style: normal;
@@ -1308,6 +1308,7 @@ body {
     &:nth-of-type(1) {
 
         p {
+            margin-bottom: 0em  !important;
             font-family: "Vodafone";
             font-size: 80px;
             font-weight: bold;
@@ -1978,7 +1979,10 @@ width:100% !important;
     }
 
     .contact-form {
-
+        textarea{
+            padding:1.5rem 1em !important;
+        }
+        textarea,
         input,
         button {
             font-size: 14px;
@@ -4501,12 +4505,15 @@ body.slide-73-active,
     }
     }
 }
+.lopere{
+    margin:0;
+}
 #pdf{
     background-blend-mode: multiply;
     background-image: linear-gradient(to bottom, #909090, #909090);
     padding: 1em 0;
     position: absolute;
-    bottom: 1vh;
+    bottom:0;
     width: 100%;
 
     ul{
@@ -5237,7 +5244,7 @@ a.back-to-top{
             
         }
         .pdf-separator{
-            font-size: 12px;
+            font-size: 21px;
             color:white
         }
     }
@@ -6448,4 +6455,24 @@ max-width:100px !important;
 #lafill{
     height:100dvh !important;
 }
+    }
+    .contact-form .form-control{
+        border: radius 40px !important;
+        -webkit-border-radius:40px !important;
+        -moz-border-radius:40px !important;
+        -ms-border-radius:40px !important;
+        -o-border-radius:40px !important;
+}
+
+    textarea.form-control{
+        border: radius 40px !important;
+        -webkit-border-radius:40px !important;
+        -moz-border-radius:40px !important;
+        -ms-border-radius:40px !important;
+        -o-border-radius:40px !important;
+        padding:1em !important;
+    }
+
+    .ditocard{
+        margin:0
     }

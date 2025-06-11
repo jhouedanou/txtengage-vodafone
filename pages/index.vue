@@ -194,6 +194,7 @@ const formData = ref({
   email: "",
   company: "",
   phone: "",
+  message: "",
 });
 const formLoading = ref(false);
 const showAlert = ref(false);
@@ -202,6 +203,16 @@ const alertMessage = ref("");
 
 const submitForm = async () => {
   formLoading.value = true;
+  
+  // Log des données du formulaire pour debug
+  console.log('📝 Données du formulaire:', {
+    name: `${formData.value.firstName} ${formData.value.lastName}`,
+    email: formData.value.email,
+    company: formData.value.company,
+    phone: formData.value.phone,
+    message: formData.value.message
+  });
+  
   try {
     const response = await fetch(
       "https://public.herotofu.com/v1/f69a2860-b0b2-11ef-b6f4-4774a3a77de8",
@@ -216,6 +227,7 @@ const submitForm = async () => {
           email: formData.value.email,
           company: formData.value.company,
           phone: formData.value.phone,
+          message: formData.value.message,
         }),
       }
     );
@@ -228,6 +240,7 @@ const submitForm = async () => {
         email: "",
         company: "",
         phone: "",
+        message: "",
       };
     } else {
       throw new Error("Form submission failed");
@@ -508,6 +521,67 @@ onMounted(async () => {
     console.warn("No sections found for fullpage scroll initialization.");
   }
 
+  // Initialiser les animations SVG Svgator
+  initSvgatorAnimations();
+
+  // Exposer les fonctions utiles globalement pour le debug
+  if (typeof window !== 'undefined') {
+    window.debugSvgAnimations = {
+      restart: restartSvgAnimation,
+      restartAll: () => {
+        // Redémarrer toutes les animations SVG
+        const containers = document.querySelectorAll('[id^="image-container-"]');
+        containers.forEach(container => {
+          if (container.querySelector('object[type="image/svg+xml"]')) {
+            restartSvgAnimation(container.id);
+          }
+        });
+      },
+      listAnimations: () => {
+        // Lister toutes les animations détectées
+        const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
+        svgObjects.forEach((obj, index) => {
+          const containerId = obj.getAttribute('data-container-id');
+          console.log(`📋 Animation ${index + 1}: ${containerId}, URL: ${obj.data}`);
+        });
+      },
+      cleanup: cleanupSvgatorIntervals,
+      reinitialize: () => {
+        console.log('🔄 Nettoyage et réinitialisation des animations SVG');
+        cleanupSvgatorIntervals();
+        setTimeout(() => {
+          initSvgatorAnimations();
+        }, 1000);
+      },
+      checkPlayers: () => {
+        // Vérifier l'état des players Svgator
+        const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
+        svgObjects.forEach((obj, index) => {
+          const containerId = obj.getAttribute('data-container-id');
+          const svgDoc = obj.contentDocument;
+          if (svgDoc) {
+            const svgWindow = svgDoc.defaultView;
+            const player = svgWindow && svgWindow.svgatorPlayer;
+            console.log(`🔍 ${containerId}: Player ${player ? '✅ trouvé' : '❌ non trouvé'}`);
+            if (player) {
+              console.log(`   - restart: ${typeof player.restart === 'function' ? '✅' : '❌'}`);
+              console.log(`   - setOptions: ${typeof player.setOptions === 'function' ? '✅' : '❌'}`);
+              console.log(`   - onFinish: ${typeof player.onFinish === 'function' ? '✅' : '❌'}`);
+            }
+          }
+        });
+      }
+    };
+    
+    console.log('🛠️ Fonctions de debug améliorées disponibles:');
+    console.log('- window.debugSvgAnimations.restart("image-container-1") // Redémarre une animation spécifique');
+    console.log('- window.debugSvgAnimations.restartAll() // Redémarre toutes les animations');
+    console.log('- window.debugSvgAnimations.listAnimations() // Liste toutes les animations');
+    console.log('- window.debugSvgAnimations.cleanup() // Nettoie les intervalles');
+    console.log('- window.debugSvgAnimations.reinitialize() // Réinitialise complètement');
+    console.log('- window.debugSvgAnimations.checkPlayers() // Vérifie l\'état des players');
+  }
+
   // Bouton Back to Top
   const backToTopButton = document.getElementById("backToTop");
   const masterScrollContainer = document.getElementById(
@@ -531,6 +605,9 @@ onBeforeUnmount(() => {
   document.removeEventListener("navigateToSection", handleNavigateToSection);
   sectionScrollTriggers.forEach((trigger) => trigger.kill());
   sectionScrollTriggers.length = 0;
+  
+  // Nettoyer les intervalles Svgator
+  cleanupSvgatorIntervals();
 });
 
 const isMenuOpen = ref(false);
@@ -637,7 +714,11 @@ const handleNavigateToSection = (event) => {
 
 // Méthode pour revenir à la slide-73 avec réinitialisation des animations
 const goToFirstSlide = () => {
+  console.log('🏠 Clic sur le logo - Retour à la page d\'accueil');
   console.log('🔄 Réinitialisation et retour à slide-73');
+  
+  // Fermer le menu s'il était ouvert
+  isMenuOpen.value = false;
   
   // Réinitialiser toutes les animations via le système desktop/responsif
   if (window.debugDesktopAnimations) {
@@ -700,6 +781,214 @@ const goToFirstSlide = () => {
     }
   }
 };
+
+// Méthode spécifique pour les SVG Svgator avec réinitialisation des animations
+const initSvgatorAnimations = () => {
+  nextTick(() => {
+    // Attendre que les objects SVG soient chargés
+    const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
+    
+    svgObjects.forEach((obj, index) => {
+      obj.addEventListener('load', () => {
+        try {
+          const svgDoc = obj.contentDocument;
+          if (svgDoc) {
+            console.log(`🔍 Analyse du SVG ${index + 1} dans ${obj.getAttribute('data-container-id') || 'conteneur inconnu'}`);
+            
+            // Rechercher les scripts Svgator dans le document SVG
+            const scripts = svgDoc.querySelectorAll('script');
+            let svgatorFound = false;
+            
+            scripts.forEach(script => {
+              if (script.textContent && script.textContent.includes('svgatorPlayer')) {
+                svgatorFound = true;
+                console.log(`🎬 Animation Svgator trouvée dans ${obj.getAttribute('data-container-id')}`);
+                
+                try {
+                  // Créer un script element dans le document SVG au lieu d'utiliser Function
+                  const newScript = svgDoc.createElement('script');
+                  newScript.textContent = script.textContent;
+                  
+                  // Supprimer l'ancien script pour éviter les doublons
+                  script.remove();
+                  
+                  // Ajouter le nouveau script au SVG document
+                  svgDoc.documentElement.appendChild(newScript);
+                  
+                  console.log(`✅ Script Svgator réinjecté avec succès dans ${obj.getAttribute('data-container-id')}`);
+                  
+                  // Configurer la répétition après un délai plus long
+                  setTimeout(() => {
+                    configureSvgatorRepeat(svgDoc, obj.getAttribute('data-container-id'));
+                  }, 2000); // Augmenté à 2 secondes pour laisser le temps au script de s'initialiser
+                  
+                } catch (execError) {
+                  console.error(`❌ Erreur lors de l'injection du script Svgator:`, execError);
+                  
+                  // Fallback: essayer d'exécuter le script dans le contexte de la fenêtre SVG
+                  try {
+                    const svgWindow = svgDoc.defaultView || window;
+                    const scriptFunction = new Function(script.textContent);
+                    scriptFunction.call(svgWindow);
+                    console.log(`✅ Script Svgator exécuté via fallback dans ${obj.getAttribute('data-container-id')}`);
+                  } catch (fallbackError) {
+                    console.error(`❌ Échec du fallback pour ${obj.getAttribute('data-container-id')}:`, fallbackError);
+                  }
+                }
+              }
+            });
+            
+            if (!svgatorFound) {
+              console.log(`ℹ️ Aucune animation Svgator détectée dans ${obj.getAttribute('data-container-id')}`);
+            }
+          }
+        } catch (error) {
+          console.warn(`⚠️ Impossible d'accéder au contenu du SVG ${index + 1}:`, error);
+        }
+      });
+      
+      // Ajouter un timeout de sécurité si l'événement load ne se déclenche pas
+      setTimeout(() => {
+        if (obj.contentDocument) {
+          console.log(`⏰ Tentative de réinitialisation tardive pour ${obj.getAttribute('data-container-id')}`);
+          // Déclencher manuellement l'événement load
+          obj.dispatchEvent(new Event('load'));
+        }
+      }, 3000);
+    });
+  });
+};
+
+// Fonction pour configurer la répétition des animations Svgator
+const configureSvgatorRepeat = (svgDoc, containerId) => {
+  try {
+    console.log(`🔍 Recherche du player Svgator dans ${containerId}`);
+    
+    // Rechercher les players Svgator dans le document SVG
+    const svgWindow = svgDoc.defaultView;
+    
+    // Attendre que le player soit initialisé avec plusieurs tentatives
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    const findAndConfigurePlayer = () => {
+      attempts++;
+      
+      // Méthode 1: Chercher dans svgWindow
+      let player = svgWindow && svgWindow.svgatorPlayer;
+      
+      // Méthode 2: Chercher dans les variables globales du SVG
+      if (!player && svgWindow) {
+        // Chercher dans toutes les propriétés de svgWindow
+        for (let prop in svgWindow) {
+          if (prop.includes('svgator') || prop.includes('player')) {
+            console.log(`🔍 Propriété trouvée: ${prop}`, svgWindow[prop]);
+            if (svgWindow[prop] && typeof svgWindow[prop] === 'object') {
+              player = svgWindow[prop];
+              break;
+            }
+          }
+        }
+      }
+      
+      // Méthode 3: Chercher dans le document SVG lui-même
+      if (!player) {
+        const svgElement = svgDoc.querySelector('svg');
+        if (svgElement && svgElement.svgatorPlayer) {
+          player = svgElement.svgatorPlayer;
+        }
+      }
+      
+      if (player) {
+        console.log(`🎯 Player Svgator trouvé dans ${containerId} après ${attempts} tentatives`);
+        
+        try {
+          // Méthode 1: Configuration directe
+          if (typeof player.setOptions === 'function') {
+            player.setOptions({
+              repeat: true,
+              iterations: -1
+            });
+            console.log(`✅ Options de répétition configurées pour ${containerId}`);
+          }
+          
+          // Méthode 2: Événement de fin
+          if (typeof player.onFinish === 'function') {
+            player.onFinish(() => {
+              console.log(`🔄 Animation terminée, redémarrage dans ${containerId}`);
+              setTimeout(() => {
+                if (typeof player.restart === 'function') {
+                  player.restart();
+                }
+              }, 500);
+            });
+            console.log(`✅ Gestionnaire de fin configuré pour ${containerId}`);
+          }
+          
+          // Méthode 3: Redémarrage périodique (comme backup)
+          if (typeof player.restart === 'function') {
+            const intervalId = setInterval(() => {
+              try {
+                player.restart();
+                console.log(`♻️ Redémarrage automatique dans ${containerId}`);
+              } catch (restartError) {
+                console.warn(`⚠️ Erreur lors du redémarrage automatique:`, restartError);
+                clearInterval(intervalId); // Arrêter les tentatives si ça échoue
+              }
+            }, 6000); // Toutes les 6 secondes
+            
+            // Stocker l'ID pour pouvoir l'arrêter plus tard si nécessaire
+            if (!window.svgatorIntervals) {
+              window.svgatorIntervals = new Map();
+            }
+            window.svgatorIntervals.set(containerId, intervalId);
+          }
+          
+        } catch (configError) {
+          console.error(`❌ Erreur lors de la configuration du player:`, configError);
+        }
+        
+      } else if (attempts < maxAttempts) {
+        console.log(`⏳ Player non trouvé, tentative ${attempts}/${maxAttempts} dans ${containerId}`);
+        setTimeout(findAndConfigurePlayer, 500); // Réessayer dans 500ms
+      } else {
+        console.warn(`⚠️ Player Svgator non trouvé après ${maxAttempts} tentatives dans ${containerId}`);
+      }
+    };
+    
+    // Démarrer la recherche
+    findAndConfigurePlayer();
+    
+  } catch (error) {
+    console.error(`❌ Erreur lors de la configuration de répétition pour ${containerId}:`, error);
+  }
+};
+
+// Fonction manuelle pour redémarrer une animation spécifique
+const restartSvgAnimation = (containerId) => {
+  const container = document.getElementById(containerId);
+  if (container) {
+    const svgObject = container.querySelector('object[type="image/svg+xml"]');
+    if (svgObject && svgObject.contentDocument) {
+      const svgWindow = svgObject.contentDocument.defaultView;
+      if (svgWindow && svgWindow.svgatorPlayer) {
+        svgWindow.svgatorPlayer.restart();
+        console.log(`🎬 Animation redémarrée manuellement dans ${containerId}`);
+      }
+    }
+  }
+};
+
+// Fonction pour nettoyer les intervalles de redémarrage automatique
+const cleanupSvgatorIntervals = () => {
+  if (window.svgatorIntervals) {
+    window.svgatorIntervals.forEach((intervalId, containerId) => {
+      clearInterval(intervalId);
+      console.log(`🧹 Interval nettoyé pour ${containerId}`);
+    });
+    window.svgatorIntervals.clear();
+  }
+};
 </script>
 
 <template>
@@ -739,7 +1028,12 @@ const goToFirstSlide = () => {
         id="headerpadding"
         class="p-4 flex-row justify-content-between align-items-center"
       >
-        <img src="/images/logovector.svg" alt="Logo" />
+        <img 
+          src="/images/logovector.svg" 
+          alt="Logo" 
+          @click="goToFirstSlide"
+          class="logo-clickable"
+        />
         <div class="menu-container">
           <button
             class="hamburger"
@@ -972,11 +1266,31 @@ const goToFirstSlide = () => {
                             :key="idx"
                             class="image-container"
                           >
+                              <!-- Vérifier le type de fichier pour choisir le bon élément -->
+                              <!-- SVG animé : utiliser object -->
+                              <object
+                                v-if="extractImage(paragraph).toLowerCase().endsWith('.svg')"
+                                :data="extractImage(paragraph)"
+                                type="image/svg+xml"
+                                class="img-fluid m-0 p-0"
+                                style="width: 100%; height: auto;"
+                                :data-container-id="`image-container-${idx + 1}`"
+                              >
+                                <!-- Fallback si le SVG ne charge pas -->
+                                <img
+                                  :src="extractImage(paragraph)"
+                                  alt="Image"
+                                  class="img-fluid m-0 p-0"
+                                />
+                              </object>
+                              
+                              <!-- Image statique (WebP, PNG, JPG, etc.) : utiliser img -->
                               <img
-                              :src="extractImage(paragraph)"
-                              alt="Image"
-                              class="img-fluid m-0 p-0"
-                            />
+                                v-else
+                                :src="extractImage(paragraph)"
+                                alt="Image"
+                                class="img-fluid m-0 p-0"
+                              />
                             </div>
                           </div>
                           </div>
@@ -1117,6 +1431,18 @@ const goToFirstSlide = () => {
                   <div class="row">
                     <div class="col-md-12">
                       <input
+                        v-model="formData.email"
+                        type="email"
+                        class="form-control"
+                        placeholder="Email Address"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <input
                         v-model="formData.company"
                         type="text"
                         class="form-control"
@@ -1124,10 +1450,7 @@ const goToFirstSlide = () => {
                         required
                       />
                     </div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                       <input
                         v-model="formData.phone"
                         type="tel"
@@ -1138,8 +1461,19 @@ const goToFirstSlide = () => {
                     </div>
                   </div>
 
+                  <div class="row">
+                    <div class="col-md-12">
+                      <textarea
+                        v-model="formData.message"
+                        class="form-control"
+                        placeholder="Tell us more"
+                        rows="4"
+                      ></textarea>
+                    </div>
+                  </div>
+
                   <div class="row submit-row">
-                    <div class="col-md-">
+                    <div class="col-md-12">
                       <button
                         type="submit"
                         class="btn btn-primary"
@@ -1153,7 +1487,7 @@ const goToFirstSlide = () => {
               </div>
               <div
                 id="yenamarre"
-                class="d-flex align-items-center justify-content-center m-4"
+                class="d-flex align-items-center justify-content-center m-1"
               >
                 <a
                   @click="goToFirstSlide"
@@ -1340,6 +1674,21 @@ header.fixed-top.scrolled {
 
 #headerpadding img {
   height: 40px;
+}
+
+.logo-clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 1;
+}
+
+.logo-clickable:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.logo-clickable:active {
+  transform: scale(0.95);
 }
 
 .menu-container {
@@ -1697,5 +2046,74 @@ header.fixed-top.scrolled {
     overflow: hidden !important;
     touch-action: none; /* Empêcher les gestes natifs */
   }
+}
+
+/* Styles pour le formulaire de contact */
+.contact-form {
+  .form-control {
+    margin-bottom: 0;
+    border-radius: 5px;
+    border: 2px solid #ffffff;
+    padding: 12px 15px;
+    transition: border-color 0.3s ease;
+    
+    &:focus {
+      border-color: #e60000;
+      box-shadow: 0 0 0 0.2rem rgba(230, 0, 0, 0.25);
+      outline: none;
+    }
+    
+    &::placeholder {
+      color: #ffffff;
+      opacity: 1;
+    }
+  }
+  
+  textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+  }
+  
+  .btn-primary {
+    background-color: #e60000;
+    border-color: #e60000;
+    padding: 12px 30px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: #cc0000;
+      border-color: #cc0000;
+      transform: translateY(-1px);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+}
+
+/* Alert styles */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
 }
 </style>
