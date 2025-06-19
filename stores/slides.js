@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 // Configuration de l'URL de l'API
-const API_URL = 'https://bfedition.com/vodafone/wp-json/slides/v1/all'
+const API_URL = 'https://txtengage.co.za/backend/wp-json/slides/v1/all'
 
 // Données de secours simplifiées en cas d'échec TOTAL de chargement (pas même de fichier fallback)
 const MINIMAL_FALLBACK = [

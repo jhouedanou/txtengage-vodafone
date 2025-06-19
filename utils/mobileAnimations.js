@@ -37,6 +37,9 @@ export function useMobileAnimations() {
 
     // Fonction pour vérifier si on est sur mobile
     const isMobile = () => {
+      // Vérification SSR : retourner true par défaut si window n'existe pas
+      if (typeof window === 'undefined') return true;
+      if (typeof window === "undefined") return true;
       return window.innerWidth <= 1024;
     };
 
@@ -366,6 +369,7 @@ export function useMobileAnimations() {
 
     // Fonction pour vérifier si on est sur mobile
     const isMobile = () => {
+      if (typeof window === "undefined") return true;
       return window.innerWidth <= 1024;
     };
 
@@ -766,6 +770,7 @@ export function useMobileAnimations() {
 
     // Fonction pour vérifier si on est sur mobile
     const isMobile = () => {
+      if (typeof window === "undefined") return true;
       return window.innerWidth <= 1024;
     };
 
@@ -1067,6 +1072,7 @@ export function useMobileAnimations() {
 
     // Fonction pour vérifier si on est sur mobile
     const isMobile = () => {
+      if (typeof window === "undefined") return true;
       return window.innerWidth <= 1024;
     };
 
@@ -1591,6 +1597,7 @@ export function useMobileAnimations() {
 
     // Fonction pour vérifier si on est sur mobile
     const isMobile = () => {
+      if (typeof window === "undefined") return true;
       return window.innerWidth <= 1024;
     };
 
@@ -1972,6 +1979,12 @@ export function useMobileAnimations() {
 
   // Configuration des interactions tactiles pour mobile AVEC gestion spéciale slide-73 ET slide-21
   const setupMobileInteractions = () => {
+    // Vérification SSR : ne pas configurer les événements si document n'existe pas
+    if (typeof document === 'undefined') {
+      console.log('📱 SSR détecté - configuration tactile mobile différée');
+      return;
+    }
+
     let touchStartY = 0;
     let touchEndY = 0;
     const minSwipeDistance = 50;
@@ -2773,19 +2786,21 @@ export function useMobileAnimations() {
   };
 
   // Exposer les fonctions pour le debug
-  window.resetSlide73State = resetSlide73State;
-  window.setSlide73ToFinalState = setSlide73ToFinalState;
-  window.debugSlide73Animation = debugSlide73Animation;
-  window.testSlide73BottomDirection = testSlide73BottomDirection; // Nouvelle fonction de test
-  window.debugSlide21Animation = debugSlide21Animation;
-  window.testSlide21DoctornekHiding = testSlide21DoctornekHiding; // Nouvelle fonction de test
-  window.debugDoctornekOverlay = debugDoctornekOverlay;
-  window.forceDoctornekReset = forceDoctornekReset;
-  window.debugSlide20Animation = debugSlide20Animation;
-  window.debugSlide23Animation = debugSlide23Animation;
-  window.debugSlide23Margins = debugSlide23Margins;
-  window.forceRemoveSlide23Margins = forceRemoveSlide23Margins;
-  window.debugSlide128Animation = debugSlide128Animation;
+  if (typeof window !== 'undefined') {
+    window.resetSlide73State = resetSlide73State;
+    window.setSlide73ToFinalState = setSlide73ToFinalState;
+    window.debugSlide73Animation = debugSlide73Animation;
+    window.testSlide73BottomDirection = testSlide73BottomDirection; // Nouvelle fonction de test
+    window.debugSlide21Animation = debugSlide21Animation;
+    window.testSlide21DoctornekHiding = testSlide21DoctornekHiding; // Nouvelle fonction de test
+    window.debugDoctornekOverlay = debugDoctornekOverlay;
+    window.forceDoctornekReset = forceDoctornekReset;
+    window.debugSlide20Animation = debugSlide20Animation;
+    window.debugSlide23Animation = debugSlide23Animation;
+    window.debugSlide23Margins = debugSlide23Margins;
+    window.forceRemoveSlide23Margins = forceRemoveSlide23Margins;
+    window.debugSlide128Animation = debugSlide128Animation;
+  }
 
   // Retour de l'API publique
   return {

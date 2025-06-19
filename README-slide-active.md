@@ -16,8 +16,8 @@ Ce document explique les nouvelles fonctionnalités ajoutées pour gérer les cl
 
 ### 2. Hamburger rouge sur slides spécifiques
 
-- **Objectif** : Si `#slide-59`, `#slide-73` ou `#slide-128` ont la classe `.active`, alors ajouter la classe `hamburger-red` au `.hamburger`
-- **Slides concernées** : 59, 73, 128
+- **Objectif** : Si `#slide-59` ou `#slide-128` ont la classe `.active`, alors ajouter la classe `hamburger-red` au `.hamburger`
+- **Slides concernées** : 59, 128 (SLIDE-73 EXCLUE car nécessite hamburger blanc pour visibilité du #subint)
 - **Implémentation** :
   - Logique JavaScript dans `setupSectionScrolling()` (événements `onEnter` et `onEnterBack`)
   - Watcher sur `activeSlideId` pour les changements dynamiques
@@ -27,7 +27,7 @@ Ce document explique les nouvelles fonctionnalités ajoutées pour gérer les cl
 ### 3. Styles CSS associés
 
 - **Classes CSS** : `hamburger-red` et `hamburger-white`
-- **Sélecteurs spécifiques** : `.slide-section#slide-59.active`, `.slide-section#slide-73.active`, `.slide-section#slide-128.active`
+- **Sélecteurs spécifiques** : `.slide-section#slide-59.active`, `.slide-section#slide-128.active` (slide-73 exclue)
 - **Effets visuels** : Box-shadow, hover effects, transitions
 
 ## Fichiers modifiés
@@ -63,7 +63,7 @@ Ce document explique les nouvelles fonctionnalités ajoutées pour gérer les cl
 
 Pour tester les fonctionnalités :
 
-1. Naviguer vers les slides 59, 73, 128 → hamburger doit être rouge
+1. Naviguer vers les slides 59, 128 → hamburger doit être rouge (slide-73 → hamburger blanc)
 2. Naviguer vers d'autres slides → hamburger doit être blanc
 3. Vérifier les classes dans l'inspecteur DevTools
 4. Contrôler les logs dans la console

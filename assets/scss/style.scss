@@ -1479,7 +1479,7 @@ body {
             right: auto;
             transform: translateX(-50%);
             // Background optimisé pour iOS
-            background: url(/images/Subtract.png) no-repeat center center;
+            background: url(/images/Subtract.webp) no-repeat center center;
             background-size: contain;
             // Dimensions fixes
             height: 613px;
@@ -2017,7 +2017,7 @@ width:100% !important;
         padding: 0em;
     }
     #teste::before {
-        background: url(/images/Subtract.png);
+        background: url(/images/Subtract.webp);
         z-index: 100;
         background-position: center bottom !important;
         background-repeat: no-repeat;
@@ -3110,7 +3110,7 @@ justify-content: space-between;
     #slide-60{
         position: relative;
         .slides-container{
-            aling-items: center !important;
+            align-items: center !important;
             }
         }
     .ditocard {
@@ -4188,7 +4188,7 @@ body.slide-73-active,
     height:100%;
     z-index:1;
     &::before{    
-        background: url(/images/Subtract.png);
+        background: url(/images/Subtract.webp);
         z-index: 100;
         background-position: bottom right;
         background-repeat: no-repeat;
@@ -4323,7 +4323,7 @@ body.slide-73-active,
         bottom: 0;
         left: 0;
         right: auto;
-        background: url(/images/Subtract.png) no-repeat center center;
+        background: url(/images/Subtract.webp) no-repeat center center;
         background-size: contain;
         // height: 613px;
         // width: 492px;
@@ -4471,7 +4471,7 @@ body.slide-73-active,
                 left: 8% !important;
                 right: 0 !important;
                 margin: 0 auto !important;
-                background: url(/images/Subtract.png) no-repeat center center !important;
+                background: url(/images/Subtract.webp) no-repeat center center !important;
                 background-size: contain !important;
                 height: 448px !important;
                 z-index: 7 !important;
@@ -4507,13 +4507,25 @@ body.slide-73-active,
                     justify-content: center !important;
                     position: absolute !important;
                     z-index: 3 !important;
-                    &::after{
-                        content: "nique ta lere";
-                        position: absolute;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        
+                    
+                    // Par défaut, cacher tous les containers
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                    transition: opacity 0.3s ease, visibility 0.3s ease;
+                    
+                    // Seul le premier est visible par défaut
+                    &:first-child {
+                        opacity: 1;
+                        visibility: visible;
+                        pointer-events: auto;
+                    }
+                    
+                    // Classe pour rendre un container visible (sera ajoutée via JS)
+                    &.active-container {
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        pointer-events: auto !important;
                     }
                     
                     img {
@@ -4523,6 +4535,18 @@ body.slide-73-active,
                         position: relative !important;
                         z-index: 4 !important;
                         // Fix iOS pour les images
+                        -webkit-transform: translateZ(0);
+                        transform: translateZ(0);
+                    }
+                    
+                    // Éléments SVG (object)
+                    object {
+                        height: 362px !important;
+                        object-fit: contain !important;
+                        width: auto !important;
+                        position: relative !important;
+                        z-index: 4 !important;
+                        // Fix iOS pour les SVG
                         -webkit-transform: translateZ(0);
                         transform: translateZ(0);
                     }
@@ -5087,9 +5111,9 @@ html[data-darkreader-scheme="dark"] {
     }
 }
 
-// Styles spécifiques pour le hamburger rouge sur slides 59, 73 et 128
+// Styles spécifiques pour le hamburger rouge sur slides 59 et 128
+// SLIDE-73 est EXCLUE car elle nécessite un hamburger blanc (#subint visible)
 .slide-section#slide-59.active,
-.slide-section#slide-73.active,
 .slide-section#slide-128.active {
     // Styles spécifiques quand ces slides sont actives
     .hamburger {
@@ -5663,7 +5687,7 @@ a.back-to-top{
         bottom: 0 !important;
         left: 0 !important;
         right: auto !important;
-        background: url(/images/Subtract.png) no-repeat center center !important;
+        background: url(/images/Subtract.webp) no-repeat center center !important;
         background-size: contain !important;
        
         height: 574px !important;

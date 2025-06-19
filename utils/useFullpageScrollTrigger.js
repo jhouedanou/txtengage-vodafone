@@ -22,10 +22,26 @@ export function useFullpageScrollTrigger() {
   const SCROLLER_SELECTOR = "#master-scroll-container";
   
   // Détection mobile pour vitesses adaptées
-  const isMobile = () => window.innerWidth <= 768;
+  const isMobile = () => {
+    // Vérification SSR : retourner false si window n'existe pas
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 768;
+  };
   
   // Vitesses d'animation selon l'appareil (comme dans refreence.js)
   const getAnimationTiming = () => {
+    // Vérification SSR : utiliser les valeurs desktop par défaut si window n'existe pas
+    if (typeof window === 'undefined') {
+      return {
+        sectionDuration: 0.4,        // 400ms pour les sections sur desktop (valeur par défaut pour SSR)
+        slideDuration: 0.8,          // 800ms pour les slides sur desktop
+        tweenDuration: 0.4,          // 400ms pour les micro-animations
+        sectionEase: "power3.easeInOut",
+        slideEase: "power3.easeInOut",
+        tweenEase: "easeInOutCubic"
+      };
+    }
+
     if (isMobile()) {
       return {
         sectionDuration: 0.45,       // 450ms pour les sections sur mobile (réduit de moitié : 0.9 → 0.45)
@@ -63,7 +79,11 @@ export function useFullpageScrollTrigger() {
   // ===========================================================================
   
   // Détection macOS
-  const isMacOS = () => /Mac/.test(navigator.platform);
+  const isMacOS = () => {
+    // Vérification SSR : retourner false si navigator n'existe pas
+    if (typeof navigator === 'undefined') return false;
+    return /Mac/.test(navigator.platform);
+  };
   
   // Variables de suivi pour l'agrégation de scroll
   let scrollCount = 0;
@@ -144,9 +164,31 @@ export function useFullpageScrollTrigger() {
     }
     
     isNavigating.value = true;
+    const previousIndex = currentSectionIndex.value;
     currentSectionIndex.value = index;
 
     const targetSection = sections.value[index];
+    const hamburger = document.querySelector('.hamburger');
+
+    // Gérer la transition spéciale slide-21 → slide-73
+    if (previousIndex !== index && sections.value[previousIndex]?.id === '21' && targetSection.id === '73') {
+      // Changer le hamburger en blanc avant la transition car #subint sera visible sur la slide-73
+      if (hamburger) {
+        hamburger.classList.remove('hamburger-red');
+        hamburger.classList.add('hamburger-white');
+        console.log('🍔 Hamburger passage en blanc pour la transition slide-21 → slide-73');
+      }
+    }
+
+    // Gérer aussi la transition inverse slide-73 → slide-21 (navigation arrière)
+    if (previousIndex !== index && sections.value[previousIndex]?.id === '73' && targetSection.id === '21') {
+      // Le hamburger reste blanc car on va sur la slide-21 qui a un hamburger blanc
+      if (hamburger) {
+        hamburger.classList.remove('hamburger-red');
+        hamburger.classList.add('hamburger-white');
+        console.log('🍔 Hamburger reste blanc pour la transition slide-73 → slide-21');
+      }
+    }
 
     gsap.to(SCROLLER_SELECTOR, {
       scrollTo: { y: targetSection, autoKill: false },
@@ -156,6 +198,13 @@ export function useFullpageScrollTrigger() {
         console.log(`✅ Navigation terminée vers section ${index} (${direction})`);
         isNavigating.value = false;
         hasScrolledOnce.value = true;
+
+        // S'assurer que le hamburger est blanc sur la slide-73 (car #subint est visible)
+        if (targetSection.id === '73' && hamburger) {
+          hamburger.classList.remove('hamburger-red');
+          hamburger.classList.add('hamburger-white');
+          console.log('🍔 Hamburger forcé en blanc à l\'arrivée sur slide-73');
+        }
 
         // Déclencher les animations automatiques à l'arrivée sur certaines slides
         if (targetSection.id === 'slide-20') {
@@ -513,6 +562,7 @@ const triggerSlide73Animation = () => {
   const pointsFortDiv = slide73Section?.querySelector('.points-fort');
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
   const subintDiv = slide73Section?.querySelector('#subint'); // Nouvel élément à animer
+  const hamburger = document.querySelector('.hamburger');
   
   if (!slidesContainerDiv || !pointsFortDiv) return;
 
@@ -541,13 +591,21 @@ const triggerSlide73Animation = () => {
     ease: getSlideEase()
   }, "<"); // "<" pour démarrer en même temps
   
-  // Fade-out de #subint en parallèle (desktop seulement)
+  // Fade-out de #subint en parallèle (desktop seulement) + changement couleur hamburger
   if (subintDiv && !isMobile()) {
     tl.to(subintDiv, {
       autoAlpha: 0,
       y: -20, // Légère translation vers le haut
       duration: getSlideDuration(),
-      ease: getSlideEase()
+      ease: getSlideEase(),
+      onStart: () => {
+        // Changer le hamburger en blanc quand #subint commence à disparaître
+        if (hamburger) {
+          hamburger.classList.remove('hamburger-red');
+          hamburger.classList.add('hamburger-white');
+          //console.log('🍔 Hamburger passage en blanc lors du fade-out de #subint');
+        }
+      }
     }, "<"); // "<" pour démarrer en même temps que l'animation points-fort
   }
   
@@ -572,6 +630,7 @@ const reverseSlide73Animation = () => {
   const pointsFortDiv = slide73Section?.querySelector('.points-fort');
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
   const subintDiv = slide73Section?.querySelector('#subint'); // Nouvel élément à animer
+  const hamburger = document.querySelector('.hamburger');
   
   if (!slidesContainerDiv || !pointsFortDiv) return;
 
@@ -611,13 +670,21 @@ const reverseSlide73Animation = () => {
     ease: getSlideEase()
   }, "<"); // En parallèle
   
-  // Fade-in de #subint en parallèle (desktop seulement)
+  // Fade-in de #subint en parallèle (desktop seulement) + remise couleur hamburger
   if (subintDiv && !isMobile()) {
     tl.to(subintDiv, {
       autoAlpha: 1,
       y: 0, // Remise en position normale
       duration: getSlideDuration(),
-      ease: getSlideEase()
+      ease: getSlideEase(),
+      onStart: () => {
+        // Remettre le hamburger à sa couleur rouge quand #subint commence à réapparaître
+        if (hamburger) {
+          hamburger.classList.remove('hamburger-white');
+          hamburger.classList.add('hamburger-red');
+          console.log('🍔 Hamburger retour en rouge lors du fade-in de #subint');
+        }
+      }
     }, "+=0.2"); // En même temps que la sortie de points-fort
   }
 };
@@ -629,6 +696,7 @@ const resetSlide73Animation = () => {
   const pointsFortDiv = slide73Section?.querySelector('.points-fort');
   const pointsFortLis = slide73Section?.querySelectorAll('.points-fort li');
   const subintDiv = slide73Section?.querySelector('#subint'); // Nouvel élément à réinitialiser
+  const hamburger = document.querySelector('.hamburger');
   
   if (slidesContainerDiv && pointsFortDiv) {
     // Ne plus réinitialiser le background - conserver la position -20vw
@@ -654,6 +722,13 @@ const resetSlide73Animation = () => {
       autoAlpha: 1, // Visible par défaut
       y: 0 // Position normale
     });
+  }
+  
+  // Réinitialiser le hamburger à sa couleur rouge (couleur par défaut sur slide-73)
+  if (hamburger) {
+    hamburger.classList.remove('hamburger-white');
+    hamburger.classList.add('hamburger-red');
+    console.log('🍔 Hamburger réinitialisé en rouge lors du reset slide-73');
   }
   
   animationStates.value['slide-73-complete'] = false;
@@ -1798,63 +1873,65 @@ const resetSlide73Animation = () => {
   };
 
   // Fonctions de debug
-  window.debugDesktopAnimations = {
-    states: animationStates,
-    resetSlide73: resetSlide73Animation,
-    reverseSlide73: reverseSlide73Animation,
-    resetSlide20: resetSlide20Animation,
-    resetSlide23: resetSlide23Animation,
-    resetSlide59: resetSlide59Animation,
-    resetSlide128: resetSlide128Animation,
-    triggerSlide73: triggerSlide73Animation,
-    triggerSlide128: triggerSlide128Animation,
-    scrollSlide128Forward: scrollSlide128Forward,
-    scrollSlide128Backward: scrollSlide128Backward,
-    currentSection: () => sections.value[currentSectionIndex.value]?.id,
-    slide128Index: () => slide128ScrollIndex,
-    // Debug du nouveau système d'agrégation macOS
-    isMacOS: isMacOS,
-    scrollAggregatorInfo: () => ({
-      scrollCount,
-      scrollDir,
-      scrollEndTimerActive: scrollEndTimer !== null,
-      lastGestureTime,
-      timeSinceLastGesture: Date.now() - lastGestureTime,
-      cooldownActive: (Date.now() - lastGestureTime) < GESTURE_COOLDOWN,
-      isMacOSActive: isMacOS()
-    }),
-    resetScrollAggregator: () => {
-      if (scrollEndTimer) {
-        clearTimeout(scrollEndTimer);
-        scrollEndTimer = null;
+  if (typeof window !== 'undefined') {
+    window.debugDesktopAnimations = {
+      states: animationStates,
+      resetSlide73: resetSlide73Animation,
+      reverseSlide73: reverseSlide73Animation,
+      resetSlide20: resetSlide20Animation,
+      resetSlide23: resetSlide23Animation,
+      resetSlide59: resetSlide59Animation,
+      resetSlide128: resetSlide128Animation,
+      triggerSlide73: triggerSlide73Animation,
+      triggerSlide128: triggerSlide128Animation,
+      scrollSlide128Forward: scrollSlide128Forward,
+      scrollSlide128Backward: scrollSlide128Backward,
+      currentSection: () => sections.value[currentSectionIndex.value]?.id,
+      slide128Index: () => slide128ScrollIndex,
+      // Debug du nouveau système d'agrégation macOS
+      isMacOS: isMacOS,
+      scrollAggregatorInfo: () => ({
+        scrollCount,
+        scrollDir,
+        scrollEndTimerActive: scrollEndTimer !== null,
+        lastGestureTime,
+        timeSinceLastGesture: Date.now() - lastGestureTime,
+        cooldownActive: (Date.now() - lastGestureTime) < GESTURE_COOLDOWN,
+        isMacOSActive: isMacOS()
+      }),
+      resetScrollAggregator: () => {
+        if (scrollEndTimer) {
+          clearTimeout(scrollEndTimer);
+          scrollEndTimer = null;
+        }
+        scrollCount = 0;
+        scrollDir = null;
+        lastGestureTime = 0;
+        console.log('🍎 Reset du système d\'agrégation de scroll macOS');
+      },
+      testScrollAggregation: (direction = 'down', eventCount = 5) => {
+        console.log(`🧪 Test agrégation: ${eventCount} événements ${direction}`);
+        for (let i = 0; i < eventCount; i++) {
+          const deltaY = direction === 'down' ? 10 : -10;
+          macScrollAggregator(new WheelEvent('wheel', { deltaY }));
+        }
+      },
+      flushScrollGesture: flushScrollGesture,
+      // Nouvelles fonctions de debug pour le cooldown
+      setCooldown: (ms) => {
+        GESTURE_COOLDOWN = ms;
+        console.log(`🍎 Cooldown configuré à ${ms}ms`);
+      },
+      setScrollDelay: (ms) => {
+        SCROLL_END_DELAY = ms;
+        console.log(`🍎 Délai de fin de scroll configuré à ${ms}ms`);
+      },
+      forceCooldown: () => {
+        lastGestureTime = Date.now();
+        console.log('🍎 Cooldown forcé - prochains événements seront ignorés pendant 200ms');
       }
-      scrollCount = 0;
-      scrollDir = null;
-      lastGestureTime = 0;
-      console.log('🍎 Reset du système d\'agrégation de scroll macOS');
-    },
-    testScrollAggregation: (direction = 'down', eventCount = 5) => {
-      console.log(`🧪 Test agrégation: ${eventCount} événements ${direction}`);
-      for (let i = 0; i < eventCount; i++) {
-        const deltaY = direction === 'down' ? 10 : -10;
-        macScrollAggregator(new WheelEvent('wheel', { deltaY }));
-      }
-    },
-    flushScrollGesture: flushScrollGesture,
-    // Nouvelles fonctions de debug pour le cooldown
-    setCooldown: (ms) => {
-      GESTURE_COOLDOWN = ms;
-      console.log(`🍎 Cooldown configuré à ${ms}ms`);
-    },
-    setScrollDelay: (ms) => {
-      SCROLL_END_DELAY = ms;
-      console.log(`🍎 Délai de fin de scroll configuré à ${ms}ms`);
-    },
-    forceCooldown: () => {
-      lastGestureTime = Date.now();
-      console.log('🍎 Cooldown forcé - prochains événements seront ignorés pendant 200ms');
-    }
-  };
+    };
+  }
 
   return {
     currentSectionIndex,

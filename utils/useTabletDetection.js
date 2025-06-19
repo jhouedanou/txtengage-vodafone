@@ -20,6 +20,11 @@ export function useTabletDetection() {
    * Détection précise des tablettes incluant iPadOS 13+
    */
   const detectTablet = () => {
+    // Vérification SSR : retourner false si les APIs browser ne sont pas disponibles
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return false;
+    }
+
     const userAgent = navigator.userAgent.toLowerCase();
     const platform = navigator.platform?.toLowerCase() || '';
     const maxTouchPoints = navigator.maxTouchPoints || 0;
@@ -149,7 +154,8 @@ export function useTabletDetection() {
    * Configuration des événements tactiles pour tablettes
    */
   const setupTouchEvents = () => {
-    if (!isTablet.value) return;
+    // Vérification SSR : ne pas configurer les événements si document n'existe pas
+    if (typeof document === 'undefined' || !isTablet.value) return;
     
     console.log('📱 Configuration des événements tactiles pour tablette');
     
@@ -252,12 +258,11 @@ export function useTabletDetection() {
    * Retourne true pour les tablettes ET les vrais desktops
    */
   const shouldUseDesktopMode = () => {
-    // Si c'est une tablette, toujours desktop
-    if (isTablet.value) {
-      return true;
+    // Vérification SSR : utiliser le mode desktop par défaut si les APIs browser ne sont pas disponibles
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return true; // Mode desktop par défaut pour SSR
     }
-    
-    // LOGIQUE IDENTIQUE À detectTablet() pour la détection des vrais desktops
+
     const userAgent = navigator.userAgent.toLowerCase();
     const platform = navigator.platform?.toLowerCase() || '';
     const maxTouchPoints = navigator.maxTouchPoints || 0;
@@ -320,12 +325,11 @@ export function useTabletDetection() {
    * Fonction pour obtenir la taille d'écran adaptée
    */
   const getResponsiveBreakpoint = () => {
-    if (isTablet.value) {
-      // Les tablettes utilisent toujours le mode desktop
+    // Vérification SSR : retourner 'desktop' par défaut si window n'existe pas
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
       return 'desktop';
     }
-    
-    // LOGIQUE COHÉRENTE avec shouldUseDesktopMode()
+
     const userAgent = navigator.userAgent.toLowerCase();
     const platform = navigator.platform?.toLowerCase() || '';
     const maxTouchPoints = navigator.maxTouchPoints || 0;
@@ -379,6 +383,12 @@ export function useTabletDetection() {
    * Initialisation
    */
   const init = () => {
+    // Vérification SSR : ne pas initialiser si les APIs browser ne sont pas disponibles
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      console.log('🔍 SSR détecté - initialisation des tablettes différée');
+      return;
+    }
+
     isTablet.value = detectTablet();
     
     console.log('🔍 RAPPORT COMPLET DE DÉTECTION:');
@@ -403,6 +413,26 @@ export function useTabletDetection() {
    * Fonction de debug pour tester la détection
    */
   const debugInfo = () => {
+    // Vérification SSR : retourner des valeurs par défaut si les APIs browser ne sont pas disponibles
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return {
+        isTablet: false,
+        userAgent: 'SSR',
+        platform: 'SSR',
+        maxTouchPoints: 0,
+        screenWidth: 0,
+        screenHeight: 0,
+        innerWidth: 0,
+        innerHeight: 0,
+        shouldUseDesktop: true,
+        responsiveBreakpoint: 'desktop',
+        hasTouch: false,
+        isProcessingSwipe: false,
+        lastSwipeTime: 0,
+        timeSinceLastSwipe: 0
+      };
+    }
+
     return {
       isTablet: isTablet.value,
       userAgent: navigator.userAgent,
@@ -421,158 +451,16 @@ export function useTabletDetection() {
     };
   };
 
-  // Exposer les fonctions de debug globalement
+  // Fonctions de debug
   if (typeof window !== 'undefined') {
     window.debugTabletDetection = {
-      info: debugInfo,
-      detectTablet,
-      forceTabletMode: () => {
-        isTablet.value = true;
-        setupTouchEvents();
-        console.log('🔧 Mode tablette forcé');
-      },
-      disableTabletMode: () => {
-        isTablet.value = false;
-        cleanupTouchEvents();
-        console.log('🔧 Mode tablette désactivé');
-      },
-      testSwipe: (direction = 'up') => {
-        touchStartY.value = direction === 'up' ? 100 : 0;
-        touchEndY.value = direction === 'up' ? 0 : 100;
-        touchStartTime.value = Date.now() - 100;
-        touchEndTime.value = Date.now();
-        processSwipe();
-        console.log(`🧪 Test swipe ${direction} simulé`);
-      },
-      // NOUVELLE FONCTION: Test de la détection corrigée
-      testCorrectedDetection: () => {
-        console.group('🧪 TEST DÉTECTION CORRIGÉE');
-        
-        const userAgent = navigator.userAgent;
-        const result = detectTablet();
-        const shouldUseDesktop = shouldUseDesktopMode();
-        
-        console.log('📱 User Agent:', userAgent);
-        console.log('📏 Dimensions écran:', window.screen.width + 'x' + window.screen.height);
-        console.log('🎯 Ratio aspect:', (Math.max(window.screen.width, window.screen.height) / Math.min(window.screen.width, window.screen.height)).toFixed(2));
-        console.log('👆 Points tactiles:', navigator.maxTouchPoints);
-        console.log('🖱️ Plateforme:', navigator.platform);
-        
-        console.log('🎯 Détection tablette:', result ? 'TABLETTE' : 'NON-TABLETTE');
-        console.log('🖥️ Mode desktop:', shouldUseDesktop ? 'OUI' : 'NON');
-        console.log('🚀 Système animation:', shouldUseDesktop ? 'DESKTOP' : 'MOBILE');
-        
-        // Tests spécifiques par plateforme
-        if (/iphone/.test(userAgent.toLowerCase())) {
-          console.log('📱 iPhone détecté:', !result && !shouldUseDesktop ? '✅ CORRECT (mobile)' : '❌ ERREUR');
-        }
-        if (/android.*mobile/.test(userAgent.toLowerCase())) {
-          console.log('📱 Android phone détecté:', !result && !shouldUseDesktop ? '✅ CORRECT (mobile)' : '❌ ERREUR');
-        }
-        if (/macintosh/.test(userAgent.toLowerCase()) && navigator.maxTouchPoints === 0) {
-          console.log('🖥️ macOS desktop détecté:', !result && shouldUseDesktop ? '✅ CORRECT (desktop)' : '❌ ERREUR');
-        }
-        if (/macintosh/.test(userAgent.toLowerCase()) && navigator.maxTouchPoints > 1) {
-          console.log('📱 iPadOS détecté:', result && shouldUseDesktop ? '✅ CORRECT (tablette→desktop)' : '❌ ERREUR');
-        }
-        if (navigator.platform?.toLowerCase().includes('win') && navigator.maxTouchPoints === 0) {
-          console.log('🖥️ Windows desktop détecté:', !result && shouldUseDesktop ? '✅ CORRECT (desktop)' : '❌ ERREUR');
-        }
-        if (navigator.platform?.toLowerCase().includes('win') && navigator.maxTouchPoints > 1) {
-          console.log('📱 Windows tablette détecté:', result && shouldUseDesktop ? '✅ CORRECT (tablette→desktop)' : '❌ ERREUR');
-        }
-        if (/linux/.test(userAgent.toLowerCase()) && navigator.maxTouchPoints === 0) {
-          console.log('🐧 Linux desktop détecté:', !result && shouldUseDesktop ? '✅ CORRECT (desktop)' : '❌ ERREUR');
-        }
-        
-        console.groupEnd();
-        return { isTablet: result, shouldUseDesktop, animationSystem: shouldUseDesktop ? 'DESKTOP' : 'MOBILE' };
-      },
-      
-      // NOUVELLE FONCTION: Test simulation d'appareils
-      simulateDevice: (deviceType) => {
-        console.group(`🎭 SIMULATION APPAREIL: ${deviceType.toUpperCase()}`);
-        
-        let mockUserAgent, mockPlatform, mockMaxTouchPoints, mockScreenWidth, mockScreenHeight;
-        
-        switch(deviceType.toLowerCase()) {
-          case 'macos':
-            mockUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
-            mockPlatform = 'MacIntel';
-            mockMaxTouchPoints = 0;
-            mockScreenWidth = 1920;
-            mockScreenHeight = 1080;
-            break;
-          case 'windows':
-            mockUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
-            mockPlatform = 'Win32';
-            mockMaxTouchPoints = 0;
-            mockScreenWidth = 1920;
-            mockScreenHeight = 1080;
-            break;
-          case 'ipad':
-            mockUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15';
-            mockPlatform = 'MacIntel';
-            mockMaxTouchPoints = 5;
-            mockScreenWidth = 1024;
-            mockScreenHeight = 768;
-            break;
-          case 'surface':
-            mockUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Touch) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
-            mockPlatform = 'Win32';
-            mockMaxTouchPoints = 10;
-            mockScreenWidth = 1368;
-            mockScreenHeight = 912;
-            break;
-          case 'iphone':
-            mockUserAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1';
-            mockPlatform = 'iPhone';
-            mockMaxTouchPoints = 5;
-            mockScreenWidth = 390;
-            mockScreenHeight = 844;
-            break;
-          default:
-            console.error('Type d\'appareil non supporté');
-            console.groupEnd();
-            return;
-        }
-        
-        // Sauvegarder les valeurs originales
-        const originalUserAgent = navigator.userAgent;
-        const originalPlatform = navigator.platform;
-        const originalMaxTouchPoints = navigator.maxTouchPoints;
-        const originalScreenWidth = window.screen.width;
-        const originalScreenHeight = window.screen.height;
-        
-        // Simuler les valeurs
-        Object.defineProperty(navigator, 'userAgent', { value: mockUserAgent, configurable: true });
-        Object.defineProperty(navigator, 'platform', { value: mockPlatform, configurable: true });
-        Object.defineProperty(navigator, 'maxTouchPoints', { value: mockMaxTouchPoints, configurable: true });
-        Object.defineProperty(window.screen, 'width', { value: mockScreenWidth, configurable: true });
-        Object.defineProperty(window.screen, 'height', { value: mockScreenHeight, configurable: true });
-        
-        // Exécuter le test
-        const result = detectTablet();
-        const shouldUseDesktop = shouldUseDesktopMode();
-        
-        console.log('📱 User Agent simulé:', mockUserAgent);
-        console.log('🖱️ Plateforme simulée:', mockPlatform);
-        console.log('👆 Points tactiles simulés:', mockMaxTouchPoints);
-        console.log('📏 Dimensions simulées:', mockScreenWidth + 'x' + mockScreenHeight);
-        
-        console.log('🎯 Résultat tablette:', result ? 'TABLETTE' : 'NON-TABLETTE');
-        console.log('🖥️ Mode desktop:', shouldUseDesktop ? 'OUI' : 'NON');
-        console.log('🚀 Système animation:', shouldUseDesktop ? 'DESKTOP' : 'MOBILE');
-        
-        // Restaurer les valeurs originales
-        Object.defineProperty(navigator, 'userAgent', { value: originalUserAgent, configurable: true });
-        Object.defineProperty(navigator, 'platform', { value: originalPlatform, configurable: true });
-        Object.defineProperty(navigator, 'maxTouchPoints', { value: originalMaxTouchPoints, configurable: true });
-        Object.defineProperty(window.screen, 'width', { value: originalScreenWidth, configurable: true });
-        Object.defineProperty(window.screen, 'height', { value: originalScreenHeight, configurable: true });
-        
-        console.groupEnd();
-        return { deviceType, isTablet: result, shouldUseDesktop, animationSystem: shouldUseDesktop ? 'DESKTOP' : 'MOBILE' };
+      isTablet: isTablet.value,
+      shouldUseDesktopMode: shouldUseDesktopMode(),
+      detectionBreakdown: debugInfo(),
+      refresh: () => {
+        // Forcer une nouvelle détection
+        isTablet.value = detectTablet();
+        console.log('🔄 Détection mise à jour:', isTablet.value);
       }
     };
   }

@@ -4,6 +4,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media screen and (min-width: 1441px) and (max-width: 2560px) {
+  .bdrs {
+    display: noen;
+    left: 104px !important;
+    top: 43px !important;
+  }
+}
+@media screen and (min-width: 1025px) and (max-width: 1440px) {
+  .bdrs {
+    display: noen;
+    left: 104px !important;
+    top: 43px !important;
+  }
+}
 body {
   margin: 0 !important;
   padding: 0 !important;
@@ -755,17 +769,6 @@ body * {
   /* background: red; */
 }
 
-#slide-60 {
-  min-height: 100vh !important;
-  height: auto !important;
-}
-@media screen and (max-width: 768px) {
-  #slide-60 {
-    min-height: 100vh !important;
-    height: 100vh !important;
-  }
-}
-
 .gsap-marker-scroller-start,
 .gsap-marker-scroller-end,
 .gsap-marker-start,
@@ -995,7 +998,7 @@ body * {
   background: #e60000;
   color: white;
   border: none;
-  padding: 12px 30px;
+  padding: 0px 30px;
   border-radius: 25px;
   cursor: pointer;
   font-family: "Vodafone";
@@ -1013,7 +1016,7 @@ body * {
 .contact-form .row {
   padding: 0em 2em;
 }
-.contact-form input {
+.contact-form input, .contact-form textarea {
   flex-grow: 0;
   margin: 1em 0;
   border-radius: 25px;
@@ -1021,7 +1024,7 @@ body * {
   background: rgba(255, 255, 255, 0) !important;
   color: white;
   font-family: "Vodafone";
-  font-size: 30px;
+  font-size: 16px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
@@ -1031,19 +1034,20 @@ body * {
   color: #fff;
   margin: 15px 0;
 }
-.contact-form input:focus {
+.contact-form input:focus, .contact-form textarea:focus {
   border-color: #e60000;
   outline: none;
   color: #fff;
 }
-.contact-form input::-moz-placeholder {
+.contact-form input::-moz-placeholder, .contact-form textarea::-moz-placeholder {
   color: white;
 }
-.contact-form input::placeholder {
+.contact-form input::placeholder, .contact-form textarea::placeholder {
   color: white;
 }
 
 .ditocard:nth-of-type(1) p {
+  margin-bottom: 0em !important;
   font-family: "Vodafone";
   font-size: 80px;
   font-weight: bold;
@@ -1101,6 +1105,23 @@ body * {
 }
 
 @media screen and (max-width: 1024px) {
+  #lafill {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+  }
+  #slide-128 .aya {
+    font-size: 35px !important;
+  }
+  .perdrix-slide p {
+    padding: 0 5em !important;
+    font-size: 14px !important;
+  }
+  .perdrix-slide h3 {
+    font-size: 18px !important;
+  }
   #rodman {
     border-radius: 25px 29px 39px 39px;
   }
@@ -1126,11 +1147,6 @@ body * {
   }
   #case-study-content-3 ul li strong span {
     font-size: 13px !important;
-  }
-  #slide-21 #thoiathoing {
-    /* margin-top: 100px !important; */
-    height: 125px !important;
-    background: rgba(255, 255, 255, 0) !important;
   }
   #stone {
     display: flex;
@@ -1179,7 +1195,7 @@ body * {
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-    background: url(/images/Subtract.png) no-repeat center center;
+    background: url(/images/Subtract.webp) no-repeat center center;
     background-size: contain;
     height: 613px;
     width: 492px;
@@ -1187,14 +1203,11 @@ body * {
     transform: translateZ(0);
     will-change: transform;
   }
-  .slide-section {
-    min-height: 100vh !important;
-    height: auto !important;
+  #slide-60, #slide-59 {
+    height: 100vh !important;
   }
-  @supports (-webkit-touch-callout: none) {
-    .slide-section {
-      height: 100vh !important;
-    }
+  #slide-128, #slide-73, #slide-21, #slide-20, #slide-22, #slide-59 {
+    height: 100dvh !important;
   }
   #subint {
     background: none !important;
@@ -1206,7 +1219,7 @@ body * {
     justify-content: flex-end;
     display: flex;
     align-items: center;
-    height: 100vh;
+    height: 100dvh;
   }
   #slide-73 .slide-container {
     position: relative !important;
@@ -1345,13 +1358,7 @@ body * {
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-    min-height: 100vh;
-    height: auto;
-  }
-  @supports (-webkit-touch-callout: none) {
-    #slide-20 #text-element-5 {
-      height: 100vh;
-    }
+    height: 103dvh;
   }
   #slide-20 #text-element-5 h5 {
     font-size: 28px !important;
@@ -1368,10 +1375,9 @@ body * {
     right: 0 !important;
     bottom: 0 !important;
     left: 0 !important;
-    width: 100vw !important;
-    /* background-color: red !important; */
-    max-width: 378px !important;
-    max-height: 81vh !important;
+    width: 82vw !important;
+    max-width: 369px !important;
+    max-height: 600px !important;
     height: 100vh !important;
     background-size: contain !important;
   }
@@ -1542,7 +1548,6 @@ body * {
     margin: 0 !important;
     padding: 0 !important;
     height: auto;
-    padding: 1em !important;
     width: 100% !important;
   }
   #slide-22 h3 {
@@ -1613,16 +1618,22 @@ body * {
   #killerjunior p {
     font-size: 2em;
   }
+  .contact-form textarea {
+    margin: 0em !important;
+    padding: 1.5rem 1em !important;
+    min-height: 50px !important;
+  }
+  .contact-form textarea,
   .contact-form input,
   .contact-form button {
-    font-size: 20px;
+    font-size: 14px;
   }
   div#vodacomwrapper {
     margin: 0 auto;
     padding: 0em;
   }
   #teste::before {
-    background: url(/images/Subtract.png);
+    background: url(/images/Subtract.webp);
     z-index: 100;
     background-position: center bottom !important;
     background-repeat: no-repeat;
@@ -1807,8 +1818,12 @@ body * {
     text-align: center !important;
     font-size: 22px !important;
   }
+  #pdf {
+    position: relative !important;
+  }
   #lemof {
     margin: 0;
+    height: 80vh !important;
     width: 100%;
   }
   #lemof .text-element {
@@ -2396,6 +2411,9 @@ body * {
 }
 
 @media screen and (max-width: 1024px) {
+  #slide-22 {
+    height: 100vh !important;
+  }
   #slide-73 .subint {
     padding: 0 1em !important;
   }
@@ -2470,6 +2488,7 @@ body * {
   }
   #lemof {
     margin: 0;
+    justify-content: space-between;
     width: 100%;
   }
   #lemof .text-element {
@@ -2512,12 +2531,29 @@ body * {
     min-height: 52px !important;
     height: 52px !important;
   }
+  #lafill button.btn.btn-primary {
+    padding: 10px !important;
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    margin: 10px 0 0 0 !important;
+  }
+  .back-to-top svg {
+    width: 72px !important;
+  }
+  #slide-60 {
+    position: relative;
+  }
+  #slide-60 .slides-container {
+    align-items: center !important;
+  }
   .ditocard:nth-of-type(1) p {
     font-size: 56px !important;
   }
   .ditocard:nth-of-type(2) p {
-    font-size: 23px !important;
+    font-size: 16px !important;
     line-height: 1.2 !important;
+    padding: 0 4em !important;
+    margin: 0 !important;
   }
   #vodacomwrapper {
     background: url("/images/bgmbile.jpg") !important;
@@ -3417,7 +3453,7 @@ body.slide-73-active .menu-toggle span:hover,
   z-index: 1;
 }
 #teste::before {
-  background: url(/images/Subtract.png);
+  background: url(/images/Subtract.webp);
   z-index: 100;
   background-position: bottom right;
   background-repeat: no-repeat;
@@ -3545,7 +3581,7 @@ body.slide-73-active .menu-toggle span:hover,
   bottom: 0;
   left: 0;
   right: auto;
-  background: url(/images/Subtract.png) no-repeat center center;
+  background: url(/images/Subtract.webp) no-repeat center center;
   background-size: contain;
   height: 761px;
   width: 613px;
@@ -3558,12 +3594,26 @@ body.slide-73-active .menu-toggle span:hover,
   display: none;
 }
 
+@media screen and (max-width: 376px) {
+  #slide-20 #turtlebeach {
+    width: 68vw !important;
+    max-width: 325px !important;
+    max-height: 490px !important;
+  }
+  #slide-59 #gorr {
+    width: 100% !important;
+  }
+  #slide-59 #gorr #llass, #slide-59 #gorr #lele {
+    width: 186px !important;
+    height: auto !important;
+  }
+}
 @media screen and (max-width: 1024px) {
   #slide-128 {
     overflow: hidden;
   }
   #slide-73 .slides-container {
-    background-position-x: -69vw !important;
+    background-position-x: -49vw !important;
   }
   #joce {
     height: 100dvh !important;
@@ -3585,7 +3635,7 @@ body.slide-73-active .menu-toggle span:hover,
     justify-content: center !important;
     flex-direction: column !important;
     box-sizing: border-box !important;
-    max-height: 390px;
+    max-height: 290px;
   }
   #quadi .perdrix-slide {
     margin: 0 !important;
@@ -3604,7 +3654,6 @@ body.slide-73-active .menu-toggle span:hover,
   #quadi .perdrix-slide .text-container h3 {
     color: white !important;
     font-size: 24px !important;
-    margin-bottom: 1rem !important;
   }
   #quadi .perdrix-slide .text-container .text-content {
     color: white !important;
@@ -3617,7 +3666,7 @@ body.slide-73-active .menu-toggle span:hover,
     height: 72vh !important;
     width: 100vw !important;
     display: flex !important;
-    max-height: 510px;
+    max-height: 428px;
     justify-content: flex-end;
   }
   #stone .bdrs {
@@ -3652,7 +3701,7 @@ body.slide-73-active .menu-toggle span:hover,
     left: 8% !important;
     right: 0 !important;
     margin: 0 auto !important;
-    background: url(/images/Subtract.png) no-repeat center center !important;
+    background: url(/images/Subtract.webp) no-repeat center center !important;
     background-size: contain !important;
     height: 448px !important;
     z-index: 7 !important;
@@ -3685,16 +3734,32 @@ body.slide-73-active .menu-toggle span:hover,
     justify-content: center !important;
     position: absolute !important;
     z-index: 3 !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
-  #stone #sparta #rodman .image-container::after {
-    content: "nique ta lere";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+  #stone #sparta #rodman .image-container:first-child {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  #stone #sparta #rodman .image-container.active-container {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
   }
   #stone #sparta #rodman .image-container img {
     height: 332px !important;
+    -o-object-fit: contain !important;
+    object-fit: contain !important;
+    width: auto !important;
+    position: relative !important;
+    z-index: 4 !important;
+    transform: translateZ(0);
+  }
+  #stone #sparta #rodman .image-container object {
+    height: 362px !important;
     -o-object-fit: contain !important;
     object-fit: contain !important;
     width: auto !important;
@@ -3720,6 +3785,10 @@ body.slide-73-active .menu-toggle span:hover,
     position: absolute;
   }
 }
+.lopere {
+  margin: 0;
+}
+
 #pdf {
   background-blend-mode: multiply;
   background-image: linear-gradient(to bottom, #909090, #909090);
@@ -4079,7 +4148,7 @@ html[data-darkreader-scheme=dark] .split-container ul li {
 }
 
 /* Fallback for older Android versions */
-@media screen and (max-device-width: 1024px) {
+@media screen and (max-device-width: 1180px) {
   .split-container ul li {
     color: #e60000 !important;
     -webkit-text-fill-color: #e60000 !important;
@@ -4161,13 +4230,11 @@ html[data-darkreader-scheme=dark] .split-container ul li {
 }
 
 .slide-section#slide-59.active .hamburger span,
-.slide-section#slide-73.active .hamburger span,
 .slide-section#slide-128.active .hamburger span {
   background: #ff0000 !important;
   box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
 }
 .slide-section#slide-59.active .hamburger:hover span,
-.slide-section#slide-73.active .hamburger:hover span,
 .slide-section#slide-128.active .hamburger:hover span {
   background: #ff3333 !important;
   box-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
@@ -4308,12 +4375,973 @@ a.back-to-top:hover {
   position: relative;
 }
 #pdf ul .pdf-separator {
-  font-size: 12px;
+  font-size: 21px;
   color: white;
 }
 
 .case-study-item.active h3, .case-study-item.active p {
   margin-bottom: 0em !important;
   padding-bottom: 0em !important;
+}
+
+/* Cibler tous les appareils iOS */
+[data-ios=true] #slide-59 h2 {
+  font-size: 30px !important;
+}
+[data-ios=true] #slide-60 p {
+  margin: 0.5em 0 !important;
+}
+[data-ios=true] #slide-60 p:nth-child(1) {
+  margin: 0.5em 0 !important;
+}
+[data-ios=true] * {
+  -webkit-overflow-scrolling: touch;
+  -webkit-appearance: none;
+}
+
+/* Cibler spécifiquement iPhone */
+[data-iphone=true] .header {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Cibler spécifiquement iPad */
+[data-ipad=true] .sidebar {
+  width: 300px;
+}
+
+/* Cibler Safari sur iOS */
+[data-ios-safari=true] .video-container {
+  -webkit-playsinline: true;
+}
+
+/* iPad en orientation portrait */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1180px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1) {
+  /* Styles pour iPad portrait */
+}
+/* iPad en orientation paysage */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1180px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
+  /* Styles pour iPad paysage */
+}
+/* iPad Pro 12.9" */
+@media only screen and (min-device-width: 1024px) and (max-device-width: 1366px) and (-webkit-min-device-pixel-ratio: 2) {
+  /* Styles pour iPad Pro 12.9" */
+}
+/* iPad Pro 11" */
+@media only screen and (min-device-width: 834px) and (max-device-width: 1194px) and (-webkit-min-device-pixel-ratio: 2) {
+  /* Styles pour iPad Pro 11" */
+}
+/* Tablettes Android génériques */
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  /* Styles pour tablettes Android */
+}
+/* Tablettes haute résolution */
+@media only screen and (min-width: 768px) and (max-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) {
+  /* Styles pour tablettes haute résolution */
+}
+/* Forcer l'orientation paysage sur tablettes */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  /* Option 2: Afficher un message de rotation */
+  body::before {
+    content: "Please rotate your device to landscape mode";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #e60000;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+    font-size: 18px;
+    text-align: center;
+  }
+}
+/* Overlay de rotation pour tablettes en portrait sans blur */
+.rotation-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  /* backdrop-filter: blur(20px); */
+  /* -webkit-backdrop-filter: blur(20px); */
+  z-index: 99999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+  text-align: center;
+  font-family: "Raleway", sans-serif;
+}
+.rotation-overlay .message-container {
+  background: rgba(230, 0, 0, 0.9);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  max-width: 90%;
+  /* backdrop-filter: blur(5px); */
+  /* -webkit-backdrop-filter: blur(5px); */
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+.rotation-overlay .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: rotate 2s linear infinite;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.rotation-overlay .icon svg {
+  width: 80px;
+  height: 80px;
+  color: white;
+}
+.rotation-overlay .title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+.rotation-overlay .description {
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Forcer l'orientation paysage sur tablettes et iPads Mini */
+@media screen and (min-width: 744px) and (max-width: 1024px) and (orientation: portrait) {
+  /* Blur désactivé - seulement masquer le contenu */
+  body {
+    /* filter: blur(8px); */
+    /* -webkit-filter: blur(8px); */
+    overflow: hidden;
+  }
+  .rotation-overlay {
+    display: flex;
+    filter: none;
+    -webkit-filter: none;
+  }
+  /* Alternative: masquer complètement le contenu principal */
+  /* .main-content {
+    display: none;
+  } */
+}
+/* Tous les iPads et écrans moyens - Toutes générations et orientations */
+/* Media query mise à jour pour inclure l'iPad Mini (y compris Mini 6) + écrans PC/tablettes 768-1151px */
+@media only screen and (min-device-width: 744px) and (max-device-width: 1366px) and (-webkit-min-device-pixel-ratio: 1), only screen and (min-device-width: 744px) and (max-device-width: 1366px) and (-webkit-min-device-pixel-ratio: 2), screen and (min-width: 768px) and (max-width: 1151px) {
+  /* Styles pour tous les iPads (y compris iPad Mini 6) + écrans PC/tablettes 768-1151px */
+  #llass, #lele {
+    min-width: 502px !important;
+    min-height: 479px !important;
+  }
+  /* Styles pour le composant #sharon et ses éléments */
+  #sharon {
+    max-height: 100vh !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: row !important;
+  }
+  #quadi {
+    height: 30vh !important;
+    max-height: 30vh !important;
+    width: 50vw !important;
+    max-width: 50vw !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+  #quadi .perdrix-slide {
+    position: absolute !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    height: 30vh !important;
+    max-height: 30vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #quadi .perdrix-slide .text-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    width: 100% !important;
+    max-width: 85% !important;
+  }
+  #quadi .perdrix-slide .text-container h3 {
+    color: white !important;
+    font-size: 28px !important;
+    margin-bottom: 1rem !important;
+  }
+  #quadi .perdrix-slide .text-container .text-content {
+    color: white !important;
+    font-size: 20px !important;
+    line-height: 1.4 !important;
+  }
+  #quadi .perdrix-slide .text-container .text-content p {
+    font-size: 18px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 1rem !important;
+  }
+  #quadi .perdrix-slide .text-container .text-content ul {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, auto) !important;
+    gap: 15px !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    place-items: center !important;
+    justify-content: center !important;
+  }
+  #quadi .perdrix-slide .text-container .text-content ul li {
+    width: 100% !important;
+    max-width: 240px !important;
+    list-style: none !important;
+    background: url("/images/check.jpg") 10px center no-repeat white !important;
+    background-size: 14px 14px !important;
+    height: 28px !important;
+    max-height: 28px !important;
+    font-family: Vodafone !important;
+    font-size: 16px !important;
+    font-weight: normal !important;
+    line-height: 26px !important;
+    text-align: left !important;
+    padding: 0px 0px 0px 30px !important;
+    margin: 0 !important;
+    color: #e60000 !important;
+  }
+  #stone {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    width: 50vw !important;
+    max-width: 50vw !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+  }
+  #stone #sparta {
+    height: 574px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    width: 463px !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+  }
+  #stone #sparta::before {
+    content: "" !important;
+    position: absolute !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    background: url(/images/Subtract.webp) no-repeat center center !important;
+    background-size: contain !important;
+    height: 574px !important;
+    width: 463px !important;
+    z-index: 1 !important;
+    will-change: transform !important;
+    z-index: 10 !important;
+  }
+  #stone #sparta #rodman {
+    overflow: hidden !important;
+    position: absolute !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    bottom: 0 !important;
+    height: 574px !important;
+    width: 463px !important;
+  }
+  #stone #sparta #rodman .bdrs {
+    position: absolute !important;
+    left: -65px;
+    top: 2.8vh !important;
+    border-radius: 54px !important;
+    overflow: hidden !important;
+    height: 492px !important;
+    width: 252px !important;
+    background-color: rgb(0, 0, 0) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    right: 0;
+    margin: 0 auto;
+  }
+  #stone #sparta #rodman .bdrs .image-container {
+    position: absolute !important;
+    width: 100vw !important;
+    max-width: 236px !important;
+    height: 100vh !important;
+    max-height: 507px !important;
+    top: 0 !important;
+    left: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    right: 0 !important;
+    margin: auto !important;
+  }
+  #stone #sparta #rodman .bdrs .image-container img {
+    height: 100vh !important;
+    max-height: 580px !important;
+    width: 100vw !important;
+    max-width: auto !important;
+    -o-object-fit: contain !important;
+    object-fit: contain !important;
+  }
+  #text-element-0 {
+    max-height: 100px !important;
+    max-width: 100px !important;
+  }
+  #text-element-1 {
+    max-height: 150px !important;
+    max-width: 150px !important;
+  }
+  #text-element-2 {
+    max-height: 180px !important;
+    max-width: 180px !important;
+  }
+  #text-element-3 {
+    max-height: 120px !important;
+    max-width: 120px !important;
+  }
+  #text-element-4 {
+    max-height: 100px !important;
+    max-width: 100px !important;
+  }
+  /* Styles responsifs pour slide-20 spécifiquement */
+  #slide-20 {
+    /* Hiérarchie progressive des tailles */
+    /* Optimisations spécifiques pour les conteneurs de slide-20 */
+    /* Optimisation des éléments circulaires dans .gee */
+    /* Optimisation du positionnement pour iPad paysage */
+    /* Gestion des éléments avec arrière-plans */
+    /* Adaptation du conteneur principal */
+  }
+  #slide-20 .text-element {
+    /* Réduction globale des tailles pour iPad paysage */
+    font-size: 0.8em;
+    line-height: 1.2;
+    margin: 10px auto;
+    padding: 0.6rem;
+    max-width: 90%;
+    text-align: center;
+  }
+  #slide-20 #text-element-0 {
+    /* Élément principal - légèrement plus grand */
+  }
+  #slide-20 #text-element-0 h3 {
+    font-size: 22px !important;
+  }
+  #slide-20 #text-element-0 p {
+    font-size: 18px !important;
+  }
+  #slide-20 #text-element-0 h5 {
+    font-size: 20px !important;
+  }
+  #slide-20 #text-element-1 {
+    /* Réduction modérée */
+  }
+  #slide-20 #text-element-1 h3 {
+    font-size: 20px !important;
+  }
+  #slide-20 #text-element-1 p {
+    font-size: 16px !important;
+  }
+  #slide-20 #text-element-1 h5 {
+    font-size: 18px !important;
+  }
+  #slide-20 #text-element-2 {
+    /* Réduction standard */
+  }
+  #slide-20 #text-element-2 h3 {
+    font-size: 19px !important;
+  }
+  #slide-20 #text-element-2 p {
+    font-size: 15px !important;
+  }
+  #slide-20 #text-element-2 h5 {
+    font-size: 17px !important;
+  }
+  #slide-20 #text-element-3 {
+    /* Réduction plus importante */
+  }
+  #slide-20 #text-element-3 h3 {
+    font-size: 18px !important;
+  }
+  #slide-20 #text-element-3 p {
+    font-size: 14px !important;
+  }
+  #slide-20 #text-element-3 h5 {
+    font-size: 16px !important;
+  }
+  #slide-20 #text-element-4 {
+    /* Réduction maximale tout en restant lisible */
+  }
+  #slide-20 #text-element-4 h3 {
+    font-size: 17px !important;
+  }
+  #slide-20 #text-element-4 p {
+    font-size: 13px !important;
+  }
+  #slide-20 #text-element-4 h5 {
+    font-size: 15px !important;
+  }
+  #slide-20 #text-element-5 {
+    padding: 0.8rem !important;
+  }
+  #slide-20 #text-element-5 h5 {
+    font-size: 22px !important;
+    line-height: 1.2;
+  }
+  #slide-20 #text-element-5 p {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+  }
+  #slide-20 #mzu {
+    padding: 1.5em !important;
+  }
+  #slide-20 #mzu h2 {
+    font-size: 45px !important;
+    line-height: 1.1;
+    margin: 0;
+  }
+  #slide-20 #usruu h2 {
+    font-size: 2.8em !important;
+    max-width: 90% !important;
+    line-height: 0.9;
+  }
+  #slide-20 #usruu .apitch {
+    font-size: 2em !important;
+    line-height: 1;
+  }
+  #slide-20 #text-element-0,
+  #slide-20 .text-element-1,
+  #slide-20 .text-element-2,
+  #slide-20 .text-element-3,
+  #slide-20 .text-element-4 {
+    /* Centrage et espacement optimisé */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Éviter le débordement */
+    max-height: 70vh;
+    overflow: hidden;
+    /* Optimisation de la lisibilité */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Espacement optimisé pour l'écran iPad */
+    word-spacing: 0.05em;
+    letter-spacing: 0.01em;
+  }
+  #slide-20 .text-element-0[style*=background],
+  #slide-20 .text-element-1[style*=background],
+  #slide-20 .text-element-2[style*=background],
+  #slide-20 .text-element-3[style*=background],
+  #slide-20 .text-element-4[style*=background] {
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 0.8rem auto;
+  }
+  #slide-20 .slide-container {
+    padding: 0.8rem;
+    max-width: 100%;
+  }
+  #slide-20 .slide-container .text-element-0,
+  #slide-20 .slide-container .text-element-1,
+  #slide-20 .slide-container .text-element-2,
+  #slide-20 .slide-container .text-element-3,
+  #slide-20 .slide-container .text-element-4 {
+    width: 100%;
+    max-width: 85%;
+    margin: 0 auto 1rem;
+  }
+}
+/* Écrans PC et tablettes entre 768px et 1151px */
+@media only screen and (min-width: 768px) and (max-width: 1151px) {
+  /* Styles pour écrans PC et tablettes moyens */
+  #text-element-0 {
+    max-height: 120px !important;
+    max-width: 120px !important;
+  }
+  #text-element-1 {
+    max-height: 170px !important;
+    max-width: 170px !important;
+  }
+  #text-element-2 {
+    max-height: 200px !important;
+    max-width: 200px !important;
+  }
+  #text-element-3 {
+    max-height: 140px !important;
+    max-width: 140px !important;
+  }
+  #text-element-4 {
+    max-height: 120px !important;
+    max-width: 120px !important;
+  }
+  /* Styles responsifs pour slide-20 */
+  #slide-20 .text-element {
+    font-size: 0.9em;
+    line-height: 1.3;
+    margin: 12px auto;
+    padding: 0.8rem;
+    max-width: 85%;
+    text-align: center;
+  }
+  #slide-20 #text-element-0 h3 {
+    font-size: 26px !important;
+  }
+  #slide-20 #text-element-0 p {
+    font-size: 20px !important;
+  }
+  #slide-20 #text-element-0 h5 {
+    font-size: 22px !important;
+  }
+  #slide-20 #text-element-1 h3 {
+    font-size: 24px !important;
+  }
+  #slide-20 #text-element-1 p {
+    font-size: 18px !important;
+  }
+  #slide-20 #text-element-1 h5 {
+    font-size: 20px !important;
+  }
+  #slide-20 #text-element-2 h3 {
+    font-size: 22px !important;
+  }
+  #slide-20 #text-element-2 p {
+    font-size: 17px !important;
+  }
+  #slide-20 #text-element-2 h5 {
+    font-size: 19px !important;
+  }
+  #slide-20 #text-element-3 h3 {
+    font-size: 20px !important;
+  }
+  #slide-20 #text-element-3 p {
+    font-size: 16px !important;
+  }
+  #slide-20 #text-element-3 h5 {
+    font-size: 18px !important;
+  }
+  #slide-20 #text-element-4 h3 {
+    font-size: 19px !important;
+  }
+  #slide-20 #text-element-4 p {
+    font-size: 15px !important;
+  }
+  #slide-20 #text-element-4 h5 {
+    font-size: 17px !important;
+  }
+  #slide-20 #text-element-5 {
+    padding: 1rem !important;
+  }
+  #slide-20 #text-element-5 h5 {
+    font-size: 24px !important;
+    line-height: 1.2;
+  }
+  #slide-20 #text-element-5 p {
+    font-size: 18px !important;
+    line-height: 1.3 !important;
+  }
+  #slide-20 #mzu {
+    padding: 1.8em !important;
+  }
+  #slide-20 #mzu h2 {
+    font-size: 50px !important;
+    line-height: 1.1;
+    margin: 0;
+  }
+  #slide-20 #usruu h2 {
+    font-size: 3.2em !important;
+    max-width: 85% !important;
+    line-height: 0.9;
+  }
+  #slide-20 #usruu .apitch {
+    font-size: 2.4em !important;
+    line-height: 1;
+  }
+  #slide-20 #text-element-0,
+  #slide-20 .text-element-1,
+  #slide-20 .text-element-2,
+  #slide-20 .text-element-3,
+  #slide-20 .text-element-4 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-height: 75vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    word-spacing: 0.05em;
+    letter-spacing: 0.01em;
+  }
+  #slide-20 .text-element-0[style*=background],
+  #slide-20 .text-element-1[style*=background],
+  #slide-20 .text-element-2[style*=background],
+  #slide-20 .text-element-3[style*=background],
+  #slide-20 .text-element-4[style*=background] {
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin: 1rem auto;
+  }
+  #slide-20 .slide-container {
+    padding: 1rem;
+    max-width: 100%;
+  }
+  #slide-20 .slide-container .text-element-0,
+  #slide-20 .slide-container .text-element-1,
+  #slide-20 .slide-container .text-element-2,
+  #slide-20 .slide-container .text-element-3,
+  #slide-20 .slide-container .text-element-4 {
+    width: 100%;
+    max-width: 80%;
+    margin: 0 auto 1.2rem;
+  }
+}
+/* ==============================================
+   MEDIA QUERIES POUR IPHONES SPÉCIFIQUES
+   ============================================== */
+/* iPhone SE (1ère, 2ème et 3ème génération) */
+@media only screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2), only screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) {
+  /* Styles spécifiques iPhone SE */
+  body {
+    font-size: 14px !important;
+  }
+  #slide-73 .subint {
+    padding: 0 0.5em !important;
+  }
+  #slide-73 .subint h2 {
+    font-size: 45px !important;
+    line-height: 1.1 !important;
+  }
+  #slide-73 .subint p {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+  }
+  #slide-73 .points-fort {
+    padding: 0.5rem !important;
+  }
+  #slide-73 .points-fort h3 {
+    font-size: 20px !important;
+    line-height: 1.2 !important;
+  }
+  #slide-73 .points-fort p {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+  }
+  #slide-20 #text-element-5 {
+    padding: 0.5em !important;
+  }
+  #slide-20 #text-element-5 h5 {
+    font-size: 20px !important;
+  }
+  #slide-20 #text-element-5 p {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+  #slide-20 #mzu h2 {
+    font-size: 35px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(1), #slide-20 .gee .text-element:nth-of-type(4) {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(1) h3, #slide-20 .gee .text-element:nth-of-type(4) h3 {
+    font-size: 28px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(1) p, #slide-20 .gee .text-element:nth-of-type(4) p {
+    font-size: 12px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(2), #slide-20 .gee .text-element:nth-of-type(3) {
+    width: 110px !important;
+    height: 110px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(2) h3, #slide-20 .gee .text-element:nth-of-type(3) h3 {
+    font-size: 40px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(2) p, #slide-20 .gee .text-element:nth-of-type(3) p {
+    font-size: 12px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(5) {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(5) h3 {
+    font-size: 30px !important;
+  }
+  #slide-20 .gee .text-element:nth-of-type(5) p {
+    font-size: 10px !important;
+  }
+  #slide-21 #mshill,
+  #slide-22 #mshill {
+    font-size: 28px !important;
+  }
+  #slide-21 .text-element h3,
+  #slide-22 .text-element h3 {
+    font-size: 18px !important;
+  }
+  #slide-21 .text-element p,
+  #slide-22 .text-element p {
+    font-size: 14px !important;
+  }
+  #bygone-bip .accordion-item h3 {
+    font-size: 24px !important;
+  }
+  #bygone-bip .accordion-item p {
+    font-size: 16px !important;
+  }
+  #killerjunior h2 {
+    font-size: 35px !important;
+  }
+  #killerjunior p {
+    font-size: 16px !important;
+  }
+  .ditocard:nth-of-type(1) p {
+    font-size: 35px !important;
+  }
+  .ditocard:nth-of-type(2) p {
+    font-size: 14px !important;
+    padding: 0 2em !important;
+  }
+}
+/* iPhone 12 mini */
+@media only screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+  #lemof {
+    margin: 0 !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100dvh !important;
+  }
+  #yenamarre {
+    margin: 1em 0 !important;
+    padding: 0 !important;
+  }
+  .back-to-top img {
+    height: 50px;
+    width: auto;
+  }
+  .contact-form input {
+    margin: 2px 0 !important;
+  }
+  .ditocard {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .ditocard p {
+    margin: 0 !important;
+    font-size: 18px !important;
+  }
+  #stone {
+    min-height: 458px !important;
+    height: 100vh !important;
+    overflow: auto !important;
+  }
+  #slide-73 .slides-container {
+    background-position-x: center !important;
+    background-size: cover !important;
+  }
+  #slide-73 .points-fort {
+    max-height: 70vh !important;
+  }
+  #turtlebeach {
+    max-width: 100px !important;
+  }
+  #quadi {
+    min-height: 215px !important;
+  }
+  #joce {
+    justify-content: space-between !important;
+  }
+  #joce #sharon {
+    min-height: 100% !important;
+  }
+  #lafill {
+    height: 100dvh !important;
+  }
+}
+/* iPhone 12, iPhone 12 Pro */
+@media only screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) {
+  #lemof {
+    margin: 0 !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100dvh !important;
+  }
+  #yenamarre {
+    margin: 1em 0 !important;
+    padding: 0 !important;
+  }
+  .back-to-top img {
+    height: 50px;
+    width: auto;
+  }
+  .contact-form input {
+    margin: 2px 0 !important;
+  }
+  .ditocard {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .ditocard p {
+    margin: 0 !important;
+    font-size: 18px !important;
+  }
+  #stone {
+    min-height: 458px !important;
+    height: 100vh !important;
+    overflow: auto !important;
+  }
+  #slide-73 .slides-container {
+    background-position-x: center !important;
+    background-size: cover !important;
+  }
+  #slide-73 .points-fort {
+    max-height: 70vh !important;
+  }
+  #turtlebeach {
+    max-width: 100px !important;
+  }
+  #quadi {
+    min-height: 215px !important;
+  }
+  #joce {
+    justify-content: space-between !important;
+  }
+  #joce #sharon {
+    min-height: 100% !important;
+  }
+  #lafill {
+    height: 100dvh !important;
+  }
+}
+/* Optimisations communes pour tous les petits iPhones */
+@media only screen and (max-device-width: 390px) and (max-device-height: 844px) {
+  #lemof {
+    margin: 0 !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100dvh !important;
+  }
+  #yenamarre {
+    margin: 2px 0 0 0 !important;
+    padding: 0 !important;
+  }
+  .back-to-top img {
+    height: 50px;
+    width: auto;
+  }
+  .contact-form input {
+    margin: 2px 0 !important;
+  }
+  .ditocard {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .ditocard p {
+    margin: 0 !important;
+    font-size: 18px !important;
+  }
+  #stone {
+    min-height: 458px !important;
+    height: 100vh !important;
+    overflow: auto !important;
+  }
+  #slide-73 .slides-container {
+    background-position-x: center !important;
+    background-size: cover !important;
+  }
+  #slide-73 .points-fort {
+    max-height: 70vh !important;
+  }
+  #turtlebeach {
+    max-width: 100px !important;
+  }
+  #quadi {
+    min-height: 215px !important;
+  }
+  #joce {
+    justify-content: space-between !important;
+  }
+  #joce #sharon {
+    min-height: 100% !important;
+  }
+  #lafill {
+    height: 100dvh !important;
+  }
+}
+.ditocard {
+  margin: 0;
+}
+
+.contact-form .form-control {
+  border-radius: 24px !important;
+  -webkit-border-radius: 24px !important;
+  -moz-border-radius: 24px !important;
+  -ms-border-radius: 24px !important;
+  -o-border-radius: 24px !important;
+}
+
+textarea.form-control {
+  border-radius: 24px !important;
+  -webkit-border-radius: 24px !important;
+  -moz-border-radius: 24px !important;
+  -ms-border-radius: 24px !important;
+  -o-border-radius: 24px !important;
+  padding: 1em !important;
+}
+
+@media screen and (max-width: 375px) {
+  #slide-60 p {
+    font-size: 14px !important;
+  }
+  .contact-form textarea, .contact-form input, .contact-form button {
+    font-size: 12px !important;
+    padding: 10px !important;
+  }
+  .back-to-top img {
+    height: 35px !important;
+  }
+  #lafill button.btn.btn-primary {
+    font-size: 14px !important;
+    padding: 4px !important;
+  }
+  .ditocard, .contact-form {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  #lemof {
+    align-items: center !important;
+  }
 }
 /*# sourceMappingURL=style.css.map */

@@ -53,8 +53,8 @@ const activeSlideId = computed(() => {
   return null;
 });
 
-const defaultBackground = ref("url(/images/bg12.webp)");
-const specialBackground = ref("url(/images/nono.webp)");
+const defaultBackground = ref("url('/images/bg12.webp')");
+const specialBackground = ref("url('/images/nono.webp')");
 const currentBackground = ref(defaultBackground.value);
 const isMobile = ref(false);
 const scrollCursor = ref(null);
@@ -509,7 +509,8 @@ onMounted(async () => {
         hamburger.classList.remove('hamburger-red', 'hamburger-white');
         
         // Ajouter la classe appropriée selon la slide
-        if (newSlideId === 59 || newSlideId === 73 || newSlideId === 128) {
+        // SLIDE-73 est EXCLUE du hamburger rouge car elle nécessite un hamburger blanc (#subint visible)
+        if (newSlideId === 59 || newSlideId === 128) {
           hamburger.classList.add('hamburger-red');
           console.log(`🍔 Hamburger rouge sur slide-${newSlideId}`);
         } else {
@@ -556,13 +557,16 @@ onMounted(async () => {
   }
 
   // Initialiser les animations SVG Svgator (SAUF pour slide-23)
-  initSvgatorAnimations();
+  // initSvgatorAnimations(); // ❌ DÉSACTIVÉ - Remplacé par le chargement direct
   
   // Ajouter un fallback pour la production avec un délai plus long
-  if (process.env.NODE_ENV === 'production') {
-    console.log('🏭 Mode production détecté - Activation du fallback SVG');
-    initSvgatorProductionFallback();
-  }
+  // if (process.env.NODE_ENV === 'production') {
+  //   console.log('🏭 Mode production détecté - Activation du fallback SVG');
+  //   initSvgatorProductionFallback();
+  // }
+
+  // ✅ SYSTÈME SIMPLE : Chargement direct de tous les SVG
+  console.log('✅ Les SVG sont maintenant chargés directement sans lazy loading');
 
   // ✅ SYSTÈME SIMPLE : Slide-23 sera gérée uniquement à l'activation
   console.log('✅ SVG slide-23 seront initialisés uniquement à l\'activation de la slide');
@@ -570,47 +574,32 @@ onMounted(async () => {
   // Exposer les fonctions utiles globalement pour le debug
   if (typeof window !== 'undefined') {
     window.debugSvgAnimations = {
-      restart: restartSvgAnimation,
-      restartAll: () => {
-        // Redémarrer toutes les animations SVG
-        const containers = document.querySelectorAll('[id^="image-container-"]');
-        containers.forEach(container => {
-          if (container.querySelector('object[type="image/svg+xml"]')) {
-            restartSvgAnimation(container.id);
+      // Fonctions de base simplifiées
+      restart: (containerId) => {
+        const container = document.getElementById(containerId);
+        if (container) {
+          const svgObject = container.querySelector('object[type="image/svg+xml"]');
+          if (svgObject) {
+            initializeSvgAnimation(containerId, svgObject);
           }
-        });
-      },
-      restartSection: (sectionId) => {
-        // 🎬 NOUVEAU : Redémarrer les animations d'une section spécifique
-        const section = document.getElementById(sectionId);
-        if (section) {
-          restartSectionSvgAnimations(section);
-        } else {
-          console.warn(`❌ Section non trouvée: ${sectionId}`);
         }
       },
-      restartCurrentSection: () => {
-        // 🎬 NOUVEAU : Redémarrer les animations de la section actuellement active
-        const activeSection = document.querySelector('.slide-section.active');
-        if (activeSection) {
-          console.log(`🎯 Redémarrage des animations de la section active: ${activeSection.id}`);
-          restartSectionSvgAnimations(activeSection);
-        } else {
-          console.warn(`❌ Aucune section active trouvée`);
-        }
+      restartAll: () => {
+        console.log('🔄 Redémarrage de tous les SVG avec chargement direct');
+        initDirectSvgLoading();
       },
       listAnimations: () => {
         // Lister toutes les animations détectées
         const svgObjects = document.querySelectorAll('object[type="image/svg+xml"]');
         svgObjects.forEach((obj, index) => {
           const containerId = obj.getAttribute('data-container-id');
-          console.log(`📋 Animation ${index + 1}: ${containerId}, URL: ${obj.data}`);
+          console.log(`📋 SVG ${index + 1}: ${containerId}, URL: ${obj.data}`);
         });
       },
       reinitialize: () => {
-        console.log('🔄 Réinitialisation des animations SVG');
+        console.log('🔄 Réinitialisation complète du système de chargement direct');
         setTimeout(() => {
-          initSvgatorAnimations();
+          initDirectSvgLoading();
         }, 1000);
       },
       checkPlayers: () => {
@@ -631,99 +620,35 @@ onMounted(async () => {
           }
         });
       },
-      forceReload: forceSvgReload,
-      productionFallback: () => {
-        console.log('🏭 Activation manuelle du fallback production');
-        initSvgatorProductionFallback();
-      },
-      // 🚀 NOUVEAU : Fonctions pour le lazy loading
-      lazyLoading: {
-        reinit: () => {
-          console.log('🔄 Réinitialisation du lazy loading slide-23');
-          cleanupSlide23LazyLoading();
-          setTimeout(() => {
-            initSlide23LazyLoading();
-          }, 500);
+      // Nouveau système direct
+      directLoading: {
+        init: () => {
+          console.log('🚀 Initialisation manuelle du chargement direct');
+          initDirectSvgLoading();
         },
-        testVisible: () => {
-          // Tester quels containers sont visibles
-          const slide23Section = document.getElementById('slide-23');
-          if (slide23Section) {
-            const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
-            imageContainers.forEach(container => {
-              const rect = container.getBoundingClientRect();
-              const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-              console.log(`👁️ ${container.id}: ${isVisible ? 'VISIBLE' : 'CACHÉ'}`);
-            });
-          }
-        },
-        forceLoad: (containerId) => {
-          // Forcer le lazy loading d'un container spécifique
+        loadSingle: (containerId) => {
           const container = document.getElementById(containerId);
           if (container) {
             const svgObject = container.querySelector('object[type="image/svg+xml"]');
             if (svgObject) {
-              console.log(`🚀 Force lazy loading de ${containerId}`);
-              lazyLoadSvgAnimation(containerId, svgObject);
+              console.log(`⚡ Chargement direct forcé de ${containerId}`);
+              loadSvgDirectly(containerId, svgObject);
             }
           }
-        },
-        toggleActive: (active) => {
-          // Activer/désactiver le lazy loading
-          toggleSlide23LazyLoading(active);
-        },
-        status: () => {
-          // État du lazy loading
-          console.log('📊 État lazy loading slide-23:');
-          console.log(`   - Observer: ${slide23Observer ? '✅ actif' : '❌ inactif'}`);
-          console.log(`   - Slide active: ${slide23IsActive ? '✅' : '❌'}`);
-          console.log(`   - Slide courante: ${activeSlideId.value}`);
-          
-          // Vérifier les players stockés pour slide-23
-          if (window.svgatorPlayers) {
-            console.log('📊 Players SVG slide-23:');
-            const slide23Section = document.getElementById('slide-23');
-            if (slide23Section) {
-              const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
-              imageContainers.forEach(container => {
-                const hasPlayer = window.svgatorPlayers.has(container.id);
-                console.log(`   - ${container.id}: ${hasPlayer ? '✅ player trouvé' : '❌ player manquant'}`);
-              });
-            }
-          }
-        },
-        initNow: () => {
-          // Forcer l'initialisation des SVG slide-23
-          console.log('🚀 Force initialisation des SVG slide-23');
-          initSlide23SvgAnimations();
-        },
-        cleanupNow: () => {
-          // Forcer le nettoyage des animations slide-23
-          console.log('🧹 Force nettoyage des animations slide-23');
-          cleanupSlide23Animations();
         }
       }
     };
     
-    console.log('🛠️ Fonctions de debug avec lazy loading disponibles:');
-    console.log('- window.debugSvgAnimations.restart("image-container-1") // Redémarre une animation spécifique');
-    console.log('- window.debugSvgAnimations.restartAll() // Redémarre toutes les animations');
-    console.log('- window.debugSvgAnimations.restartSection("slide-23") // Redémarre les animations d\'une section');
-    console.log('- window.debugSvgAnimations.restartCurrentSection() // Redémarre les animations de la section active');
-    console.log('- window.debugSvgAnimations.listAnimations() // Liste toutes les animations');
-    console.log('- window.debugSvgAnimations.reinitialize() // Réinitialise complètement');
+    console.log('🛠️ Fonctions de debug simplifiées disponibles:');
+    console.log('- window.debugSvgAnimations.restart("image-container-1") // Redémarre un SVG spécifique');
+    console.log('- window.debugSvgAnimations.restartAll() // Redémarre tous les SVG');
+    console.log('- window.debugSvgAnimations.listAnimations() // Liste tous les SVG');
+    console.log('- window.debugSvgAnimations.reinitialize() // Réinitialise le système complet');
     console.log('- window.debugSvgAnimations.checkPlayers() // Vérifie l\'état des players');
-    console.log('- window.debugSvgAnimations.forceReload() // Force le rechargement des objets SVG');
-    console.log('- window.debugSvgAnimations.productionFallback() // Active le fallback de production');
     console.log('');
-    console.log('🚀 Nouvelles fonctions de lazy loading:');
-    console.log('- window.debugSvgAnimations.lazyLoading.reinit() // Réinitialise le lazy loading');
-    console.log('- window.debugSvgAnimations.lazyLoading.testVisible() // Teste quels containers sont visibles');
-    console.log('- window.debugSvgAnimations.lazyLoading.forceLoad("image-container-1") // Force le lazy loading d\'un container');
-    console.log('- window.debugSvgAnimations.lazyLoading.toggleActive(true/false) // Active/désactive le lazy loading');
-    console.log('- window.debugSvgAnimations.lazyLoading.status() // État du lazy loading');
-    console.log('- window.debugSvgAnimations.lazyLoading.initNow() // Force l\'initialisation des SVG slide-23');
-    console.log('- window.debugSvgAnimations.lazyLoading.cleanupNow() // Force le nettoyage des animations slide-23');
+    console.log('🚀 Nouvelles fonctions de chargement direct:');
+    console.log('- window.debugSvgAnimations.directLoading.init() // Initialise le chargement direct');
+    console.log('- window.debugSvgAnimations.directLoading.loadSingle("image-container-1") // Charge un SVG spécifique');
   }
 
   // Bouton Back to Top
@@ -742,6 +667,19 @@ onMounted(async () => {
       }
     });
   }
+
+  // Initialiser le système de chargement direct des SVG (plus de lazy loading)
+  initDirectSvgLoading();
+  
+  // Ajouter un fallback pour la production avec un délai plus long
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🏭 Mode production détecté - Délai supplémentaire pour le chargement');
+    setTimeout(() => {
+      initDirectSvgLoading();
+    }, 2000);
+  }
+
+  console.log('✅ Système de chargement direct des SVG initialisé');
 });
 
 onBeforeUnmount(() => {
@@ -838,8 +776,8 @@ const getBackgroundImage = (slide) => {
 
   // Fallback par défaut si aucune image n'est disponible
   return isMobile.value
-    ? "url(/images/bgmbile.webp)"
-    : "url(/images/bg12.webp)";
+    ? "url('/images/bgmbile.webp')"
+    : "url('/images/bg12.webp')";
 };
 
 const handleNavigateToSection = (event) => {
@@ -1367,6 +1305,20 @@ const handleSlide23SvgAnimations = (section) => {
   imageContainers.forEach((container, index) => {
     const containerId = container.id;
     const svgObject = container.querySelector('object[type="image/svg+xml"]');
+    
+    // 🚀 NOUVEAU : Gérer la visibilité des containers sur mobile
+    if (window.innerWidth <= 1024) {
+      // Supprimer la classe active-container de tous les containers
+      container.classList.remove('active-container');
+      
+      // Ajouter la classe active-container uniquement au container actif
+      if (index === currentIndex) {
+        container.classList.add('active-container');
+        console.log(`👁️ Container ${containerId} rendu visible (mobile) - Index ${index}`);
+      } else {
+        console.log(`👁️ Container ${containerId} caché (mobile) - Index ${index}`);
+      }
+    }
     
     if (svgObject && containerId) {
       if (index === currentIndex) {
@@ -2360,6 +2312,104 @@ const createSvgObject = async (svgUrl, containerId, attributes = {}) => {
   
   return svgObject;
 };
+
+// Système simple pour le chargement direct des SVG sans lazy loading
+const initDirectSvgLoading = () => {
+  console.log('🚀 Initialisation du chargement direct des SVG');
+  
+  // Charger immédiatement tous les SVG dans tous les image-containers
+  const allImageContainers = document.querySelectorAll('.image-container');
+  
+  allImageContainers.forEach((container, index) => {
+    const containerId = container.id || `image-container-${index + 1}`;
+    const svgObject = container.querySelector('object[type="image/svg+xml"]');
+    
+    if (svgObject) {
+      console.log(`📦 Chargement direct du SVG: ${containerId}`);
+      // Forcer le chargement immédiat sans optimisations
+      loadSvgDirectly(containerId, svgObject);
+    }
+  });
+};
+
+// Fonction pour charger un SVG directement depuis l'API
+const loadSvgDirectly = (containerId, svgObject) => {
+  console.log(`⚡ Chargement direct de ${containerId}`);
+  
+  // Simple gestion du chargement sans lazy loading
+  if (svgObject.contentDocument) {
+    console.log(`✅ SVG ${containerId} déjà chargé`);
+    initializeSvgAnimation(containerId, svgObject);
+  } else {
+    console.log(`⏳ Attente du chargement de ${containerId}`);
+    
+    // Event listener simple pour le chargement
+    svgObject.addEventListener('load', () => {
+      console.log(`📥 SVG ${containerId} chargé`);
+      setTimeout(() => {
+        initializeSvgAnimation(containerId, svgObject);
+      }, 100);
+    }, { once: true });
+    
+    // Timeout de sécurité
+    setTimeout(() => {
+      if (!svgObject.contentDocument) {
+        console.warn(`⚠️ Timeout pour ${containerId}`);
+      }
+    }, 5000);
+  }
+};
+
+// Fonction simple pour initialiser les animations SVG
+const initializeSvgAnimation = (containerId, svgObject) => {
+  if (!svgObject.contentDocument) return;
+  
+  try {
+    const svgDoc = svgObject.contentDocument;
+    const svgWindow = svgDoc.defaultView;
+    
+    // Chercher le player Svgator
+    let player = null;
+    if (svgWindow && svgWindow.svgatorPlayer) {
+      player = svgWindow.svgatorPlayer;
+    }
+    
+    if (player) {
+      console.log(`🎯 Player trouvé pour ${containerId}`);
+      
+      // Configuration simple pour répétition infinie
+      if (typeof player.setOptions === 'function') {
+        player.setOptions({
+          fillMode: 'forwards',
+          playMode: 'normal'
+        });
+      }
+      
+      // Configurer la répétition
+      if (typeof player.onFinish === 'function') {
+        player.onFinish(() => {
+          setTimeout(() => {
+            if (typeof player.restart === 'function') {
+              player.restart();
+            }
+          }, 1000); // 1 seconde de pause entre les répétitions
+        });
+      }
+      
+      // Démarrer l'animation
+      if (typeof player.restart === 'function') {
+        player.restart();
+      }
+      
+      console.log(`✅ Animation configurée pour ${containerId}`);
+    } else {
+      console.log(`ℹ️ Pas d'animation Svgator dans ${containerId}`);
+    }
+    
+  } catch (error) {
+    console.error(`❌ Erreur lors de l'initialisation de ${containerId}:`, error);
+  }
+};
 </script>
 
 <template>
@@ -2646,21 +2696,19 @@ const createSvgObject = async (svgUrl, containerId, attributes = {}) => {
                                 class="img-fluid m-0 p-0"
                                 style="width: 100%; height: auto;"
                                 :data-container-id="`image-container-${idx + 1}`"
+                                :key="`svg-${idx}-${extractImage(paragraph)}`"
+                                loading="eager"
                               >
-                                <!-- Fallback si le SVG ne charge pas -->
-                                <img
-                                  :src="extractImage(paragraph)"
-                                  alt="Image"
-                                  class="img-fluid m-0 p-0"
-                                />
+                                <!-- Pas d'image de fallback - SVG uniquement -->
                               </object>
                               
-                              <!-- Image statique (WebP, PNG, JPG, etc.) : utiliser img -->
+                              <!-- Image statique (WebP, PNG, JPG, etc.) : chargement direct -->
                               <img
                                 v-else
                                 :src="extractImage(paragraph)"
                                 alt="Image"
                                 class="img-fluid m-0 p-0"
+                                loading="eager"
                               />
                             </div>
                           </div>
@@ -3134,7 +3182,7 @@ header.fixed-top.scrolled {
   backdrop-filter: blur(10px);
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding-top: 60px;
   z-index: 9999;
   display: flex;
@@ -3209,7 +3257,7 @@ header.fixed-top.scrolled {
     width: 70%;
   }
   #menu ul li {
-    margin: 20px 0;
+    margin: 5px 0;
   }
 }
 

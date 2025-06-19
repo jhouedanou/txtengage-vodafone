@@ -78,6 +78,12 @@ export function useResponsiveAnimations() {
    * Configuration spécifique pour les tablettes
    */
   const setupTabletSpecificBehavior = () => {
+    // Vérification SSR : ne pas configurer si document n'existe pas
+    if (typeof document === 'undefined') {
+      console.log('📱 SSR détecté - configuration tablette différée');
+      return;
+    }
+
     console.log('📱 Configuration du comportement spécifique aux tablettes');
     
     // Écouter les événements de swipe convertis en événements clavier
@@ -106,9 +112,12 @@ export function useResponsiveAnimations() {
   const setupMobileBehavior = () => {
     console.log('📱 Configuration du comportement mobile avec animations complètes');
     
-    // Réactiver le scroll natif pour le conteneur principal
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
+    // Vérification SSR : ne pas manipuler document si non disponible
+    if (typeof document !== 'undefined') {
+      // Réactiver le scroll natif pour le conteneur principal
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
 
     // IMPORTANT: Initialiser les vraies animations mobiles avec toutes les fonctionnalités
     if (sections.value && sections.value.length > 0) {
@@ -245,9 +254,12 @@ export function useResponsiveAnimations() {
     
     tabletDetection.cleanup();
     
-    // Restaurer le scroll natif
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
+    // Vérification SSR : ne pas manipuler document si non disponible
+    if (typeof document !== 'undefined') {
+      // Restaurer le scroll natif
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
     
     isInitialized.value = false;
     currentAnimationSystem.value = null;
@@ -292,9 +304,13 @@ export function useResponsiveAnimations() {
         switchAnimationSystem('desktop');
       },
       cleanup,
-      // Proxy vers les fonctions de debug des sous-systèmes
-      tablet: window.debugTabletDetection,
-      desktop: window.debugDesktopAnimations
+      // Proxy vers les fonctions de debug des sous-systèmes (avec vérifications)
+      get tablet() {
+        return typeof window !== 'undefined' && window.debugTabletDetection ? window.debugTabletDetection : null;
+      },
+      get desktop() {
+        return typeof window !== 'undefined' && window.debugDesktopAnimations ? window.debugDesktopAnimations : null;
+      }
     };
   }
 

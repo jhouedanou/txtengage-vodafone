@@ -16,7 +16,7 @@ export function useSlides() {
 
         try {
             // Essayer d'abord de charger depuis l'API en ligne
-            const response = await fetch('https://bfedition.com/vodafone/wp-json/slides/v1/all', {
+            const response = await fetch('https://txtengage.co.za/backend/wp-json/slides/v1/all', {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' },
                 // Ajouter un timeout pour ne pas attendre trop longtemps
