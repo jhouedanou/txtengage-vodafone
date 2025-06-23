@@ -215,7 +215,7 @@ const submitForm = async () => {
   
   try {
     const response = await fetch(
-      "https://public.herotofu.com/v1/f69a2860-b0b2-11ef-b6f4-4774a3a77de8",
+      "https://usebasin.com/f/561acee45b91",
       {
         method: "POST",
         headers: {
@@ -2728,8 +2728,8 @@ const initializeSvgAnimation = (containerId, svgObject) => {
                 <div class="col-md-7 kankan">
                   <div id="gorr">
                     <div id="gor">
-                      <img id="llass" src="/images/Group105.svg" alt=" " />
-                      <img id="lele" src="/images/Group203.svg" alt=" " />
+                      <img id="llass" src="/images/nugraph.svg" alt=" " />
+                      <img id="lele" src="/images/nugraph2.svg" alt=" " />
                     </div>
                   </div>
                   <div
@@ -2912,6 +2912,7 @@ const initializeSvgAnimation = (containerId, svgObject) => {
                   <li class="pdf-separator">|</li>
                   <li><a href="https://www.vodacombusiness.co.za/business/terms/terms-and-conditions?icmp=VB/Footer/TermsAndConditions" target="_blank">Terms & Conditions</a></li>
                   <li class="pdf-separator">|</li>
+
                   <li><a href="https://www.vodacom.co.za/vodacom/privacy-policy/terms?icmp=VB/Footer/PrivacyPolicy" target="_blank">Privacy Policy</a></li>
                 </ul>
               </div>
