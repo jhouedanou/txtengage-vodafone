@@ -2638,18 +2638,7 @@ const initializeSvgAnimation = (containerId, svgObject) => {
             class="p-0 m-0 slide"
           >
             <div id="perdrix-container" class="container">
-              <!-- <div id="decodemerde" class="hidden hide">
-                <div class="row">
-                  <div class="col-md-6 d-none d-md-block">
-                    <p></p>
-                  </div>          
-                  <div class="col-md-6">
-                    <div id="teste">
-                      <p></p>
-                    </div>
-                  </div>
-                </div>
-              </div>   -->
+       
               <div id="perdrix" class="row">
                 <div class="perdrix-slider">
                   <div class="perdrix-slider-container">
@@ -2920,11 +2909,10 @@ const initializeSvgAnimation = (containerId, svgObject) => {
             <div id="pdf">
                 <ul>
                   <li><a href="#">VodaMedia Privacy Statement &copy; 2024</a></li>
-                  <li><a href="#">FAQ's</a></li>
                   <li class="pdf-separator">|</li>
-                  <li><a href="#">Legal</a></li>
+                  <li><a href="https://www.vodacombusiness.co.za/business/terms/terms-and-conditions?icmp=VB/Footer/TermsAndConditions" target="_blank">Terms & Conditions</a></li>
                   <li class="pdf-separator">|</li>
-                  <li><a href="#">T's & C's</a></li>
+                  <li><a href="https://www.vodacom.co.za/vodacom/privacy-policy/terms?icmp=VB/Footer/PrivacyPolicy" target="_blank">Privacy Policy</a></li>
                 </ul>
               </div>
           </div>

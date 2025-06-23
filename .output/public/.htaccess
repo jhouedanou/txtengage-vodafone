@@ -1,8 +1,0 @@
-# Configuration Apache pour le sous-dossier txtengage
-RewriteEngine On
-RewriteBase /txtengage/
-
-# Gestion des routes SPA
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /txtengage/index.html [L]
