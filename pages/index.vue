@@ -2908,7 +2908,7 @@ const initializeSvgAnimation = (containerId, svgObject) => {
             </div>
             <div id="pdf">
                 <ul>
-                  <li><a href="#">VodaMedia Privacy Statement &copy; 2024</a></li>
+                  <li><a href="#">Vodacom Privacy Statement &copy; 2024</a></li>
                   <li class="pdf-separator">|</li>
                   <li><a href="https://www.vodacombusiness.co.za/business/terms/terms-and-conditions?icmp=VB/Footer/TermsAndConditions" target="_blank">Terms & Conditions</a></li>
                   <li class="pdf-separator">|</li>
