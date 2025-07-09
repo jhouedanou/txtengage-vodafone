@@ -769,7 +769,7 @@ body * {
   overflow: hidden;
   height: 100vh;
   width: 100%;
-  background: url(/images/bg12.webp) no-repeat center center fixed;
+  background: url(https://txtengage.co.za/images/bg12.webp) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -1154,7 +1154,7 @@ body * {
   #sparta::before {
     content: "" !important;
     position: absolute !important;
-    background: url(/images/Subtract.png) !important;
+    background: url(https://txtengage.co.za/images/Subtract.png) !important;
     background-repeat: no-repeat !important;
     background-size: contain !important;
     z-index: 100 !important;
@@ -1573,7 +1573,7 @@ body * {
     padding: 0em;
   }
   #teste::before {
-    background: url(/images/Subtract.png);
+    background: url(https://txtengage.co.za/images/Subtract.png);
     z-index: 100;
     background-position: center bottom !important;
     background-repeat: no-repeat;
@@ -1801,7 +1801,7 @@ body * {
     line-height: 1.2 !important;
   }
   #vodacomwrapper {
-    background: url(/images/bgmbile.jpg) !important;
+    background: url(https://txtengage.co.za/images/bgmbile.jpg) !important;
     background-size: cover !important;
     background-position: 50% 50% !important;
   }
@@ -2109,7 +2109,7 @@ body * {
   width: 100%;
   max-width: 240px;
   list-style: none;
-  background: url(/images/check.jpg) 10px center no-repeat white;
+  background: url(https://txtengage.co.za/images/check.jpg) 10px center no-repeat white;
   background-size: 14px 14px;
   height: 28px;
   font-family: Vodafone;
@@ -2673,7 +2673,7 @@ body {
   z-index: 1;
 }
 #teste::before {
-  background: url(/images/Subtract.png);
+  background: url(https://txtengage.co.za/images/Subtract.png);
   z-index: 100;
   background-position: bottom right;
   background-repeat: no-repeat;
@@ -2796,7 +2796,7 @@ body {
   content: "";
   z-index: 10000;
   position: absolute;
-  background: url(/images/Subtract.png);
+  background: url(https://txtengage.co.za/images/Subtract.png);
   background-position: 100% 100%;
   background-repeat: no-repeat;
   background-size: 100%;
@@ -2905,7 +2905,7 @@ body {
   #stone #sparta::before {
     content: "" !important;
     position: absolute !important;
-    background: url(/images/Subtract.png) !important;
+    background: url(https://txtengage.co.za/images/Subtract.png) !important;
     background-repeat: no-repeat !important;
     background-size: contain !important;
     z-index: 100 !important;
