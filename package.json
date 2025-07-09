@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:clean": "node dev-clean.js",
     "dev:sourcemap": "cross-env NUXT_PUBLIC_SOURCEMAP=true nuxt dev",
     "generate": "nuxt generate",
     "generate:subfolder": "cross-env NUXT_APP_BASE_URL=/txtengage/ nuxt generate",
@@ -20,6 +21,7 @@
     "clean:build": "rm -rf .nuxt .output dist .vercel/static",
     "clean:deploy": "rm -rf .vercel",
     "clean:cache": "rm -rf node_modules/.cache .cache",
+    "clear:sw": "node clear-cache.js",
     "fresh": "npm run clean:all && npm install",
     "rebuild": "npm run clean:build && npm run generate",
     "sass-lint": "npx sass --verbose assets/scss/style.scss",

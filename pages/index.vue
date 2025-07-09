@@ -22,6 +22,15 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const config = useRuntimeConfig();
 
+// 🖼️ Fonction utilitaire pour les chemins d'images avec base URL
+const getImagePath = (imagePath) => {
+  // Retirer le slash initial si présent
+  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+  // Ajouter la base URL
+  const baseURL = config.public.baseURL || '/txtengage/';
+  return baseURL + cleanPath;
+};
+
 const showButton = ref(false);
 const slidesStore = useSlidesStore();
 const loading = computed(() => slidesStore.loading);
@@ -303,7 +312,19 @@ const setupSectionScrolling = () => {
         
         // 🚀 NOUVEAU : Gestion simple pour slide-23
         if (slideId === 23) {
-          console.log(`🎯 Activation de slide-23`);
+          console.log(`🎯 Activation de slide-23 (onEnter - direction normale)`);
+          // Nettoyer d'abord les vidéos existantes
+          stopSlide23Videos();
+          // Démarrer les vidéos webm automatiquement avec plusieurs tentatives
+          setTimeout(() => {
+            startSlide23Videos();
+          }, 200);
+          setTimeout(() => {
+            startSlide23Videos(); // Second essai
+          }, 700);
+          setTimeout(() => {
+            startSlide23Videos(); // Troisième essai
+          }, 1200);
           // Initialiser les SVG de slide-23 uniquement maintenant
           setTimeout(() => {
             initSlide23SvgOnActivation();
@@ -311,6 +332,8 @@ const setupSectionScrolling = () => {
         } else {
           // Nettoyer slide-23 si on la quitte
           cleanupSlide23SvgOnDeactivation();
+          // Arrêter les vidéos webm quand on quitte slide-23
+          stopSlide23Videos();
         }
         
         // 🎬 Redémarrer automatiquement les animations SVG dans cette section (autres slides)
@@ -350,7 +373,19 @@ const setupSectionScrolling = () => {
         
         // 🚀 NOUVEAU : Gestion simple pour slide-23
         if (slideId === 23) {
-          console.log(`🎯 Activation de slide-23`);
+          console.log(`🎯 Activation de slide-23 (onEnterBack - direction retour)`);
+          // Nettoyer d'abord les vidéos existantes
+          stopSlide23Videos();
+          // Démarrer les vidéos webm automatiquement avec plusieurs tentatives
+          setTimeout(() => {
+            startSlide23Videos();
+          }, 200);
+          setTimeout(() => {
+            startSlide23Videos(); // Second essai
+          }, 700);
+          setTimeout(() => {
+            startSlide23Videos(); // Troisième essai
+          }, 1200);
           // Initialiser les SVG de slide-23 uniquement maintenant
           setTimeout(() => {
             initSlide23SvgOnActivation();
@@ -358,6 +393,8 @@ const setupSectionScrolling = () => {
         } else {
           // Nettoyer slide-23 si on la quitte
           cleanupSlide23SvgOnDeactivation();
+          // Arrêter les vidéos webm quand on quitte slide-23
+          stopSlide23Videos();
         }
         
         // 🎬 Redémarrer automatiquement les animations SVG dans cette section (autres slides)
@@ -2410,6 +2447,275 @@ const initializeSvgAnimation = (containerId, svgObject) => {
     console.error(`❌ Erreur lors de l'initialisation de ${containerId}:`, error);
   }
 };
+
+// Fonction pour extraire l'URL webm depuis les balises video
+const extractWebmUrl = (paragraph) => {
+  if (!paragraph) return '';
+  
+  const webmMatch = paragraph.match(/<source[^>]+type="video\/webm"[^>]+src="([^"]+)"/);
+  if (webmMatch) {
+    return webmMatch[1];
+  }
+  
+  const hrefMatch = paragraph.match(/href="([^"]+\.webm[^"]*)"/);
+  if (hrefMatch) {
+    return hrefMatch[1];
+  }
+  
+  return '';
+};
+
+// Vérifier si un paragraphe contient une vidéo webm
+const hasWebmVideo = (paragraph) => {
+  if (!paragraph) return false;
+  return paragraph.includes('video/webm') || paragraph.includes('.webm');
+};
+
+// Vérifier si un paragraphe contient un PNG (à exclure du remplacement webm)
+const hasPngImage = (paragraph) => {
+  if (!paragraph) return false;
+  return paragraph.includes('.png') || paragraph.includes('.PNG');
+};
+
+// Démarrer les vidéos webm de la slide 23
+const startSlide23Videos = () => {
+  console.log('🎬 Démarrage des vidéos slide-23');
+  
+  const slide23Section = document.getElementById('slide-23');
+  if (!slide23Section) {
+    console.warn('⚠️ Section slide-23 non trouvée');
+    return;
+  }
+  
+  const videoElements = slide23Section.querySelectorAll('.webm-video');
+  console.log(`📹 ${videoElements.length} vidéos trouvées dans slide-23`);
+  
+  videoElements.forEach((video, index) => {
+    if (video.tagName === 'VIDEO') {
+      try {
+        console.log(`🎬 Démarrage vidéo ${index + 1}/${videoElements.length}`);
+        
+        // 🚀 FORCER les attributs pour iOS/Android
+        video.setAttribute('autoplay', '');
+        video.setAttribute('muted', '');
+        video.setAttribute('loop', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.setAttribute('controls', 'false');
+        video.setAttribute('preload', 'auto');
+        
+        // Attributs spécifiques pour Android/WeChat
+        video.setAttribute('x5-video-player-type', 'h5');
+        video.setAttribute('x5-video-player-fullscreen', 'true');
+        video.setAttribute('x5-video-orientation', 'portraint');
+        
+        // Forcer les propriétés JavaScript
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.controls = false;
+        video.playsInline = true;
+        video.preload = 'auto';
+        video.defaultMuted = true; // Important pour iOS
+        
+        // Vérifier que la vidéo est chargée
+        if (video.readyState < 3) { // HAVE_FUTURE_DATA
+          console.log(`⏳ Vidéo ${index + 1} pas encore prête (readyState: ${video.readyState}), on attend...`);
+          video.addEventListener('canplay', () => {
+            console.log(`✅ Vidéo ${index + 1} maintenant prête`);
+            video.currentTime = 0;
+            
+            // Forcer le play avec gestion mobile
+            forceMobileVideoPlay(video, index + 1);
+          }, { once: true });
+        } else {
+          // Réinitialiser la vidéo au début si elle est déjà chargée
+          video.currentTime = 0;
+          // Forcer le play avec gestion mobile
+          forceMobileVideoPlay(video, index + 1);
+        }
+        
+        // Listener pour redémarrer si la vidéo s'arrête
+        video.addEventListener('pause', () => {
+          console.log(`🔄 Vidéo ${index + 1} s'est arrêtée, redémarrage...`);
+          setTimeout(() => {
+            forceMobileVideoPlay(video, index + 1);
+          }, 100);
+        });
+        
+      } catch (error) {
+        console.error(`❌ Erreur lors du démarrage vidéo ${index + 1}:`, error);
+      }
+    }
+  });
+};
+
+// 📱 Fonction spéciale pour forcer le play sur mobile
+const forceMobileVideoPlay = (video, videoNumber) => {
+  // Méthode 1: Play classique
+  const playPromise = video.play();
+  
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      console.log(`✅ Vidéo ${videoNumber} lancée avec succès`);
+    }).catch((error) => {
+      console.warn(`⚠️ Échec lecture vidéo ${videoNumber}, tentatives alternatives:`, error);
+      
+      // Méthode 2: Interaction utilisateur simulée pour iOS
+      if (/iPhone|iPad|iPod|iOS/i.test(navigator.userAgent)) {
+        console.log(`📱 iOS détecté, tentative spéciale pour vidéo ${videoNumber}`);
+        
+        // Créer un événement tactile fictif
+        const touchEvent = new Event('touchstart', { bubbles: true });
+        video.dispatchEvent(touchEvent);
+        
+        setTimeout(() => {
+          video.play().then(() => {
+            console.log(`✅ Vidéo ${videoNumber} lancée iOS (retry 1)`);
+          }).catch(() => {
+            // Dernière tentative avec volume à 0 explicite
+            video.volume = 0;
+            video.play().then(() => {
+              console.log(`✅ Vidéo ${videoNumber} lancée iOS (retry 2)`);
+            }).catch(() => {
+              console.error(`❌ Échec définitif vidéo ${videoNumber} sur iOS`);
+            });
+          });
+        }, 300);
+      }
+      // Méthode 3: Pour Android/autres mobiles
+      else if (/Android/i.test(navigator.userAgent)) {
+        console.log(`🤖 Android détecté, tentative spéciale pour vidéo ${videoNumber}`);
+        
+        setTimeout(() => {
+          video.load(); // Recharger la vidéo
+          setTimeout(() => {
+            video.play().then(() => {
+              console.log(`✅ Vidéo ${videoNumber} lancée Android (retry 1)`);
+            }).catch(() => {
+              console.error(`❌ Échec définitif vidéo ${videoNumber} sur Android`);
+            });
+          }, 200);
+        }, 500);
+      }
+      // Méthode 4: Retry général pour autres navigateurs
+      else {
+        setTimeout(() => {
+          video.play().then(() => {
+            console.log(`✅ Vidéo ${videoNumber} lancée au retry 1`);
+          }).catch(() => {
+            // Second retry plus tard
+            setTimeout(() => {
+              video.play().then(() => {
+                console.log(`✅ Vidéo ${videoNumber} lancée au retry 2`);
+              }).catch(() => {
+                console.error(`❌ Échec définitif vidéo ${videoNumber}`);
+              });
+            }, 1000);
+          });
+        }, 300);
+      }
+    });
+  } else {
+    console.warn(`⚠️ Pas de Promise retournée pour vidéo ${videoNumber}`);
+  }
+};
+
+// Arrêter les vidéos webm de la slide 23
+const stopSlide23Videos = () => {
+  console.log('⏸️ Arrêt des vidéos slide-23');
+  
+  const slide23Section = document.getElementById('slide-23');
+  if (!slide23Section) {
+    console.warn('⚠️ Section slide-23 non trouvée pour arrêt');
+    return;
+  }
+  
+  const videoElements = slide23Section.querySelectorAll('.webm-video');
+  console.log(`⏸️ ${videoElements.length} vidéos à arrêter dans slide-23`);
+  
+  videoElements.forEach((video, index) => {
+    if (video.tagName === 'VIDEO') {
+      try {
+        video.pause();
+        video.currentTime = 0;
+        video.removeAttribute('autoplay'); // Retirer l'autoplay temporairement
+        console.log(`⏸️ Vidéo ${index + 1} arrêtée et remise à zéro`);
+      } catch (error) {
+        console.warn(`⚠️ Erreur lors de l'arrêt de la vidéo ${index + 1}:`, error);
+      }
+    }
+  });
+};
+
+// 🔧 Fonction de debugging pour tester manuellement les vidéos slide-23
+if (typeof window !== 'undefined') {
+  window.debugSlide23Videos = {
+    // Tester le démarrage des vidéos
+    start: () => {
+      console.log('🔧 Test manuel: Démarrage des vidéos slide-23');
+      startSlide23Videos();
+    },
+    
+    // Tester l'arrêt des vidéos
+    stop: () => {
+      console.log('🔧 Test manuel: Arrêt des vidéos slide-23');
+      stopSlide23Videos();
+    },
+    
+    // Vérifier l'état des vidéos
+    checkStatus: () => {
+      const slide23Section = document.getElementById('slide-23');
+      if (!slide23Section) {
+        console.log('❌ Section slide-23 non trouvée');
+        return;
+      }
+      
+      const videoElements = slide23Section.querySelectorAll('.webm-video');
+      console.log(`📊 ${videoElements.length} vidéos trouvées dans slide-23:`);
+      
+      videoElements.forEach((video, index) => {
+        if (video.tagName === 'VIDEO') {
+          console.log(`📹 Vidéo ${index + 1}:`);
+          console.log(`  - Src: ${video.src}`);
+          console.log(`  - ReadyState: ${video.readyState} (${['HAVE_NOTHING', 'HAVE_METADATA', 'HAVE_CURRENT_DATA', 'HAVE_FUTURE_DATA', 'HAVE_ENOUGH_DATA'][video.readyState]})`);
+          console.log(`  - Paused: ${video.paused}`);
+          console.log(`  - Muted: ${video.muted}`);
+          console.log(`  - Loop: ${video.loop}`);
+          console.log(`  - Autoplay: ${video.autoplay}`);
+          console.log(`  - CurrentTime: ${video.currentTime}`);
+          console.log(`  - Duration: ${video.duration || 'Non définie'}`);
+        }
+      });
+    },
+    
+    // Forcer le rechargement des vidéos
+    reload: () => {
+      console.log('🔄 Rechargement forcé des vidéos slide-23');
+      const slide23Section = document.getElementById('slide-23');
+      if (!slide23Section) return;
+      
+      const videoElements = slide23Section.querySelectorAll('.webm-video');
+      videoElements.forEach((video, index) => {
+        if (video.tagName === 'VIDEO') {
+          const src = video.src;
+          video.src = '';
+          setTimeout(() => {
+            video.src = src;
+            video.load();
+            console.log(`🔄 Vidéo ${index + 1} rechargée`);
+          }, 100);
+        }
+      });
+    }
+  };
+  
+  console.log('🔧 Fonctions de debug disponibles:');
+  console.log('- window.debugSlide23Videos.start() : Démarrer les vidéos');
+  console.log('- window.debugSlide23Videos.stop() : Arrêter les vidéos');
+  console.log('- window.debugSlide23Videos.checkStatus() : Vérifier l\'état');
+  console.log('- window.debugSlide23Videos.reload() : Recharger les vidéos');
+}
 </script>
 
 <template>
@@ -2676,10 +2982,39 @@ const initializeSvgAnimation = (containerId, svgObject) => {
                             :key="idx"
                             class="image-container"
                           >
-                              <!-- Vérifier le type de fichier pour choisir le bon élément -->
-                              <!-- SVG animé : utiliser object -->
+                              <!-- Prioriser les vidéos webm (sauf si PNG présent) -->
+                              <video
+                                v-if="hasWebmVideo(paragraph) && !hasPngImage(paragraph)"
+                                :src="extractWebmUrl(paragraph)"
+                                class="webm-video img-fluid m-0 p-0"
+                                style="width: 100%; height: auto; object-fit: cover;"
+                                :muted="true"
+                                :autoplay="true"
+                                :loop="true"
+                                :controls="false"
+                                :playsinline="true"
+                                :webkit-playsinline="true"
+                                preload="auto"
+                                x5-video-player-type="h5"
+                                x5-video-player-fullscreen="true"
+                                :key="`webm-${idx}-${extractWebmUrl(paragraph)}`"
+                              >
+                                Votre navigateur ne supporte pas les vidéos HTML5.
+                              </video>
+                              
+                              <!-- PNG : utiliser img (priorité absolue) -->
+                              <img
+                                v-else-if="hasPngImage(paragraph)"
+                                :src="extractImage(paragraph)"
+                                alt="Image PNG"
+                                class="img-fluid m-0 p-0"
+                                loading="eager"
+                              />
+                              
+                              <!-- SVG MASQUÉ : Ne plus afficher les SVG -->
+                              <!-- 
                               <object
-                                v-if="extractImage(paragraph).toLowerCase().endsWith('.svg')"
+                                v-else-if="extractImage(paragraph).toLowerCase().endsWith('.svg')"
                                 :data="extractImage(paragraph)"
                                 type="image/svg+xml"
                                 class="img-fluid m-0 p-0"
@@ -2688,12 +3023,12 @@ const initializeSvgAnimation = (containerId, svgObject) => {
                                 :key="`svg-${idx}-${extractImage(paragraph)}`"
                                 loading="eager"
                               >
-                                <!-- Pas d'image de fallback - SVG uniquement -->
                               </object>
+                              -->
                               
-                              <!-- Image statique (WebP, PNG, JPG, etc.) : chargement direct -->
+                              <!-- Image statique autres (WebP, JPG, etc.) : chargement direct (exclut les SVG) -->
                               <img
-                                v-else
+                                v-else-if="!extractImage(paragraph).toLowerCase().endsWith('.svg')"
                                 :src="extractImage(paragraph)"
                                 alt="Image"
                                 class="img-fluid m-0 p-0"
@@ -3523,5 +3858,104 @@ header.fixed-top.scrolled {
   color: #721c24;
   background-color: #f8d7da;
   border-color: #f5c6cb;
+}
+
+/* 🚫 Masquer les divs .wp-video dans .text-content */
+.text-content .wp-video {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* 🎬 Optimisations pour les vidéos WebM sur mobile */
+.webm-video {
+  /* Forcer l'affichage des vidéos */
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  
+  /* Optimisations iOS/Android */
+  -webkit-playsinline: true;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Empêcher les interactions indésirables */
+  pointer-events: none;
+  
+  /* Performance mobile */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* 📱 Styles spécifiques pour slide-23 sur mobile */
+@media screen and (max-width: 1024px) {
+  #slide-23 .webm-video {
+    /* Taille optimisée pour mobile */
+    max-width: 100%;
+    object-fit: cover;
+    
+    /* Forcer l'autoplay sur mobile */
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  /* Masquer complètement tout contenu SVG résiduel sur mobile */
+  #slide-23 object[type="image/svg+xml"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+  }
+  
+  /* S'assurer que seuls PNG et WebM sont visibles */
+  #slide-23 .image-container > *:not(.webm-video):not(img[src*=".png"]):not(img[src*=".PNG"]) {
+    display: none !important;
+  }
+}
+
+/* 🔧 Améliorer la visibilité sur les conteneurs d'images */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  
+  /* S'assurer que le contenu WebM/PNG prend tout l'espace */
+  .webm-video,
+  img[src*=".png"],
+  img[src*=".PNG"] {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover;
+  }
+}
+
+/* 🚫 Masquer définitivement tous les SVG sur slide-23 */
+#slide-23 svg,
+#slide-23 object[data$=".svg"],
+#slide-23 embed[src$=".svg"],
+#slide-23 img[src$=".svg"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* 📱 Forcer l'autoplay sur iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .webm-video {
+    -webkit-playsinline: true !important;
+    playsinline: true !important;
+    autoplay: true !important;
+    muted: true !important;
+  }
 }
 </style>

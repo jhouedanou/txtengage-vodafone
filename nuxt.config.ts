@@ -3,9 +3,20 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
   
+  // Development configuration to prevent service worker caching issues
+  ...(process.env.NODE_ENV === 'development' && {
+    devServer: {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    }
+  }),
+  
   // Configuration pour le déploiement
   app: {
-    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+    baseURL: process.env.NUXT_APP_BASE_URL || '/txtengage/',
     head: {
       meta: [
         // Dark mode prevention meta tags for Android Samsung
