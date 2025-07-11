@@ -2722,7 +2722,7 @@ if (typeof window !== 'undefined') {
         </div>
         <h2 class="title">Rotation Required</h2>
         <p class="description">
-          Please rotate your iPad (including iPad Mini 6)<br>
+          Please rotate your device<br>
           to landscape mode for an optimal experience
         </p>
       </div>
