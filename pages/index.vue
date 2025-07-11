@@ -22,15 +22,6 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const config = useRuntimeConfig();
 
-// 🖼️ Fonction utilitaire pour les chemins d'images avec base URL
-const getImagePath = (imagePath) => {
-  // Retirer le slash initial si présent
-  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-  // Ajouter la base URL
-  const baseURL = config.public.baseURL || '/txtengage/';
-  return baseURL + cleanPath;
-};
-
 const showButton = ref(false);
 const slidesStore = useSlidesStore();
 const loading = computed(() => slidesStore.loading);
@@ -2731,7 +2722,7 @@ if (typeof window !== 'undefined') {
         </div>
         <h2 class="title">Rotation Required</h2>
         <p class="description">
-          Please rotate your iPad (including iPad Mini 6)<br>
+          Please rotate your device<br>
           to landscape mode for an optimal experience
         </p>
       </div>

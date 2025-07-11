@@ -16,7 +16,7 @@ export default defineNuxtConfig({
   
   // Configuration pour le déploiement
   app: {
-    baseURL: process.env.NUXT_APP_BASE_URL || '/txtengage/',
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
     head: {
       meta: [
         // Dark mode prevention meta tags for Android Samsung
