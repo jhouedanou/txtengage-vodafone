@@ -1813,9 +1813,9 @@ body {
 
                 }
                 &:nth-of-type(5) {
-
-                    width: 85px !important;
-                    height: 84px !important;
+                        width: 19.77vw !important;
+                        height: 19.77vw !important; /* Utilise la même valeur pour un carré parfait */
+                      
                     left: 4% !important;
                     bottom: 5% !important;
                     h3{
@@ -1828,8 +1828,9 @@ body {
                 }
                 &:nth-of-type(1),
                 &:nth-of-type(4) {
-                    width: 105px !important;
-                    height: 105px !important;
+                   
+  width: 24.4vw !important;
+  height: 24.4vw !important;
 
                     h3 {
                         font-size: 40px;
@@ -1842,9 +1843,9 @@ body {
 
                 &:nth-of-type(2),
                 &:nth-of-type(3) {
-                    width: 147px !important;
-                    height: 147px !important;
-
+                        width: 34.19vw !important;
+                        height: 34.19vw !important  ;
+                      
                     h3 {
                         font-size: 59px;
                     }
