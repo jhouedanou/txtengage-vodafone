@@ -306,7 +306,7 @@ const setupSectionScrolling = () => {
           console.log(`🎯 Activation de slide-23 (onEnter - direction normale)`);
           // Nettoyer d'abord les vidéos existantes
           stopSlide23Videos();
-          // Démarrer les vidéos webm automatiquement avec plusieurs tentatives
+          // Démarrer les vidéos mp4 automatiquement avec plusieurs tentatives
           setTimeout(() => {
             startSlide23Videos();
           }, 200);
@@ -323,7 +323,7 @@ const setupSectionScrolling = () => {
         } else {
           // Nettoyer slide-23 si on la quitte
           cleanupSlide23SvgOnDeactivation();
-          // Arrêter les vidéos webm quand on quitte slide-23
+          // Arrêter les vidéos mp4 quand on quitte slide-23
           stopSlide23Videos();
         }
         
@@ -367,7 +367,7 @@ const setupSectionScrolling = () => {
           console.log(`🎯 Activation de slide-23 (onEnterBack - direction retour)`);
           // Nettoyer d'abord les vidéos existantes
           stopSlide23Videos();
-          // Démarrer les vidéos webm automatiquement avec plusieurs tentatives
+          // Démarrer les vidéos mp4 automatiquement avec plusieurs tentatives
           setTimeout(() => {
             startSlide23Videos();
           }, 200);
@@ -384,7 +384,7 @@ const setupSectionScrolling = () => {
         } else {
           // Nettoyer slide-23 si on la quitte
           cleanupSlide23SvgOnDeactivation();
-          // Arrêter les vidéos webm quand on quitte slide-23
+          // Arrêter les vidéos mp4 quand on quitte slide-23
           stopSlide23Videos();
         }
         
@@ -2439,16 +2439,16 @@ const initializeSvgAnimation = (containerId, svgObject) => {
   }
 };
 
-// Fonction pour extraire l'URL webm depuis les balises video
-const extractWebmUrl = (paragraph) => {
+// Fonction pour extraire l'URL mp4 depuis les balises video
+const extractMp4Url = (paragraph) => {
   if (!paragraph) return '';
   
-  const webmMatch = paragraph.match(/<source[^>]+type="video\/webm"[^>]+src="([^"]+)"/);
-  if (webmMatch) {
-    return webmMatch[1];
+  const mp4Match = paragraph.match(/<source[^>]+type="video\/mp4"[^>]+src="([^"]+)"/);
+  if (mp4Match) {
+    return mp4Match[1];
   }
   
-  const hrefMatch = paragraph.match(/href="([^"]+\.webm[^"]*)"/);
+  const hrefMatch = paragraph.match(/href="([^"]+\.mp4[^"]*)"/);
   if (hrefMatch) {
     return hrefMatch[1];
   }
@@ -2456,19 +2456,19 @@ const extractWebmUrl = (paragraph) => {
   return '';
 };
 
-// Vérifier si un paragraphe contient une vidéo webm
-const hasWebmVideo = (paragraph) => {
+// Vérifier si un paragraphe contient une vidéo mp4
+const hasMp4Video = (paragraph) => {
   if (!paragraph) return false;
-  return paragraph.includes('video/webm') || paragraph.includes('.webm');
+  return paragraph.includes('video/mp4') || paragraph.includes('.mp4');
 };
 
-// Vérifier si un paragraphe contient un PNG (à exclure du remplacement webm)
+// Vérifier si un paragraphe contient un PNG (à exclure du remplacement mp4)
 const hasPngImage = (paragraph) => {
   if (!paragraph) return false;
   return paragraph.includes('.png') || paragraph.includes('.PNG');
 };
 
-// Démarrer les vidéos webm de la slide 23
+// Démarrer les vidéos mp4 de la slide 23
 const startSlide23Videos = () => {
   console.log('🎬 Démarrage des vidéos slide-23');
   
@@ -2478,7 +2478,7 @@ const startSlide23Videos = () => {
     return;
   }
   
-  const videoElements = slide23Section.querySelectorAll('.webm-video');
+  const videoElements = slide23Section.querySelectorAll('.mp4-video');
   console.log(`📹 ${videoElements.length} vidéos trouvées dans slide-23`);
   
   videoElements.forEach((video, index) => {
@@ -2612,7 +2612,7 @@ const forceMobileVideoPlay = (video, videoNumber) => {
   }
 };
 
-// Arrêter les vidéos webm de la slide 23
+// Arrêter les vidéos mp4 de la slide 23
 const stopSlide23Videos = () => {
   console.log('⏸️ Arrêt des vidéos slide-23');
   
@@ -2622,7 +2622,7 @@ const stopSlide23Videos = () => {
     return;
   }
   
-  const videoElements = slide23Section.querySelectorAll('.webm-video');
+  const videoElements = slide23Section.querySelectorAll('.mp4-video');
   console.log(`⏸️ ${videoElements.length} vidéos à arrêter dans slide-23`);
   
   videoElements.forEach((video, index) => {
@@ -2662,7 +2662,7 @@ if (typeof window !== 'undefined') {
         return;
       }
       
-      const videoElements = slide23Section.querySelectorAll('.webm-video');
+      const videoElements = slide23Section.querySelectorAll('.mp4-video');
       console.log(`📊 ${videoElements.length} vidéos trouvées dans slide-23:`);
       
       videoElements.forEach((video, index) => {
@@ -2686,7 +2686,7 @@ if (typeof window !== 'undefined') {
       const slide23Section = document.getElementById('slide-23');
       if (!slide23Section) return;
       
-      const videoElements = slide23Section.querySelectorAll('.webm-video');
+      const videoElements = slide23Section.querySelectorAll('.mp4-video');
       videoElements.forEach((video, index) => {
         if (video.tagName === 'VIDEO') {
           const src = video.src;
@@ -2973,11 +2973,11 @@ if (typeof window !== 'undefined') {
                             :key="idx"
                             class="image-container"
                           >
-                              <!-- Prioriser les vidéos webm (sauf si PNG présent) -->
+                              <!-- Prioriser les vidéos mp4 (sauf si PNG présent) -->
                               <video
-                                v-if="hasWebmVideo(paragraph) && !hasPngImage(paragraph)"
-                                :src="extractWebmUrl(paragraph)"
-                                class="webm-video img-fluid m-0 p-0"
+                                v-if="hasMp4Video(paragraph) && !hasPngImage(paragraph)"
+                                :src="extractMp4Url(paragraph)"
+                                class="mp4-video img-fluid m-0 p-0"
                                 style="width: 100%; height: auto; object-fit: cover;"
                                 :muted="true"
                                 :autoplay="true"
@@ -2988,7 +2988,7 @@ if (typeof window !== 'undefined') {
                                 preload="auto"
                                 x5-video-player-type="h5"
                                 x5-video-player-fullscreen="true"
-                                :key="`webm-${idx}-${extractWebmUrl(paragraph)}`"
+                                :key="`mp4-${idx}-${extractMp4Url(paragraph)}`"
                               >
                                 Votre navigateur ne supporte pas les vidéos HTML5.
                               </video>
@@ -3860,8 +3860,8 @@ header.fixed-top.scrolled {
   overflow: hidden !important;
 }
 
-/* 🎬 Optimisations pour les vidéos WebM sur mobile */
-.webm-video {
+/* 🎬 Optimisations pour les vidéos MP4 sur mobile */
+.mp4-video {
   /* Forcer l'affichage des vidéos */
   display: block !important;
   width: 100% !important;
@@ -3886,7 +3886,7 @@ header.fixed-top.scrolled {
 
 /* 📱 Styles spécifiques pour slide-23 sur mobile */
 @media screen and (max-width: 1024px) {
-  #slide-23 .webm-video {
+  #slide-23 .mp4-video {
     /* Taille optimisée pour mobile */
     max-width: 100%;
     object-fit: cover;
@@ -3904,8 +3904,8 @@ header.fixed-top.scrolled {
     width: 0 !important;
   }
   
-  /* S'assurer que seuls PNG et WebM sont visibles */
-  #slide-23 .image-container > *:not(.webm-video):not(img[src*=".png"]):not(img[src*=".PNG"]) {
+  /* S'assurer que seuls PNG et MP4 sont visibles */
+  #slide-23 .image-container > *:not(.mp4-video):not(img[src*=".png"]):not(img[src*=".PNG"]) {
     display: none !important;
   }
 }
@@ -3915,8 +3915,8 @@ header.fixed-top.scrolled {
   position: relative;
   overflow: hidden;
   
-  /* S'assurer que le contenu WebM/PNG prend tout l'espace */
-  .webm-video,
+  /* S'assurer que le contenu MP4/PNG prend tout l'espace */
+  .mp4-video,
   img[src*=".png"],
   img[src*=".PNG"] {
     display: block !important;
@@ -3942,7 +3942,7 @@ header.fixed-top.scrolled {
 
 /* 📱 Forcer l'autoplay sur iOS Safari */
 @supports (-webkit-touch-callout: none) {
-  .webm-video {
+  .mp4-video {
     -webkit-playsinline: true !important;
     playsinline: true !important;
     autoplay: true !important;

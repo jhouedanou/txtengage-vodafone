@@ -1697,13 +1697,24 @@ body {
                 text-transform: none !important;
             }
         }
-        #turtlebeach{      position: absolute !important;
+        #turtlebeach{      
+            position: absolute !important;
     top: 0vh !important;
     margin: auto !important;
     right: 0 !important;
     bottom: 0 !important;
     left: -21px !important;
-    width: 287px !important;
+    
+    // iOS seulement
+    @supports (-webkit-touch-callout: none) {
+        min-width: 187px !important;
+    }
+    
+    // Autres plateformes
+    @supports not (-webkit-touch-callout: none) {
+        min-width: 222px !important;
+    }
+    max-width: 287px !important;
     height: auto !important;
     background-size: contain !important;
         }
@@ -1718,17 +1729,24 @@ body {
             margin: auto;
             h2{
                 font-family: Vodafone;
-                font-size: 58px;
                 font-weight: bold;
                 font-stretch: normal;
                 font-style: normal;
+                                // iOS seulement
+                @supports (-webkit-touch-callout: none) {
+                    font-size: 44px;
+                }
+                
+                // Autres plateformes
+                @supports not (-webkit-touch-callout: none) {
+                    font-size: 58px;
+                }
                 line-height: normal;
                 letter-spacing: normal;
                 text-align: center;
                 color: #fff;
-        justify-content: center;
-        align-items: center;
-
+                justify-content: center;
+                align-items: center;
             }
         }
 
@@ -1792,6 +1810,10 @@ body {
 
                         right: 4vw !important;
     top: 33vh !important;
+    
+    @supports (-webkit-touch-callout: none) {
+        top: 29vh !important;
+    }
                 }
 
                 &:nth-of-type(2) {
@@ -1807,15 +1829,18 @@ body {
 
                 &:nth-of-type(4) {
                      right: 3vw !important;
-    top: 63vh !important;
-
+    top: 55vh !important;
+    @supports (-webkit-touch-callout: none) {
+        top:45vh !important;
+    }
                 }
                 &:nth-of-type(5) {
                         width: 19.77vw !important;
-                        height: 19.77vw !important; /* Utilise la même valeur pour un carré parfait */
-                      
-                    left: 4% !important;
-                    bottom: 5% !important;
+                        height: 19.77vw !important; 
+       
+    left: 5vw !important;
+    top: 32vh !important;
+
                     h3{
                         font-family: Vodafone;
                         font-size: 44px;
@@ -4400,7 +4425,7 @@ body.slide-73-active,
         
         .perdrix-slide {
             margin: 0 !important;
-            padding: 1rem !important;
+            padding:0 1rem !important;
             width: 100% !important;
             height: 100% !important;
             display: flex !important;
