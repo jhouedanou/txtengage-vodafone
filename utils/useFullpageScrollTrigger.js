@@ -1147,6 +1147,9 @@ const resetSlide73Animation = () => {
             gsap.set(firstImageContainer, { autoAlpha: 1, y: 0 });
           }
           
+          // Initialiser le système de lecture vidéo automatique
+          initializeSlide23VideoSystem();
+          
           animationStates.value['slide-23-initialized'] = true;
           animationStates.value['slide-23-current-index'] = 0;
           console.log('Slide-23 initialisée - Premier slide et première image affichés');
@@ -1162,6 +1165,10 @@ const resetSlide73Animation = () => {
   let perdrixScrollIndex = 0;
   let maxPerdrixScroll = 0; // Sera calculé dynamiquement
   let isScrollingPerdrix = false;
+
+  // Variables pour le système de lecture vidéo automatique basé sur la visibilité
+  let slide23VideoObserver = null;
+  let activeVideos = new Map(); // Suivi des vidéos actives par container ID
 
   const initializePerdrixScrollLimits = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
@@ -1376,6 +1383,159 @@ const resetSlide73Animation = () => {
     }
   };
 
+  // ===========================================================================
+  // SYSTÈME DE LECTURE VIDÉO AUTOMATIQUE BASÉ SUR LA VISIBILITÉ - SLIDE 23
+  // ===========================================================================
+
+  /**
+   * Initialise le système de lecture vidéo automatique pour la slide 23
+   * Utilise l'Intersection Observer API pour détecter la visibilité des containers
+   */
+  const initializeSlide23VideoSystem = () => {
+    console.log('🎬 Initialisation du système de lecture vidéo automatique pour slide-23');
+    
+    // Nettoyer l'observer existant
+    if (slide23VideoObserver) {
+      slide23VideoObserver.disconnect();
+      slide23VideoObserver = null;
+    }
+    
+    // Arrêter toutes les vidéos actives
+    stopAllSlide23Videos();
+    
+    // Créer l'observer pour surveiller les #image-container dans slide-23
+    slide23VideoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const container = entry.target;
+        const containerId = container.id;
+        
+        if (entry.isIntersecting) {
+          // Container devient visible - démarrer la vidéo
+          console.log(`🎬 Container ${containerId} devient visible - démarrage vidéo`);
+          startVideoInContainer(container);
+        } else {
+          // Container sort du viewport - arrêter la vidéo (optionnel pour les performances)
+          console.log(`⏸️ Container ${containerId} sort du viewport - arrêt vidéo`);
+          stopVideoInContainer(container);
+        }
+      });
+    }, {
+      root: null, // Utiliser le viewport
+      rootMargin: '50px', // Démarrer un peu avant que le container soit complètement visible
+      threshold: 0.1 // Déclencher quand 10% du container est visible
+    });
+    
+    // Observer tous les #image-container dans slide-23
+    const slide23Section = sections.value.find(s => s.id === 'slide-23');
+    if (slide23Section) {
+      const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+      
+      console.log(`📊 ${imageContainers.length} image-containers trouvés dans slide-23`);
+      
+      imageContainers.forEach(container => {
+        if (container.id) {
+          slide23VideoObserver.observe(container);
+          console.log(`👁️ Observer ajouté pour ${container.id}`);
+        }
+      });
+    }
+  };
+
+  /**
+   * Démarre la lecture vidéo dans un container spécifique
+   */
+  const startVideoInContainer = (container) => {
+    const containerId = container.id;
+    const video = container.querySelector('video');
+    
+    if (!video) {
+      console.log(`⚠️ Aucune vidéo trouvée dans ${containerId}`);
+      return;
+    }
+    
+    try {
+      // Configurer la vidéo pour lecture automatique en boucle
+      video.autoplay = true;
+      video.loop = true;
+      video.muted = true; // Nécessaire pour autoplay dans la plupart des navigateurs
+      video.playsInline = true; // Important pour mobile
+      
+      // Démarrer la lecture
+      const playPromise = video.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log(`✅ Vidéo démarrée avec succès dans ${containerId}`);
+            activeVideos.set(containerId, video);
+          })
+          .catch(error => {
+            console.warn(`⚠️ Erreur lors du démarrage de la vidéo dans ${containerId}:`, error);
+          });
+      }
+    } catch (error) {
+      console.error(`❌ Erreur lors de la configuration de la vidéo dans ${containerId}:`, error);
+    }
+  };
+
+  /**
+   * Arrête la lecture vidéo dans un container spécifique
+   */
+  const stopVideoInContainer = (container) => {
+    const containerId = container.id;
+    const video = container.querySelector('video');
+    
+    if (video && !video.paused) {
+      try {
+        video.pause();
+        video.currentTime = 0; // Remettre au début
+        console.log(`⏸️ Vidéo arrêtée dans ${containerId}`);
+      } catch (error) {
+        console.warn(`⚠️ Erreur lors de l'arrêt de la vidéo dans ${containerId}:`, error);
+      }
+    }
+    
+    // Retirer de la liste des vidéos actives
+    activeVideos.delete(containerId);
+  };
+
+  /**
+   * Arrête toutes les vidéos actives de la slide 23
+   */
+  const stopAllSlide23Videos = () => {
+    console.log('🛑 Arrêt de toutes les vidéos actives de slide-23');
+    
+    activeVideos.forEach((video, containerId) => {
+      try {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+          console.log(`⏸️ Vidéo arrêtée dans ${containerId}`);
+        }
+      } catch (error) {
+        console.warn(`⚠️ Erreur lors de l'arrêt de la vidéo dans ${containerId}:`, error);
+      }
+    });
+    
+    activeVideos.clear();
+  };
+
+  /**
+   * Nettoie le système de lecture vidéo automatique
+   */
+  const cleanupSlide23VideoSystem = () => {
+    console.log('🧹 Nettoyage du système de lecture vidéo automatique slide-23');
+    
+    // Arrêter toutes les vidéos
+    stopAllSlide23Videos();
+    
+    // Nettoyer l'observer
+    if (slide23VideoObserver) {
+      slide23VideoObserver.disconnect();
+      slide23VideoObserver = null;
+    }
+  };
+
   const resetSlide23Animation = () => {
     const slide23Section = sections.value.find(s => s.id === 'slide-23');
     const perdrixContainer = slide23Section?.querySelector('#perdrix-container, #bygone-bip');
@@ -1384,6 +1544,9 @@ const resetSlide73Animation = () => {
     const imageContainers = slide23Section?.querySelectorAll('.bdrs .image-container');
     
     console.log('Reset slide-23 animation');
+    
+    // Nettoyer le système vidéo
+    cleanupSlide23VideoSystem();
     
     if (perdrixContainer) {
       gsap.set(perdrixContainer, { autoAlpha: 0 });
@@ -1844,6 +2007,9 @@ const resetSlide73Animation = () => {
     scrollDir = null;
     lastGestureTime = 0;
     
+    // Nettoyage du système de lecture vidéo automatique slide-23
+    cleanupSlide23VideoSystem();
+    
     if (stObserve) {
       stObserve.kill();
       stObserve = null;
@@ -1937,6 +2103,14 @@ const resetSlide73Animation = () => {
       forceCooldown: () => {
         lastGestureTime = Date.now();
         console.log('🍎 Cooldown forcé - prochains événements seront ignorés pendant 200ms');
+      },
+      // Nouvelles fonctions de debug pour le système vidéo slide-23
+      slide23VideoSystem: {
+        init: initializeSlide23VideoSystem,
+        cleanup: cleanupSlide23VideoSystem,
+        stopAll: stopAllSlide23Videos,
+        getActiveVideos: () => Array.from(activeVideos.keys()),
+        getObserverStatus: () => slide23VideoObserver ? 'active' : 'inactive'
       }
     };
   }

@@ -241,10 +241,172 @@ export function useResponsiveAnimations() {
     }
   };
 
+  // ===========================================================================
+  // SYSTÈME DE LECTURE VIDÉO AUTOMATIQUE - INTÉGRATION RESPONSIVE
+  // ===========================================================================
+
+  /**
+   * Initialise le système de lecture vidéo automatique pour la slide 23
+   * Compatible avec les systèmes desktop et mobile
+   */
+  const initializeSlide23VideoSystem = () => {
+    console.log('🎬 [Responsive] Initialisation du système vidéo slide-23');
+    
+    if (currentAnimationSystem.value === 'desktop') {
+      // Utiliser le système desktop intégré
+      if (desktopAnimations && typeof window !== 'undefined' && window.debugDesktopAnimations?.slide23VideoSystem) {
+        window.debugDesktopAnimations.slide23VideoSystem.init();
+      }
+    } else {
+      // Pour mobile, implémenter une version simplifiée
+      console.log('📱 [Mobile] Initialisation du système vidéo slide-23');
+      initializeMobileVideoSystem();
+    }
+  };
+
+  /**
+   * Version mobile du système de lecture vidéo automatique
+   */
+  const initializeMobileVideoSystem = () => {
+    // Vérification SSR
+    if (typeof document === 'undefined') return;
+    
+    const slide23Section = document.getElementById('slide-23');
+    if (!slide23Section) {
+      console.warn('⚠️ [Mobile] Slide-23 non trouvée');
+      return;
+    }
+    
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    console.log(`📊 [Mobile] ${imageContainers.length} image-containers trouvés`);
+    
+    // Créer un observer simple pour mobile
+    const mobileVideoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const container = entry.target;
+        const video = container.querySelector('video');
+        
+        if (entry.isIntersecting && video) {
+          // Démarrer la vidéo
+          video.autoplay = true;
+          video.loop = true;
+          video.muted = true;
+          video.playsInline = true;
+          
+          video.play().catch(error => {
+            console.warn(`⚠️ [Mobile] Erreur lecture vidéo ${container.id}:`, error);
+          });
+        } else if (video && !video.paused) {
+          // Arrêter la vidéo
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '50px',
+      threshold: 0.1
+    });
+    
+    // Observer tous les containers
+    imageContainers.forEach(container => {
+      if (container.id) {
+        mobileVideoObserver.observe(container);
+      }
+    });
+    
+    // Stocker l'observer pour le nettoyage
+    if (!window.mobileVideoObservers) {
+      window.mobileVideoObservers = [];
+    }
+    window.mobileVideoObservers.push(mobileVideoObserver);
+  };
+
+  /**
+   * Arrête toutes les vidéos de la slide 23
+   */
+  const stopAllSlide23Videos = () => {
+    console.log('🛑 [Responsive] Arrêt de toutes les vidéos slide-23');
+    
+    if (currentAnimationSystem.value === 'desktop') {
+      // Utiliser le système desktop
+      if (typeof window !== 'undefined' && window.debugDesktopAnimations?.slide23VideoSystem) {
+        window.debugDesktopAnimations.slide23VideoSystem.stopAll();
+      }
+    } else {
+      // Version mobile
+      if (typeof document !== 'undefined') {
+        const slide23Section = document.getElementById('slide-23');
+        if (slide23Section) {
+          const videos = slide23Section.querySelectorAll('video');
+          videos.forEach(video => {
+            if (!video.paused) {
+              video.pause();
+              video.currentTime = 0;
+            }
+          });
+        }
+      }
+    }
+  };
+
+  /**
+   * Nettoie le système vidéo
+   */
+  const cleanupSlide23VideoSystem = () => {
+    console.log('🧹 [Responsive] Nettoyage du système vidéo slide-23');
+    
+    if (currentAnimationSystem.value === 'desktop') {
+      // Utiliser le système desktop
+      if (typeof window !== 'undefined' && window.debugDesktopAnimations?.slide23VideoSystem) {
+        window.debugDesktopAnimations.slide23VideoSystem.cleanup();
+      }
+    } else {
+      // Nettoyage mobile
+      if (typeof window !== 'undefined' && window.mobileVideoObservers) {
+        window.mobileVideoObservers.forEach(observer => observer.disconnect());
+        window.mobileVideoObservers = [];
+      }
+    }
+    
+    // Arrêter toutes les vidéos
+    stopAllSlide23Videos();
+  };
+
+  /**
+   * Obtient le statut du système vidéo
+   */
+  const getSlide23VideoSystemStatus = () => {
+    if (currentAnimationSystem.value === 'desktop') {
+      if (typeof window !== 'undefined' && window.debugDesktopAnimations?.slide23VideoSystem) {
+        return {
+          system: 'desktop',
+          observerStatus: window.debugDesktopAnimations.slide23VideoSystem.getObserverStatus(),
+          activeVideos: window.debugDesktopAnimations.slide23VideoSystem.getActiveVideos()
+        };
+      }
+    } else {
+      return {
+        system: 'mobile',
+        observerStatus: typeof window !== 'undefined' && window.mobileVideoObservers?.length > 0 ? 'active' : 'inactive',
+        activeVideos: []
+      };
+    }
+    
+    return {
+      system: currentAnimationSystem.value || 'none',
+      observerStatus: 'inactive',
+      activeVideos: []
+    };
+  };
+
   /**
    * Nettoyage
    */
   const cleanup = () => {
+    // Nettoyer le système vidéo avant le nettoyage général
+    cleanupSlide23VideoSystem();
+    
     if (currentAnimationSystem.value === 'desktop') {
       desktopAnimations.cleanup();
     } else if (currentAnimationSystem.value === 'mobile') {
@@ -287,7 +449,9 @@ export function useResponsiveAnimations() {
         currentSectionIndex: desktopAnimations.currentSectionIndex.value,
         isNavigating: desktopAnimations.isNavigating.value,
         animationStates: desktopAnimations.animationStates.value
-      } : null
+      } : null,
+      // Informations sur le système vidéo
+      videoSystem: getSlide23VideoSystemStatus()
     };
   };
 
@@ -304,6 +468,13 @@ export function useResponsiveAnimations() {
         switchAnimationSystem('desktop');
       },
       cleanup,
+      // Système vidéo slide-23
+      slide23VideoSystem: {
+        init: initializeSlide23VideoSystem,
+        cleanup: cleanupSlide23VideoSystem,
+        stopAll: stopAllSlide23Videos,
+        getStatus: getSlide23VideoSystemStatus
+      },
       // Proxy vers les fonctions de debug des sous-systèmes (avec vérifications)
       get tablet() {
         return typeof window !== 'undefined' && window.debugTabletDetection ? window.debugTabletDetection : null;
@@ -349,7 +520,15 @@ export function useResponsiveAnimations() {
     switchAnimationSystem,
     handleResize,
     cleanup,
-    debugInfo
+    debugInfo,
+
+    // Système vidéo slide-23
+    slide23VideoSystem: {
+      init: initializeSlide23VideoSystem,
+      cleanup: cleanupSlide23VideoSystem,
+      stopAll: stopAllSlide23Videos,
+      getStatus: getSlide23VideoSystemStatus
+    }
   };
 }
 
