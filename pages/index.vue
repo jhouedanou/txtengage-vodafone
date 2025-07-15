@@ -306,16 +306,11 @@ const setupSectionScrolling = () => {
           console.log(`🎯 Activation de slide-23 (onEnter - direction normale)`);
           // Nettoyer d'abord les vidéos existantes
           stopSlide23Videos();
-          // Démarrer les vidéos mp4 automatiquement avec plusieurs tentatives
+          // Initialiser l'observer pour démarrer les vidéos seulement quand visibles
           setTimeout(() => {
-            startSlide23Videos();
-          }, 200);
-          setTimeout(() => {
-            startSlide23Videos(); // Second essai
-          }, 700);
-          setTimeout(() => {
-            startSlide23Videos(); // Troisième essai
-          }, 1200);
+            console.log('🚀 [DEBUG] Appel d\'initialisation observer vidéo slide-23 (onEnter)');
+            initSlide23VideoObserver();
+          }, 300);
           // Initialiser les SVG de slide-23 uniquement maintenant
           setTimeout(() => {
             initSlide23SvgOnActivation();
@@ -325,6 +320,8 @@ const setupSectionScrolling = () => {
           cleanupSlide23SvgOnDeactivation();
           // Arrêter les vidéos mp4 quand on quitte slide-23
           stopSlide23Videos();
+          // Nettoyer l'observer vidéo
+          cleanupSlide23VideoObserver();
         }
         
         // 🎬 Redémarrer automatiquement les animations SVG dans cette section (autres slides)
@@ -367,16 +364,11 @@ const setupSectionScrolling = () => {
           console.log(`🎯 Activation de slide-23 (onEnterBack - direction retour)`);
           // Nettoyer d'abord les vidéos existantes
           stopSlide23Videos();
-          // Démarrer les vidéos mp4 automatiquement avec plusieurs tentatives
+          // Initialiser l'observer pour démarrer les vidéos seulement quand visibles
           setTimeout(() => {
-            startSlide23Videos();
-          }, 200);
-          setTimeout(() => {
-            startSlide23Videos(); // Second essai
-          }, 700);
-          setTimeout(() => {
-            startSlide23Videos(); // Troisième essai
-          }, 1200);
+            console.log('🚀 [DEBUG] Appel d\'initialisation observer vidéo slide-23 (onEnterBack)');
+            initSlide23VideoObserver();
+          }, 300);
           // Initialiser les SVG de slide-23 uniquement maintenant
           setTimeout(() => {
             initSlide23SvgOnActivation();
@@ -386,6 +378,8 @@ const setupSectionScrolling = () => {
           cleanupSlide23SvgOnDeactivation();
           // Arrêter les vidéos mp4 quand on quitte slide-23
           stopSlide23Videos();
+          // Nettoyer l'observer vidéo
+          cleanupSlide23VideoObserver();
         }
         
         // 🎬 Redémarrer automatiquement les animations SVG dans cette section (autres slides)
@@ -717,6 +711,8 @@ onBeforeUnmount(() => {
   sectionScrollTriggers.length = 0;
   // ✅ Nettoyage simple slide-23
   cleanupSlide23SvgOnDeactivation();
+  // ✅ Nettoyage observer vidéo slide-23
+  cleanupSlide23VideoObserver();
 });
 
 const isMenuOpen = ref(false);
@@ -2639,6 +2635,187 @@ const stopSlide23Videos = () => {
   });
 };
 
+// 🎯 Observer pour démarrer les vidéos uniquement quand les image-container sont visibles
+let slide23VideoObserver = null;
+
+const initSlide23VideoObserver = () => {
+  console.log('🎯 Initialisation de l\'observer vidéo pour slide-23');
+  
+  // Nettoyer l'observer existant
+  if (slide23VideoObserver) {
+    console.log('🧹 Nettoyage de l\'observer vidéo existant');
+    slide23VideoObserver.disconnect();
+  }
+  
+  // Créer l'observer pour surveiller les .image-container dans slide-23
+  slide23VideoObserver = new IntersectionObserver((entries) => {
+    console.log(`📊 Observer callback déclenché avec ${entries.length} entrées`);
+    entries.forEach(entry => {
+      const container = entry.target;
+      const containerId = container.id;
+      const isVisible = entry.isIntersecting;
+      const intersectionRatio = entry.intersectionRatio;
+      
+      console.log(`📐 Container ${containerId}: visible=${isVisible}, ratio=${intersectionRatio.toFixed(2)}`);
+      
+      if (entry.isIntersecting) {
+        console.log(`👁️ ✅ Container ${containerId} VISIBLE - Démarrage vidéo`);
+        startVideoInContainer(container);
+      } else {
+        console.log(`👁️ ❌ Container ${containerId} NON VISIBLE - Arrêt vidéo`);
+        stopVideoInContainer(container);
+      }
+    });
+  }, {
+    root: null, // Viewport
+    rootMargin: '10px', // Déclencher un peu avant d'être complètement visible
+    threshold: 0.1 // Déclencher quand 10% du container est visible
+  });
+  
+  console.log('🔍 Observer créé, recherche des containers...');
+  
+  // Observer tous les image-containers dans slide-23
+  const slide23Section = document.getElementById('slide-23');
+  if (slide23Section) {
+    console.log('✅ Section slide-23 trouvée');
+    const imageContainers = slide23Section.querySelectorAll('.bdrs .image-container');
+    console.log(`📊 ${imageContainers.length} image-containers trouvés dans .bdrs`);
+    
+    if (imageContainers.length === 0) {
+      console.warn('⚠️ Aucun image-container trouvé dans .bdrs - Vérification alternative...');
+      const allContainers = slide23Section.querySelectorAll('.image-container');
+      console.log(`📊 ${allContainers.length} image-containers trouvés (sans .bdrs)`);
+      
+      allContainers.forEach(container => {
+        if (container.id) {
+          console.log(`📋 Observation de ${container.id} pour vidéo auto-start (alternative)`);
+          slide23VideoObserver.observe(container);
+        }
+      });
+    } else {
+      imageContainers.forEach(container => {
+        if (container.id) {
+          console.log(`📋 Observation de ${container.id} pour vidéo auto-start`);
+          slide23VideoObserver.observe(container);
+        } else {
+          console.warn(`⚠️ Container sans ID trouvé:`, container);
+        }
+      });
+    }
+  } else {
+    console.error('❌ Section slide-23 NON TROUVÉE');
+  }
+  
+  console.log('🎯 Initialisation observer vidéo terminée');
+};
+
+// Démarrer la vidéo dans un container spécifique
+const startVideoInContainer = (container) => {
+  console.log(`🎬 [DEBUG] Tentative de démarrage vidéo dans container:`, container.id);
+  
+  const video = container.querySelector('.mp4-video');
+  console.log(`🔍 [DEBUG] Vidéo trouvée dans ${container.id}:`, video ? 'OUI' : 'NON');
+  
+  if (video && video.tagName === 'VIDEO') {
+    console.log(`✅ [DEBUG] Élément vidéo valide trouvé dans ${container.id}`);
+    try {
+      console.log(`🎬 Démarrage vidéo dans ${container.id}`);
+      console.log(`📊 [DEBUG] État initial vidéo: paused=${video.paused}, readyState=${video.readyState}, currentTime=${video.currentTime}`);
+      
+      // Forcer les attributs pour iOS/Android
+      video.setAttribute('autoplay', '');
+      video.setAttribute('muted', '');
+      video.setAttribute('loop', '');
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.setAttribute('controls', 'false');
+      video.setAttribute('preload', 'auto');
+      
+      // Attributs spécifiques pour Android/WeChat
+      video.setAttribute('x5-video-player-type', 'h5');
+      video.setAttribute('x5-video-player-fullscreen', 'true');
+      video.setAttribute('x5-video-orientation', 'portraint');
+      
+      // Forcer les propriétés JavaScript
+      video.autoplay = true;
+      video.loop = true;
+      video.muted = true;
+      video.controls = false;
+      video.playsInline = true;
+      video.preload = 'auto';
+      video.defaultMuted = true;
+      
+      console.log(`📊 [DEBUG] Attributs configurés pour ${container.id}`);
+      
+      // Vérifier que la vidéo est chargée
+      if (video.readyState < 3) {
+        console.log(`⏳ [DEBUG] Vidéo ${container.id} pas encore prête (readyState: ${video.readyState}), attente...`);
+        video.addEventListener('canplay', () => {
+          console.log(`✅ Vidéo dans ${container.id} maintenant prête`);
+          video.currentTime = 0;
+          forceMobileVideoPlay(video, container.id);
+        }, { once: true });
+      } else {
+        console.log(`✅ [DEBUG] Vidéo ${container.id} déjà prête, démarrage immédiat`);
+        video.currentTime = 0;
+        forceMobileVideoPlay(video, container.id);
+      }
+      
+      // Listener pour redémarrer si la vidéo s'arrête
+      video.addEventListener('pause', () => {
+        console.log(`🔄 Vidéo dans ${container.id} s'est arrêtée, redémarrage...`);
+        setTimeout(() => {
+          forceMobileVideoPlay(video, container.id);
+        }, 100);
+      });
+      
+    } catch (error) {
+      console.error(`❌ Erreur lors du démarrage vidéo dans ${container.id}:`, error);
+    }
+  } else {
+    console.warn(`⚠️ [DEBUG] Aucune vidéo trouvée dans ${container.id}`);
+    // Debugger plus en détail
+    const allVideos = container.querySelectorAll('video');
+    console.log(`🔍 [DEBUG] Total vidéos dans ${container.id}:`, allVideos.length);
+    const mp4Videos = container.querySelectorAll('.mp4-video');
+    console.log(`🔍 [DEBUG] Vidéos .mp4-video dans ${container.id}:`, mp4Videos.length);
+  }
+};
+
+// Arrêter la vidéo dans un container spécifique
+const stopVideoInContainer = (container) => {
+  console.log(`⏸️ [DEBUG] Tentative d'arrêt vidéo dans container:`, container.id);
+  
+  const video = container.querySelector('.mp4-video');
+  console.log(`🔍 [DEBUG] Vidéo trouvée pour arrêt dans ${container.id}:`, video ? 'OUI' : 'NON');
+  
+  if (video && video.tagName === 'VIDEO') {
+    try {
+      console.log(`📊 [DEBUG] État avant arrêt: paused=${video.paused}, currentTime=${video.currentTime}`);
+      video.pause();
+      video.currentTime = 0;
+      video.removeAttribute('autoplay');
+      console.log(`⏸️ Vidéo dans ${container.id} arrêtée`);
+    } catch (error) {
+      console.warn(`⚠️ Erreur lors de l'arrêt de la vidéo dans ${container.id}:`, error);
+    }
+  } else {
+    console.warn(`⚠️ [DEBUG] Aucune vidéo trouvée pour arrêt dans ${container.id}`);
+  }
+};
+
+// Nettoyer l'observer vidéo
+const cleanupSlide23VideoObserver = () => {
+  console.log('🧹 [DEBUG] Tentative de nettoyage observer vidéo slide-23');
+  if (slide23VideoObserver) {
+    slide23VideoObserver.disconnect();
+    slide23VideoObserver = null;
+    console.log('🧹 Observer vidéo slide-23 nettoyé');
+  } else {
+    console.log('⚠️ [DEBUG] Aucun observer vidéo à nettoyer');
+  }
+};
+
 // 🔧 Fonction de debugging pour tester manuellement les vidéos slide-23
 if (typeof window !== 'undefined') {
   window.debugSlide23Videos = {
@@ -2652,6 +2829,34 @@ if (typeof window !== 'undefined') {
     stop: () => {
       console.log('🔧 Test manuel: Arrêt des vidéos slide-23');
       stopSlide23Videos();
+    },
+    
+    // Initialiser l'observer vidéo
+    initObserver: () => {
+      console.log('🔧 Test manuel: Initialisation observer vidéo');
+      initSlide23VideoObserver();
+    },
+    
+    // Nettoyer l'observer vidéo
+    cleanupObserver: () => {
+      console.log('🔧 Test manuel: Nettoyage observer vidéo');
+      cleanupSlide23VideoObserver();
+    },
+    
+    // Tester manuellement la visibilité des containers
+    testVisibility: () => {
+      console.log('🔧 Test manuel: Vérification visibilité containers');
+      const slide23Section = document.getElementById('slide-23');
+      if (slide23Section) {
+        const containers = slide23Section.querySelectorAll('.image-container');
+        console.log(`📊 ${containers.length} containers trouvés`);
+        
+        containers.forEach(container => {
+          const rect = container.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          console.log(`Container ${container.id}: visible=${isVisible}, top=${rect.top}, bottom=${rect.bottom}`);
+        });
+      }
     },
     
     // Vérifier l'état des vidéos

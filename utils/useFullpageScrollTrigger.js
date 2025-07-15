@@ -352,6 +352,14 @@ export function useFullpageScrollTrigger() {
     // Bloquer si en navigation
     if (isNavigating.value) return;
 
+    // Ignorer les événements qui viennent des éléments de formulaire
+    const target = e.target;
+    const isFormElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable;
+    
+    if (isFormElement) {
+      return; // Laisser le comportement normal pour les éléments de formulaire
+    }
+
     console.log(`⌨️ Événement clavier reçu: ${e.key}`);
 
     const currentSection = sections.value[currentSectionIndex.value];

@@ -40,7 +40,7 @@ body {
     overflow-y: scroll !important; /* Force scrollbar to always show */
 
     p,
-    * {
+    *:not(input):not(textarea) {
         white-space: pre-line;
     }
 }
@@ -1371,9 +1371,29 @@ body {
     width: 100%;
 }
 
+#lafill{
+textarea{
+line-height:25px !important;
+}
+}
+
 @media screen and (max-width: 1024px) {
 
-
+   .perdrix-slide{
+    .text-container{
+        justify-content:flex-end !important;
+    }
+    .text-content{
+        p {
+            margin-bottom:0em;
+        }
+    }
+    }
+    .split-container{
+        .text-container{
+            justify-content:flex-end !important     ;
+        }
+    }
     #lafill{
         display: flex;
         flex-direction: column;
@@ -4365,7 +4385,7 @@ body.slide-73-active,
     //css for bloody small iphones
     #slide-20{
         #turtlebeach{
-        width: 68vw !important;
+        width: 6calc(54vw) !important;
         max-width: 325px !important;
         max-height: 490px !important;
         }
@@ -4635,7 +4655,7 @@ body.slide-73-active,
             font-family: Vodafone;
             font-size: 24px;
             @media screen and (max-width: 1024px) {
-                font-size: 14px;
+                font-size: 11px;
             }
             font-weight: normal;
             font-stretch: normal;
@@ -6552,6 +6572,8 @@ max-width:100px !important;
 
 #lafill{
     height:100dvh !important;
+    justify-content:flex-end !important;
+    padding-bottom:5px !important;
 }
     }
 
@@ -6579,8 +6601,38 @@ max-width:100px !important;
     }
 
     @media screen and (max-width: 375px) {
-        #slide-60 p {
-            font-size:14px !important;
+        .contact-form{
+            max-width:calc(90vw) !important;
+            .row{
+                margin:0 !important;
+                padding:0!important;
+            .col-md-6{
+                margin:4px 0 !important;
+            }
+            input{
+                line-height:20px !important;
+                font-size:13px !important;
+            }
+            textarea{
+                line-height:1.1em !important;
+                font-size:1em !important;
+            }
+            }
+        }
+        #slide-60 .ditocard{
+         
+            &:nth-of-type(1){
+p{                font-size:25px !important;
+    margin-bottom:0px !important;
+}
+            }
+            &:nth-of-type(2){
+ p{                 font-size: 14px !important;
+    margin: 0 !important;
+    padding: 11px 0 !important;
+ }               
+            }
+          
         }
 
         .contact-form textarea, .contact-form input, .contact-form button{
@@ -6595,7 +6647,6 @@ max-width:100px !important;
             padding:4px !important;
         }
         .ditocard, .contact-form{
-                max-width:280px !important  ;
                 margin:0 auto !important;
         }
         #lemof{
