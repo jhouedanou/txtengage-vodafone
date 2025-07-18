@@ -6571,9 +6571,10 @@ max-width:100px !important;
 
 
 #lafill{
-    height:100dvh !important;
-    justify-content:flex-end !important;
-    padding-bottom:5px !important;
+    height: 100dvh !important;
+    justify-content: flex-start !important;
+    padding-bottom: 0px !important;
+    padding-top: calc(6.5vh) !important;
 }
     }
 
@@ -6653,3 +6654,8 @@ p{                font-size:25px !important;
             align-items:center !important;
         }
     }
+
+
+#menu-slide-20,#menu-slide-22,#menu-slide-23{
+    display:none !important;
+}

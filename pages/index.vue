@@ -2969,7 +2969,24 @@ if (typeof window !== 'undefined') {
           </button>
           <nav id="menu" class="slide-menu" :class="{ 'is-open': isMenuOpen }">
             <ul>
+              <li id="whatSetsUsApart">
+                <a href="https://www.vodamedia.co.za/#whatSetsUsApart" target="_blank">
+                  <span class="slide-label">What Sets Us Apart</span>
+                </a>
+              </li>
+              <li id="whatDoWeDo">
+                <a href="https://www.vodamedia.co.za/#whatDoWeDo" target="_blank">
+                  <span class="slide-label">What We Do?</span>
+                </a>
+              </li>
+              <li id="whatDoWeOffer">
+                <a href="https://www.vodamedia.co.za/#whatDoWeOffer" target="_blank">
+                  <span class="slide-label">What We Offer</span>
+                </a>
+              </li>
+
               <li
+              :id="`menu-slide-${slide.id}`" 
                 v-for="(slide, index) in sortedSlides"
                 :key="slide.id"
                 :class="{ active: activeSlideIndex === index }"
@@ -2977,6 +2994,16 @@ if (typeof window !== 'undefined') {
               >
                 <!-- Utilise activeSlideIndex du composable -->
                 <span class="slide-label">{{ slide.menuTitle }}</span>
+              </li>
+              <li id="whatDoWeOffer">
+                <a href="https://www.vodamedia.co.za/#ourClients" target="_blank">
+                  <span class="slide-label">Our Clients</span>
+                </a>
+              </li>
+              <li id="whatDoWeOffer">
+                <a href="https://www.vodamedia.co.za/#contactUs" target="_blank">
+                  <span class="slide-label">Contact</span>
+                </a>
               </li>
             </ul>
           </nav>
@@ -3696,18 +3723,20 @@ header.fixed-top.scrolled {
   position: fixed;
   top: 0;
   right: 0;
-  width: 300px;
+  //width: 300px;
+  max-width:70vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(10px);
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 60px;
+  //padding-top: 60px;
+  padding-top: 5px !important;
   z-index: 9999;
   display: flex;
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
-  
+  padding:0 10px;
   /* Animation de glissement : fermé = complètement à droite */
   transform: translateX(100%);
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -3737,9 +3766,9 @@ header.fixed-top.scrolled {
 }
 
 #menu ul li {
-  margin: 15px 0;
+  margin: 0;
   cursor: pointer;
-  padding: 10px 20px;
+  padding:5px;
   opacity: 0;
   transform: translateX(30px);
   transition: all 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
@@ -3759,12 +3788,30 @@ header.fixed-top.scrolled {
 #menu.is-open ul li:nth-child(6) { transition-delay: 0.35s; }
 #menu.is-open ul li:nth-child(7) { transition-delay: 0.4s; }
 #menu.is-open ul li:nth-child(8) { transition-delay: 0.45s; }
-
+#menu ul li{
+  a{
+    text-decoration:none;
+  }
+}
 #menu ul li .slide-label {
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  //color: white;
+  // text-decoration: none;
+  // font-weight: 500;
+  // transition: color 0.3s ease;
+    font-style: normal;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    text-align:left;
+    transition: .4s;
+    padding: 2px;
+    justify-content: flex-start;
+    font-family: "Roboto", Sans-serif;
+    font-size: clamp(1.875rem, 1.375rem + 2.5vw, 4.375rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #ffffff1f;
+    fill: #FFFFFF;
 }
 
 #menu ul li.active .slide-label,
@@ -4010,7 +4057,8 @@ header.fixed-top.scrolled {
   
   textarea.form-control {
     resize: vertical;
-    min-height: 50px;
+    min-height: 89px !important;
+    height: 89px !important;
     font-family: inherit;
   }
   
@@ -4154,4 +4202,9 @@ header.fixed-top.scrolled {
     muted: true !important;
   }
 }
+//slide 60
+#slide-60{
+  display:none !important;
+}
+
 </style>
