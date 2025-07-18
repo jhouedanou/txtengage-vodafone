@@ -200,6 +200,7 @@ const formLoading = ref(false);
 const showAlert = ref(false);
 const alertType = ref("");
 const alertMessage = ref("");
+const vodamediaLoading = ref(false);
 
 const submitForm = async () => {
   formLoading.value = true;
@@ -254,6 +255,58 @@ const submitForm = async () => {
     setTimeout(() => {
       showAlert.value = false;
     }, 5000);
+  }
+};
+
+// Fonction pour gérer le loading AJAX des liens vodamedia
+const handleVodamediaLink = async (event, url) => {
+  event.preventDefault();
+  vodamediaLoading.value = true;
+  
+  try {
+    // Ajouter une classe pour déclencher l'animation de transition
+    document.body.classList.add('page-transitioning');
+    
+    // Animation de fade out progressif
+    const fadeOutAnimation = document.body.animate([
+      { opacity: 1, transform: 'scale(1)' },
+      { opacity: 0.7, transform: 'scale(0.98)' }
+    ], {
+      duration: 600,
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      fill: 'forwards'
+    });
+    
+    // Attendre la fin de l'animation de fade out
+    await fadeOutAnimation.finished;
+    
+    // Délai supplémentaire pour la barre de progression
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Animation finale juste avant la redirection
+    document.body.animate([
+      { opacity: 0.7, transform: 'scale(0.98)' },
+      { opacity: 0, transform: 'scale(0.95)' }
+    ], {
+      duration: 200,
+      easing: 'ease-out',
+      fill: 'forwards'
+    });
+    
+    // Courte attente pour l'animation finale
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Redirection vers vodamedia.co.za
+    window.location.href = url;
+    
+  } catch (error) {
+    console.error('Erreur lors du chargement du lien:', error);
+    // Restaurer l'état en cas d'erreur
+    document.body.classList.remove('page-transitioning');
+    document.body.style.opacity = '1';
+    document.body.style.transform = 'scale(1)';
+  } finally {
+    vodamediaLoading.value = false;
   }
 };
 
@@ -2970,17 +3023,17 @@ if (typeof window !== 'undefined') {
           <nav id="menu" class="slide-menu" :class="{ 'is-open': isMenuOpen }">
             <ul>
               <li id="whatSetsUsApart">
-                <a href="https://www.vodamedia.co.za/#whatSetsUsApart" target="_blank">
+                <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatSetsUsApart')">
                   <span class="slide-label">What Sets Us Apart</span>
                 </a>
               </li>
               <li id="whatDoWeDo">
-                <a href="https://www.vodamedia.co.za/#whatDoWeDo" target="_blank">
+                <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatDoWeDo')">
                   <span class="slide-label">What We Do?</span>
                 </a>
               </li>
               <li id="whatDoWeOffer">
-                <a href="https://www.vodamedia.co.za/#whatDoWeOffer" target="_blank">
+                <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatDoWeOffer')">
                   <span class="slide-label">What We Offer</span>
                 </a>
               </li>
@@ -2996,12 +3049,12 @@ if (typeof window !== 'undefined') {
                 <span class="slide-label">{{ slide.menuTitle }}</span>
               </li>
               <li id="whatDoWeOffer">
-                <a href="https://www.vodamedia.co.za/#ourClients" target="_blank">
+                <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#ourClients')">
                   <span class="slide-label">Our Clients</span>
                 </a>
               </li>
               <li id="whatDoWeOffer">
-                <a href="https://www.vodamedia.co.za/#contactUs" target="_blank">
+                <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#contactUs')">
                   <span class="slide-label">Contact</span>
                 </a>
               </li>
@@ -3500,6 +3553,13 @@ if (typeof window !== 'undefined') {
       <div class="scrollbar-cursor" ref="scrollCursor"></div>
     </div>
   </div>
+  
+  <!-- Barre de progression globale en bas de page -->
+  <Transition name="progress-fade">
+    <div v-if="vodamediaLoading" class="global-loading-progress">
+      <div class="global-progress-bar"></div>
+    </div>
+  </Transition>
 </template>
 
 <style lang="scss">
@@ -3817,6 +3877,96 @@ header.fixed-top.scrolled {
 #menu ul li.active .slide-label,
 #menu ul li:hover .slide-label {
   color: #e60000;
+}
+
+.global-loading-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.global-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #e60000 0%, #ff4444 50%, #e60000 100%);
+  background-size: 200% 100%;
+  animation: 
+    global-progress-loading 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    progress-shimmer 1.5s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(230, 0, 0, 0.3);
+}
+
+
+@keyframes global-progress-loading {
+  0% { 
+    width: 0%;
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  100% { 
+    width: 100%;
+    transform: translateX(0);
+  }
+}
+
+@keyframes progress-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Transitions Vue.js pour l'apparition/disparition */
+.progress-fade-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.progress-fade-leave-active {
+  transition: all 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+.progress-fade-enter-from {
+  opacity: 0;
+  transform: translateY(100%) scaleX(0);
+}
+
+.progress-fade-leave-to {
+  opacity: 0;
+  transform: translateY(100%) scaleX(0.95);
+}
+
+.progress-fade-enter-to,
+.progress-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0) scaleX(1);
+}
+
+/* Animation de transition de page */
+body.page-transitioning {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+body.page-transitioning::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(230, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+  z-index: 10000;
+  opacity: 0;
+  animation: overlay-fade-in 0.6s ease-out forwards;
+}
+
+@keyframes overlay-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 @media (max-width: 1024px) {
