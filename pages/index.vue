@@ -3783,10 +3783,10 @@ header.fixed-top.scrolled {
   position: fixed;
   top: 0;
   right: 0;
-  //width: 300px;
-  max-width:70vw;
+  max-width:100vw;
+  width:100% !important;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-image:linear-gradient(135deg, #510A08 0%, #7F170D 100%);
   backdrop-filter: blur(10px);
   flex-direction: column;
   align-items: center;
@@ -3870,13 +3870,13 @@ header.fixed-top.scrolled {
     font-size: clamp(1.875rem, 1.375rem + 2.5vw, 4.375rem);
     font-weight: 600;
     line-height: 1.2;
-    color: #ffffff1f;
+    color: #ffffff;
     fill: #FFFFFF;
 }
 
 #menu ul li.active .slide-label,
 #menu ul li:hover .slide-label {
-  color: #e60000;
+  color:#FFFFFFC4;
 }
 
 .global-loading-progress {
