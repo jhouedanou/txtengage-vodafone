@@ -6659,3 +6659,12 @@ p{                font-size:25px !important;
 #menu-slide-20,#menu-slide-22,#menu-slide-23,li#menu-slide-60{
     display:none !important;
 }
+
+nav#menu{
+    display:flex;
+    justify-content:center;
+    ul{
+            justify-content: space-evenly;
+    height: 100vh;
+    }
+}

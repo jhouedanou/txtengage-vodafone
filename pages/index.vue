@@ -3022,21 +3022,21 @@ if (typeof window !== 'undefined') {
           </button>
           <nav id="menu" class="slide-menu" :class="{ 'is-open': isMenuOpen }">
             <ul>
-              <li id="whatSetsUsApart">
+              <!-- <li id="whatSetsUsApart">
                 <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatSetsUsApart')">
                   <span class="slide-label">What Sets Us Apart</span>
                 </a>
-              </li>
+              </li> -->
               <li id="whatDoWeDo">
                 <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatDoWeDo')">
                   <span class="slide-label">What We Do?</span>
                 </a>
               </li>
-              <li id="whatDoWeOffer">
+              <!-- <li id="whatDoWeOffer">
                 <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatDoWeOffer')">
                   <span class="slide-label">What We Offer</span>
                 </a>
-              </li>
+              </li> -->
 
               <li
               :id="`menu-slide-${slide.id}`" 
