@@ -6656,11 +6656,13 @@ p{                font-size:25px !important;
     }
 
 
-#menu-slide-20,#menu-slide-22,#menu-slide-23,li#menu-slide-60{
+
+#menu-slide-20,#menu-slide-22,#menu-slide-23,li#menu-slide-60, li#menu-slide-73{
     display:none !important;
 }
 
 nav#menu{
+    padding:4em;
     display:flex;
     justify-content:center;
     ul{

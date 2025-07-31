@@ -3027,12 +3027,12 @@ if (typeof window !== 'undefined') {
                   <span class="slide-label">What Sets Us Apart</span>
                 </a>
               </li> -->
-              <li id="whatDoWeDo">
+             <!-- <li id="whatDoWeDo">
                 <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatDoWeDo')">
                   <span class="slide-label">What We Do?</span>
                 </a>
               </li>
-              <!-- <li id="whatDoWeOffer">
+               <li id="whatDoWeOffer">
                 <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#whatDoWeOffer')">
                   <span class="slide-label">What We Offer</span>
                 </a>
@@ -3050,12 +3050,12 @@ if (typeof window !== 'undefined') {
               </li>
               <li id="whatDoWeOffer">
                 <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#ourClients')">
-                  <span class="slide-label">Our Clients</span>
+                  <span class="slide-label">Vodamedia</span>
                 </a>
               </li>
               <li id="whatDoWeOffer">
                 <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#contactUs')">
-                  <span class="slide-label">Contact</span>
+                  <span class="slide-label">Contact Us</span>
                 </a>
               </li>
             </ul>
