@@ -3049,7 +3049,7 @@ if (typeof window !== 'undefined') {
                 <span class="slide-label">{{ slide.menuTitle }}</span>
               </li>
               <li id="whatDoWeOffer">
-                <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/#ourClients')">
+                <a href="#" @click="handleVodamediaLink($event, 'https://www.vodamedia.co.za/')">
                   <span class="slide-label">Vodamedia</span>
                 </a>
               </li>
