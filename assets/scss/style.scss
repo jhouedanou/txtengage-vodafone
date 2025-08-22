@@ -25,10 +25,11 @@ $primary : #ff0000;
 }
 @media screen and (min-width: 1025px) and (max-width: 1440px) {
     .bdrs{
-        display: noen;
-        left: 104px !important;
-        top: 43px !important;
-            }
+        // display: noen;
+        // left: 104px !important;
+        // top: 43px !important;
+           
+    }
 
 }
 // Styles globaux
@@ -405,14 +406,14 @@ body {
     }
 
     #text-element-5 {
+        min-width:100vw;
         background: rgb(0 0 0 / 72%);
         width: 100vw;
         height: 100vh;
         position: absolute;
         border-radius: 0px;
-
         top: 0;
-        margin: auto;
+        margin: auto 0 ;
         right: 0;
         bottom: 0;
         left: 0;
