@@ -4348,6 +4348,7 @@ body.slide-73-active,
   #sharon{
     height:100%;
     width:90vw !important;
+    max-width:1400px !important;
     margin:0 auto;
     position:relative;
    display: flex;
@@ -4440,7 +4441,7 @@ body.slide-73-active,
         display: flex !important;
         flex-direction: column !important;
         justify-content: flex-end;
-        display: flex;
+        gap: 0 !important;
         #sharon {
 
         }
