@@ -1379,7 +1379,17 @@ line-height:25px !important;
 }
 
 @media screen and (max-width: 1024px) {
-
+    #slide-21{
+        .slides-container{
+            background-size:cover !important;
+        }
+    }
+    nav#menu{
+        padding:1em !important;
+        ul{
+            justify-content: flex-start !important;
+        }
+    }
    .perdrix-slide{
     .text-container{
         justify-content:flex-end !important;
@@ -1514,10 +1524,10 @@ line-height:25px !important;
         }
     }
     
-    #slide-60,#slide-59{
+    #slide-60,#slide-59, #slide-128{
         height: 100vh !important;
     }
-    #slide-128,#slide-73,#slide-21,#slide-20,#slide-22,#slide-59{
+    #slide-21 #thoiathoing, #slide-73,#slide-21,#slide-20,#slide-22,#slide-59{
         height: 100dvh !important;
     }
     #subint{
@@ -2110,8 +2120,9 @@ width:100% !important;
             order:1;
             padding:0 !important;
             img{
-                width:auto;
-                height: 422px !important;  
+                width: auto;
+                max-height: 393px !important;
+                height: 72vh !important;
             }
         }
         .col-md-7{

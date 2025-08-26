@@ -3744,7 +3744,7 @@ header.fixed-top.scrolled {
   border-radius: 5px;
   transition: all 0.3s linear;
   position: relative;
-  transform-origin: 1px;
+  transform-origin: 4px;
 }
 
 /* Classes dynamiques pour la couleur du hamburger */
