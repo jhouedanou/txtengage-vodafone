@@ -3491,9 +3491,13 @@ body.slide-73-active .menu-toggle span:hover,
 }
 
 #quadi {
-  height: 208px;
+  height: 100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   overflow: hidden;
   position: relative;
+  background:red;
 }
 #quadi .perdrix-slide {
   position: absolute;
